@@ -1,0 +1,39 @@
+# XBMC Media Center language file
+# Addon Name: Skin Shortcuts
+# Addon id: script.skinshortcuts
+# Addon Provider: Unfledged
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC Addons\n;"
+
+msgctxt "#32000"
+msgid "Add"
+msgstr ""
+
+msgctxt "#32001"
+msgid "Delete"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Move Up"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Move Down"
+msgstr ""
+
+msgctxt "#32004"
+msgid "Video Playlist"
+msgstr ""
+
+msgctxt "#32005"
+msgid "Music Playlist"
+msgstr ""
+
+msgctxt "#32006"
+msgid "Favourite"
+msgstr ""
+
+msgctxt "#32007"
+msgid "Add-On"
+msgstr ""
