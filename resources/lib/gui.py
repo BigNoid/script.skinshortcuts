@@ -31,7 +31,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
         self.group = kwargs[ "group" ]
         self.shortcutgroup = 1
-        log('script version %s started' % __addonversion__)
+        
+        # Empty arrays for different shortcut types
+        self.arrayVideoPlaylists = []
+        self.arrayAudioPlaylists = []
+        self.arrayFavourites = []
+        self.arrayAddOns = []
+        
+        log('script version %s started - management module' % __addonversion__)
 
     def onInit( self ):
         if self.group == '':
@@ -50,32 +57,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
             found, favourites = self._read_file()
             self.listing = favourites
             
-            # Set control visibility / Focus
-            self.getControl( 121 ).setVisible( False )
-            self.getControl( 131 ).setVisible( False )
-            self.getControl( 141 ).setVisible( False )
-            
             # Load favourites, playlists, add-ons
             self._fetch_videoplaylists()
-            self._set_visibility()
             self._fetch_musicplaylists()
             self._fetch_favourites()
             self._fetch_addons()
             
-            self._set_visibility()
+            self._display_shortcuts()
             
             # Load current shortcuts
             self.load_shortcuts()
             
             # Set default focus
             self.setFocus( self.getControl( 211 ) )
-            
-    def _fetch_favourites( self ):
-        self._check_focus()
         
     def _fetch_videoplaylists( self ):
         listitems = []
-        count = 0
         log('Loading playlists...')
         path = 'special://profile/playlists/video/'
         try:
@@ -95,9 +92,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         name = line.text
                         if not name:
                             name = item[:-4]
-                        count = count + 1
                         log('Video playlist found %s' % name)
-                        listitem = xbmcgui.ListItem(label=name, iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                        listitem = xbmcgui.ListItem(label=name, label2=__language__(32004), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
                         listitem.setProperty( "path", "ActivateWindow(VideoLibrary," + playlist + ", return)" )
                         listitem.setProperty( "icon", "DefaultPlaylist.png" )
                         listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
@@ -105,17 +101,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         break
             elif item.endswith('.m3u'):
                 name = item[:-4]
-                count = count + 1
                 log('Video playlist found %s' % name)
-                listitem = xbmcgui.ListItem(label=name, iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                listitem = xbmcgui.ListItem(label=name, label2= __language__(32004), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
                 listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
                 listitems.append(listitem)
-
-        self.getControl( 111 ).addItems( listitems )
+                
+        self.arrayVideoPlaylists = listitems
 
     def _fetch_musicplaylists( self ):
         listitems = []
-        count = 0
+        # Music Playlists
         log('Loading music playlists...')
         path = 'special://profile/playlists/music/'
         try:
@@ -135,9 +130,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         name = line.text
                         if not name:
                             name = item[:-4]
-                        count = count + 1
                         log('Music playlist found %s' % name)
-                        listitem = xbmcgui.ListItem(label=name, iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
                         listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
                         listitem.setProperty( "icon", "DefaultPlaylist.png" )
                         listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
@@ -145,22 +139,53 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         break
             elif item.endswith('.m3u'):
                 name = item[:-4]
-                count = count + 1
                 log('Music playlist found %s' % name)
-                listitem = xbmcgui.ListItem(label=name, iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
                 listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
                 listitems.append(listitem)
-
-        self.getControl( 121 ).addItems( listitems )
+                
+        # Mixed Playlists
+        log('Loading mixed playlists...')
+        path = 'special://profile/playlists/mixed/'
+        try:
+            dirlist = os.listdir( xbmc.translatePath( path ).decode('utf-8') )
+        except:
+            dirlist = []
+        log('dirlist: %s' % dirlist)
+        for item in dirlist:
+            playlist = os.path.join( path, item)
+            playlistfile = xbmc.translatePath( playlist )
+            if item.endswith('.xsp'):
+                contents = xbmcvfs.File(playlistfile, 'r')
+                contents_data = contents.read().decode('utf-8')
+                xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
+                for line in xmldata.getiterator():
+                    if line.tag == "name":
+                        name = line.text
+                        if not name:
+                            name = item[:-4]
+                        log('Music playlist found %s' % name)
+                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                        listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
+                        listitem.setProperty( "icon", "DefaultPlaylist.png" )
+                        listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                        listitems.append(listitem)
+                        break
+            elif item.endswith('.m3u'):
+                name = item[:-4]
+                log('Music playlist found %s' % name)
+                listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
+                listitems.append(listitem)
+        
+        self.arrayAudioPlaylists = listitems
                 
     def _fetch_favourites( self ):
         listitems = []
-        count = 1
         log('Loading favourites...')
         for favourite in self.listing :
-            count = count + 1
             log('Favourite found %s' % favourite.attributes[ 'name' ].nodeValue)
-            listitem = xbmcgui.ListItem( favourite.attributes[ 'name' ].nodeValue )
+            listitem = xbmcgui.ListItem( label=favourite.attributes[ 'name' ].nodeValue, label2= __language__(32006))
             fav_path = favourite.childNodes [ 0 ].nodeValue
             try:
                 if 'playlists/music' in fav_path or 'playlists/video' in fav_path:
@@ -179,30 +204,41 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( "path", fav_path.replace( '=', '!EQUALSCHAR!' ) )
             listitems.append(listitem)
         
-        self.getControl( 131 ).addItems( listitems )
+        self.arrayFavourites = listitems
         
     def _fetch_addons( self ):
         listitems = []
-        count = 0
-        contenttypes = ["video", "audio", "image", "executable"]
+        contenttypes = ["executable", "video", "audio", "image"]
         for contenttype in contenttypes:
+            if contenttype == "executable":
+                contentlabel = __language__(32009)
+            elif contenttype == "video":
+                contentlabel = __language__(32010)
+            elif contenttype == "audio":
+                contentlabel = __language__(32011)
+            elif contenttype == "image":
+                contentlabel = __language__(32012)
+                
             json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
             json_query = unicode(json_query, 'utf-8', errors='ignore')
             json_response = simplejson.loads(json_query)
-            log(json_response['result'])
             
             if (json_response['result'] != None) and (json_response['result'].has_key('addons')):
                 for item in json_response['result']['addons']:
-                    count = count + 1
                     if item['enabled'] == True:
                         log('Addon found %s' % item['name'])
-                        listitem = xbmcgui.ListItem(label=item['name'], iconImage=item['thumbnail'], thumbnailImage=item['thumbnail'])
+                        listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage=item['thumbnail'], thumbnailImage=item['thumbnail'])
                         listitem.setProperty( "path", "RunAddOn(" + item['addonid'] + ")" )
-                        listitem.setProperty( "icon", item['thumbnail'] )
-                        listitem.setProperty( "thumbnail", item['thumbnail'] )
+                        if item['thumbnail'] != "":
+                            listitem.setProperty( "icon", item['thumbnail'] )
+                            listitem.setProperty( "thumbnail", item['thumbnail'] )
+                        else:
+                            listitem.setProperty( "icon", "DefaultAddon.png" )
+                            listitem.setProperty( "thumbnail", "DefaultAddon.png" )
+                            listitem.setIconImage( "DefaultAddon.png" )
                         listitems.append(listitem)
-            
-        self.getControl( 141 ).addItems( listitems )
+        
+        self.arrayAddOns = listitems
     
     def _read_file( self ):
         # Set path
@@ -217,50 +253,30 @@ class GUI( xbmcgui.WindowXMLDialog ):
             favourites = []
         return found, favourites
         
-    def _fetch_currentshortcuts( self ):
-        listitems = []
-        log('Loading current shortcuts...')
-        # add a dummy item with no action assigned
-        listitem = xbmcgui.ListItem( __language__(32008) )
-        listitem.setProperty( "Path", 'noop' )
-        listitems.append(listitem)
-        
-        self.getControl( 211 ).addItems( listitems )
-
-        
     def onAction(self, action):
         if action.getId() in ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, ):
             self.close()
         
     def onClick(self, controlID):
         if controlID == 102:
+            # Move to previous type of shortcuts
             self.shortcutgroup = self.shortcutgroup - 1
             if self.shortcutgroup == 0:
                 self.shortcutgroup = 4
                 
-            self._set_visibility()
+            self._display_shortcuts()
 
         if controlID == 103:
+            # Move to next type of shortcuts
             self.shortcutgroup = self.shortcutgroup + 1
             if self.shortcutgroup == 5:
                 self.shortcutgroup = 1
                 
-            self._set_visibility()
+            self._display_shortcuts()
             
-        if controlID == 111 or controlID == 121 or controlID == 131 or controlID == 141:
+        if controlID == 111:
             # Create a copy of the listitem
-            if controlID == 111:
-                listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
-                listitemCopy.setLabel2( __language__(32004) )
-            if controlID == 121:
-                listitemCopy = self._duplicate_listitem( self.getControl( 121 ).getSelectedItem() )
-                listitemCopy.setLabel2( __language__(32005) )
-            if controlID == 131:
-                listitemCopy = self._duplicate_listitem( self.getControl( 131 ).getSelectedItem() )
-                listitemCopy.setLabel2( __language__(32006) )
-            if controlID == 141:
-                listitemCopy = self._duplicate_listitem( self.getControl( 141 ).getSelectedItem() )
-                listitemCopy.setLabel2( __language__(32007) )
+            listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
             
             # Loop through the original list, and replace the currently selected listitem with our new listitem
             listitems = []
@@ -275,7 +291,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
                     listitems.append(listitemShortcutCopy)
                     
-            log( listitems )
             self.getControl( 211 ).reset()
             self.getControl( 211 ).addItems(listitems)
             
@@ -283,7 +298,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         if controlID == 301:
             # Add a new item
-            listitem = xbmcgui.ListItem( __language__(32008) )
+            listitem = xbmcgui.ListItem( __language__(32013) )
             listitem.setProperty( "Path", 'noop' )
             
             self.getControl( 211 ).addItem( listitem )
@@ -307,7 +322,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # If there are no items in the list, add an empty one...
             if self.getControl( 211 ).size() == 0:
-                listitem = xbmcgui.ListItem( __language__(32008) )
+                listitem = xbmcgui.ListItem( __language__(32013) )
                 listitem.setProperty( "Path", 'noop' )
                 
                 self.getControl( 211 ).addItem( listitem )
@@ -372,7 +387,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             for item in loaditems:
                 # Generate a listitem
-                log( item[0] )
                 
                 listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
                 listitem.setProperty( "path", item[4] )
@@ -387,7 +401,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             # If there are no items in the list, add an empty one...
             if self.getControl( 211 ).size() == 0:
-                listitem = xbmcgui.ListItem( __language__(32008) )
+                listitem = xbmcgui.ListItem( __language__(32013) )
                 listitem.setProperty( "Path", 'noop' )
                 
                 self.getControl( 211 ).addItem( listitem )
@@ -429,25 +443,24 @@ class GUI( xbmcgui.WindowXMLDialog ):
             print_exc()
             log( "### ERROR could not save file %s" % __datapath__ )
     
-    def _set_visibility( self ):
-        # Adjust the visibility of the shortcut lists
-        self.getControl( 111 ).setVisible( False )
-        self.getControl( 121 ).setVisible( False )
-        self.getControl( 131 ).setVisible( False )
-        self.getControl( 141 ).setVisible( False )
-        
+    def _display_shortcuts( self ):
+        # Load the currently selected shortcut group
         if self.shortcutgroup == 1:
-            self.getControl( 111 ).setVisible( True )
+            self.getControl( 111 ).reset()
+            self.getControl( 111 ).addItems(self.arrayVideoPlaylists)
             self.getControl( 101 ).setLabel( __language__(32004) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 2:
-            self.getControl( 121 ).setVisible( True )
-            self.getControl( 101 ).setLabel( __language__(32005) + " (%s)" %self.getControl( 121 ).size() )
+            self.getControl( 111 ).reset()
+            self.getControl( 111 ).addItems(self.arrayAudioPlaylists)
+            self.getControl( 101 ).setLabel( __language__(32005) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 3:
-            self.getControl( 131 ).setVisible( True )
-            self.getControl( 101 ).setLabel( __language__(32006) + " (%s)" %self.getControl( 131 ).size() )
+            self.getControl( 111 ).reset()
+            self.getControl( 111 ).addItems(self.arrayFavourites)
+            self.getControl( 101 ).setLabel( __language__(32006) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 4:
-            self.getControl( 141 ).setVisible( True )
-            self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 141 ).size() )
+            self.getControl( 111 ).reset()
+            self.getControl( 111 ).addItems(self.arrayAddOns)
+            self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
             
                 
     def onAction( self, action ):

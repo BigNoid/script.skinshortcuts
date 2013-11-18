@@ -20,16 +20,13 @@ This will return items with the following information
 
 3. Customize shortcut management dialog
 
-script-skinsettings.xml
+script-skinshortcuts.xml
 
 id		Description
 101		Label which script will fill with the current type of shortcut being viewed
 102		Button to change type of shortcut being viewed (down)
 103		Button to change type of shortcut being viewed (up)
-111		List of Video Playlist shortcuts
-121		List of Music Playlist shortcuts
-131		List of Favourite shortcuts
-141		List of Add-on shortcuts
+111		List of available shortcuts for the current type being viewed
 211		List of Shortcuts the user has chosen for the [groupname]
 301		Button to add a new shortcut
 302		Button to delete shortcut

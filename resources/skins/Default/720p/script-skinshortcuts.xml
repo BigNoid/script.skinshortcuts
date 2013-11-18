@@ -22,7 +22,7 @@
 			<height>720</height>
 			<texture>black.png</texture>
 		</control>
-		
+
 		<control type="group" id="200">
 			<left>40</left>
 			<top>10</top>
@@ -46,7 +46,7 @@
 				<selectedcolor>FF000000</selectedcolor>
 				<visible>ControlGroup(200).HasFocus</visible>
 			</control>
-			
+
 			<!-- id 211 - Current shortcuts -->
 			<control type="list" id="211">
 				<top>50</top>
@@ -121,7 +121,7 @@
 					</control>
 				</focusedlayout>
 			</control>
-			
+
 			<control type="scrollbar" id="260">
 				<top>50</top>
 				<left>470</left>
@@ -138,12 +138,12 @@
 				<orientation>vertical</orientation>
 			</control>
 		</control>
-		
+
 		<control type="group" id="300">
 			<left>540</left>
 			<top>300</top>
 			<width>200</width>
-			<!-- id's 301 to 304 -- add, delete, move up, move down -->
+			<!-- id's 301 to 304 - add, delete, move up, move down -->
 			<control type="button" id="301">
 				<left>0</left>
 				<top>0</top>
@@ -166,7 +166,7 @@
 				<onleft>260</onleft>
 				<onright>111</onright>
 			</control>
-			
+
 			<control type="button" id="303">
 				<left>0</left>
 				<top>80</top>
@@ -178,7 +178,7 @@
 				<onleft>260</onleft>
 				<onright>111</onright>
 			</control>
-			
+
 			<control type="button" id="304">
 				<left>0</left>
 				<top>110</top>
@@ -215,8 +215,8 @@
 				<selectedcolor>FF000000</selectedcolor>
 				<visible>ControlGroup(100).HasFocus</visible>
 			</control>
-			
-			<!-- id's 101, 102, 103 -- label of current shortcut type, buttons to change shortcut type -->
+
+			<!-- id's 101, 102, 103 - label of current shortcut type, buttons to change shortcut type -->
 			<control type="label" id="101">
 				<left>10</left>
 				<top>10</top>
@@ -247,211 +247,13 @@
 				<ondown>111</ondown>
 			</control>
 
-			<!-- id 111 -- Video Playlists -->
+			<!-- id 111 - List of available plugins -->
 			<control type="list" id="111">
 				<top>50</top>
 				<left>10</left>
 				<width>450</width>
 				<height>650</height>
 				<onleft>300</onleft>
-				<onright>121</onright>
-				<onup>103</onup>
-				<ondown>121</ondown>
-				<pagecontrol>160</pagecontrol>
-				<orientation>vertical</orientation>
-				<viewtype label="535">list</viewtype>
-				<preloaditems>2</preloaditems>
-				<itemlayout width="450" height="50">
-					<control type="image">
-						<posx>0</posx>
-						<posy>0</posy>
-						<width>50</width>
-						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FFCCCCC</textcolor>
-						<aligny>center</aligny>
-					</control>
-				</itemlayout>
-				<focusedlayout width="450" height="50">
-					<control type="image">
-						<posx>0</posx>
-						<posy>0</posy>
-						<width>50</width>
-						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FF4DBAFF</textcolor>
-						<aligny>center</aligny>
-						<visible>Control.HasFocus(111)</visible>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FFCCCCC</textcolor>
-						<aligny>center</aligny>
-						<visible>!Control.HasFocus(111)</visible>
-					</control>
-				</focusedlayout>
-			</control>
-
-			<!-- id 121 -- Music Playlists -->
-			<control type="list" id="121">
-				<top>50</top>
-				<left>10</left>
-				<width>450</width>
-				<height>650</height>
-				<onleft>111</onleft>
-				<onright>130</onright>
-				<onup>103</onup>
-				<ondown>131</ondown>
-				<pagecontrol>160</pagecontrol>
-				<orientation>vertical</orientation>
-				<viewtype label="535">list</viewtype>
-				<preloaditems>2</preloaditems>
-				<itemlayout width="450" height="50">
-					<control type="image">
-						<posx>0</posx>
-						<posy>0</posy>
-						<width>50</width>
-						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FFCCCCC</textcolor>
-						<aligny>center</aligny>
-					</control>
-				</itemlayout>
-				<focusedlayout width="450" height="50">
-					<control type="image">
-						<posx>0</posx>
-						<posy>0</posy>
-						<width>50</width>
-						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FF4DBAFF</textcolor>
-						<aligny>center</aligny>
-						<visible>Control.HasFocus(121)</visible>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FFCCCCC</textcolor>
-						<aligny>center</aligny>
-						<visible>!Control.HasFocus(121)</visible>
-					</control>
-				</focusedlayout>
-			</control>
-
-			<!-- id 131 -- Favourites -->
-			<control type="list" id="131">
-				<top>50</top>
-				<left>10</left>
-				<width>450</width>
-				<height>650</height>
-				<onleft>121</onleft>
-				<onright>141</onright>
-				<onup>103</onup>
-				<ondown>141</ondown>
-				<pagecontrol>160</pagecontrol>
-				<orientation>vertical</orientation>
-				<viewtype label="535">list</viewtype>
-				<preloaditems>2</preloaditems>
-				<itemlayout width="450" height="50">
-					<control type="image">
-						<posx>0</posx>
-						<posy>0</posy>
-						<width>50</width>
-						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FFCCCCC</textcolor>
-						<aligny>center</aligny>
-					</control>
-				</itemlayout>
-				<focusedlayout width="450" height="50">
-					<control type="image">
-						<posx>0</posx>
-						<posy>0</posy>
-						<width>50</width>
-						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FF4DBAFF</textcolor>
-						<aligny>center</aligny>
-						<visible>Control.HasFocus(131)</visible>
-					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FFCCCCC</textcolor>
-						<aligny>center</aligny>
-						<visible>!Control.HasFocus(131)</visible>
-					</control>
-				</focusedlayout>
-			</control>
-
-			<!-- id 141 -- Add-ons -->
-			<control type="list" id="141">
-				<top>50</top>
-				<left>10</left>
-				<width>450</width>
-				<height>650</height>
-				<onleft>131</onleft>
 				<onright>160</onright>
 				<onup>103</onup>
 				<pagecontrol>160</pagecontrol>
@@ -469,9 +271,19 @@
 					<control type="label">
 						<posx>55</posx>
 						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
+						<width>445</width>
+						<height>25</height>
 						<label>$INFO[ListItem.Label]</label>
+						<font>font18</font>
+						<textcolor>FFCCCCC</textcolor>
+						<aligny>center</aligny>
+					</control>
+					<control type="label">
+						<posx>55</posx>
+						<posy>25</posy>
+						<width>445</width>
+						<height>25</height>
+						<label>$INFO[ListItem.Label2]</label>
 						<font>font18</font>
 						<textcolor>FFCCCCC</textcolor>
 						<aligny>center</aligny>
@@ -485,31 +297,55 @@
 						<height>50</height>
 						<texture background="true">$INFO[ListItem.Icon]</texture>
 					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FF4DBAFF</textcolor>
-						<aligny>center</aligny>
-						<visible>Control.HasFocus(141)</visible>
+					<control type="group">
+						<control type="label">
+							<posx>55</posx>
+							<posy>0</posy>
+							<width>445</width>
+							<height>25</height>
+							<label>$INFO[ListItem.Label]</label>
+							<font>font18</font>
+							<textcolor>FF4DBAFF</textcolor>
+							<aligny>center</aligny>
+						</control>
+						<control type="label">
+							<posx>55</posx>
+							<posy>25</posy>
+							<width>445</width>
+							<height>25</height>
+							<label>$INFO[ListItem.Label2]</label>
+							<font>font18</font>
+							<textcolor>FF4DBAFF</textcolor>
+							<aligny>center</aligny>
+						</control>
+						<visible>Control.HasFocus(111)</visible>
 					</control>
-					<control type="label">
-						<posx>55</posx>
-						<posy>0</posy>
-						<width>395</width>
-						<height>50</height>
-						<label>$INFO[ListItem.Label]</label>
-						<font>font18</font>
-						<textcolor>FFCCCCC</textcolor>
-						<aligny>center</aligny>
-						<visible>!Control.HasFocus(141)</visible>
+					<control type="group">
+						<control type="label">
+							<posx>55</posx>
+							<posy>0</posy>
+							<width>445</width>
+							<height>25</height>
+							<label>$INFO[ListItem.Label]</label>
+							<font>font18</font>
+							<textcolor>FFCCCCC</textcolor>
+							<aligny>center</aligny>
+						</control>
+						<control type="label">
+							<posx>55</posx>
+							<posy>25</posy>
+							<width>445</width>
+							<height>25</height>
+							<label>$INFO[ListItem.Label2]</label>
+							<font>font18</font>
+							<textcolor>FFCCCCC</textcolor>
+							<aligny>center</aligny>
+						</control>
+						<visible>!Control.HasFocus(111)</visible>
 					</control>
 				</focusedlayout>
 			</control>
-			
+
 			<control type="scrollbar" id="160">
 				<top>50</top>
 				<left>470</left>
@@ -520,7 +356,8 @@
 				<texturesliderbarfocus border="0,10,0,10">scrollbar-front.png</texturesliderbarfocus>
 				<textureslidernib>scrollbar-nib-nofocus.png</textureslidernib>
 				<textureslidernibfocus>scrollbar-nib.png</textureslidernibfocus>
-				<onleft>141</onleft>
+				<onleft>111</onleft>
+				<onright>102</onright>
 				<showonepage>false</showonepage>
 				<orientation>vertical</orientation>
 			</control>

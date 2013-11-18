@@ -46,11 +46,9 @@ class SkinShortcuts:
             import gui
             ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=self.GROUP )
             ui.doModal()
-            log( "UI finished?" )
             del ui
-            #sys.modules.clear()
         elif self.TYPE=="list":
-            log( "Listing shortcuts ..." )
+            log( "### Listing shortcuts ..." )
             path = os.path.join( __datapath__ , self.GROUP + ".db" )
             
             try:
@@ -74,13 +72,10 @@ class SkinShortcuts:
                 log( "### ERROR could not load file %s" % self.GROUP )
                 
         elif self.TYPE=="launch":
-            log( "------------------" )
-            log( "Launching shortcut" )
-            log( "------------------" )
+            log( "### Launching shortcut" )
             log( self.PATH )
             #xbmc.executebuiltin("ActivateWindow(Pictures)")
             xbmc.executebuiltin( self.PATH.replace( '!EQUALSCHAR!', '=' ) )
-            log( "------------------" )
     
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)

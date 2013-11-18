@@ -39,5 +39,25 @@ msgid "Add-On"
 msgstr ""
 
 msgctxt "#32008"
+msgid "Mixed Playlist"
+msgstr ""
+
+msgctxt "#32009"
+msgid "Program"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Video Add-On"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Music Add-On"
+msgstr ""
+
+msgctxt "#32012"
+msgid "Picture Add-On"
+msgstr ""
+
+msgctxt "#32013"
 msgid "<None>"
 msgstr ""

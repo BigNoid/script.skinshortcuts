@@ -9,6 +9,8 @@
 		<description lang="en">Add-on for skins to provide simple managing and listing of user shortcuts (requires skin support)</description>
 		<language></language>
 		<platform>all</platform>
+		<license>GNU General Public License, v2</license>
+		<forum>http://forum.xbmc.org/showthread.php?tid=178294</forum>
 		<source>https://github.com/unfledged</source>
 	</extension>
 </addon>
