@@ -44,7 +44,7 @@ class SkinShortcuts:
             xbmcgui.Dialog().ok(__addonname__, line1)
         elif self.TYPE=="manage":
             import gui
-            ui= gui.GUI( "script-skinsettings.xml", __cwd__, "default", group=self.GROUP )
+            ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=self.GROUP )
             ui.doModal()
             log( "UI finished?" )
             del ui

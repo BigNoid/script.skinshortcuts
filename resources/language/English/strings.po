@@ -37,3 +37,7 @@ msgstr ""
 msgctxt "#32007"
 msgid "Add-On"
 msgstr ""
+
+msgctxt "#32008"
+msgid "<None>"
+msgstr ""

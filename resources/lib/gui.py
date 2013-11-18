@@ -186,7 +186,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         count = 0
         contenttypes = ["video", "audio", "image", "executable"]
         for contenttype in contenttypes:
-            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail"] } }' % contenttype)
+            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
             json_query = unicode(json_query, 'utf-8', errors='ignore')
             json_response = simplejson.loads(json_query)
             log(json_response['result'])
@@ -194,12 +194,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if (json_response['result'] != None) and (json_response['result'].has_key('addons')):
                 for item in json_response['result']['addons']:
                     count = count + 1
-                    log('Addon found %s' % item['name'])
-                    listitem = xbmcgui.ListItem(label=item['name'], iconImage=item['thumbnail'], thumbnailImage=item['thumbnail'])
-                    listitem.setProperty( "path", "RunAddOn(" + item['addonid'] + ")" )
-                    listitem.setProperty( "icon", item['thumbnail'] )
-                    listitem.setProperty( "thumbnail", item['thumbnail'] )
-                    listitems.append(listitem)
+                    if item['enabled'] == True:
+                        log('Addon found %s' % item['name'])
+                        listitem = xbmcgui.ListItem(label=item['name'], iconImage=item['thumbnail'], thumbnailImage=item['thumbnail'])
+                        listitem.setProperty( "path", "RunAddOn(" + item['addonid'] + ")" )
+                        listitem.setProperty( "icon", item['thumbnail'] )
+                        listitem.setProperty( "thumbnail", item['thumbnail'] )
+                        listitems.append(listitem)
             
         self.getControl( 141 ).addItems( listitems )
     
@@ -220,7 +221,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems = []
         log('Loading current shortcuts...')
         # add a dummy item with no action assigned
-        listitem = xbmcgui.ListItem( "Empty" )
+        listitem = xbmcgui.ListItem( __language__(32008) )
         listitem.setProperty( "Path", 'noop' )
         listitems.append(listitem)
         
@@ -282,7 +283,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         if controlID == 301:
             # Add a new item
-            listitem = xbmcgui.ListItem( "Empty" )
+            listitem = xbmcgui.ListItem( __language__(32008) )
             listitem.setProperty( "Path", 'noop' )
             
             self.getControl( 211 ).addItem( listitem )
@@ -306,7 +307,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # If there are no items in the list, add an empty one...
             if self.getControl( 211 ).size() == 0:
-                listitem = xbmcgui.ListItem( "Empty" )
+                listitem = xbmcgui.ListItem( __language__(32008) )
                 listitem.setProperty( "Path", 'noop' )
                 
                 self.getControl( 211 ).addItem( listitem )
@@ -386,7 +387,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             # If there are no items in the list, add an empty one...
             if self.getControl( 211 ).size() == 0:
-                listitem = xbmcgui.ListItem( "Empty" )
+                listitem = xbmcgui.ListItem( __language__(32008) )
                 listitem.setProperty( "Path", 'noop' )
                 
                 self.getControl( 211 ).addItem( listitem )
