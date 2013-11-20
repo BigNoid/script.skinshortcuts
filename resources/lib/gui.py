@@ -94,7 +94,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             name = item[:-4]
                         log('Video playlist found %s' % name)
                         listitem = xbmcgui.ListItem(label=name, label2=__language__(32004), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
-                        listitem.setProperty( "path", "ActivateWindow(VideoLibrary," + playlist + ", return)" )
+                        listitem.setProperty( "path", urllib.quote( "ActivateWindow(VideoLibrary," + playlist + ", return)" ) )
                         listitem.setProperty( "icon", "DefaultPlaylist.png" )
                         listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                         listitems.append(listitem)
@@ -103,7 +103,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 name = item[:-4]
                 log('Video playlist found %s' % name)
                 listitem = xbmcgui.ListItem(label=name, label2= __language__(32004), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
-                listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
+                listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
                 listitems.append(listitem)
                 
         self.arrayVideoPlaylists = listitems
@@ -132,7 +132,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             name = item[:-4]
                         log('Music playlist found %s' % name)
                         listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
-                        listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
+                        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
                         listitem.setProperty( "icon", "DefaultPlaylist.png" )
                         listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                         listitems.append(listitem)
@@ -141,7 +141,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 name = item[:-4]
                 log('Music playlist found %s' % name)
                 listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
-                listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
+                listitem.setProperty( urllib.quote( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
                 listitems.append(listitem)
                 
         # Mixed Playlists
@@ -166,7 +166,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             name = item[:-4]
                         log('Music playlist found %s' % name)
                         listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
-                        listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
+                        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
                         listitem.setProperty( "icon", "DefaultPlaylist.png" )
                         listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                         listitems.append(listitem)
@@ -175,7 +175,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 name = item[:-4]
                 log('Music playlist found %s' % name)
                 listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
-                listitem.setProperty( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" )
+                listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
                 listitems.append(listitem)
         
         self.arrayAudioPlaylists = listitems
@@ -201,7 +201,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if 'RunScript' not in fav_path:
                 fav_path = fav_path.rstrip(')')
                 fav_path = fav_path + ',return)'
-            listitem.setProperty( "path", fav_path.replace( '=', '!EQUALSCHAR!' ) )
+            listitem.setProperty( "path", urllib.quote(fav_path) )
             listitems.append(listitem)
         
         self.arrayFavourites = listitems
@@ -228,7 +228,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if item['enabled'] == True:
                         log('Addon found %s' % item['name'])
                         listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage=item['thumbnail'], thumbnailImage=item['thumbnail'])
-                        listitem.setProperty( "path", "RunAddOn(" + item['addonid'] + ")" )
+                        listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'] + ")" ) )
                         if item['thumbnail'] != "":
                             listitem.setProperty( "icon", item['thumbnail'] )
                             listitem.setProperty( "thumbnail", item['thumbnail'] )

@@ -74,8 +74,7 @@ class SkinShortcuts:
         elif self.TYPE=="launch":
             log( "### Launching shortcut" )
             log( self.PATH )
-            #xbmc.executebuiltin("ActivateWindow(Pictures)")
-            xbmc.executebuiltin( self.PATH.replace( '!EQUALSCHAR!', '=' ) )
+            xbmc.executebuiltin( urllib.unquote(self.PATH) )
     
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
