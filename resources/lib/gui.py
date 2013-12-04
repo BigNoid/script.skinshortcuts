@@ -665,14 +665,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 savedata=[listitem.getLabel(), listitem.getLabel2(), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path")]
                 listitems.append(savedata)
         
-        # Save the array
         path = os.path.join( __datapath__ , self.group + ".db" )
         
-        try:
-            file( path , "w" ).write( repr( listitems ) )
-        except:
-            print_exc()
-            log( "### ERROR could not save file %s" % __datapath__ )
+        if listitems:
+            # If there are any shortcuts, save them
+            try:
+                file( path , "w" ).write( repr( listitems ) )
+            except:
+                print_exc()
+                log( "### ERROR could not save file %s" % __datapath__ )
+        else:
+            # There are no shortcuts, delete the existing file if it exists
+            try:
+                os.remove( path )
+            except:
+                print_exc()
+                log( "### No shortcuts, no existing file %s" % __datapath__ )            
     
     def _display_shortcuts( self ):
         # Load the currently selected shortcut group
