@@ -20,9 +20,9 @@ This will return items with the following information
 	
 3. Defaults
 
-If the user hasn't already created custom shortcuts for the given [groupname], skinshortcuts will attempt to load defaults for the group from the skin, allowings skinners to provide default selections. To provide this optional file, create a new sub-directory in your skin called 'shortcuts', and drop the relevant [groupname].db file into it.
+If the user hasn't already created custom shortcuts for the given [groupname], skinshortcuts will attempt to load defaults for the group from the skin, allowings skinners to provide default selections. To provide this optional file, create a new sub-directory in your skin called 'shortcuts', and drop the relevant [groupname].shortcuts file into it.
 
-The easiest way to create the [groupname].db file is to use skinshortcuts to create the file, then copy it from your userdata folder.
+The easiest way to create the [groupname].shortcuts file is to use skinshortcuts to create the file, then copy it from your userdata folder.
 
 If the skin default file isn't found, skinshortcuts will create defaults (the same defaults as Confluence has) for the following [groupname]'s:
 	videos

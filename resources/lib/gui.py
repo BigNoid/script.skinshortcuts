@@ -577,7 +577,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).selectItem( num + 1 )
 
     def load_shortcuts( self ):
-        path = os.path.join( __datapath__ , self.group + ".db" )
+        path = os.path.join( __datapath__ , self.group + ".shortcuts" )
         
         try:
             loaditems = eval( file( path, "r" ).read() )
@@ -609,7 +609,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
                             
         except:
-            path = os.path.join( __skinpath__ , self.group + ".db" )
+            path = os.path.join( __skinpath__ , self.group + ".shortcuts" )
             
             try:
                 loaditems = eval( file( path, "r" ).read() )
@@ -665,7 +665,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 savedata=[listitem.getLabel(), listitem.getLabel2(), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path")]
                 listitems.append(savedata)
         
-        path = os.path.join( __datapath__ , self.group + ".db" )
+        path = os.path.join( __datapath__ , self.group + ".shortcuts" )
         
         if listitems:
             # If there are any shortcuts, save them

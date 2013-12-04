@@ -43,10 +43,10 @@ class SkinShortcuts:
         # Check for existance of certain groups, and create default if not found
         if self.TYPE=="manage" or self.TYPE=="list":
             # If the relevant datafile doesn't exist...
-            path = os.path.join( __datapath__ , self.GROUP + ".db" )
+            path = os.path.join( __datapath__ , self.GROUP + ".shortcuts" )
             if not os.path.isfile( path ):
                 # ... and the skin hasn't provided defaults ...
-                if not os.path.isfile( os.path.join( __skinpath__ , self.GROUP + ".db" ) ):
+                if not os.path.isfile( os.path.join( __skinpath__ , self.GROUP + ".shortcuts" ) ):
                     # Try to create defaults
                     self._createdefaults()
         
@@ -61,7 +61,7 @@ class SkinShortcuts:
             del ui
         elif self.TYPE=="list":
             log( "### Listing shortcuts ..." )
-            path = os.path.join( __datapath__ , self.GROUP + ".db" )
+            path = os.path.join( __datapath__ , self.GROUP + ".shortcuts" )
             
             try:
                 # Try loading user-set shortcuts
@@ -83,7 +83,7 @@ class SkinShortcuts:
             except:
                 try:
                     # Try loading skin-provided defaults
-                    path = os.path.join( __skinpath__ , self.GROUP + ".db" )
+                    path = os.path.join( __skinpath__ , self.GROUP + ".shortcuts" )
                     loaditems = eval( file( path, "r" ).read() )
                     
                     listitems = []
@@ -224,7 +224,7 @@ class SkinShortcuts:
             
         # Save the array if we've added anything
         if listitems:
-            path = os.path.join( __datapath__ , self.GROUP + ".db" )
+            path = os.path.join( __datapath__ , self.GROUP + ".shortcuts" )
             
             try:
                 file( path , "w" ).write( repr( listitems ) )
