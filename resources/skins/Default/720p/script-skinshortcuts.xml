@@ -187,6 +187,58 @@
 				<font>font18</font>
 				<align>center</align>
 				<onup>303</onup>
+				<ondown>305</ondown>
+				<onleft>260</onleft>
+				<onright>111</onright>
+			</control>
+
+			<control type="button" id="305">
+				<left>0</left>
+				<top>140</top>
+				<width>200</width>
+				<height>30</height>
+				<font>font18</font>
+				<align>center</align>
+				<onup>304</onup>
+				<ondown>306</ondown>
+				<onleft>260</onleft>
+				<onright>111</onright>
+			</control>
+
+			<control type="button" id="306">
+				<left>0</left>
+				<top>170</top>
+				<width>200</width>
+				<height>30</height>
+				<font>font18</font>
+				<align>center</align>
+				<onup>305</onup>
+				<ondown>307</ondown>
+				<onleft>260</onleft>
+				<onright>111</onright>
+			</control>
+
+			<control type="button" id="307">
+				<left>0</left>
+				<top>200</top>
+				<width>200</width>
+				<height>30</height>
+				<font>font18</font>
+				<align>center</align>
+				<onup>306</onup>
+				<ondown>308</ondown>
+				<onleft>260</onleft>
+				<onright>111</onright>
+			</control>
+
+			<control type="button" id="308">
+				<left>0</left>
+				<top>230</top>
+				<width>200</width>
+				<height>30</height>
+				<font>font18</font>
+				<align>center</align>
+				<onup>307</onup>
 				<onleft>260</onleft>
 				<onright>111</onright>
 			</control>

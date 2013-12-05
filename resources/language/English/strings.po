@@ -221,3 +221,19 @@ msgstr ""
 msgctxt "#32053"
 msgid "Programs"
 msgstr ""
+
+msgctxt "#32054"
+msgid "Set label"
+msgstr ""
+
+msgctxt "#32055"
+msgid "Set icon"
+msgstr ""
+
+msgctxt "#32056"
+msgid "Set thumbnail"
+msgstr ""
+
+msgctxt "#32057"
+msgid "Custom action"
+msgstr ""
