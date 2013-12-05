@@ -46,3 +46,14 @@ id		Description
 302		Button to delete shortcut
 303		Button to move shortcut up
 304		Button to move shortcut down
+305		Button to change shortcut label
+306		Button to change shortcut icon
+307		Button to change shortcut thumbnail
+308		Button to change shortcut action
+
+With Thanks
+-----------
+
+Huge thanks to Ronie, whose code for listing plugins is used in this script
+Equally huge thanks to Ronie and `Black, for their favourites code used in this script
+More thanks to BigNoid, for the ability to edit shortcuts
