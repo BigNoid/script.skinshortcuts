@@ -55,6 +55,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 302 ).setLabel( __language__(32001) )
             self.getControl( 303 ).setLabel( __language__(32002) )
             self.getControl( 304 ).setLabel( __language__(32003) )
+            self.getControl( 305 ).setLabel( __language__(32054) )
+            self.getControl( 306 ).setLabel( __language__(32055) )
+            self.getControl( 307 ).setLabel( __language__(32056) )
+            self.getControl( 308 ).setLabel( __language__(32057) )
             
             # Prepare to load favourites
             found, favourites = self._read_file()
@@ -576,6 +580,130 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 self.getControl( 211 ).selectItem( num + 1 )
 
+        if controlID == 305:
+            # Change label
+            custom_label = self.getControl( 211 ).getSelectedItem().getLabel()
+            keyboard = xbmc.Keyboard( custom_label, xbmc.getLocalizedString(528), False )
+            keyboard.doModal()
+            if ( keyboard.isConfirmed() ):
+                custom_label = keyboard.getText()
+            # Create a copy of the listitem
+            listitem = self.getControl( 211 ).getSelectedItem()
+            listitemCopy = xbmcgui.ListItem(label=custom_label, label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=listitem.getProperty("thumbnail"))
+            listitemCopy.setProperty( "path", listitem.getProperty("path") )
+            listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
+            listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
+            
+            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
+            listitems = []
+            num = self.getControl( 211 ).getSelectedPosition()
+            for x in range(0, self.getControl( 211 ).size()):
+                if x == num:
+                    log ( "### Found the item" )
+                    listitems.append(listitemCopy)
+                else:
+                    # Duplicate the item and it to the listitems array
+                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                    
+                    listitems.append(listitemShortcutCopy)
+                    
+            self.getControl( 211 ).reset()
+            self.getControl( 211 ).addItems(listitems)
+            
+            self.getControl( 211 ).selectItem( num )
+            
+        if controlID == 306:
+            # Change icon
+            custom_icon = self.getControl( 211 ).getSelectedItem().getProperty( "Icon" )
+            dialog = xbmcgui.Dialog()
+            custom_icon = dialog.browse( 2 , xbmc.getLocalizedString(1030), 'files')
+            # Create a copy of the listitem
+            listitem = self.getControl( 211 ).getSelectedItem()
+            listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=custom_icon, thumbnailImage=listitem.getProperty("thumbnail"))
+            listitemCopy.setProperty( "path", listitem.getProperty("path") )
+            listitemCopy.setProperty( "icon", custom_icon )
+            listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
+            
+            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered icon
+            listitems = []
+            num = self.getControl( 211 ).getSelectedPosition()
+            for x in range(0, self.getControl( 211 ).size()):
+                if x == num:
+                    log ( "### Found the item" )
+                    listitems.append(listitemCopy)
+                else:
+                    # Duplicate the item and it to the listitems array
+                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                    
+                    listitems.append(listitemShortcutCopy)
+                    
+            self.getControl( 211 ).reset()
+            self.getControl( 211 ).addItems(listitems)
+            
+            self.getControl( 211 ).selectItem( num )
+
+        if controlID == 307:
+            # Change thumbnail
+            custom_thumbnail = self.getControl( 211 ).getSelectedItem().getProperty( "thumbnail" )
+            dialog = xbmcgui.Dialog()
+            custom_thumbnail = dialog.browse( 0 , xbmc.getLocalizedString(1031), 'files')
+            # Create a copy of the listitem
+            listitem = self.getControl( 211 ).getSelectedItem()
+            listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=custom_thumbnail)
+            listitemCopy.setProperty( "path", listitem.getProperty("path") )
+            listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
+            listitemCopy.setProperty( "thumbnail", custom_thumbnail )
+            
+            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered thumbnail
+            listitems = []
+            num = self.getControl( 211 ).getSelectedPosition()
+            for x in range(0, self.getControl( 211 ).size()):
+                if x == num:
+                    log ( "### Found the item" )
+                    listitems.append(listitemCopy)
+                else:
+                    # Duplicate the item and it to the listitems array
+                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                    
+                    listitems.append(listitemShortcutCopy)
+                    
+            self.getControl( 211 ).reset()
+            self.getControl( 211 ).addItems(listitems)
+            
+            self.getControl( 211 ).selectItem( num )
+
+        if controlID == 308:
+            # Change path
+            custom_path = self.getControl( 211 ).getSelectedItem().getProperty( urllib.unquote( "path" ) )
+            keyboard = xbmc.Keyboard( custom_path, xbmc.getLocalizedString(528), False )
+            keyboard.doModal()
+            if ( keyboard.isConfirmed() ):
+                custom_path = keyboard.getText()
+            # Create a copy of the listitem
+            listitem = self.getControl( 211 ).getSelectedItem()
+            listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=listitem.getProperty("thumbnail"))
+            listitemCopy.setProperty( urllib.quote( "path" ), custom_path )
+            listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
+            listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
+            
+            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered path
+            listitems = []
+            num = self.getControl( 211 ).getSelectedPosition()
+            for x in range(0, self.getControl( 211 ).size()):
+                if x == num:
+                    log ( "### Found the item" )
+                    listitems.append(listitemCopy)
+                else:
+                    # Duplicate the item and it to the listitems array
+                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                    
+                    listitems.append(listitemShortcutCopy)
+                    
+            self.getControl( 211 ).reset()
+            self.getControl( 211 ).addItems(listitems)
+            
+            self.getControl( 211 ).selectItem( num )
+            
     def load_shortcuts( self ):
         path = os.path.join( __datapath__ , self.group + ".shortcuts" )
         
