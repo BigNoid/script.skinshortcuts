@@ -78,9 +78,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Load current shortcuts
             self.load_shortcuts()
-            
-            # Set default focus
-            self.setFocus( self.getControl( 211 ) )
         
     def _load_videolibrary( self ):
         listitems = []
@@ -770,7 +767,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                 
             except:
                 print_exc()
-                log( "### ERROR could not load file %s" % temp )
+                log( "### ERROR could not load file %s" % __datapath__ )
                 return []
             
     def _duplicate_listitem( self, listitem ):
