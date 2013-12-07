@@ -1,59 +1,170 @@
-INFO FOR SKINNERS - How to use this addon in your skin:
+script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skins to handle.
 
-1. Let users manage their shortcuts (e.g. from skinsettings.xml)
+There are two ways to use this script. You can either (1) provide your own main menu items, and use the script to provide items for a sub-menu, or (2) use the script to provide both the main menu and sub-menu
 
-RunScript(script.skinshortcuts?type=manage&amp;group=[groupname])
+Using the script to provide sub-menus
+-------------------------------------
 
-This will display a dialog where the users can select and manage shortcuts for the given group name.
-
-2. Display user shortcuts
-
-Uses new method of filling the contents of a list in Gotham
-
-<content>plugin://script.skinshortcuts?amp;type=list&amp;group=[groupname]</content>
-
-This will return items with the following information
-	Label - The name of the shortcut
-	Label2 - The type of shortcut
-	Icon - The shortcuts icon
-	Thumbnail - The shortcuts thumbnail
-	
-3. Defaults
-
-If the user hasn't already created custom shortcuts for the given [groupname], skinshortcuts will attempt to load defaults for the group from the skin, allowings skinners to provide default selections. To provide this optional file, create a new sub-directory in your skin called 'shortcuts', and drop the relevant [groupname].shortcuts file into it.
-
-The easiest way to create the [groupname].shortcuts file is to use skinshortcuts to create the file, then copy it from your userdata folder.
-
-If the skin default file isn't found, skinshortcuts will create defaults (the same defaults as Confluence has) for the following [groupname]'s:
+1. Recommended [groupname]'s
+ 
+The script uses group=[groupname] property in order to determine which set of shortcuts to show. In order to share users customized shortcuts across different skins using this script, there are a few recommended [groupname]'s to use for your sub-menus
 	videos
 	movies
 	tvshows
 	livetv
 	music
+	musicvideos
 	pictures
+	weather
+	programs
+	dvd
+	settings
+ 
+2. Let users manage their shortcuts
+ 
+In your skinsettings.xml file, you need to create a button for each [groupname] that you want to support, with the following in the <onclick> tag
+ 
+	RunScript(script.skinshortcuts?type=manage&amp;group=[groupname])
+ 
+3. Display user shortcuts
+ 
+Uses new method of filling the contents of a list in Gotham. In the list where you want the submenu to appear, put the following in the <content> tag:
+ 
+	plugin://script.skinshortcuts?amp;type=list&amp;group=[groupname]
+   
+This will fill the list with items with the following properties:
 
-4. Customize shortcut management dialog
+	Label		Label of the item (localized where possible)
+	Label2		Type of shortcut
+	Icon		Icon image
+	Thumbnail	Thumbnail image
+	Property(labelID)	Unlocalized string primarily used when displaying both main menu and sub-menus
 
-script-skinshortcuts.xml
 
-id		Description
-101		Label which script will fill with the current type of shortcut being viewed
-102		Button to change type of shortcut being viewed (down)
-103		Button to change type of shortcut being viewed (up)
-111		List of available shortcuts for the current type being viewed
-211		List of Shortcuts the user has chosen for the [groupname]
-301		Button to add a new shortcut
-302		Button to delete shortcut
-303		Button to move shortcut up
-304		Button to move shortcut down
-305		Button to change shortcut label
-306		Button to change shortcut icon
-307		Button to change shortcut thumbnail
-308		Button to change shortcut action
+Using the script to provide both main menu and sub-menus
+--------------------------------------------------------
+
+1. Information
+ 
+This is a work in progress - it may not fully work as you expect, may require some creative skinning to get it looking right, and definitely has known issues!
+ 
+2. Let users manage their main menu and sub-menu shortcuts
+ 
+The script can provide a list of controls for your skinsettings.xml to let the user manage both main menu and sub-menu.
+  
+Uses new method of filling the contents of a list in Gotham. In the list where you want these controls to appear, put the following in the <content> tag:
+  
+	RunScript(script.skinshortcuts?type=settings)
+  
+KNOWN ISSUE - if the user updates which items appear on the main menu, the list of controls for managing any sub-menus will not update until skinsettings.xml is reloaded.
+ 
+3. Display main menu and shortcuts
+ 
+This details the simplest method of displaying main menu and sub-menus, using two lists. When the user focuses on an item in the main menu list, the sub-menu list will update with the shortcuts for that item.
+  
+In the list where you want the main menu to appear, put the following in the <content> tag:
+ 
+	plugin://script.skinshortcuts?amp;type=list&amp;group=mainmenu
+   
+This will fill the list with items with the following properties:
+
+	Label		Label of the item (localized where possible)
+	Label2		Type of shortcut
+	Icon		Icon image
+	Thumbnail	Thumbnail image
+	Property(labelID)	Unlocalized string used for sub-menu and for displaying more controls depending on the main menu item
+
+In the list where you want the sub-menu to appear, put the following in the <content> tag:
+ 
+	plugin://script.skinshortcuts?amp;type=list&amp;group=$INFO[Container(50).ListItem.Property(labelID)]
+   
+Remember to replace Container(50) with the id of the list you are using for the main menu.
+ 
+4. Display more controls depending on the mainmenu item
+ 
+If you want to display more controls onscreen when the user focuses on a main menu item (for instance, to display a list of recently added movies when a "Movies" main menu item is focused) you can set the visibility of your additional controls using listitem.property(labelID). For common main menu items, it will contain one of the following strings:
+	videos
+	movies
+	tvshows
+	livetv
+	music
+	musicvideos
+	pictures
+	weather
+	programs
+	dvd
+	settings
+  
+So, for example, you could set visibility for your list of recently added movies like so
+  
+	<visible>StringCompare(Container(50).ListItem.Property(labelID), movies)</visible>
+   
+For more information on what labelID may contain, see section on localization.
+
+
+Skinning the management dialog
+------------------------------
+
+To customize the look of the dialog displayed to allow the user to customize shortcuts, your skin needs to provide script-skinshortcuts.xml. It requires the following controls:
+
+ID		Type	Description
+101		Label	Current type of shortcut being viewed
+102		Button	Change type of shortcut being viewed (down)
+103		Button	Change type of shortcut being viewed (up)
+111		List	Available shortcuts for the current type being viewed
+211		List	Shortcuts the user has chosen for the [groupname]
+301		Button	Add a new shortcut
+302		Button	Delete shortcut
+303		Button	Move shortcut up
+304		Button	Move shortcut down
+305		Button	Change shortcut label
+306		Button	Change shortcut thumbnail
+307		Button	Change shortcut action
+308		Button	Reset shortcuts
+
+
+Providing default shortcuts
+---------------------------
+
+If the user has not already selected any shortcuts or if the user resets shortcuts, the script will first attempt to load defaults from a file provided by the skin before trying to load its own.
+
+To provide this optional file, create a new sub-directory in your skin called 'shortcuts', and drop the relevant [groupname].shortcuts file into it.
+
+The easiest way to create this file is to use the script to build a list of shortcuts, then copy it from your userdata folder. See recommended groupname's for ideas of some of the default files you may wish to provide, along with mainmenu.shortcuts if you are using the script to manage the main menu.
+
+The script provides defaults equivalent to Confluence's main menu and sub-menus.
+
+
+Localization
+------------
+
+If you are providing default shortcuts and want to localize your label, you can do it using the format
+
+  ::LOCAL::[id]
+  
+Where [id] is any string id provided by XBMC or your skin. However, you should generally avoid using strings provided by your skin as they won't carry over if the user switches to a different skin.
+
+In order to make things easier for skinners using this script to provide the main menu, listitems returned by the script have the property labelID. This is a non-localized string that can be tested against (for visibility, for example).
+
+For common main menu items, it will contain one of the following strings
+	videos
+	movies
+	tvshows
+	livetv
+	music
+	musicvideos
+	pictures
+	weather
+	programs
+	dvd
+	settings
+	
+For other localized strings, it will contain the id of the string. For non-localized strings, it will contain the string without any whitespace.
+
 
 With Thanks
 -----------
 
 Huge thanks to Ronie, whose code for listing plugins is used in this script
 Equally huge thanks to Ronie and `Black, for their favourites code used in this script
-More thanks to BigNoid, for the ability to edit shortcuts
+More huge thanks to BigNoid, for the ability to edit shortcuts

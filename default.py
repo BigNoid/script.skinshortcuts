@@ -93,8 +93,14 @@ class SkinShortcuts:
                         
                         if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
                             listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
-            
-                        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+                            
+                        # If this is the main menu, check whether we should actually display this item (e.g.
+                        #  don't display PVR if PVR isn't enabled)
+                        if self.GROUP == "mainmenu":
+                            if self.checkVisibility( listitem.getProperty( "labelID" ) ):
+                                xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+                        else:
+                            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
                         
                     # If we've loaded anything, save them to the list
                     xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
@@ -165,6 +171,25 @@ class SkinShortcuts:
             xbmc.executebuiltin( urllib.unquote(self.PATH) )
             
             
+    def checkVisibility ( self, item ):
+        # Return whether mainmenu items should be displayed
+        if item == "movies":
+            return xbmc.getCondVisibility("Library.HasContent(Movies)")
+        elif item == "tvshows":
+            return xbmc.getCondVisibility("Library.HasContent(TVShows)")
+        elif item == "livetv":
+            return xbmc.getCondVisibility("System.GetBool(pvrmanager.enabled)")
+        elif item == "musicvideos":
+            return xbmc.getCondVisibility("Library.HasContent(MusicVideos)")
+        elif item == "music":
+            return xbmc.getCondVisibility("Library.HasContent(Music)")
+        elif item == "weather":
+            return xbmc.getCondVisibility("!IsEmpty(Weather.Plugin)")
+        elif item == "dvd":
+            return xbmc.getCondVisibility("System.HasMediaDVD")
+        else:
+            return True
+    
     def createNiceName ( self, item ):
         # Translate certain localized strings into non-localized form for labelID
         log( "Creating nice name for " + item )
