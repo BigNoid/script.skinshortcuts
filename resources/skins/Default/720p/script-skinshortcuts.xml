@@ -65,7 +65,7 @@
 						<posy>0</posy>
 						<width>50</width>
 						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
+						<texture background="true" fallback="DefaultShortcut.png">$INFO[ListItem.Icon]</texture>
 					</control>
 					<control type="label">
 						<posx>55</posx>
@@ -96,7 +96,7 @@
 						<posy>0</posy>
 						<width>50</width>
 						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
+						<texture background="true" fallback="DefaultShortcut.png">$INFO[ListItem.Icon]</texture>
 					</control>
 					<control type="label">
 						<posx>55</posx>
@@ -319,7 +319,7 @@
 						<posy>0</posy>
 						<width>50</width>
 						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
+						<texture background="true" fallback="DefaultShortcut.png">$INFO[ListItem.Icon]</texture>
 					</control>
 					<control type="label">
 						<posx>55</posx>
@@ -348,7 +348,7 @@
 						<posy>0</posy>
 						<width>50</width>
 						<height>50</height>
-						<texture background="true">$INFO[ListItem.Icon]</texture>
+						<texture background="true" fallback="DefaultShortcut.png">$INFO[ListItem.Icon]</texture>
 					</control>
 					<control type="group">
 						<control type="label">

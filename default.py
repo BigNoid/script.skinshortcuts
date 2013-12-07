@@ -11,6 +11,7 @@ __addonname__    = __addon__.getAddonInfo('name').decode("utf-8")
 __resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ).encode("utf-8") ).decode("utf-8")
 __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
+__defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'shortcuts').encode("utf-8") ).decode("utf-8")
 
 sys.path.append(__resource__)
 
@@ -22,6 +23,8 @@ def log(txt):
     
 class SkinShortcuts:
     def __init__(self):
+        #log( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) )
+            
         self.WINDOW = xbmcgui.Window( 10000 )
 
         try:
@@ -40,16 +43,6 @@ class SkinShortcuts:
         self.PATH = params.get( "path", "" )
         log( self.PATH )
         
-        # Check for existance of certain groups, and create default if not found
-        if self.TYPE=="manage" or self.TYPE=="list":
-            # If the relevant datafile doesn't exist...
-            path = os.path.join( __datapath__ , self.GROUP + ".shortcuts" )
-            if not os.path.isfile( path ):
-                # ... and the skin hasn't provided defaults ...
-                if not os.path.isfile( os.path.join( __skinpath__ , self.GROUP + ".shortcuts" ) ):
-                    # Try to create defaults
-                    self._createdefaults()
-        
         # Perform action specified by user
         if not self.TYPE:
             line1 = "This addon is for skin developers, and requires skin support"
@@ -61,29 +54,23 @@ class SkinShortcuts:
             del ui
         elif self.TYPE=="list":
             log( "### Listing shortcuts ..." )
-            path = os.path.join( __datapath__ , self.GROUP + ".shortcuts" )
-            
-            try:
-                # Try loading user-set shortcuts
-                loaditems = eval( file( path, "r" ).read() )
+            # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
+            if os.path.isfile( os.path.join( __datapath__ , self.GROUP + ".shortcuts" ) ):
+                # User defined shortcuts
+                path = os.path.join( __datapath__ , self.GROUP + ".shortcuts" )
+            elif os.path.isfile( os.path.join( __skinpath__ , self.GROUP + ".shortcuts" ) ):
+                # Skin-provided defaults
+                path = os.path.join( __skinpath__ , self.GROUP + ".shortcuts" )
+            elif os.path.isfile( os.path.join( __defaultpath__ , self.GROUP + ".shortcuts" ) ):
+                # Script-provided defaults
+                path = os.path.join( __defaultpath__ , self.GROUP + ".shortcuts" )
+            else:
+                # No custom shortcuts or defaults available
+                path = ""
                 
-                listitems = []
-                
-                for item in loaditems:
-                    # Generate a listitem
-                    path = sys.argv[0] + "?type=launch&path=" + item[4]
-                    
-                    listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
-                    listitem.setProperty('isPlayable', 'False')
-                    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
-                    
-                # If we've loaded anything, save them to the list
-                xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-                            
-            except:
+            if not path == "":
                 try:
-                    # Try loading skin-provided defaults
-                    path = os.path.join( __skinpath__ , self.GROUP + ".shortcuts" )
+                    # Try loading shortcuts
                     loaditems = eval( file( path, "r" ).read() )
                     
                     listitems = []
@@ -94,6 +81,19 @@ class SkinShortcuts:
                         
                         listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
                         listitem.setProperty('isPlayable', 'False')
+                        listitem.setProperty( "labelID", item[0].replace(" ", "") )
+                        
+                        # Localize strings
+                        if not listitem.getLabel().find( "::SCRIPT::" ) == -1:
+                            listitem.setProperty( "labelID", self.createNiceName( listitem.getLabel()[10:] ) )
+                            listitem.setLabel( __language__(int( listitem.getLabel()[10:] ) ) )
+                        elif not listitem.getLabel().find( "::LOCAL::" ) == -1:
+                            listitem.setProperty( "labelID", self.createNiceName( listitem.getLabel()[9:] ) )
+                            listitem.setLabel( xbmc.getLocalizedString(int( listitem.getLabel()[9:] ) ) )
+                        
+                        if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
+                            listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
+            
                         xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
                         
                     # If we've loaded anything, save them to the list
@@ -101,137 +101,98 @@ class SkinShortcuts:
                                 
                 except:
                     print_exc()
-                    log( "### ERROR could not load file %s" % self.GROUP )
+                    log( "### ERROR could not load file %s" % path )
+            else:   
+                log( " - No shortcuts found")
+                
+        elif self.TYPE=="settings":
+            log( "### Generating list for skin settings" )
+            
+            # Create link to manage main menu
+            path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=mainmenu)" )
+            log( path )
+            listitem = xbmcgui.ListItem(label=__language__(32035), label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
+            listitem.setProperty('isPlayable', 'False')
+            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+            
+            # Set path based on user defined mainmenu, then skin-provided, then script-provided
+            if os.path.isfile( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
+                # User defined shortcuts
+                path = os.path.join( __datapath__ , "mainmenu.shortcuts" )
+            elif os.path.isfile( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
+                # Skin-provided defaults
+                path = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
+            elif os.path.isfile( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
+                # Script-provided defaults
+                path = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
+            else:
+                # No custom shortcuts or defaults available
+                path = ""
+                
+            if not path == "":
+                try:
+                    # Try loading shortcuts
+                    loaditems = eval( file( path, "r" ).read() )
+                    
+                    listitems = []
+                    
+                    for item in loaditems:
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + item[0].replace(" ", "") + ")" )
+                        
+                        listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
+                        listitem.setProperty('isPlayable', 'False')
+                        
+                        # Localize strings
+                        if not item[0].find( "::SCRIPT::" ) == -1:
+                            path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][10:] ) + ")" )
+                            listitem.setLabel( __language__(32036) + __language__(int( item[0][10:] ) ) )
+                        elif not listitem.getLabel().find( "::LOCAL::" ) == -1:
+                            path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ) + ")" )
+                            listitem.setLabel( __language__(32036) + xbmc.getLocalizedString(int( item[0][9:] ) ) )
+                            
+                        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+
+                except:
+                    print_exc()
+                    log( "### ERROR could not load file %s" % path )
+            
+            # Save the list
+            xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
                 
         elif self.TYPE=="launch":
             log( "### Launching shortcut" )
-            log( self.PATH )
+            log( " - " + urllib.unquote( self.PATH ) )
             xbmc.executebuiltin( urllib.unquote(self.PATH) )
-    
-    def _createdefaults( self ):
-        # Save shortcuts
-        listitems = []
+            
+            
+    def createNiceName ( self, item ):
+        # Translate certain localized strings into non-localized form for labelID
+        log( "Creating nice name for " + item )
+        if item == "10006":
+            return "videos"
+        if item == "342":
+            return "movies"
+        if item == "20343":
+            return "tvshows"
+        if item == "32022":
+            return "livetv"
+        if item == "10005":
+            return "music"
+        if item == "20389":
+            return "musicvideos"
+        if item == "10002":
+            return "pictures"
+        if item == "12600":
+            return "weather"
+        if item == "32023":
+            return "programs"
+        if item == "32032":
+            return "dvd"
+        if item == "10004":
+            return "settings"
+        else:
+            return item
         
-        if self.GROUP=="videos":
-            # Music videos
-            savedata=[__language__(32025), __language__(32014), "DefaultMusicVideos.png", "DefaultMusicVideos.png", urllib.quote( "ActivateWindow(Videos,MusicVideos,return)" )]
-            listitems.append(savedata)
-            
-            # Files
-            savedata=[__language__(32026), __language__(32014), "DefaultFolder.png", "DefaultFolder.png", urllib.quote( "ActivateWindow(Videos,Files,return)" )]
-            listitems.append(savedata)
-            
-            # Add-ons
-            savedata=[__language__(32052), __language__(32014), "DefaultAddonVideo.png", "DefaultAddonVideo.png", urllib.quote( "ActivateWindow(Videos,Addons,return)" )]
-            listitems.append(savedata)
-        
-        if self.GROUP=="movies":
-            # Recently added movies
-            savedata=[__language__(32028), __language__(32015), "DefaultRecentlyAddedMovies.png", "DefaultRecentlyAddedMovies.png",  urllib.quote( "ActivateWindow(Videos,RecentlyAddedMovies,return)" )]
-            listitems.append(savedata)
-            
-            # Sets
-            savedata=[__language__(32033), __language__(32015), "DefaultSets.png", "DefaultSets.png", urllib.quote( "ActivateWindow(Videos,MovieSets,return)" )]
-            listitems.append(savedata)
-            
-            # Titles
-            savedata=[__language__(32036), __language__(32015), "DefaultMovieTitle.png", "DefaultMovieTitle.png", urllib.quote( "ActivateWindow(Videos,MovieTitles,return)" )]
-            listitems.append(savedata)
-            
-            # Genres
-            savedata=[__language__(32032), __language__(32015), "DefaultGenre.png", "DefaultGenre.png", urllib.quote( "ActivateWindow(Videos,MovieGenres,return)" )]
-            listitems.append(savedata)
-            
-            # Years
-            savedata=[__language__(32037), __language__(32015), "DefaultYear.png", "DefaultYear.png", urllib.quote( "ActivateWindow(Videos,MovieYears,return)" )]
-            listitems.append(savedata)
-            
-            #Actors
-            savedata=[__language__(32029), __language__(32015), "DefaultActor.png", "DefaultActor.png", urllib.quote( "ActivateWindow(Videos,MovieActors,return)" )]
-            listitems.append(savedata)
-            
-        if self.GROUP=="tvshows":
-            # Recently added
-            savedata=[__language__(32028), __language__(32016), "DefaultRecentlyAddedEpisodes.png", "DefaultRecentlyAddedEpisodes.png", urllib.quote( "ActivateWindow(Videos,RecentlyAddedEpisodes,return)" )]
-            listitems.append(savedata)
-            
-            # Title
-            savedata=[__language__(32036), __language__(32016), "DefaultTVShowTitle.png", "DefaultTVShowTitle.png", urllib.quote( "ActivateWindow(Videos,TVShowTitles,return)" )]
-            listitems.append(savedata)
-            
-            # Genres
-            savedata=[__language__(32032), __language__(32016), "DefaultGenre.png", "DefaultGenre.png", urllib.quote( "ActivateWindow(Videos,TVShowGenres,return)" )]
-            listitems.append(savedata)
-            
-            # Years
-            savedata=[__language__(32037), __language__(32016), "DefaultYear.png", "DefaultYear.png", urllib.quote( "ActivateWindow(Videos,TVShowYears,return)" )]
-            listitems.append(savedata)
-            
-            # Actors
-            savedata=[__language__(32029), __language__(32016), "DefaultActor.png", "DefaultActor.png", urllib.quote( "ActivateWindow(Videos,TVShowActors,return)" )]
-            listitems.append(savedata)
-            
-        if self.GROUP=="tvshows":
-            # TV Channels
-            savedata=[__language__(32038), __language__(32017), "DefaultTVShows.png", "DefaultTVShows.png", urllib.quote( "ActivateWindowAndFocus(MyPVR,32,0 ,11,0)" )]
-            listitems.append(savedata)
-            
-            # Radio Channels
-            savedata=[__language__(32039), __language__(32017), "DefaultTVShows.png", "DefaultTVShows.png", urllib.quote( "ActivateWindowAndFocus(MyPVR,33,0 ,12,0)" )]
-            listitems.append(savedata)
-            
-            # Guide
-            savedata=[__language__(32040), __language__(32017), "DefaultTVShows.png", "DefaultTVShows.png", urllib.quote( "ActivateWindowAndFocus(MyPVR,31,0 ,10,0)" )]
-            listitems.append(savedata)
-            
-            # Recordings
-            savedata=[__language__(32041), __language__(32017), "DefaultTVShows.png", "DefaultTVShows.png", urllib.quote( "ActivateWindowAndFocus(MyPVR,34,0 ,13,0)" )]
-            listitems.append(savedata)
-            
-            # Timers
-            savedata=[__language__(32042), __language__(32017), "DefaultTVShows.png", "DefaultTVShows.png", urllib.quote( "ActivateWindowAndFocus(MyPVR,35,0 ,14,0)" )]
-            listitems.append(savedata)
-            
-        if self.GROUP=="music":
-            # Artists
-            savedata=[__language__(32044), __language__(32019), "DefaultMusicArtists.png", "DefaultMusicArtists.png", urllib.quote( "ActivateWindow(MusicLibrary,Artists,return)" )]
-            listitems.append(savedata)
-            
-            # Albums
-            savedata=[__language__(32043), __language__(32019), "DefaultMusicAlbums.png", "DefaultMusicAlbums.png", urllib.quote( "ActivateWindow(MusicLibrary,Albums,return)" )]
-            listitems.append(savedata)
-            
-            # Songs
-            savedata=[__language__(32047), __language__(32019), "DefaultMusicSongs.png", "DefaultMusicSongs.png", urllib.quote( "ActivateWindow(MusicLibrary,Songs,return)" )]
-            listitems.append(savedata)
-            
-            # Files
-            savedata=[__language__(32045), __language__(32019), "DefaultFolder.png", "DefaultFolder.png", urllib.quote( "ActivateWindow(MusicFiles)" )]
-            listitems.append(savedata)
-            
-            # Library
-            savedata=[__language__(32046), __language__(32019), "DefaultMusicAlbums.png", "DefaultMusicAlbums.png", urllib.quote( "ActivateWindow(MusicLibrary,return)" )]
-            listitems.append(savedata)
-            
-            # Add-ons
-            savedata=[__language__(32052), __language__(32019), "DefaultAddonMusic.png", "DefaultAddonMusic.png", urllib.quote( "ActivateWindow(MusicLibrary,Addons,return)" )]
-            listitems.append(savedata)
-            
-        if self.GROUP=="pictures":
-            # Add-ons
-            savedata=[__language__(32052), __language__(32020), "DefaultAddonPicture.png", "DefaultAddonPicture.png", urllib.quote( "ActivateWindow(Pictures,Addons,return)" )]
-            listitems.append(savedata)
-            
-        # Save the array if we've added anything
-        if listitems:
-            path = os.path.join( __datapath__ , self.GROUP + ".shortcuts" )
-            
-            try:
-                file( path , "w" ).write( repr( listitems ) )
-            except:
-                print_exc()
-                log( "### ERROR could not save file %s" % __datapath__ )
-    
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
     

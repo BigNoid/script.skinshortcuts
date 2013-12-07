@@ -12,8 +12,10 @@ else:
 __addon__        = sys.modules[ "__main__" ].__addon__
 __addonid__      = sys.modules[ "__main__" ].__addonid__
 __addonversion__ = sys.modules[ "__main__" ].__addonversion__
+__cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
 __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
+__defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'shortcuts').encode("utf-8") ).decode("utf-8")
 __language__     = sys.modules[ "__main__" ].__language__
 __cwd__          = sys.modules[ "__main__" ].__cwd__
 
@@ -34,6 +36,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.shortcutgroup = 1
         
         # Empty arrays for different shortcut types
+        self.arrayXBMCCommon = []
         self.arrayVideoLibrary = []
         self.arrayMusicLibrary = []
         self.arrayVideoPlaylists = []
@@ -55,14 +58,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 302 ).setLabel( __language__(32001) )
             self.getControl( 303 ).setLabel( __language__(32002) )
             self.getControl( 304 ).setLabel( __language__(32003) )
-            self.getControl( 305 ).setLabel( __language__(32054) )
-            self.getControl( 306 ).setLabel( __language__(32055) )
-            self.getControl( 307 ).setLabel( __language__(32056) )
-            self.getControl( 308 ).setLabel( __language__(32057) )
+            self.getControl( 305 ).setLabel( __language__(32025) )
+            self.getControl( 306 ).setLabel( __language__(32026) )
+            self.getControl( 307 ).setLabel( __language__(32027) )
+            self.getControl( 308 ).setLabel( __language__(32028) )
             
             # Prepare to load favourites
             found, favourites = self._read_file()
             self.listing = favourites
+            
+            # List XBMC common shortcuts (likely to be used on a main menu
+            self._load_xbmccommon()
             
             # List video and music library shortcuts
             self._load_videolibrary()
@@ -79,179 +85,121 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Load current shortcuts
             self.load_shortcuts()
         
+    def _load_xbmccommon( self ):
+        listitems = []
+        log('Listing xbmc common items...')
+        
+        # Videos, Movies, TV Shows, Live TV, Music, Music Videos, Pictures, Weather, Programs,
+        # Play dvd, eject tray
+        # Settings, File Manager, Profiles, System Info
+        listitems.append( self._create(["ActivateWindow(Videos)", "::LOCAL::10006", "::SCRIPT::32034", "DefaultVideo.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "::LOCAL::342", "::SCRIPT::32034", "DefaultMovies.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "::LOCAL::20343", "::SCRIPT::32034", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::SCRIPT::32022", "::SCRIPT::32034", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindow(Music)", "::LOCAL::10005", "::SCRIPT::32034", "DefaultMusicAlbums.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32034", "DefaultMusicVideos.png"]) )
+        listitems.append( self._create(["ActivateWindow(Pictures)", "::LOCAL::10002", "::SCRIPT::32034", "DefaultPicture.png"]) )
+        listitems.append( self._create(["ActivateWindow(Weather)", "::LOCAL::12600", "::SCRIPT::32034", ""]) )
+        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::SCRIPT::32023", "::SCRIPT::32034", "DefaultProgram.png"]) )
+
+        listitems.append( self._create(["XBMC.PlayDVD()", "::SCRIPT::32032", "::SCRIPT::32034", "DefaultDVDFull.png"]) )
+        listitems.append( self._create(["EjectTray()", "::SCRIPT::32033", "::SCRIPT::32034", "DefaultDVDFull.png"]) )
+                
+        listitems.append( self._create(["ActivateWindow(Settings)", "::LOCAL::10004", "::SCRIPT::32034", ""]) )
+        listitems.append( self._create(["ActivateWindow(FileManager)", "::LOCAL::7", "::SCRIPT::32034", "DefaultFolder.png"]) )
+        listitems.append( self._create(["ActivateWindow(Profiles)", "::LOCAL::13200", "::SCRIPT::32034", "UnknownUser.png"]) )
+        listitems.append( self._create(["ActivateWindow(SystemInfo)", "::LOCAL::10007", "::SCRIPT::32034", ""]) )
+        
+        self.arrayXBMCCommon = listitems
+        
     def _load_videolibrary( self ):
         listitems = []
         log('Listing video library...')
         
         # Videos
-        listitem = xbmcgui.ListItem(label=__language__(32022), label2=__language__(32014), iconImage="DefaultMovies.png", thumbnailImage="DefaultMovies.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,Movies,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32023), label2=__language__(32014), iconImage="DefaultTVShows.png", thumbnailImage="DefaultTVShows.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,TVShows,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32024), label2=__language__(32014), iconImage="DefaultTVShows.png", thumbnailImage="DefaultTVShows.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindowAndFocus(MyPVR,34,0 ,13,0)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32025), label2=__language__(32014), iconImage="DefaultMusicVideos.png", thumbnailImage="DefaultMusicVideos.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideos,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32026), label2=__language__(32014), iconImage="DefaultFolder.png", thumbnailImage="DefaultFolder.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,Files,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32027), label2=__language__(32014), iconImage="DefaultVideoPlaylists.png", thumbnailImage="DefaultVideoPlaylists.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,Playlists,return)" ) )
-        listitems.append(listitem)
+        listitems.append( self._create(["ActivateWindow(Videos,Movies,return)", "::LOCAL::342", "::SCRIPT::32014", "DefaultMovies.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,TVShows,return)", "::LOCAL::20343", "::SCRIPT::32014", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::SCRIPT::32022", "::SCRIPT::32014", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32014", "DefaultMusicVideos.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,Files,return)", "::LOCAL::744", "::SCRIPT::32014", "DefaultFolder.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,Playlists,return)", "::LOCAL::136", "::SCRIPT::32014", "DefaultVideoPlaylists.png"]) )
         
         # Movies
-        listitem = xbmcgui.ListItem(label=__language__(32028), label2=__language__(32015), iconImage="DefaultRecentlyAddedMovies.png", thumbnailImage="DefaultRecentlyAddedMovies.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,RecentlyAddedMovies,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32029), label2=__language__(32015), iconImage="DefaultActor.png", thumbnailImage="DefaultActor.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieActors,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32030), label2=__language__(32015), iconImage="DefaultCountry.png", thumbnailImage="DefaultCountry.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieCountries,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32031), label2=__language__(32015), iconImage="DefaultDirector.png", thumbnailImage="DefaultDirector.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieDirectors,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32032), label2=__language__(32015), iconImage="DefaultGenre.png", thumbnailImage="DefaultGenre.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieGenres,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32033), label2=__language__(32015), iconImage="DefaultSets.png", thumbnailImage="DefaultSets.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieSets,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32034), label2=__language__(32015), iconImage="DefaultStudios.png", thumbnailImage="DefaultStudios.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieStudios,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32035), label2=__language__(32015), iconImage="DefaultTags.png", thumbnailImage="DefaultTags.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieTags,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32036), label2=__language__(32015), iconImage="DefaultMovieTitle.png", thumbnailImage="DefaultMovieTitle.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieTitles,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32037), label2=__language__(32015), iconImage="DefaultYear.png", thumbnailImage="DefaultYear.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MovieYears,return)" ) )
-        listitems.append(listitem)
-        
+        listitems.append( self._create(["ActivateWindow(Videos,RecentlyAddedMovies,return)", "::LOCAL::20386", "::SCRIPT::32015", "DefaultRecentlyAddedMovies.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieActors,return)", "::LOCAL::344", "::SCRIPT::32015", "DefaultActor.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieCountries,return)", "::LOCAL::20451", "::SCRIPT::32015", "DefaultCountry.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieDirectors,return)", "::LOCAL::20348", "::SCRIPT::32015", "DefaultDirector.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieGenres,return)", "::LOCAL::135", "::SCRIPT::32015", "DefaultGenre.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieSets,return)", "::LOCAL::20434", "::SCRIPT::32015", "DefaultSets.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieStudios,return)", "::LOCAL::20388", "::SCRIPT::32015", "DefaultStudios.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieTags,return)", "::LOCAL::20459", "::SCRIPT::32015", "DefaultTags.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "::LOCAL::369", "::SCRIPT::32015", "DefaultMovieTitle.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MovieYears,return)", "::LOCAL::562", "::SCRIPT::32015", "DefaultYear.png"]) )
+
         # TV Shows
-        listitem = xbmcgui.ListItem(label=__language__(32028), label2=__language__(32016), iconImage="DefaultRecentlyAddedEpisodes.png", thumbnailImage="DefaultRecentlyAddedEpisodes.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,RecentlyAddedEpisodes,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32029), label2=__language__(32016), iconImage="DefaultActor.png", thumbnailImage="DefaultActor.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,TVShowActors,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32032), label2=__language__(32016), iconImage="DefaultGenre.png", thumbnailImage="DefaultGenre.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,TVShowGenres,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32034), label2=__language__(32016), iconImage="DefaultStudios.png", thumbnailImage="DefaultStudios.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,TVShowStudios,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32035), label2=__language__(32016), iconImage="DefaultTags.png", thumbnailImage="DefaultTags.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,TVShowTags,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32036), label2=__language__(32016), iconImage="DefaultTVShowTitle.png", thumbnailImage="DefaultTVShowTitle.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,TVShowTitles,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32037), label2=__language__(32016), iconImage="DefaultYear.png", thumbnailImage="DefaultYear.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,TVShowYears,return)" ) )
-        listitems.append(listitem)
+        listitems.append( self._create(["ActivateWindow(Videos,RecentlyAddedEpisodes,return)", "::LOCAL::20387", "::SCRIPT::32016", "DefaultRecentlyAddedEpisodes.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,TVShowActors,return)", "::LOCAL::344", "::SCRIPT::32016", "DefaultActor.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,TVShowGenres,return)", "::LOCAL::135", "::SCRIPT::32016", "DefaultGenre.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,TVShowStudios,return)", "::LOCAL::20388", "::SCRIPT::32016", "DefaultStudios.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,TVShowTags,return)", "::LOCAL::20459", "::SCRIPT::32016", "DefaultTags.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "::LOCAL::369", "::SCRIPT::32016", "DefaultTVShowTitle.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,TVShowYears,return)", "::LOCAL::562", "::SCRIPT::32016", "DefaultYear.png"]) )
 
         # PVR
-        listitem = xbmcgui.ListItem(label=__language__(32038), label2=__language__(32017), iconImage="DefaultTVShows.png", thumbnailImage="DefaultTVShows.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindowAndFocus(MyPVR,32,0 ,11,0)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32039), label2=__language__(32017), iconImage="DefaultTVShows.png", thumbnailImage="DefaultTVShows.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindowAndFocus(MyPVR,33,0 ,12,0)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32040), label2=__language__(32017), iconImage="DefaultTVShows.png", thumbnailImage="DefaultTVShows.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindowAndFocus(MyPVR,31,0 ,10,0)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32041), label2=__language__(32017), iconImage="DefaultTVShows.png", thumbnailImage="DefaultTVShows.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindowAndFocus(MyPVR,34,0 ,13,0)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32042), label2=__language__(32017), iconImage="DefaultTVShows.png", thumbnailImage="DefaultTVShows.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindowAndFocus(MyPVR,35,0 ,14,0)" ) )
-        listitems.append(listitem)
+        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "::LOCAL::19023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "::LOCAL::19024", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "::LOCAL::19069", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::LOCAL::19163", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::LOCAL::19040", "::SCRIPT::32017", "DefaultTVShows.png"]) )
         
         # Music Videos
-        listitem = xbmcgui.ListItem(label=__language__(32043), label2=__language__(32018), iconImage="DefaultMusicAlbums.png", thumbnailImage="DefaultMusicAlbums.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideoAlbums,return)" ) )
-        listitems.append(listitem)        
-        listitem = xbmcgui.ListItem(label=__language__(32044), label2=__language__(32018), iconImage="DefaultMusicArtists.png", thumbnailImage="DefaultMusicArtists.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideoArtists,return)" ) )
-        listitems.append(listitem)        
-        listitem = xbmcgui.ListItem(label=__language__(32031), label2=__language__(32018), iconImage="DefaultDirector.png", thumbnailImage="DefaultDirector.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideoDirectors,return)" ) )
-        listitems.append(listitem)        
-        listitem = xbmcgui.ListItem(label=__language__(32032), label2=__language__(32018), iconImage="DefaultMusicGenres.png", thumbnailImage="DefaultMusicGenres.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideoGenres,return)" ) )
-        listitems.append(listitem)        
-        listitem = xbmcgui.ListItem(label=__language__(32034), label2=__language__(32018), iconImage="DefaultStudios.png", thumbnailImage="DefaultStudios.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideoStudios,return)" ) )
-        listitems.append(listitem)        
-        listitem = xbmcgui.ListItem(label=__language__(32035), label2=__language__(32018), iconImage="DefaultTags.png", thumbnailImage="DefaultTags.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideoTags,return)" ) )
-        listitems.append(listitem)        
-        listitem = xbmcgui.ListItem(label=__language__(32036), label2=__language__(32018), iconImage="DefaultMusicVideoTitle.png", thumbnailImage="DefaultMusicVideoTitle.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideoTitles,return)" ) )
-        listitems.append(listitem)        
-        listitem = xbmcgui.ListItem(label=__language__(32037), label2=__language__(32018), iconImage="DefaultMusicYears.png", thumbnailImage="DefaultMusicYears.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,MusicVideoYears,return)" ) )
-        listitems.append(listitem)        
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoAlbums,return)", "::LOCAL::20389", "::SCRIPT::32018", "DefaultMusicAlbums.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoArtists,return)", "::LOCAL::133", "::SCRIPT::32018", "DefaultMusicArtists.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoDirectors,return)", "::LOCAL::20348", "::SCRIPT::32018", "DefaultDirector.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoGenres,return)", "::LOCAL::135", "::SCRIPT::32018", "DefaultMusicGenres.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoStudios,return)", "::LOCAL::20388", "::SCRIPT::32018", "DefaultStudios.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoTags,return)", "::LOCAL::20459", "::SCRIPT::32018", "DefaultTags.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoTitles,return)", "::LOCAL::369", "::SCRIPT::32018", "DefaultMusicVideoTitle.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoYears,return)", "::LOCAL::562", "::SCRIPT::32018", "DefaultMusicYears.png"]) )
         
         self.arrayVideoLibrary = listitems
-        
+                
     def _load_musiclibrary( self ):
         listitems = []
         log('Listing music library...')
         
         # Music
-        listitem = xbmcgui.ListItem(label=__language__(32045), label2=__language__(32019), iconImage="DefaultFolder.png", thumbnailImage="DefaultFolder.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicFiles)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32046), label2=__language__(32019), iconImage="DefaultMusicAlbums.png", thumbnailImage="DefaultMusicAlbums.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,MusicLibrary,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32025), label2=__language__(32019), iconImage="DefaultMusicVideos.png", thumbnailImage="DefaultMusicVideos.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,MusicVideos,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32032), label2=__language__(32019), iconImage="DefaultMusicGenres.png", thumbnailImage="DefaultMusicGenres.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Genres,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32044), label2=__language__(32019), iconImage="DefaultMusicArtists.png", thumbnailImage="DefaultMusicArtists.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Artists,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32043), label2=__language__(32019), iconImage="DefaultMusicAlbums.png", thumbnailImage="DefaultMusicAlbums.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Albums,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32047), label2=__language__(32019), iconImage="DefaultMusicSongs.png", thumbnailImage="DefaultMusicSongs.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Songs,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32037), label2=__language__(32019), iconImage="DefaultMusicYears.png", thumbnailImage="DefaultMusicYears.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Years,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32048), label2=__language__(32019), iconImage="DefaultMusicTop100.png", thumbnailImage="DefaultMusicTop100.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Top100,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32049), label2=__language__(32019), iconImage="DefaultMusicTop100Songs.png", thumbnailImage="DefaultMusicTop100Songs.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Top100Songs,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32050), label2=__language__(32019), iconImage="DefaultMusicTop100Albums.png", thumbnailImage="DefaultMusicTop100Albums.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Top100Albums,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32028), label2=__language__(32019), iconImage="DefaultMusicRecentlyAdded.png", thumbnailImage="DefaultMusicRecentlyAdded.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32051), label2=__language__(32019), iconImage="DefaultMusicRecentlyPlayed.png", thumbnailImage="DefaultMusicRecentlyPlayed.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32027), label2=__language__(32019), iconImage="DefaultMusicPlaylists.png", thumbnailImage="DefaultMusicPlaylists.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Playlists,return)" ) )
-        listitems.append(listitem)
+        listitems.append( self._create(["ActivateWindow(MusicFiles)", "::LOCAL::744", "::SCRIPT::32019", "DefaultFolder.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "::LOCAL::15100", "::SCRIPT::32019", "DefaultFolder.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32019", "DefaultMusicVideos.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Genres,return)", "::LOCAL::135", "::SCRIPT::32019", "DefaultMusicGenres.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Artists,return)", "::LOCAL::133", "::SCRIPT::32019", "DefaultMusicArtists.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Albums,return)", "::LOCAL::132", "::SCRIPT::32019", "DefaultMusicAlbums.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Songs,return)", "::LOCAL::134", "::SCRIPT::32019", "DefaultMusicSongs.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Years,return)", "::LOCAL::652", "::SCRIPT::32019", "DefaultMusicYears.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100,return)", "::LOCAL::271", "::SCRIPT::32019", "DefaultMusicTop100.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Songs,return)", "::LOCAL::10504", "::SCRIPT::32019", "DefaultMusicTop100Songs.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Albums,return)", "::LOCAL::10505", "::SCRIPT::32019", "DefaultMusicTop100Albums.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "::LOCAL::359", "::SCRIPT::32019", "DefaultMusicRecentlyAdded.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "::LOCAL::517", "::SCRIPT::32019", "DefaultMusicRecentlyPlayed.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "::LOCAL::136", "::SCRIPT::32019", "DefaultMusicPlaylists.png"]) )
         
         self.arrayMusicLibrary = listitems
+        
+    def _create ( self, item ):
+        if not item[1].find( "::SCRIPT::" ) == -1:
+            listitem = xbmcgui.ListItem(label=__language__(int( item[1][10:] ) ), label2=__language__( int ( item[2][10:]) ), iconImage="DefaultShortcut.png", thumbnailImage=item[3])
+        elif not item[1].find( "::LOCAL::" ) == -1:
+            listitem = xbmcgui.ListItem(label=xbmc.getLocalizedString(int( item[1][9:] ) ), label2=__language__( int ( item[2][10:]) ), iconImage="DefaultShortcut.png", thumbnailImage=item[3])
+        else:
+            listitem = xbmcgui.ListItem(label=xbmc.item[1], label2=__language__( int ( item[2][10:]) ), iconImage="DefaultShortcut.png", thumbnailImage=item[3])
+        listitem.setProperty( "path", urllib.quote( item[0] ) )
+        listitem.setProperty( "localizedString", item[1] )
+        listitem.setProperty( "shortcutType", item[2] )
+        listitem.setProperty( "icon", "DefaultShortcut.png" )
+        listitem.setProperty( "thumbnail", item[3] )
+        
+        return( listitem )
         
     def _fetch_videoplaylists( self ):
         listitems = []
@@ -261,7 +209,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             dirlist = os.listdir( xbmc.translatePath( path ).decode('utf-8') )
         except:
             dirlist = []
-        log('dirlist: %s' % dirlist)
         for item in dirlist:
             playlist = os.path.join( path, item)
             playlistfile = xbmc.translatePath( playlist )
@@ -275,17 +222,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         if not name:
                             name = item[:-4]
                         log('Video playlist found %s' % name)
-                        listitem = xbmcgui.ListItem(label=name, label2=__language__(32004), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                        listitem = xbmcgui.ListItem(label=name, label2=__language__(32004), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
                         listitem.setProperty( "path", urllib.quote( "ActivateWindow(VideoLibrary," + playlist + ", return)" ) )
-                        listitem.setProperty( "icon", "DefaultPlaylist.png" )
+                        listitem.setProperty( "icon", "DefaultShortcut.png" )
                         listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                        listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32004" )
                         listitems.append(listitem)
                         break
             elif item.endswith('.m3u'):
                 name = item[:-4]
                 log('Video playlist found %s' % name)
-                listitem = xbmcgui.ListItem(label=name, label2= __language__(32004), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                listitem = xbmcgui.ListItem(label=name, label2= __language__(32004), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
                 listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                listitem.setProperty( "icon", "DefaultShortcut.png" )
+                listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32004" )
                 listitems.append(listitem)
                 
         self.arrayVideoPlaylists = listitems
@@ -299,7 +250,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             dirlist = os.listdir( xbmc.translatePath( path ).decode('utf-8') )
         except:
             dirlist = []
-        log('dirlist: %s' % dirlist)
         for item in dirlist:
             playlist = os.path.join( path, item)
             playlistfile = xbmc.translatePath( playlist )
@@ -313,17 +263,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         if not name:
                             name = item[:-4]
                         log('Music playlist found %s' % name)
-                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
                         listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                        listitem.setProperty( "icon", "DefaultPlaylist.png" )
+                        listitem.setProperty( "icon", "DefaultShortcut.png" )
                         listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                        listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
                         listitems.append(listitem)
                         break
             elif item.endswith('.m3u'):
                 name = item[:-4]
                 log('Music playlist found %s' % name)
-                listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
                 listitem.setProperty( urllib.quote( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                listitem.setProperty( "icon", "DefaultShortcut.png" )
+                listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
                 listitems.append(listitem)
                 
         # Mixed Playlists
@@ -347,17 +301,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         if not name:
                             name = item[:-4]
                         log('Music playlist found %s' % name)
-                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
                         listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                        listitem.setProperty( "icon", "DefaultPlaylist.png" )
+                        listitem.setProperty( "icon", "DefaultShortcut.png" )
                         listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                        listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32008" )
                         listitems.append(listitem)
                         break
             elif item.endswith('.m3u'):
                 name = item[:-4]
                 log('Music playlist found %s' % name)
-                listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultPlaylist.png', thumbnailImage='DefaultPlaylist.png')
+                listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
                 listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                listitem.setProperty( "icon", "DefaultShortcut.png" )
+                listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32008" )
                 listitems.append(listitem)
         
         self.arrayAudioPlaylists = listitems
@@ -372,7 +330,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             try:
                 if 'playlists/music' in fav_path or 'playlists/video' in fav_path:
                     listitem.setIconImage( "DefaultPlaylist.png" )
-                    listitem.setProperty( "icon", "DefaultPlaylist.png" )
+                    listitem.setProperty( "icon", "DefaultShortcut.png" )
                     listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                 else:
                     listitem.setIconImage( favourite.attributes[ 'thumb' ].nodeValue )
@@ -384,6 +342,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 fav_path = fav_path.rstrip(')')
                 fav_path = fav_path + ',return)'
             listitem.setProperty( "path", urllib.quote(fav_path) )
+            listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32006" )
             listitems.append(listitem)
         
         self.arrayFavourites = listitems
@@ -393,31 +352,25 @@ class GUI( xbmcgui.WindowXMLDialog ):
         log( 'Loading add-ons' )
         
         # Add links to each add-on type in library
-        listitem = xbmcgui.ListItem(label=__language__(32052), label2=__language__(32014), iconImage="DefaultAddonVideo.png", thumbnailImage="DefaultAddonVideo.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Videos,Addons,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32052), label2=__language__(32019), iconImage="DefaultAddonMusic.png", thumbnailImage="DefaultAddonMusic.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary,Addons,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32052), label2=__language__(32020), iconImage="DefaultAddonPicture.png", thumbnailImage="DefaultAddonPicture.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Pictures,Addons,return)" ) )
-        listitems.append(listitem)
-        listitem = xbmcgui.ListItem(label=__language__(32053), label2=__language__(32021), iconImage="DefaultAddonProgram.png", thumbnailImage="DefaultAddonProgram.png")
-        listitem.setProperty( "path", urllib.quote( "ActivateWindow(Programs,Addons,return)" ) )
-        listitems.append(listitem)
-        
-        
+        listitems.append( self._create(["ActivateWindow(Videos,Addons,return)", "::LOCAL::1037", "::SCRIPT::32014", "DefaultAddonVideo.png"]) )
+        listitems.append( self._create(["ActivateWindow(MusicLibrary,Addons,return)", "::LOCAL::1038", "::SCRIPT::32019", "DefaultAddonMusic.png"]) )
+        listitems.append( self._create(["ActivateWindow(Pictures,Addons,return)", "::LOCAL::1039", "::SCRIPT::32020", "DefaultAddonPicture.png"]) )
+        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::SCRIPT::32023", "::SCRIPT::32021", "DefaultAddonProgram.png"]) )
         
         contenttypes = ["executable", "video", "audio", "image"]
         for contenttype in contenttypes:
             if contenttype == "executable":
                 contentlabel = __language__(32009)
+                shortcutType = "32009"
             elif contenttype == "video":
                 contentlabel = __language__(32010)
+                shortcutType = "32010"
             elif contenttype == "audio":
                 contentlabel = __language__(32011)
+                shortcutType = "32011"
             elif contenttype == "image":
                 contentlabel = __language__(32012)
+                shortcutType = "32012"
                 
             json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
             json_query = unicode(json_query, 'utf-8', errors='ignore')
@@ -427,15 +380,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for item in json_response['result']['addons']:
                     if item['enabled'] == True:
                         log('Addon found %s' % item['name'])
-                        listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage=item['thumbnail'], thumbnailImage=item['thumbnail'])
+                        listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
                         listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'] + ")" ) )
                         if item['thumbnail'] != "":
-                            listitem.setProperty( "icon", item['thumbnail'] )
                             listitem.setProperty( "thumbnail", item['thumbnail'] )
                         else:
-                            listitem.setProperty( "icon", "DefaultAddon.png" )
                             listitem.setProperty( "thumbnail", "DefaultAddon.png" )
-                            listitem.setIconImage( "DefaultAddon.png" )
+                        
+                        listitem.setProperty( "icon", "DefaultAddon.png" )
+                        listitem.setProperty( "shortcutType", "::SCRIPT::" + shortcutType )
                         listitems.append(listitem)
         
         self.arrayAddOns = listitems
@@ -462,14 +415,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Move to previous type of shortcuts
             self.shortcutgroup = self.shortcutgroup - 1
             if self.shortcutgroup == 0:
-                self.shortcutgroup = 6
+                self.shortcutgroup = 7
                 
             self._display_shortcuts()
 
         if controlID == 103:
             # Move to next type of shortcuts
             self.shortcutgroup = self.shortcutgroup + 1
-            if self.shortcutgroup == 7:
+            if self.shortcutgroup == 8:
                 self.shortcutgroup = 1
                 
             self._display_shortcuts()
@@ -486,9 +439,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     log ( "### Found the item" )
                     listitems.append(listitemCopy)
                 else:
-                    # Duplicate the item and it to the listitems array
+                    # Duplicate the item and add it to the listitems array
                     listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                    
                     listitems.append(listitemShortcutCopy)
                     
             self.getControl( 211 ).reset()
@@ -585,18 +537,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if ( keyboard.isConfirmed() ):
                 custom_label = keyboard.getText()
             # Create a copy of the listitem
-            listitem = self.getControl( 211 ).getSelectedItem()
-            listitemCopy = xbmcgui.ListItem(label=custom_label, label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=listitem.getProperty("thumbnail"))
-            listitemCopy.setProperty( "path", listitem.getProperty("path") )
-            listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
-            listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            listitemCopy.setLabel(custom_label)
+            listitemCopy.setProperty( "localizedString", "" )
             
             # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
             listitems = []
             num = self.getControl( 211 ).getSelectedPosition()
             for x in range(0, self.getControl( 211 ).size()):
                 if x == num:
-                    log ( "### Found the item" )
                     listitems.append(listitemCopy)
                 else:
                     # Duplicate the item and it to the listitems array
@@ -608,25 +557,24 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).addItems(listitems)
             
             self.getControl( 211 ).selectItem( num )
-            
+
         if controlID == 306:
-            # Change icon
-            custom_icon = self.getControl( 211 ).getSelectedItem().getProperty( "Icon" )
+            # Change thumbnail
+            custom_thumbnail = self.getControl( 211 ).getSelectedItem().getProperty( "thumbnail" )
             dialog = xbmcgui.Dialog()
-            custom_icon = dialog.browse( 2 , xbmc.getLocalizedString(1030), 'files')
-            # Create a copy of the listitem
-            listitem = self.getControl( 211 ).getSelectedItem()
-            listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=custom_icon, thumbnailImage=listitem.getProperty("thumbnail"))
-            listitemCopy.setProperty( "path", listitem.getProperty("path") )
-            listitemCopy.setProperty( "icon", custom_icon )
-            listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
+            custom_thumbnail = dialog.browse( 2 , xbmc.getLocalizedString(1030), 'files')
             
-            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered icon
+            # Create a copy of the listitem
+            if custom_thumbnail:
+                self.getControl( 211 ).getSelectedItem().setProperty( "Thumbnail", custom_thumbnail )
+                
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            
+            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered thumbnail
             listitems = []
             num = self.getControl( 211 ).getSelectedPosition()
             for x in range(0, self.getControl( 211 ).size()):
                 if x == num:
-                    log ( "### Found the item" )
                     listitems.append(listitemCopy)
                 else:
                     # Duplicate the item and it to the listitems array
@@ -640,55 +588,26 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).selectItem( num )
 
         if controlID == 307:
-            # Change thumbnail
-            custom_thumbnail = self.getControl( 211 ).getSelectedItem().getProperty( "thumbnail" )
-            dialog = xbmcgui.Dialog()
-            custom_thumbnail = dialog.browse( 0 , xbmc.getLocalizedString(1031), 'files')
-            # Create a copy of the listitem
-            listitem = self.getControl( 211 ).getSelectedItem()
-            listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=custom_thumbnail)
-            listitemCopy.setProperty( "path", listitem.getProperty("path") )
-            listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
-            listitemCopy.setProperty( "thumbnail", custom_thumbnail )
-            
-            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered thumbnail
-            listitems = []
-            num = self.getControl( 211 ).getSelectedPosition()
-            for x in range(0, self.getControl( 211 ).size()):
-                if x == num:
-                    log ( "### Found the item" )
-                    listitems.append(listitemCopy)
-                else:
-                    # Duplicate the item and it to the listitems array
-                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                    
-                    listitems.append(listitemShortcutCopy)
-                    
-            self.getControl( 211 ).reset()
-            self.getControl( 211 ).addItems(listitems)
-            
-            self.getControl( 211 ).selectItem( num )
-
-        if controlID == 308:
             # Change path
-            custom_path = self.getControl( 211 ).getSelectedItem().getProperty( urllib.unquote( "path" ) )
+            custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
             keyboard = xbmc.Keyboard( custom_path, xbmc.getLocalizedString(528), False )
             keyboard.doModal()
             if ( keyboard.isConfirmed() ):
                 custom_path = keyboard.getText()
-            # Create a copy of the listitem
-            listitem = self.getControl( 211 ).getSelectedItem()
-            listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=listitem.getProperty("thumbnail"))
-            listitemCopy.setProperty( urllib.quote( "path" ), custom_path )
-            listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
-            listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
+            
+            # Create a copy of the listitem with new path, and type set to custom
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            
+            if not urllib.quote( custom_path ) == self.getControl( 211 ).getSelectedItem().getProperty( "path" ):
+                listitemCopy.setProperty( "path", urllib.quote( custom_path ) )
+                listitemCopy.setLabel2( __language__(32024) )
+                listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
             
             # Loop through the original list, and replace the currently selected listitem with our new listitem with altered path
             listitems = []
             num = self.getControl( 211 ).getSelectedPosition()
             for x in range(0, self.getControl( 211 ).size()):
                 if x == num:
-                    log ( "### Found the item" )
                     listitems.append(listitemCopy)
                 else:
                     # Duplicate the item and it to the listitems array
@@ -701,60 +620,43 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             self.getControl( 211 ).selectItem( num )
             
+        if controlID == 308:
+            # Reset shortcuts
+            self.getControl( 211 ).reset()
+            self.load_shortcuts()
+            
     def load_shortcuts( self ):
-        path = os.path.join( __datapath__ , self.group + ".shortcuts" )
+        log( "Loading shortcuts" )
         
-        try:
-            loaditems = eval( file( path, "r" ).read() )
-            
-            listitems = []
-            
-            for item in loaditems:
-                # Generate a listitem
-                
-                listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
-                listitem.setProperty( "path", item[4] )
-                listitem.setProperty( "icon", item[2] )
-                listitem.setProperty( "thumbnail", item[3] )
-                
-                listitems.append(listitem)
-                
-            # If we've loaded anything, save them to the list
-            if len(listitems) != 0:
-                self.getControl( 211 ).addItems(listitems)
-                
-            # If there are no items in the list, add an empty one...
-            if self.getControl( 211 ).size() == 0:
-                listitem = xbmcgui.ListItem( __language__(32013) )
-                listitem.setProperty( "Path", 'noop' )
-                
-                self.getControl( 211 ).addItem( listitem )
-                
-                # Set focus
-                self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
-                            
-        except:
+        # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
+        if os.path.isfile( os.path.join( __datapath__ , self.group + ".shortcuts" ) ):
+            # User defined shortcuts
+            path = os.path.join( __datapath__ , self.group + ".shortcuts" )
+        elif os.path.isfile( os.path.join( __skinpath__ , self.group + ".shortcuts" ) ):
+            # Skin-provided defaults
             path = os.path.join( __skinpath__ , self.group + ".shortcuts" )
+        elif os.path.isfile( os.path.join( __defaultpath__ , self.group + ".shortcuts" ) ):
+            # Script-provided defaults
+            path = os.path.join( __defaultpath__ , self.group + ".shortcuts" )
+        else:
+            # No custom shortcuts or defaults available
+            path = ""
             
+        if not path == "":
+            # Try to load shortcuts
             try:
+                # Try to load any user defined shortcuts
                 loaditems = eval( file( path, "r" ).read() )
                 
                 listitems = []
                 
                 for item in loaditems:
-                    # Generate a listitem
-                    
-                    listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
-                    listitem.setProperty( "path", item[4] )
-                    listitem.setProperty( "icon", item[2] )
-                    listitem.setProperty( "thumbnail", item[3] )
-                    
-                    listitems.append(listitem)
+                    listitems.append( self._parse_listitem( item ) )
                     
                 # If we've loaded anything, save them to the list
                 if len(listitems) != 0:
                     self.getControl( 211 ).addItems(listitems)
-                    
+                
                 # If there are no items in the list, add an empty one...
                 if self.getControl( 211 ).size() == 0:
                     listitem = xbmcgui.ListItem( __language__(32013) )
@@ -764,30 +666,86 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
                     # Set focus
                     self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
-                                
             except:
+                # We couldn't load any skin-provided defaults
                 print_exc()
-                log( "### ERROR could not load file %s" % __datapath__ )
+                log( "### ERROR could not load file %s" % path )
                 return []
+        else:
+            # Add an empty item
+            listitem = xbmcgui.ListItem( __language__(32013) )
+            listitem.setProperty( "Path", 'noop' )
+            
+            self.getControl( 211 ).addItem( listitem )
+            
+            # Set focus
+            self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+        
+                
+    def _parse_listitem( self, item ):
+        # Parse a loaded listitem, replacing ::SCRIPT:: or ::LOCAL:: with localized strings
+        loadLabel = item[0]
+        loadLabel2 = item[1]
+        saveLabel2 = item[1]
+
+        if not loadLabel2.find( "::SCRIPT::" ) == -1:
+            saveLabel2 = __language__( int ( loadLabel2[10:] ) )
+        
+        if not loadLabel.find( "::SCRIPT::" ) == -1:
+            # An item with a script-localized string
+            listitem = xbmcgui.ListItem(label=__language__(int( loadLabel[10:] ) ), label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
+            listitem.setProperty( "path", item[4] )
+            listitem.setProperty( "icon", item[2] )
+            listitem.setProperty( "thumbnail", item[3] )
+            listitem.setProperty( "localizedString", loadLabel )
+            listitem.setProperty( "shortcutType", loadLabel2 )
+
+        elif not loadLabel.find( "::LOCAL::" ) == -1:
+            # An item with an XBMC-localized string
+            listitem = xbmcgui.ListItem(label= xbmc.getLocalizedString(int( loadLabel[9:] ) ), label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
+            listitem.setProperty( "path", item[4] )
+            listitem.setProperty( "icon", item[2] )
+            listitem.setProperty( "thumbnail", item[3] )
+            listitem.setProperty( "localizedString", loadLabel )
+            listitem.setProperty( "shortcutType", loadLabel2 )
+            
+        else:
+            # An item without a localized string
+            listitem = xbmcgui.ListItem(label=item[0], label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
+            listitem.setProperty( "path", item[4] )
+            listitem.setProperty( "icon", item[2] )
+            listitem.setProperty( "thumbnail", item[3] )
+            listitem.setProperty( "shortcutType", loadLabel2 )
+            
+        return listitem
             
     def _duplicate_listitem( self, listitem ):
+        # Create a copy of an existing listitem
         listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=listitem.getProperty("thumbnail"))
         listitemCopy.setProperty( "path", listitem.getProperty("path") )
         listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
-        
+        listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
+        listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
         return listitemCopy
         
     def _save_shortcuts( self ):
         # Save shortcuts
+        log( "Saving shortcuts" )
         listitems = []
         
         for x in range(0, self.getControl( 211 ).size()):
             # If the item has a path, push it to an array
             listitem = self.getControl( 211 ).getListItem(x)
             
-            if listitem.getProperty( "path" ) != "noop":
-                savedata=[listitem.getLabel(), listitem.getLabel2(), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path")]
+            if listitem.getLabel() != __language__(32013):
+                saveLabel = listitem.getLabel()
+                saveLabel2 = listitem.getLabel2()
+                
+                if listitem.getProperty( "localizedString" ):
+                    saveLabel = listitem.getProperty( "localizedString" )
+                
+                savedata=[saveLabel, listitem.getProperty("shortcutType"), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path")]
                 listitems.append(savedata)
         
         path = os.path.join( __datapath__ , self.group + ".shortcuts" )
@@ -811,25 +769,29 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load the currently selected shortcut group
         if self.shortcutgroup == 1:
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(self.arrayVideoLibrary)
-            self.getControl( 101 ).setLabel( "Video Library (%s)" %self.getControl( 111 ).size() )
+            self.getControl( 111 ).addItems(self.arrayXBMCCommon)
+            self.getControl( 101 ).setLabel( __language__(32029) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 2:
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(self.arrayMusicLibrary)
-            self.getControl( 101 ).setLabel( "Music Library (%s)" %self.getControl( 111 ).size() )
+            self.getControl( 111 ).addItems(self.arrayVideoLibrary)
+            self.getControl( 101 ).setLabel( __language__(32030) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 3:
+            self.getControl( 111 ).reset()
+            self.getControl( 111 ).addItems(self.arrayMusicLibrary)
+            self.getControl( 101 ).setLabel( __language__(32031) + " (%s)" %self.getControl( 111 ).size() )
+        if self.shortcutgroup == 4:
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(self.arrayVideoPlaylists)
             self.getControl( 101 ).setLabel( __language__(32004) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 4:
+        if self.shortcutgroup == 5:
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(self.arrayAudioPlaylists)
             self.getControl( 101 ).setLabel( __language__(32005) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 5:
+        if self.shortcutgroup == 6:
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(self.arrayFavourites)
             self.getControl( 101 ).setLabel( __language__(32006) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 6:
+        if self.shortcutgroup == 7:
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(self.arrayAddOns)
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
