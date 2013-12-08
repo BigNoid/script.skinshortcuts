@@ -30,7 +30,7 @@ In your skinsettings.xml file, you need to create a button for each [groupname] 
  
 Uses new method of filling the contents of a list in Gotham. In the list where you want the submenu to appear, put the following in the <content> tag:
  
-	plugin://script.skinshortcuts?amp;type=list&amp;group=[groupname]
+	plugin://script.skinshortcuts?type=list&amp;group=[groupname]
    
 This will fill the list with items with the following properties:
 
@@ -64,7 +64,7 @@ This details the simplest method of displaying main menu and sub-menus, using tw
   
 In the list where you want the main menu to appear, put the following in the <content> tag:
  
-	plugin://script.skinshortcuts?amp;type=list&amp;group=mainmenu
+	plugin://script.skinshortcuts?type=list&amp;group=mainmenu
    
 This will fill the list with items with the following properties:
 
@@ -76,7 +76,7 @@ This will fill the list with items with the following properties:
 
 In the list where you want the sub-menu to appear, put the following in the <content> tag:
  
-	plugin://script.skinshortcuts?amp;type=list&amp;group=$INFO[Container(50).ListItem.Property(labelID)]
+	plugin://script.skinshortcuts?type=list&amp;group=$INFO[Container(50).ListItem.Property(labelID)]
    
 Remember to replace Container(50) with the id of the list you are using for the main menu.
  
