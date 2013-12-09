@@ -15,7 +15,7 @@ __addonversion__ = sys.modules[ "__main__" ].__addonversion__
 __cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
 __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
-__defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'shortcuts').encode("utf-8") ).decode("utf-8")
+__defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
 __language__     = sys.modules[ "__main__" ].__language__
 __cwd__          = sys.modules[ "__main__" ].__cwd__
 
@@ -532,14 +532,25 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if controlID == 305:
             # Change label
             custom_label = self.getControl( 211 ).getSelectedItem().getLabel()
+            if custom_label == __language__(32013):
+                custom_label = ""
             keyboard = xbmc.Keyboard( custom_label, xbmc.getLocalizedString(528), False )
             keyboard.doModal()
             if ( keyboard.isConfirmed() ):
                 custom_label = keyboard.getText()
+                if custom_label == "":
+                    custom_label = __language__(32013)
+                
             # Create a copy of the listitem
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
             listitemCopy.setLabel(custom_label)
             listitemCopy.setProperty( "localizedString", "" )
+            
+            # If there's no label2, set it to custom shortcut
+            log( "Listitem Label2 - " + listitemCopy.getLabel2() )
+            if not listitemCopy.getLabel2():
+                listitemCopy.setLabel2( __language__(32024) )
+                listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
             
             # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
             listitems = []
@@ -590,10 +601,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if controlID == 307:
             # Change path
             custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
+            if custom_path == "noop":
+                custom_path = ""
             keyboard = xbmc.Keyboard( custom_path, xbmc.getLocalizedString(528), False )
             keyboard.doModal()
             if ( keyboard.isConfirmed() ):
                 custom_path = keyboard.getText()
+                if custom_path == "":
+                    custom_path = "noop"
             
             # Create a copy of the listitem with new path, and type set to custom
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
@@ -623,7 +638,55 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if controlID == 308:
             # Reset shortcuts
             self.getControl( 211 ).reset()
-            self.load_shortcuts()
+            
+            # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
+            if os.path.isfile( os.path.join( __skinpath__ , self.group + ".shortcuts" ) ):
+                # Skin-provided defaults
+                path = os.path.join( __skinpath__ , self.group + ".shortcuts" )
+            elif os.path.isfile( os.path.join( __defaultpath__ , self.group + ".shortcuts" ) ):
+                # Script-provided defaults
+                path = os.path.join( __defaultpath__ , self.group + ".shortcuts" )
+            else:
+                # No custom shortcuts or defaults available
+                path = ""
+                
+            if not path == "":
+                # Try to load shortcuts
+                try:
+                    loaditems = eval( file( path, "r" ).read() )
+                    
+                    listitems = []
+                    
+                    for item in loaditems:
+                        listitems.append( self._parse_listitem( item ) )
+                        
+                    # If we've loaded anything, save them to the list
+                    if len(listitems) != 0:
+                        self.getControl( 211 ).addItems(listitems)
+                    
+                    # If there are no items in the list, add an empty one...
+                    if self.getControl( 211 ).size() == 0:
+                        listitem = xbmcgui.ListItem( __language__(32013) )
+                        listitem.setProperty( "Path", 'noop' )
+                        
+                        self.getControl( 211 ).addItem( listitem )
+                        
+                        # Set focus
+                        self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+                except:
+                    # We couldn't load the file
+                    print_exc()
+                    log( "### ERROR could not load file %s" % path )
+                    return []
+            else:
+                # Add an empty item
+                listitem = xbmcgui.ListItem( __language__(32013) )
+                listitem.setProperty( "Path", 'noop' )
+                
+                self.getControl( 211 ).addItem( listitem )
+                
+                # Set focus
+                self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
             
     def load_shortcuts( self ):
         log( "Loading shortcuts" )
@@ -645,7 +708,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if not path == "":
             # Try to load shortcuts
             try:
-                # Try to load any user defined shortcuts
                 loaditems = eval( file( path, "r" ).read() )
                 
                 listitems = []
@@ -667,7 +729,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Set focus
                     self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
             except:
-                # We couldn't load any skin-provided defaults
+                # We couldn't load the file
                 print_exc()
                 log( "### ERROR could not load file %s" % path )
                 return []

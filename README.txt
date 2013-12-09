@@ -135,6 +135,35 @@ The easiest way to create this file is to use the script to build a list of shor
 The script provides defaults equivalent to Confluence's main menu and sub-menus.
 
 
+Overriding Actions
+------------------
+
+It's possible to override an action, allowing the skin to provide additional functionality from a menu item - for example, you may wish to override the default action for Movies (to go to the titles view) and run a script such as Cinema Experience instead.
+
+To do this, you need to provide an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. The file format is as follows:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
+	<override action="[command]">
+		<condition>[Boolean condition]</condition>
+		<action>[XBMC function]</action>
+	<override>
+	<override action="ActivateWindow(Videos,MovieTitles,return)">
+		<condition>Skin.HasSetting(CinemaExperience)</condition>
+		<condition>System.HasAddon(script.cinema.experience)</condition>
+		<action>RunScript(script.cinema.experience,movietitles)</action>
+	</override>
+</overrides>
+
+In <override action="[command]"> specify the action that you are overriding.
+
+<condition> is optional, and contains an XBMC boolean condition that must be met for the custom action to run. Multiple <condition> tags can be included to check multiple conditions.
+
+<action> specified which action should be run. Multiple <action> tags can be included to run multiple actions.
+
+The file can also be provided in special://userdata/addon_data/script.skinshortcuts - if provided here then any overrides will carry over between skins (primarily so users can provide their own overrides). Additionally, overrides in this file will take precedent over overrides provided by the skin.
+
+
 Localization
 ------------
 

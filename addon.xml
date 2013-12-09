@@ -11,6 +11,8 @@
 		<platform>all</platform>
 		<license>GNU General Public License, v2</license>
 		<forum>http://forum.xbmc.org/showthread.php?tid=178294</forum>
+		<website></website>
+		<email></email>
 		<source>https://github.com/unfledged</source>
 	</extension>
 </addon>
