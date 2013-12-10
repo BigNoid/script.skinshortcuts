@@ -2,6 +2,7 @@ import os, sys
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, urllib
 import xml.etree.ElementTree as xmltree
 from xml.dom.minidom import parse
+from time import gmtime, strftime
 from traceback import print_exc
 
 __addon__        = xbmcaddon.Addon()
@@ -52,6 +53,8 @@ class SkinShortcuts:
             ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=self.GROUP )
             ui.doModal()
             del ui
+            # Update home window property (used to automatically refresh type=settings)
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
         elif self.TYPE=="list":
             if not self.GROUP == "":
                 log( "### Listing shortcuts ..." )
@@ -162,8 +165,32 @@ class SkinShortcuts:
                     print_exc()
                     log( "### ERROR could not load file %s" % path )
             
+            # Add a link to reset all shortcuts
+            path = sys.argv[0] + "?type=resetall"
+            listitem = xbmcgui.ListItem(label=__language__(32037), label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
+            listitem.setProperty('isPlayable', 'False')
+            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+            
             # Save the list
             xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
+            
+        elif self.TYPE=="resetall":
+            log( "### Resetting all shortcuts" )
+            dialog = xbmcgui.Dialog()
+            if dialog.yesno(__language__(32037), __language__(32038)):
+                for files in os.listdir( __datapath__ ):
+                    try:
+                        log( "File found - " + files )
+                        file_path = os.path.join( __datapath__, files)
+                        if os.path.isfile( file_path ):
+                            log( "Deleting file" )
+                            os.unlink( file_path )
+                    except:
+                        print_exc()
+                        log( "### ERROR could not delete file %s" % path )
+            
+            # Update home window property (used to automatically refresh type=settings)
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
                 
         elif self.TYPE=="launch":
             log( "### Launching shortcut" )
@@ -190,6 +217,7 @@ class SkinShortcuts:
                                     log ( action.text )
                                     runDefaultCommand = False
                                     xbmc.executebuiltin( action.text )
+                                break
                     except:
                         print_exc()
                         log( "### ERROR could not load file %s" % path )

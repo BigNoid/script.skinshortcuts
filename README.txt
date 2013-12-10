@@ -54,9 +54,7 @@ The script can provide a list of controls for your skinsettings.xml to let the u
   
 Uses new method of filling the contents of a list in Gotham. In the list where you want these controls to appear, put the following in the <content> tag:
   
-	RunScript(script.skinshortcuts?type=settings)
-  
-KNOWN ISSUE - if the user updates which items appear on the main menu, the list of controls for managing any sub-menus will not update until skinsettings.xml is reloaded.
+	RunScript(script.skinshortcuts?type=settings&amp;property=$INFO[Window(10000).Property("skinshortcuts")])
  
 3. Display main menu and shortcuts
  
