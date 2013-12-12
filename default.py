@@ -13,6 +13,7 @@ __cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
 __addonname__    = __addon__.getAddonInfo('name').decode("utf-8")
 __resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ).encode("utf-8") ).decode("utf-8")
 __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
+__profilepath__  = xbmc.translatePath( "special://profile/" ).decode('utf-8')
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
 
@@ -55,6 +56,10 @@ class SkinShortcuts:
             del ui
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
+            
+            # Check for settings
+            self.checkForSettings()
+            
         elif self.TYPE=="list":
             if not self.GROUP == "":
                 log( "### Listing shortcuts ..." )
@@ -85,7 +90,7 @@ class SkinShortcuts:
                             
                             listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
                             listitem.setProperty('isPlayable', 'False')
-                            listitem.setProperty( "labelID", item[0].replace(" ", "") )
+                            listitem.setProperty( "labelID", item[0].replace(" ", "").lower() )
                             
                             # Localize strings
                             if not listitem.getLabel().find( "::SCRIPT::" ) == -1:
@@ -114,6 +119,13 @@ class SkinShortcuts:
                         log( "### ERROR could not load file %s" % path )
                 else:   
                     log( " - No shortcuts found")
+                    
+            # Set window property if no settings shortcut
+            file_path = os.path.join( __datapath__, "nosettings.info")
+            if os.path.isfile( file_path ):
+                xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","False" )
+            else:
+                xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" )
                 
         elif self.TYPE=="settings":
             log( "### Generating list for skin settings" )
@@ -146,7 +158,7 @@ class SkinShortcuts:
                     listitems = []
                     
                     for item in loaditems:
-                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + item[0].replace(" ", "") + ")" )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + item[0].replace(" ", "").lower() + ")" )
                         
                         listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
                         listitem.setProperty('isPlayable', 'False')
@@ -155,7 +167,7 @@ class SkinShortcuts:
                         if not item[0].find( "::SCRIPT::" ) == -1:
                             path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][10:] ) + ")" )
                             listitem.setLabel( __language__(32036) + __language__(int( item[0][10:] ) ) )
-                        elif not listitem.getLabel().find( "::LOCAL::" ) == -1:
+                        elif not item[0].find( "::LOCAL::" ) == -1:
                             path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ) + ")" )
                             listitem.setLabel( __language__(32036) + xbmc.getLocalizedString(int( item[0][9:] ) ) )
                             
@@ -191,7 +203,10 @@ class SkinShortcuts:
             
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
-                
+            
+            # Check for settings
+            self.checkForSettings()
+            
         elif self.TYPE=="launch":
             log( "### Launching shortcut" )
             log( " - " + urllib.unquote( self.PATH ) )
@@ -199,7 +214,7 @@ class SkinShortcuts:
             runDefaultCommand = True
             
             # Check if the skin has overridden this command
-            paths = [os.path.join( __defaultpath__ , "overrides.xml" ),os.path.join( __skinpath__ , "overrides.xml" )]
+            paths = [os.path.join( __profilepath__ , "overrides.xml" ),os.path.join( __skinpath__ , "overrides.xml" )]
             for path in paths:
                 if os.path.isfile( path ) and runDefaultCommand:    
                     try:
@@ -274,7 +289,93 @@ class SkinShortcuts:
             return "settings"
         else:
             return item
+            
+    def checkForSettings( self ):
+        # Iterate through main menu, searching for a link to settings
+        hasSettingsLink = False
         
+        if os.path.isfile( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
+            # User defined shortcuts
+            mainmenuPath = os.path.join( __datapath__ , "mainmenu.shortcuts" )
+        elif os.path.isfile( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
+            # Skin-provided defaults
+            mainmenuPath = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
+        elif os.path.isfile( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
+            # Script-provided defaults
+            mainmenuPath = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
+        else:
+            # No custom shortcuts or defaults available
+            mainmenuPath = ""
+            
+        if not mainmenuPath == "":
+            try:
+                # Try loading shortcuts
+                loaditems = eval( file( mainmenuPath, "r" ).read() )
+                
+                for item in loaditems:
+                    # Check if the path (item 4) is for settings
+                    if urllib.unquote(item[4]) == "ActivateWindow(Settings)":
+                        hasSettingsLink = True
+                        break
+                    
+                    # Get labelID so we can check shortcuts for this menu item
+                    groupName = item[0].replace(" ", "").lower()
+                    
+                    # Localize strings
+                    if not item[0].find( "::SCRIPT::" ) == -1:
+                        groupName = self.createNiceName( item[0][10:] )
+                    elif not item[0].find( "::LOCAL::" ) == -1:
+                        groupName = self.createNiceName( item[0][9:] )
+                    
+                    # Get path of submenu shortcuts
+                    if os.path.isfile( os.path.join( __datapath__ , groupName + ".shortcuts" ) ):
+                        # User defined shortcuts
+                        submenuPath = os.path.join( __datapath__ , groupName + ".shortcuts" )
+                    elif os.path.isfile( os.path.join( __skinpath__ , groupName + ".shortcuts" ) ):
+                        # Skin-provided defaults
+                        submenuPath = os.path.join( __skinpath__ , groupName + ".shortcuts" )
+                    elif os.path.isfile( os.path.join( __defaultpath__ , groupName + ".shortcuts" ) ):
+                        # Script-provided defaults
+                        submenuPath = os.path.join( __defaultpath__ , groupName + ".shortcuts" )
+                    else:
+                        # No custom shortcuts or defaults available
+                        submenuPath = ""
+                        
+                    if not submenuPath == "":
+                        try:
+                            # Try loading shortcuts
+                            submenuitems = eval( file( submenuPath, "r" ).read() )
+                            
+                            for item in submenuitems:
+                                if urllib.unquote(item[4]) == "ActivateWindow(Settings)":
+                                    hasSettingsLink = True
+                                    break
+                                
+                        except:
+                            print_exc()
+                            log( "### ERROR could not load file %s" % submenuPath )
+                            
+                    if hasSettingsLink == True:
+                        break
+            except:
+                print_exc()
+                log( "### ERROR could not load file %s" % mainmenuPath )
+                
+        log ("- Finished checking")
+        if hasSettingsLink:
+            # There's a settings link, delete our info file
+            file_path = os.path.join( __datapath__, "nosettings.info")
+            if os.path.isfile( file_path ):
+                log( "Deleting file" )
+                os.unlink( file_path )
+            xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" )
+        else:
+            # There's no settings link, create an info file
+            file_path = os.path.join( __datapath__, "nosettings.info")
+            if not os.path.isfile( file_path ):
+               open( file_path, 'a' ).close()
+            xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","False" )
+                
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
     

@@ -74,9 +74,9 @@ This will fill the list with items with the following properties:
 
 In the list where you want the sub-menu to appear, put the following in the <content> tag:
  
-	plugin://script.skinshortcuts?type=list&amp;group=$INFO[Container(50).ListItem.Property(labelID)]
+	plugin://script.skinshortcuts?type=list&amp;group=$INFO[Container(9000).ListItem.Property(labelID)]
    
-Remember to replace Container(50) with the id of the list you are using for the main menu.
+Remember to replace Container(9000) with the id of the list you are using for the main menu.
  
 4. Display more controls depending on the mainmenu item
  
@@ -99,26 +99,34 @@ So, for example, you could set visibility for your list of recently added movies
    
 For more information on what labelID may contain, see section on localization.
 
+5. Providing alternative access to settings
+
+One of the side effects of using skinshortcuts to provide the whole main menu is that users have the ability to delete any shortcut, including those that they will later turn out to actually want. Generally, this isn't a problem as they can add them back at any time. However if they delete all links to settings, they will have no way to add it back unless your skin offers an alternative access.
+
+Therefore, the script will set a property on the home window if the user doesn't have any way to access settings in their customized menu. If the property "SettingsShortcut" is set to "False", and it doesn't already, then your skin should provide an alternative way for the user to access settings. For instance, you could have a button for settings with the visibility set as follows:
+
+	<visible>StringCompare(Window(10000).Property(SettingsShortcut),False)</visible>
+
 
 Skinning the management dialog
 ------------------------------
 
 To customize the look of the dialog displayed to allow the user to customize shortcuts, your skin needs to provide script-skinshortcuts.xml. It requires the following controls:
 
-ID		Type	Description
-101		Label	Current type of shortcut being viewed
-102		Button	Change type of shortcut being viewed (down)
-103		Button	Change type of shortcut being viewed (up)
-111		List	Available shortcuts for the current type being viewed
-211		List	Shortcuts the user has chosen for the [groupname]
-301		Button	Add a new shortcut
-302		Button	Delete shortcut
-303		Button	Move shortcut up
-304		Button	Move shortcut down
-305		Button	Change shortcut label
-306		Button	Change shortcut thumbnail
-307		Button	Change shortcut action
-308		Button	Reset shortcuts
+ID	Type	Description
+101	Label	Current type of shortcut being viewed
+102	Button	Change type of shortcut being viewed (down)
+103	Button	Change type of shortcut being viewed (up)
+111	List	Available shortcuts for the current type being viewed
+211	List	Shortcuts the user has chosen for the [groupname]
+301	Button	Add a new shortcut
+302	Button	Delete shortcut
+303	Button	Move shortcut up
+304	Button	Move shortcut down
+305	Button	Change shortcut label
+306	Button	Change shortcut thumbnail
+307	Button	Change shortcut action
+308	Button	Reset shortcuts
 
 
 Providing default shortcuts
@@ -155,11 +163,11 @@ To do this, you need to provide an optional file called 'overrides.xml' in a sub
 
 In <override action="[command]"> specify the action that you are overriding.
 
-<condition> is optional, and contains an XBMC boolean condition that must be met for the custom action to run. Multiple <condition> tags can be included to check multiple conditions.
+<condition> is optional, and contains an XBMC boolean condition that must be met for the custom action to run. Multiple <condition> tags can be included to check multiple conditions. If multiple conditions are specified, all of them must be satisfied for the custom action to run.
 
 <action> specified which action should be run. Multiple <action> tags can be included to run multiple actions.
 
-The file can also be provided in special://userdata/addon_data/script.skinshortcuts - if provided here then any overrides will carry over between skins (primarily so users can provide their own overrides). Additionally, overrides in this file will take precedent over overrides provided by the skin.
+Users can also provide the file in special://profile/ - if provided here then any overrides will carry over between skins. Additionally, overrides in this file will take precedent over overrides provided by the skin.
 
 
 Localization
@@ -186,7 +194,7 @@ For common main menu items, it will contain one of the following strings
 	dvd
 	settings
 	
-For other localized strings, it will contain the id of the string. For non-localized strings, it will contain the string without any whitespace.
+For other localized strings, it will contain the id of the string. For non-localized strings, it will contain the string in lowercase and without any spaces.
 
 
 With Thanks
