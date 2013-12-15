@@ -153,7 +153,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::LOCAL::19040", "::SCRIPT::32017", "DefaultTVShows.png"]) )
         
         # Music Videos
-        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoAlbums,return)", "::LOCAL::20389", "::SCRIPT::32018", "DefaultMusicAlbums.png"]) )
+        listitems.append( self._create(["ActivateWindow(Videos,MusicVideoAlbums,return)", "::LOCAL::20389", "::SCRIPT::32018", "DefaultMusicVideos.png"]) )
         listitems.append( self._create(["ActivateWindow(Videos,MusicVideoArtists,return)", "::LOCAL::133", "::SCRIPT::32018", "DefaultMusicArtists.png"]) )
         listitems.append( self._create(["ActivateWindow(Videos,MusicVideoDirectors,return)", "::LOCAL::20348", "::SCRIPT::32018", "DefaultDirector.png"]) )
         listitems.append( self._create(["ActivateWindow(Videos,MusicVideoGenres,return)", "::LOCAL::135", "::SCRIPT::32018", "DefaultMusicGenres.png"]) )
@@ -578,6 +578,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Create a copy of the listitem
             if custom_thumbnail:
                 self.getControl( 211 ).getSelectedItem().setProperty( "Thumbnail", custom_thumbnail )
+                self.getControl( 211 ).getSelectedItem().setProperty( "customThumbnail", "False" )
                 
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
             
@@ -779,6 +780,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( "thumbnail", item[3] )
             listitem.setProperty( "shortcutType", loadLabel2 )
             
+        if len(item) == 6:
+            listitem.setProperty( "customThumbnail", item[5] )
+            
         return listitem
             
     def _duplicate_listitem( self, listitem ):
@@ -789,6 +793,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
         listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
+        if listitem.getProperty( "customThumbnail" ):
+            listitemCopy.setProperty( "customThumbnail", listitem.getProperty( "customThumbnail" ) )
         return listitemCopy
         
     def _save_shortcuts( self ):
@@ -806,8 +812,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 if listitem.getProperty( "localizedString" ):
                     saveLabel = listitem.getProperty( "localizedString" )
-                
-                savedata=[saveLabel, listitem.getProperty("shortcutType"), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path")]
+                    
+                if listitem.getProperty( "customThumbnail" ):
+                    savedata=[saveLabel, listitem.getProperty("shortcutType"), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path"), listitem.getProperty("customThumbnail")]
+                else:
+                    savedata=[saveLabel, listitem.getProperty("shortcutType"), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path")]
+                    
                 listitems.append(savedata)
         
         path = os.path.join( __datapath__ , self.group + ".shortcuts" )

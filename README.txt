@@ -97,13 +97,13 @@ So, for example, you could set visibility for your list of recently added movies
   
 	<visible>StringCompare(Container(50).ListItem.Property(labelID), movies)</visible>
    
-For more information on what labelID may contain, see section on localization.
+For more information on what labelID may contain, see section on localization. A full list of labelID's can be found in the Resources folder.
 
 5. Providing alternative access to settings
 
 One of the side effects of using skinshortcuts to provide the whole main menu is that users have the ability to delete any shortcut, including those that they will later turn out to actually want. Generally, this isn't a problem as they can add them back at any time. However if they delete all links to settings, they will have no way to add it back unless your skin offers an alternative access.
 
-Therefore, the script will set a property on the home window if the user doesn't have any way to access settings in their customized menu. If the property "SettingsShortcut" is set to "False", and it doesn't already, then your skin should provide an alternative way for the user to access settings. For instance, you could have a button for settings with the visibility set as follows:
+Therefore, the script will set a property on the home window if the user doesn't have any way to access settings in their customized menu. If the property "SettingsShortcut" is set to "False", and it doesn't already, then you should consider providing an alternative way for the user to access settings. For instance, you could have a button for settings with the visibility set as follows:
 
 	<visible>StringCompare(Window(10000).Property(SettingsShortcut),False)</visible>
 
@@ -170,6 +170,26 @@ In <override action="[command]"> specify the action that you are overriding.
 Users can also provide the file in special://profile/ - if provided here then any overrides will carry over between skins. Additionally, overrides in this file will take precedent over overrides provided by the skin.
 
 
+Overriding Thumbnails
+---------------------
+
+The script tries to provide reasonable default images for all shortcuts, with a fallback on "DefaultShortcut.png", however you may wish to override images to specific ones provided by your skin.
+
+This can be done by providing an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. It provides two ways to override images, either overriding the image for a specific labelID, or overriding all instances of a particular image. The file format is as follows:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
+	<thumbnail labelID="[labelID]>[New image]</thumbnail>
+	<thumbnail labelID="movies">My Movie Image.png</thumbnail>
+	<thumbnail image="[Old image]>[New image]</thumbnail>
+	<thumbnail image="DefaultShortcut.png">My Shortcut Image.png</thumbnail>
+</overrides>
+
+Note, any thumbnail image the user has set will take precedence over skin-provided overrides.
+
+A full list of labelID's and default thumbnail images can be found in the Resources folder.
+
+
 Localization
 ------------
 
@@ -195,6 +215,8 @@ For common main menu items, it will contain one of the following strings
 	settings
 	
 For other localized strings, it will contain the id of the string. For non-localized strings, it will contain the string in lowercase and without any spaces.
+
+A full list of labelID's can be found in the Resources folder.
 
 
 With Thanks

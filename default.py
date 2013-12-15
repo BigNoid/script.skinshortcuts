@@ -83,6 +83,8 @@ class SkinShortcuts:
                         loaditems = eval( file( path, "r" ).read() )
                         
                         listitems = []
+                        loadedOverrides = False
+                        hasOverrides = True
                         
                         for item in loaditems:
                             # Generate a listitem
@@ -102,7 +104,47 @@ class SkinShortcuts:
                             
                             if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
                                 listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
+                                                                
+                            # If the icon and thumbnail are the same, check for an override
+                            log( "Checking for thumbnail overrides" )
+                            if not len(item) == 6 or (len(item) == 6 and item[5] == "True"):
+                                # Check if we need to load overrides file
+                                if loadedOverrides == False and hasOverrides == True:
+                                    overridepath = os.path.join( __skinpath__ , "overrides.xml" )
+                                    log( " - " + overridepath )
+                                    if os.path.isfile(overridepath):
+                                        try:
+                                            log( " - Trying to load overrides" )
+                                            tree = xmltree.parse( overridepath )
+                                            log( " - Loaded overrides" )
+                                            loadedOverrides = True
+                                        except:
+                                            log( " - Failed to load overrides" )
+                                            hasOverrides = False
+                                            print_exc()
+                                            log( "### ERROR could not load file %s" % overridepath )
+                                    else:
+                                        hasOverrides = False
                                 
+                                # If we've loaded override file, search for an override
+                                if loadedOverrides == True and hasOverrides == True:
+                                    log( " - Checking for an override" )
+                                    log( " - " + item[3] )
+                                    for elem in tree.iterfind('thumbnail[@image="' + item[2] + '"]'):
+                                        listitem.setIconImage( elem.text )
+                                        log( " - New icon for " + item[2] + ": " + elem.text )
+                                        break
+                                        
+                                    for elem in tree.iterfind('thumbnail[@image="' + item[3] + '"]'):
+                                        listitem.setThumbnailImage( elem.text )
+                                        log( " - New thumbnail for " + item[3] + ": " + elem.text )
+                                        break
+                                        
+                                    for elem in tree.iterfind('thumbnail[@labelID="' + listitem.getProperty( "labelID" ) + '"]'):
+                                        listitem.setThumbnailImage( elem.text )
+                                        log( " - New thumbnail for " + listitem.getProperty( "labelID" ) + ": " + elem.text )
+                                        break
+                                    
                             # If this is the main menu, check whether we should actually display this item (e.g.
                             #  don't display PVR if PVR isn't enabled)
                             if self.GROUP == "mainmenu":
@@ -110,6 +152,7 @@ class SkinShortcuts:
                                     xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
                             else:
                                 xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+
                             
                         # If we've loaded anything, save them to the list
                         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
