@@ -25,10 +25,8 @@ def log(txt):
     message = u'%s: %s' % (__addonid__, txt)
     xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
     
-class SkinShortcuts:
+class Main:
     def __init__(self):
-        #log( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) )
-            
         self.WINDOW = xbmcgui.Window( 10000 )
 
         try:
@@ -43,13 +41,53 @@ class SkinShortcuts:
         
         self.GROUP = params.get( "group", "" )
         self.PATH = params.get( "path", "" )
-        log( self.PATH )
         
         # Perform action specified by user
         if not self.TYPE:
             line1 = "This addon is for skin developers, and requires skin support"
             xbmcgui.Dialog().ok(__addonname__, line1)
-        elif self.TYPE=="manage":
+            
+        if self.TYPE=="launch":
+            log( "### Launching shortcut" )
+            log( " - " + urllib.unquote( self.PATH ) )
+            
+            runDefaultCommand = True
+            
+            # Check if the skin has overridden this command
+            paths = [os.path.join( __profilepath__ , "overrides.xml" ),os.path.join( __skinpath__ , "overrides.xml" )]
+            for path in paths:
+                if os.path.isfile( path ) and runDefaultCommand:    
+                    try:
+                        tree = xmltree.parse( path )
+                        # Search for any overrides
+                        elems = tree.findall('override[@action="' + urllib.unquote(self.PATH) + '"]')
+                        for elem in elems:
+                            runCustomCommand = True
+                            
+                            # Check any conditions
+                            conditions = elem.findall('condition')
+                            for condition in conditions:
+                                if xbmc.getCondVisibility( condition.text ) == False:
+                                    runCustomCommand = False
+                                    break
+                            
+                            # If any and all conditions have been met, run actions
+                            if runCustomCommand == True:
+                                actions = elem.findall( 'action' )
+                                for action in actions:
+                                    log( "Override action: " + action.text )
+                                    runDefaultCommand = False
+                                    xbmc.executebuiltin( action.text )
+                                break
+                    except:
+                        print_exc()
+                        log( "### ERROR could not load file %s" % path )
+            
+            # If we haven't overridden the command, run the original
+            if runDefaultCommand == True:
+                xbmc.executebuiltin( urllib.unquote(self.PATH) )
+                
+        if self.TYPE=="manage":
             import gui
             ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=self.GROUP )
             ui.doModal()
@@ -60,9 +98,10 @@ class SkinShortcuts:
             # Check for settings
             self.checkForSettings()
             
-        elif self.TYPE=="list":
+        if self.TYPE=="list" or self.TYPE=="launch":
             if not self.GROUP == "":
                 log( "### Listing shortcuts ..." )
+                
                 # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
                 if os.path.isfile( os.path.join( __datapath__ , self.GROUP + ".shortcuts" ) ):
                     # User defined shortcuts
@@ -88,7 +127,8 @@ class SkinShortcuts:
                         
                         for item in loaditems:
                             # Generate a listitem
-                            path = sys.argv[0] + "?type=launch&path=" + item[4]
+                            path = sys.argv[0] + "?type=launch&path=" + item[4] + "&group=" + self.GROUP
+                            #path = sys.argv[0] + "?type=launch&path=" + item[4]
                             
                             listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
                             listitem.setProperty('isPlayable', 'False')
@@ -105,21 +145,16 @@ class SkinShortcuts:
                             if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
                                 listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
                                                                 
-                            # If the icon and thumbnail are the same, check for an override
-                            log( "Checking for thumbnail overrides" )
+                            # If the user hasn't overridden the thumbnail, check for skin override
                             if not len(item) == 6 or (len(item) == 6 and item[5] == "True"):
                                 # Check if we need to load overrides file
                                 if loadedOverrides == False and hasOverrides == True:
                                     overridepath = os.path.join( __skinpath__ , "overrides.xml" )
-                                    log( " - " + overridepath )
                                     if os.path.isfile(overridepath):
                                         try:
-                                            log( " - Trying to load overrides" )
                                             tree = xmltree.parse( overridepath )
-                                            log( " - Loaded overrides" )
                                             loadedOverrides = True
                                         except:
-                                            log( " - Failed to load overrides" )
                                             hasOverrides = False
                                             print_exc()
                                             log( "### ERROR could not load file %s" % overridepath )
@@ -128,22 +163,17 @@ class SkinShortcuts:
                                 
                                 # If we've loaded override file, search for an override
                                 if loadedOverrides == True and hasOverrides == True:
-                                    log( " - Checking for an override" )
-                                    log( " - " + item[3] )
-                                    for elem in tree.iterfind('thumbnail[@image="' + item[2] + '"]'):
-                                        listitem.setIconImage( elem.text )
-                                        log( " - New icon for " + item[2] + ": " + elem.text )
-                                        break
-                                        
-                                    for elem in tree.iterfind('thumbnail[@image="' + item[3] + '"]'):
+                                    elem = tree.find('thumbnail[@labelID="' + listitem.getProperty( "labelID" ) + '"]')
+                                    if elem is not None:
                                         listitem.setThumbnailImage( elem.text )
-                                        log( " - New thumbnail for " + item[3] + ": " + elem.text )
-                                        break
-                                        
-                                    for elem in tree.iterfind('thumbnail[@labelID="' + listitem.getProperty( "labelID" ) + '"]'):
-                                        listitem.setThumbnailImage( elem.text )
-                                        log( " - New thumbnail for " + listitem.getProperty( "labelID" ) + ": " + elem.text )
-                                        break
+                                    else:
+                                        elem = tree.find('thumbnail[@image="' + item[3] + '"]')
+                                        if elem is not None:
+                                            listitem.setThumbnailImage( elem.text )
+                                        else:
+                                            elem = tree.find('thumbnail[@image="' + item[2] + '"]')
+                                            if elem is not None:
+                                                listitem.setIconImage( elem.text )
                                     
                             # If this is the main menu, check whether we should actually display this item (e.g.
                             #  don't display PVR if PVR isn't enabled)
@@ -154,14 +184,16 @@ class SkinShortcuts:
                                 xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
 
                             
-                        # If we've loaded anything, save them to the list
-                        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
+                        
                                     
                     except:
                         print_exc()
                         log( "### ERROR could not load file %s" % path )
                 else:   
                     log( " - No shortcuts found")
+                    
+            # Return list
+            xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
                     
             # Set window property if no settings shortcut
             file_path = os.path.join( __datapath__, "nosettings.info")
@@ -170,7 +202,7 @@ class SkinShortcuts:
             else:
                 xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" )
                 
-        elif self.TYPE=="settings":
+        if self.TYPE=="settings":
             log( "### Generating list for skin settings" )
             
             # Create link to manage main menu
@@ -229,7 +261,7 @@ class SkinShortcuts:
             # Save the list
             xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
             
-        elif self.TYPE=="resetall":
+        if self.TYPE=="resetall":
             log( "### Resetting all shortcuts" )
             dialog = xbmcgui.Dialog()
             if dialog.yesno(__language__(32037), __language__(32038)):
@@ -248,44 +280,7 @@ class SkinShortcuts:
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
             
             # Check for settings
-            self.checkForSettings()
-            
-        elif self.TYPE=="launch":
-            log( "### Launching shortcut" )
-            log( " - " + urllib.unquote( self.PATH ) )
-            
-            runDefaultCommand = True
-            
-            # Check if the skin has overridden this command
-            paths = [os.path.join( __profilepath__ , "overrides.xml" ),os.path.join( __skinpath__ , "overrides.xml" )]
-            for path in paths:
-                if os.path.isfile( path ) and runDefaultCommand:    
-                    try:
-                        tree = xmltree.parse( path )
-                        # Search for any overrides
-                        for elem in tree.iterfind('override[@action="' + urllib.unquote(self.PATH) + '"]'):
-                            runCustomCommand = True
-                            # Check for any window settings we should check
-                            for condition in elem.iterfind('condition'):
-                                if xbmc.getCondVisibility(condition.text) == False:
-                                    runCustomCommand = False
-                            
-                            if runCustomCommand == True:
-                                for action in elem.iterfind('action'):
-                                    log ( action.text )
-                                    runDefaultCommand = False
-                                    xbmc.executebuiltin( action.text )
-                                break
-                    except:
-                        print_exc()
-                        log( "### ERROR could not load file %s" % path )
-                        
-            
-            
-            # If we haven't overridden the command, run the original
-            if runDefaultCommand == True:
-                xbmc.executebuiltin( urllib.unquote(self.PATH) )
-            
+            self.checkForSettings()   
             
     def checkVisibility ( self, item ):
         # Return whether mainmenu items should be displayed
@@ -404,12 +399,10 @@ class SkinShortcuts:
                 print_exc()
                 log( "### ERROR could not load file %s" % mainmenuPath )
                 
-        log ("- Finished checking")
         if hasSettingsLink:
             # There's a settings link, delete our info file
             file_path = os.path.join( __datapath__, "nosettings.info")
             if os.path.isfile( file_path ):
-                log( "Deleting file" )
                 os.unlink( file_path )
             xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" )
         else:
@@ -422,6 +415,6 @@ class SkinShortcuts:
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
     
-    SkinShortcuts()
+    Main()
             
     log('script stopped')
