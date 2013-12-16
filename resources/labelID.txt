@@ -39,7 +39,7 @@ settings								Settings
 19024		DefaultTVShows.png			Radio Channels
 19069		DefaultTVShows.png			EPG
 19163		DefaultTVShows.png			Recordings
-19040		DefaultTVShows.png			Timer
+32023		DefaultTVShows.png			Timers
 
 20389		DefaultMusicVideos.png		Music Videos
 133			DefaultMusicArtists.png		Artists
