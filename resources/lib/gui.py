@@ -100,7 +100,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32034", "DefaultMusicVideos.png"]) )
         listitems.append( self._create(["ActivateWindow(Pictures)", "::LOCAL::10002", "::SCRIPT::32034", "DefaultPicture.png"]) )
         listitems.append( self._create(["ActivateWindow(Weather)", "::LOCAL::12600", "::SCRIPT::32034", ""]) )
-        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::SCRIPT::32023", "::SCRIPT::32034", "DefaultProgram.png"]) )
+        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::LOCAL::10001", "::SCRIPT::32034", "DefaultProgram.png"]) )
 
         listitems.append( self._create(["XBMC.PlayDVD()", "::SCRIPT::32032", "::SCRIPT::32034", "DefaultDVDFull.png"]) )
         listitems.append( self._create(["EjectTray()", "::SCRIPT::32033", "::SCRIPT::32034", "DefaultDVDFull.png"]) )
@@ -150,7 +150,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "::LOCAL::19024", "::SCRIPT::32017", "DefaultTVShows.png"]) )
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "::LOCAL::19069", "::SCRIPT::32017", "DefaultTVShows.png"]) )
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::LOCAL::19163", "::SCRIPT::32017", "DefaultTVShows.png"]) )
-        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::LOCAL::19040", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::SCRIPT::32023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
         
         # Music Videos
         listitems.append( self._create(["ActivateWindow(Videos,MusicVideoAlbums,return)", "::LOCAL::20389", "::SCRIPT::32018", "DefaultMusicVideos.png"]) )
@@ -343,6 +343,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 fav_path = fav_path + ',return)'
             listitem.setProperty( "path", urllib.quote(fav_path) )
             listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32006" )
+            listitem.setProperty( "icon", "DefaultShortcut.png" )
             listitems.append(listitem)
         
         self.arrayFavourites = listitems
@@ -355,7 +356,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems.append( self._create(["ActivateWindow(Videos,Addons,return)", "::LOCAL::1037", "::SCRIPT::32014", "DefaultAddonVideo.png"]) )
         listitems.append( self._create(["ActivateWindow(MusicLibrary,Addons,return)", "::LOCAL::1038", "::SCRIPT::32019", "DefaultAddonMusic.png"]) )
         listitems.append( self._create(["ActivateWindow(Pictures,Addons,return)", "::LOCAL::1039", "::SCRIPT::32020", "DefaultAddonPicture.png"]) )
-        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::SCRIPT::32023", "::SCRIPT::32021", "DefaultAddonProgram.png"]) )
+        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::LOCAL::10001", "::SCRIPT::32021", "DefaultAddonProgram.png"]) )
         
         contenttypes = ["executable", "video", "audio", "image"]
         for contenttype in contenttypes:
@@ -641,10 +642,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).reset()
             
             # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
-            if os.path.isfile( os.path.join( __skinpath__ , self.group + ".shortcuts" ) ):
+            if xbmcvfs.exists( os.path.join( __skinpath__ , self.group + ".shortcuts" ) ):
                 # Skin-provided defaults
                 path = os.path.join( __skinpath__ , self.group + ".shortcuts" )
-            elif os.path.isfile( os.path.join( __defaultpath__ , self.group + ".shortcuts" ) ):
+            elif xbmcvfs.exists( os.path.join( __defaultpath__ , self.group + ".shortcuts" ) ):
                 # Script-provided defaults
                 path = os.path.join( __defaultpath__ , self.group + ".shortcuts" )
             else:
@@ -654,7 +655,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if not path == "":
                 # Try to load shortcuts
                 try:
-                    loaditems = eval( file( path, "r" ).read() )
+                    file = xbmcvfs.File( path )
+                    loaditems = eval( file.read() )
+                    file.close()
                     
                     listitems = []
                     
@@ -693,13 +696,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
         log( "Loading shortcuts" )
         
         # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
-        if os.path.isfile( os.path.join( __datapath__ , self.group + ".shortcuts" ) ):
+        if xbmcvfs.exists( os.path.join( __datapath__ , self.group + ".shortcuts" ) ):
             # User defined shortcuts
             path = os.path.join( __datapath__ , self.group + ".shortcuts" )
-        elif os.path.isfile( os.path.join( __skinpath__ , self.group + ".shortcuts" ) ):
+        elif xbmcvfs.exists( os.path.join( __skinpath__ , self.group + ".shortcuts" ) ):
             # Skin-provided defaults
             path = os.path.join( __skinpath__ , self.group + ".shortcuts" )
-        elif os.path.isfile( os.path.join( __defaultpath__ , self.group + ".shortcuts" ) ):
+        elif xbmcvfs.exists( os.path.join( __defaultpath__ , self.group + ".shortcuts" ) ):
             # Script-provided defaults
             path = os.path.join( __defaultpath__ , self.group + ".shortcuts" )
         else:
@@ -709,7 +712,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if not path == "":
             # Try to load shortcuts
             try:
-                loaditems = eval( file( path, "r" ).read() )
+                file = xbmcvfs.File( path )
+                loaditems = eval( file.read() )
+                file.close()
                 
                 listitems = []
                 
@@ -825,14 +830,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if listitems:
             # If there are any shortcuts, save them
             try:
-                file( path , "w" ).write( repr( listitems ) )
+                f = xbmcvfs.File( path, 'w' )
+                f.write( repr( listitems ) )
+                f.close()
             except:
                 print_exc()
                 log( "### ERROR could not save file %s" % __datapath__ )
         else:
             # There are no shortcuts, delete the existing file if it exists
             try:
-                os.remove( path )
+                xbmcvfs.delete( path )
             except:
                 print_exc()
                 log( "### No shortcuts, no existing file %s" % __datapath__ )            

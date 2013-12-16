@@ -92,6 +92,7 @@ class Main:
             if runDefaultCommand == True:
                 xbmc.executebuiltin( urllib.unquote(self.PATH) )
                 
+            # Tell XBMC not to try playing any media
             xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
                 
         if self.TYPE=="manage":
@@ -105,7 +106,7 @@ class Main:
             # Check for settings
             self.checkForSettings()
             
-        if self.TYPE=="list": # or self.TYPE=="launch":
+        if self.TYPE=="list":
             if not self.GROUP == "":
                 log( "### Listing shortcuts ..." )
                 
@@ -126,7 +127,9 @@ class Main:
                 if not path == "":
                     try:
                         # Try loading shortcuts
-                        loaditems = eval( file( path, "r" ).read() )
+                        file = xbmcvfs.File( path )
+                        loaditems = eval( file.read() )
+                        file.close()
                         
                         listitems = []
                         loadedOverrides = False
@@ -157,7 +160,7 @@ class Main:
                                     # Check if we need to load overrides file
                                     if loadedOverrides == False and hasOverrides == True:
                                         overridepath = os.path.join( __skinpath__ , "overrides.xml" )
-                                        if os.path.isfile(overridepath):
+                                        if xbmcvfs.exists(overridepath):
                                             try:
                                                 tree = xmltree.parse( overridepath )
                                                 loadedOverrides = True
@@ -232,7 +235,9 @@ class Main:
             if not path == "":
                 try:
                     # Try loading shortcuts
-                    loaditems = eval( file( path, "r" ).read() )
+                    file = xbmcvfs.File( path )
+                    loaditems = eval( file.read() )
+                    file.close()
                     
                     listitems = []
                     
@@ -240,7 +245,7 @@ class Main:
                         path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + item[0].replace(" ", "").lower() + ")" )
                         
                         listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
-                        listitem.setProperty('isPlayable', 'False')
+                        listitem.setProperty('isPlayable', 'True')
                         
                         # Localize strings
                         if not item[0].find( "::SCRIPT::" ) == -1:
@@ -250,7 +255,7 @@ class Main:
                             path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ) + ")" )
                             listitem.setLabel( __language__(32036) + xbmc.getLocalizedString(int( item[0][9:] ) ) )
                             
-                        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+                        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
 
                 except:
                     print_exc()
@@ -259,8 +264,8 @@ class Main:
             # Add a link to reset all shortcuts
             path = sys.argv[0] + "?type=resetall"
             listitem = xbmcgui.ListItem(label=__language__(32037), label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
-            listitem.setProperty('isPlayable', 'False')
-            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+            listitem.setProperty('isPlayable', 'True')
+            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
             
             # Save the list
             xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
@@ -269,22 +274,26 @@ class Main:
             log( "### Resetting all shortcuts" )
             dialog = xbmcgui.Dialog()
             if dialog.yesno(__language__(32037), __language__(32038)):
-                for files in os.listdir( __datapath__ ):
+                files = xbmcvfs.listdir( __datapath__ )
+                log( files )
+                for file in files:
                     try:
-                        log( "File found - " + files )
-                        file_path = os.path.join( __datapath__, files)
-                        if os.path.isfile( file_path ):
-                            log( "Deleting file" )
-                            os.unlink( file_path )
+                        if file:
+                            file_path = os.path.join( __datapath__, file[0])
+                            if xbmcvfs.exists( file_path ):
+                                xbmcvfs.delete( file_path )
                     except:
                         print_exc()
-                        log( "### ERROR could not delete file %s" % path )
+                        log( "### ERROR could not delete file %s" % file_path )
             
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
             
             # Check for settings
             self.checkForSettings()   
+            
+            # Tell XBMC not to try playing any media
+            xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
             
     def checkVisibility ( self, item ):
         # Return whether mainmenu items should be displayed
@@ -323,7 +332,7 @@ class Main:
             return "pictures"
         if item == "12600":
             return "weather"
-        if item == "32023":
+        if item == "10001":
             return "programs"
         if item == "32032":
             return "dvd"
@@ -336,13 +345,13 @@ class Main:
         # Iterate through main menu, searching for a link to settings
         hasSettingsLink = False
         
-        if os.path.isfile( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
+        if xbmcvfs.exists( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
             # User defined shortcuts
             mainmenuPath = os.path.join( __datapath__ , "mainmenu.shortcuts" )
-        elif os.path.isfile( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
+        elif xbmcvfs.exists( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
             # Skin-provided defaults
             mainmenuPath = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
-        elif os.path.isfile( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
+        elif xbmcvfs.exists( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
             # Script-provided defaults
             mainmenuPath = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
         else:
@@ -370,13 +379,13 @@ class Main:
                         groupName = self.createNiceName( item[0][9:] )
                     
                     # Get path of submenu shortcuts
-                    if os.path.isfile( os.path.join( __datapath__ , groupName + ".shortcuts" ) ):
+                    if xbmcvfs.exists( os.path.join( __datapath__ , groupName + ".shortcuts" ) ):
                         # User defined shortcuts
                         submenuPath = os.path.join( __datapath__ , groupName + ".shortcuts" )
-                    elif os.path.isfile( os.path.join( __skinpath__ , groupName + ".shortcuts" ) ):
+                    elif xbmcvfs.exists( os.path.join( __skinpath__ , groupName + ".shortcuts" ) ):
                         # Skin-provided defaults
                         submenuPath = os.path.join( __skinpath__ , groupName + ".shortcuts" )
-                    elif os.path.isfile( os.path.join( __defaultpath__ , groupName + ".shortcuts" ) ):
+                    elif xbmcvfs.exists( os.path.join( __defaultpath__ , groupName + ".shortcuts" ) ):
                         # Script-provided defaults
                         submenuPath = os.path.join( __defaultpath__ , groupName + ".shortcuts" )
                     else:
@@ -404,16 +413,20 @@ class Main:
                 log( "### ERROR could not load file %s" % mainmenuPath )
                 
         if hasSettingsLink:
+            log( " --- Skin has a link to settings" )
             # There's a settings link, delete our info file
             file_path = os.path.join( __datapath__, "nosettings.info")
-            if os.path.isfile( file_path ):
-                os.unlink( file_path )
+            if xbmcvfs.exists( file_path ):
+                xbmcvfs.delete( file_path )
             xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" )
         else:
             # There's no settings link, create an info file
+            log( " --- Skin has no link to settings" )
             file_path = os.path.join( __datapath__, "nosettings.info")
-            if not os.path.isfile( file_path ):
-               open( file_path, 'a' ).close()
+            if not xbmcvfs.exists( file_path ):
+                f = xbmcvfs.File( file_path, 'w' )
+                f.write( "Meta-file to indicate there is no link to settings detected" )
+                f.close()
             xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","False" )
                 
 if ( __name__ == "__main__" ):

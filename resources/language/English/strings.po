@@ -99,7 +99,7 @@ msgid "Live TV"
 msgstr ""
 
 msgctxt "#32023"
-msgid "Programs"
+msgid "Timers"
 msgstr ""
 
 msgctxt "#32024"
