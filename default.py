@@ -92,6 +92,8 @@ class Main:
             if runDefaultCommand == True:
                 xbmc.executebuiltin( urllib.unquote(self.PATH) )
                 
+            xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
+                
         if self.TYPE=="manage":
             import gui
             ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=self.GROUP )
@@ -103,7 +105,7 @@ class Main:
             # Check for settings
             self.checkForSettings()
             
-        if self.TYPE=="list" or self.TYPE=="launch":
+        if self.TYPE=="list": # or self.TYPE=="launch":
             if not self.GROUP == "":
                 log( "### Listing shortcuts ..." )
                 
@@ -135,7 +137,7 @@ class Main:
                             path = sys.argv[0] + "?type=launch&path=" + item[4] + "&group=" + self.GROUP
                             
                             listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
-                            listitem.setProperty('isPlayable', 'False')
+                            listitem.setProperty('IsPlayable', 'True')
                             listitem.setProperty( "labelID", item[0].replace(" ", "").lower() )
                             
                             # Localize strings
@@ -184,9 +186,9 @@ class Main:
                             #  don't display PVR if PVR isn't enabled)
                             if self.GROUP == "mainmenu":
                                 if self.checkVisibility( listitem.getProperty( "labelID" ) ):
-                                    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+                                    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
                             else:
-                                xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+                                xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
                                 
                     except:
                         print_exc()
