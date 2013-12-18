@@ -63,10 +63,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 307 ).setLabel( __language__(32027) )
             self.getControl( 308 ).setLabel( __language__(32028) )
             
-            # Prepare to load favourites
-            found, favourites = self._read_file()
-            self.listing = favourites
-            
             # List XBMC common shortcuts (likely to be used on a main menu
             self._load_xbmccommon()
             
@@ -321,30 +317,41 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.arrayAudioPlaylists = listitems
                 
     def _fetch_favourites( self ):
-        listitems = []
         log('Loading favourites...')
-        for favourite in self.listing :
-            log('Favourite found %s' % favourite.attributes[ 'name' ].nodeValue)
-            listitem = xbmcgui.ListItem( label=favourite.attributes[ 'name' ].nodeValue, label2= __language__(32006))
-            fav_path = favourite.childNodes [ 0 ].nodeValue
-            try:
-                if 'playlists/music' in fav_path or 'playlists/video' in fav_path:
-                    listitem.setIconImage( "DefaultPlaylist.png" )
-                    listitem.setProperty( "icon", "DefaultShortcut.png" )
-                    listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+        
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Favourites.GetFavourites", "params": { "properties": ["path", "thumbnail", "window", "windowparameter"] } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+        
+        listitems = []
+        
+        if (json_response['result'] != None) and (json_response['result'].has_key('favourites')):
+            for item in json_response['result']['favourites']:
+                listitem = xbmcgui.ListItem(label=item['title'], label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=item['thumbnail'])
+                
+                # Build a path depending on the type of favourite returns
+                if item['type'] == "window":
+                    action = 'ActivateWindow(' + item['window'] + ', ' + item['windowparameter'] + ', return)'
+                elif item['type'] == "media":
+                    log( " - This is media" )
+                    action = 'PlayMedia("' + item['path'] + '")'
+                elif item['type'] == "script":
+                    action = 'RunScript("' + item['path'] + '")'
                 else:
-                    listitem.setIconImage( favourite.attributes[ 'thumb' ].nodeValue )
-                    listitem.setProperty( "icon", favourite.attributes[ 'thumb' ].nodeValue )
-                    listitem.setProperty( "thumbnail", favourite.attributes[ 'thumb' ].nodeValue )
-            except:
-                pass
-            if 'RunScript' not in fav_path:
-                fav_path = fav_path.rstrip(')')
-                fav_path = fav_path + ',return)'
-            listitem.setProperty( "path", urllib.quote(fav_path) )
-            listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32006" )
-            listitem.setProperty( "icon", "DefaultShortcut.png" )
-            listitems.append(listitem)
+                    action = item['path']
+                
+                log( action )
+                listitem.setProperty( "path", urllib.quote( action ) )
+                
+                if not item['thumbnail'] == "":
+                    listitem.setProperty( "thumbnail", item['thumbnail'] )
+                else:
+                    listitem.setThumbnailImage( "DefaultShortcut.png" )
+                    listitem.setProperty( "thumbnail", "DefaultShortcut.png" )
+                
+                listitem.setProperty( "icon", "DefaultShortcut.png" )
+                listitem.setProperty( "shortcutType", "::SCRIPT::32006" )
+                listitems.append(listitem)
         
         self.arrayFavourites = listitems
         
@@ -380,7 +387,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if (json_response['result'] != None) and (json_response['result'].has_key('addons')):
                 for item in json_response['result']['addons']:
                     if item['enabled'] == True:
-                        log('Addon found %s' % item['name'])
                         listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
                         listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'] + ")" ) )
                         if item['thumbnail'] != "":
@@ -393,19 +399,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         listitems.append(listitem)
         
         self.arrayAddOns = listitems
-    
-    def _read_file( self ):
-        # Set path
-        self.fav_file = xbmc.translatePath( 'special://profile/favourites.xml' ).decode("utf-8")
-        # Check to see if file exists
-        if xbmcvfs.exists( self.fav_file ):
-            found = True
-            self.doc = parse( self.fav_file )
-            favourites = self.doc.documentElement.getElementsByTagName( 'favourite' )
-        else:
-            found = False
-            favourites = []
-        return found, favourites
         
     def onAction(self, action):
         if action.getId() in ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, ):
@@ -532,7 +525,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         if controlID == 305:
             # Change label
+            
+            # Retrieve properties, copy item, etc (in case the user changes focus whilst we're running)
             custom_label = self.getControl( 211 ).getSelectedItem().getLabel()
+            num = self.getControl( 211 ).getSelectedPosition()
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            
             if custom_label == __language__(32013):
                 custom_label = ""
             keyboard = xbmc.Keyboard( custom_label, xbmc.getLocalizedString(528), False )
@@ -542,20 +540,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if custom_label == "":
                     custom_label = __language__(32013)
                 
-            # Create a copy of the listitem
-            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            # Set properties of the listitemCopy
             listitemCopy.setLabel(custom_label)
             listitemCopy.setProperty( "localizedString", "" )
             
             # If there's no label2, set it to custom shortcut
-            log( "Listitem Label2 - " + listitemCopy.getLabel2() )
             if not listitemCopy.getLabel2():
                 listitemCopy.setLabel2( __language__(32024) )
                 listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
             
             # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
             listitems = []
-            num = self.getControl( 211 ).getSelectedPosition()
             for x in range(0, self.getControl( 211 ).size()):
                 if x == num:
                     listitems.append(listitemCopy)
@@ -572,20 +567,23 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         if controlID == 306:
             # Change thumbnail
+            
+            # Retrieve properties, copy item, etc (in case the user changes focus)
             custom_thumbnail = self.getControl( 211 ).getSelectedItem().getProperty( "thumbnail" )
+            num = self.getControl( 211 ).getSelectedPosition()
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+
             dialog = xbmcgui.Dialog()
             custom_thumbnail = dialog.browse( 2 , xbmc.getLocalizedString(1030), 'files')
             
             # Create a copy of the listitem
             if custom_thumbnail:
-                self.getControl( 211 ).getSelectedItem().setProperty( "Thumbnail", custom_thumbnail )
-                self.getControl( 211 ).getSelectedItem().setProperty( "customThumbnail", "False" )
+                listitemCopy.setThumbnailImage( custom_thumbnail )
+                listitemCopy.setProperty( "Thumbnail", custom_thumbnail )
+                listitemCopy.setProperty( "customThumbnail", "False" )
                 
-            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
-            
             # Loop through the original list, and replace the currently selected listitem with our new listitem with altered thumbnail
             listitems = []
-            num = self.getControl( 211 ).getSelectedPosition()
             for x in range(0, self.getControl( 211 ).size()):
                 if x == num:
                     listitems.append(listitemCopy)
@@ -600,9 +598,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             self.getControl( 211 ).selectItem( num )
 
+            
         if controlID == 307:
             # Change path
+            
+            #Retrieve properties, copy item, etc (in case the user changes focus)
             custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            num = self.getControl( 211 ).getSelectedPosition()
+
             if custom_path == "noop":
                 custom_path = ""
             keyboard = xbmc.Keyboard( custom_path, xbmc.getLocalizedString(528), False )
@@ -611,10 +615,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 custom_path = keyboard.getText()
                 if custom_path == "":
                     custom_path = "noop"
-            
-            # Create a copy of the listitem with new path, and type set to custom
-            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
-            
+                    
             if not urllib.quote( custom_path ) == self.getControl( 211 ).getSelectedItem().getProperty( "path" ):
                 listitemCopy.setProperty( "path", urllib.quote( custom_path ) )
                 listitemCopy.setLabel2( __language__(32024) )
@@ -622,7 +623,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Loop through the original list, and replace the currently selected listitem with our new listitem with altered path
             listitems = []
-            num = self.getControl( 211 ).getSelectedPosition()
             for x in range(0, self.getControl( 211 ).size()):
                 if x == num:
                     listitems.append(listitemCopy)
