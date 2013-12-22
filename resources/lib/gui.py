@@ -283,7 +283,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             dirlist = os.listdir( xbmc.translatePath( path ).decode('utf-8') )
         except:
             dirlist = []
-        log('dirlist: %s' % dirlist)
         for item in dirlist:
             playlist = os.path.join( path, item)
             playlistfile = xbmc.translatePath( playlist )
@@ -325,36 +324,33 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         listitems = []
         
-        if (json_response['result'] != None) and (json_response['result'].has_key('favourites')):
-            try:
-                for item in json_response['result']['favourites']:
-                    listitem = xbmcgui.ListItem(label=item['title'], label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=item['thumbnail'])
-                    
-                    # Build a path depending on the type of favourite returns
-                    if item['type'] == "window":
-                        action = 'ActivateWindow(' + item['window'] + ', ' + item['windowparameter'] + ', return)'
-                    elif item['type'] == "media":
-                        log( " - This is media" )
-                        action = 'PlayMedia("' + item['path'] + '")'
-                    elif item['type'] == "script":
-                        action = 'RunScript("' + item['path'] + '")'
-                    else:
-                        action = item['path']
-                    
-                    log( action )
-                    listitem.setProperty( "path", urllib.quote( action ) )
-                    
-                    if not item['thumbnail'] == "":
-                        listitem.setProperty( "thumbnail", item['thumbnail'] )
-                    else:
-                        listitem.setThumbnailImage( "DefaultShortcut.png" )
-                        listitem.setProperty( "thumbnail", "DefaultShortcut.png" )
-                    
-                    listitem.setProperty( "icon", "DefaultShortcut.png" )
-                    listitem.setProperty( "shortcutType", "::SCRIPT::32006" )
-                    listitems.append(listitem)
-            except:
-                log( "No favourites could be loaded" )
+        if json_response.has_key('result') and json_response['result'].has_key('favourites') and json_response['result']['favourites'] is not None:
+            for item in json_response['result']['favourites']:
+                listitem = xbmcgui.ListItem(label=item['title'], label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=item['thumbnail'])
+                
+                # Build a path depending on the type of favourite returns
+                if item['type'] == "window":
+                    action = 'ActivateWindow(' + item['window'] + ', ' + item['windowparameter'] + ', return)'
+                elif item['type'] == "media":
+                    log( " - This is media" )
+                    action = 'PlayMedia("' + item['path'] + '")'
+                elif item['type'] == "script":
+                    action = 'RunScript("' + item['path'] + '")'
+                else:
+                    action = item['path']
+                
+                log( action )
+                listitem.setProperty( "path", urllib.quote( action ) )
+                
+                if not item['thumbnail'] == "":
+                    listitem.setProperty( "thumbnail", item['thumbnail'] )
+                else:
+                    listitem.setThumbnailImage( "DefaultShortcut.png" )
+                    listitem.setProperty( "thumbnail", "DefaultShortcut.png" )
+                
+                listitem.setProperty( "icon", "DefaultShortcut.png" )
+                listitem.setProperty( "shortcutType", "::SCRIPT::32006" )
+                listitems.append(listitem)
         
         self.arrayFavourites = listitems
         
@@ -387,22 +383,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
             json_query = unicode(json_query, 'utf-8', errors='ignore')
             json_response = simplejson.loads(json_query)
             
-            if (json_response['result'] != None) and (json_response['result'].has_key('addons')):
-                try:
-                    for item in json_response['result']['addons']:
-                        if item['enabled'] == True:
-                            listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
-                            listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'] + ")" ) )
-                            if item['thumbnail'] != "":
-                                listitem.setProperty( "thumbnail", item['thumbnail'] )
-                            else:
-                                listitem.setProperty( "thumbnail", "DefaultAddon.png" )
-                            
-                            listitem.setProperty( "icon", "DefaultAddon.png" )
-                            listitem.setProperty( "shortcutType", "::SCRIPT::" + shortcutType )
-                            listitems.append(listitem)
-                except:
-                    log( "No addons for group could be loaded" )
+            if json_response.has_key('result') and json_response['result'].has_key('addons') and json_response['result']['addons'] is not None:
+                for item in json_response['result']['addons']:
+                    if item['enabled'] == True:
+                        listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
+                        listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'] + ")" ) )
+                        if item['thumbnail'] != "":
+                            listitem.setProperty( "thumbnail", item['thumbnail'] )
+                        else:
+                            listitem.setProperty( "thumbnail", "DefaultAddon.png" )
+                        
+                        listitem.setProperty( "icon", "DefaultAddon.png" )
+                        listitem.setProperty( "shortcutType", "::SCRIPT::" + shortcutType )
+                        listitems.append(listitem)
         
         self.arrayAddOns = listitems
         
@@ -428,6 +421,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self._display_shortcuts()
             
         if controlID == 111:
+            # User has selected an available shortcut they want in their menu
             # Create a copy of the listitem
             listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
             
