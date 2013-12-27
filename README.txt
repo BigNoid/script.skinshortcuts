@@ -39,6 +39,8 @@ This will fill the list with items with the following properties:
 	Icon		Icon image
 	Thumbnail	Thumbnail image
 	Property(labelID)	Unlocalized string primarily used when displaying both main menu and sub-menus
+	Property(action)	The action that will be run when the shortcut is selected
+	Property(group)		The [groupname] that this shortcut is listed from
 
 
 Using the script to provide both main menu and sub-menus
@@ -71,6 +73,8 @@ This will fill the list with items with the following properties:
 	Icon		Icon image
 	Thumbnail	Thumbnail image
 	Property(labelID)	Unlocalized string used for sub-menu and for displaying more controls depending on the main menu item
+	Property(action)	The action that will be run when the shortcut is selected
+	Property(group)		The [groupname] that this shortcut is listed from
 
 In the list where you want the sub-menu to appear, put the following in the <content> tag:
  

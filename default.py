@@ -167,6 +167,8 @@ class Main:
                     listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
                     listitem.setProperty('IsPlayable', 'True')
                     listitem.setProperty( "labelID", item[0].replace(" ", "").lower() )
+                    listitem.setProperty( "action", urllib.unquote( item[4] ) )
+                    listitem.setProperty( "group", group )
                     
                     # Localize label & labelID
                     if not listitem.getLabel().find( "::SCRIPT::" ) == -1:
@@ -179,8 +181,6 @@ class Main:
                     # Localize label2 (type of shortcut)
                     if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
                         listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
-                        
-                    log ("### - LABELID " + listitem.getProperty( "labelID" ) )
                         
                     # If the user hasn't overridden the thumbnail, check for skin override
                     if not len(item) == 6 or (len(item) == 6 and item[5] == "True"):
