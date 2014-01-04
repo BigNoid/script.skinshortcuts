@@ -1,2 +1,6 @@
+v0.1.1 (unstable)
+- Shortcuts with overriden images and override files are kept in memory to speed up listings
+- Main menu items Movies/TV Shows/Music are always shown to speed up listings (to-do: Raspberry Pi/low powered devices only)
+
 v0.1.0
-- Initial commit
+- Initial release
