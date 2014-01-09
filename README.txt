@@ -78,9 +78,9 @@ This will fill the list with items with the following properties:
 
 In the list where you want the sub-menu to appear, put the following in the <content> tag:
  
-	plugin://script.skinshortcuts?type=list&amp;group=$INFO[Container(9000).ListItem.Property(labelID)]
+	plugin://script.skinshortcuts?type=submenu&amp;mainmenuID=9000
    
-Remember to replace Container(9000) with the id of the list you are using for the main menu.
+Remember to replace 9000 with the id of the list you are using for the main menu.
  
 4. Display more controls depending on the mainmenu item
  

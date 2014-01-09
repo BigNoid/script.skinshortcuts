@@ -51,6 +51,8 @@ class Main:
             self._manage_shortcuts( self.GROUP )
         if self.TYPE=="list":
             self._list_shortcuts( self.GROUP )
+        if self.TYPE=="submenu":
+            self._list_submenu( self.MENUID )
         if self.TYPE=="settings":
             self._manage_shortcut_links()            
         if self.TYPE=="resetall":
@@ -69,6 +71,7 @@ class Main:
         
         self.GROUP = params.get( "group", "" )
         self.PATH = params.get( "path", "" )
+        self.MENUID = params.get( "mainmenuID", "0" )
     
     
     # PRIMARY FUNCTIONS
@@ -308,7 +311,44 @@ class Main:
             if xbmcvfs.exists( file_path ):
                 xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","False" )
             else:
-                xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" ) 
+                xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" )
+                
+    def _list_submenu( self, mainmenuID ):
+        log( "### Listing submenu ..." )
+        if mainmenuID == "0":
+            log( "### - NO MAIN MENU ID PASSED")
+            # Return an empty list
+            xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
+            return None
+            
+        # Load shortcuts for the main menu
+        mainmenuListItems = self._get_shortcuts( "mainmenu" )
+        
+        for mainmenuItem in mainmenuListItems:
+            # Load menu for each labelID
+            mainmenuLabelID = mainmenuItem[5]
+            listitems = self._get_shortcuts( mainmenuItem[5] )
+            for item in listitems:
+                path = sys.argv[0] + "?type=launch&path=" + item[4] + "&group=" + mainmenuLabelID
+                
+                listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
+                
+                listitem.setProperty('IsPlayable', 'True')
+                listitem.setProperty( "labelID", item[5] )
+                listitem.setProperty( "action", urllib.unquote( item[4] ) )
+                listitem.setProperty( "group", mainmenuLabelID )
+                listitem.setProperty( "path", path )
+                
+                listitem.setProperty( "node.visible", "StringCompare(Container(" + mainmenuID + ").ListItem.Property(labelID)," + mainmenuLabelID + ")" )
+                
+                # Localize label2 (type of shortcut)
+                if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
+                    listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
+                                
+                # Add item
+                xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
+            
+        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
     
     def _manage_shortcut_links ( self ):
         log( "### Generating list for skin settings" )
