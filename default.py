@@ -298,10 +298,13 @@ class Main:
                             
             # Add item
             if group == "mainmenu":
-                if self.checkVisibility( listitem.getProperty( 'labelID' ) ):
-                    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
-            else:
-                xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
+                visibilityCheck = self.checkVisibility( listitem.getProperty( 'labelID' ) )
+                if visibilityCheck != "":
+                    listitem.setProperty( "node.visible", visibilityCheck )
+                #if self.checkVisibility( listitem.getProperty( 'labelID' ) ):
+                #    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
+            #else:
+            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
             
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
         
@@ -446,21 +449,29 @@ class Main:
     # HELPER FUNCTIONS
     def checkVisibility ( self, item ):
         # Return whether mainmenu items should be displayed
-        #if item == "movies":
-        #    return xbmc.getCondVisibility("Library.HasContent(Movies)")
-        #elif item == "tvshows":
-        #    return xbmc.getCondVisibility("Library.HasContent(TVShows)")
+        if item == "movies":
+            return "Library.HasContent(Movies)"
+            return xbmc.getCondVisibility("Library.HasContent(Movies)")
+        elif item == "tvshows":
+            return "Library.HasContent(TVShows)"
+            return xbmc.getCondVisibility("Library.HasContent(TVShows)")
         if item == "livetv":
+            return "System.GetBool(pvrmanager.enabled)"
             return xbmc.getCondVisibility("System.GetBool(pvrmanager.enabled)")
         elif item == "musicvideos":
+            return "Library.HasContent(MusicVideos)"
             return xbmc.getCondVisibility("Library.HasContent(MusicVideos)")
-        #elif item == "music":
-        #    return xbmc.getCondVisibility("Library.HasContent(Music)")
+        elif item == "music":
+            return "Library.HasContent(Music)"
+            return xbmc.getCondVisibility("Library.HasContent(Music)")
         elif item == "weather":
+            return "!IsEmpty(Weather.Plugin)"
             return xbmc.getCondVisibility("!IsEmpty(Weather.Plugin)")
         elif item == "dvd":
+            return "System.HasMediaDVD"
             return xbmc.getCondVisibility("System.HasMediaDVD")
         else:
+            return ""
             return True
             
     def createNiceName ( self, item ):

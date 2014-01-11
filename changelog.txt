@@ -1,7 +1,7 @@
 v0.1.1 (unstable)
+- Video library shortcuts are loaded from video library node files (test)
 - Shortcuts with overriden images and override files are kept in memory to speed up listings
 - Submenu shortcuts are now all loaded at once, with visibility conditions for switching lists
-- Main menu items Movies/TV Shows/Music are always shown to speed up listings (to-do: Raspberry Pi/low powered devices only)
 
 v0.1.0
 - Initial release

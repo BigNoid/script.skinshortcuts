@@ -81,6 +81,12 @@ In the list where you want the sub-menu to appear, put the following in the <con
 	plugin://script.skinshortcuts?type=submenu&amp;mainmenuID=9000
    
 Remember to replace 9000 with the id of the list you are using for the main menu.
+
+*VERSION INFORMATION*
+
+The method type=submenu is new in version 0.1.1, which is not currently on the repo. For older versions, continue to use
+
+	plugin://script.skinshortcuts?type=list&amp;group=$INFO[Container(9000).ListItem.Property("labelID")]
  
 4. Display more controls depending on the mainmenu item
  
@@ -173,6 +179,10 @@ In <override action="[command]"> specify the action that you are overriding.
 
 Users can also provide the file in special://profile/ - if provided here then any overrides will carry over between skins. Additionally, overrides in this file will take precedent over overrides provided by the skin.
 
+* VERSION INFORMATION *
+
+I'm testing using video nodes in version 0.1.1 - with nodes, the action for activating various areas of the video library will *not be what you expect*. Double-check the action you are wanting to override, and expect this to change further before 0.1.1 becomes final.
+
 
 Overriding Thumbnails
 ---------------------
@@ -192,6 +202,10 @@ This can be done by providing an optional file called 'overrides.xml' in a sub-d
 Note, any thumbnail image the user has set will take precedence over skin-provided overrides.
 
 A full list of labelID's and default thumbnail images can be found in the Resources folder.
+
+*VERSION INFORMATION*
+
+I'm testing using video nodes in version 0.1.1 - with nodes, the default thumbnail may not be the same as in the list in the resources folder for video library shortcuts.
 
 
 Localization
