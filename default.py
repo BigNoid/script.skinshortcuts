@@ -52,9 +52,13 @@ class Main:
         if self.TYPE=="list":
             self._list_shortcuts( self.GROUP )
         if self.TYPE=="submenu":
-            self._list_submenu( self.MENUID )
+            self._list_submenu( self.MENUID, self.LEVEL )
         if self.TYPE=="settings":
-            self._manage_shortcut_links()            
+            self._manage_shortcut_links()       
+        if self.TYPE=="widgets":
+            self._manage_widgets()
+        if self.TYPE=="setWidget":
+            self._set_widget()
         if self.TYPE=="resetall":
             self._reset_all_shortcuts()
     
@@ -72,9 +76,59 @@ class Main:
         self.GROUP = params.get( "group", "" )
         self.PATH = params.get( "path", "" )
         self.MENUID = params.get( "mainmenuID", "0" )
+        self.LEVEL = params.get( "level", "" )
     
     
     # PRIMARY FUNCTIONS
+    def _set_widget( self ):
+        # Load the widgets the skin has defined
+        tree = self._load_overrides_skin()
+        widgetLabel = ["None"]
+        widget = [""]
+        
+        if tree is not None:
+            elems = tree.findall('widget')
+            for elem in elems:
+                if elem.attrib.get( 'label' ).isdigit():
+                    widgetLabel.append( xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) )
+                else:
+                    widgetLabel.append( elem.attrib.get( 'label' ) )
+                widget.append( elem.text )
+        
+        dialog = xbmcgui.Dialog()
+        selectedWidget = dialog.select( "Choose a widget", widgetLabel )
+        
+        # Load the current widgets
+        currentWidgets = ( self._get_widgets() )
+        saveWidgets = []
+        foundWidget = False
+        
+        # Loop through current widgets, looking for the current self.GROUP
+        for currentWidget in currentWidgets:
+            if currentWidget[0] == self.GROUP:
+                saveWidgets.append( [ self.GROUP, widget[selectedWidget] ] )
+                foundWidget = True
+            else:
+                saveWidgets.append( [ currentWidget[0], currentWidget[1] ] )
+                
+        # If we didn't find an existing widget for the group, add a new one
+        if foundWidget == False:
+            saveWidgets.append( [ self.GROUP, widget[selectedWidget] ] )
+            
+        # Clear the window property
+        self.reset_window_properties()
+        
+        # Save the widgets
+        path = os.path.join( __datapath__ , "skinshortcuts.widgets" )
+        
+        try:
+            f = xbmcvfs.File( path, 'w' )
+            f.write( repr( saveWidgets ) )
+            f.close()
+        except:
+            print_exc()
+            log( "### ERROR could not save file %s" % __datapath__ )
+
     def _launch_shortcut( self, path ):
         log( "### Launching shortcut" )
         
@@ -301,9 +355,10 @@ class Main:
                 visibilityCheck = self.checkVisibility( listitem.getProperty( 'labelID' ) )
                 if visibilityCheck != "":
                     listitem.setProperty( "node.visible", visibilityCheck )
-                #if self.checkVisibility( listitem.getProperty( 'labelID' ) ):
-                #    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
-            #else:
+                widgetCheck = self.checkWidget( listitem.getProperty( 'labelID' ) )
+                if widgetCheck != "":
+                    listitem.setProperty( "widget", widgetCheck )
+                    
             xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
             
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
@@ -316,7 +371,7 @@ class Main:
             else:
                 xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" )
                 
-    def _list_submenu( self, mainmenuID ):
+    def _list_submenu( self, mainmenuID, levelInt ):
         log( "### Listing submenu ..." )
         if mainmenuID == "0":
             log( "### - NO MAIN MENU ID PASSED")
@@ -330,7 +385,10 @@ class Main:
         for mainmenuItem in mainmenuListItems:
             # Load menu for each labelID
             mainmenuLabelID = mainmenuItem[5]
-            listitems = self._get_shortcuts( mainmenuItem[5] )
+            if levelInt == "":
+                listitems = self._get_shortcuts( mainmenuItem[5] )
+            else:
+                listitems = self._get_shortcuts( mainmenuItem[5] + "." + levelInt )
             for item in listitems:
                 path = sys.argv[0] + "?type=launch&path=" + item[4] + "&group=" + mainmenuLabelID
                 
@@ -355,12 +413,17 @@ class Main:
     
     def _manage_shortcut_links ( self ):
         log( "### Generating list for skin settings" )
+        pathAddition = ""
         
         # Create link to manage main menu
-        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=mainmenu)" )
-        listitem = xbmcgui.ListItem(label=__language__(32035), label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
-        listitem.setProperty('isPlayable', 'False')
-        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+        if self.LEVEL == "":
+            path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=mainmenu)" )
+            displayLabel = self._get_customised_settings_string("main")
+            listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
+            listitem.setProperty('isPlayable', 'False')
+            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
+        else:
+            pathAddition = "." + self.LEVEL
         
         # Set path based on user defined mainmenu, then skin-provided, then script-provided
         if xbmcvfs.exists( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
@@ -386,18 +449,32 @@ class Main:
                 listitems = []
                 
                 for item in loaditems:
-                    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + item[0].replace(" ", "").lower() + ")" )
+                    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + item[0].replace(" ", "").lower() + pathAddition + ")" )
                     
-                    listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
+                    # Get localised label
+                    if not item[0].find( "::SCRIPT::" ) == -1:
+                        localLabel = __language__(int( item[0][10:] ) )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][10:] ) + pathAddition + ")" )
+                    elif not item[0].find( "::LOCAL::" ) == -1:
+                        localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ) + pathAddition + ")" )
+                    else:
+                        localLabel = item[0]
+                        
+                    # Get display label
+                    displayLabel = self._get_customised_settings_string("submenu").replace("::MENUNAME::", localLabel)
+                    
+                    #listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
+                    listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="", thumbnailImage="")
                     listitem.setProperty('isPlayable', 'True')
                     
                     # Localize strings
-                    if not item[0].find( "::SCRIPT::" ) == -1:
-                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][10:] ) + ")" )
-                        listitem.setLabel( __language__(32036) + __language__(int( item[0][10:] ) ) )
-                    elif not item[0].find( "::LOCAL::" ) == -1:
-                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ) + ")" )
-                        listitem.setLabel( __language__(32036) + xbmc.getLocalizedString(int( item[0][9:] ) ) )
+                    #if not item[0].find( "::SCRIPT::" ) == -1:
+                    #    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][10:] ) + pathAddition + ")" )
+                    #    listitem.setLabel( __language__(32036) + __language__(int( item[0][10:] ) ) )
+                    #elif not item[0].find( "::LOCAL::" ) == -1:
+                    #    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ) + pathAddition + ")" )
+                    #    listitem.setLabel( __language__(32036) + xbmc.getLocalizedString(int( item[0][9:] ) ) )
                         
                     xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
 
@@ -406,13 +483,148 @@ class Main:
                 log( "### ERROR could not load file %s" % path )
         
         # Add a link to reset all shortcuts
-        path = sys.argv[0] + "?type=resetall"
-        listitem = xbmcgui.ListItem(label=__language__(32037), label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
-        listitem.setProperty('isPlayable', 'True')
-        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
+        if self.LEVEL == "":
+            path = sys.argv[0] + "?type=resetall"
+            displayLabel = self._get_customised_settings_string("reset")
+            listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
+            listitem.setProperty('isPlayable', 'True')
+            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
         
         # Save the list
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
+
+
+    def _manage_widgets ( self ):
+        log( "### Generating widget list for skin settings" )
+        
+        # Set path based on user defined mainmenu, then skin-provided, then script-provided
+        if xbmcvfs.exists( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
+            # User defined shortcuts
+            path = os.path.join( __datapath__ , "mainmenu.shortcuts" )
+        elif xbmcvfs.exists( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
+            # Skin-provided defaults
+            path = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
+        elif xbmcvfs.exists( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
+            # Script-provided defaults
+            path = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
+        else:
+            # No custom shortcuts or defaults available
+            path = ""
+            
+        if not path == "":
+            try:
+                # Try loading shortcuts
+                file = xbmcvfs.File( path )
+                loaditems = eval( file.read() )
+                file.close()
+                
+                listitems = []
+                
+                for item in loaditems:
+                    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + item[0].replace(" ", "").lower() + ")" )
+                    
+                    # Get localised label
+                    if not item[0].find( "::SCRIPT::" ) == -1:
+                        localLabel = __language__(int( item[0][10:] ) )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][10:] ) + ")" )
+                    elif not item[0].find( "::LOCAL::" ) == -1:
+                        localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][9:] ) + ")" )
+                    else:
+                        localLabel = item[0]
+                        
+                    # Get display label
+                    displayLabel = self._get_customised_settings_string("widget").replace("::MENUNAME::", localLabel)
+                    
+                    #listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
+                    listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="", thumbnailImage="")
+                    listitem.setProperty('isPlayable', 'True')
+                                            
+                    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
+
+            except:
+                print_exc()
+                log( "### ERROR could not load file %s" % path )
+        
+        # Save the list
+        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
+
+
+    def _get_widgets( self ):
+        # This will load the shortcut file, and save it as a window property
+        # Additionally, if the override files haven't been loaded, we'll load them too
+        
+        # If we've not loaded widgets...
+        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcutsWidgets" ):
+            log( "### LOADING WIDGETS FROM FILE ###" )
+            
+            # Try to load user-defined widgets
+            if xbmcvfs.exists( os.path.join( __datapath__ , "skinshortcuts.widgets" ) ):
+                path = os.path.join( __datapath__ , "skinshortcuts.widgets" )
+                try:
+                    # Try loading widgets
+                    log ("### LOADING WIDGETS FILE ###" )
+                    file = xbmcvfs.File( path )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", simplejson.dumps( eval( file.read() ) ) )
+                except:
+                    print_exc()
+                    log( "### ERROR could not load file %s" % path )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", simplejson.dumps( [] ) )
+
+            else:
+                # User hasn't set any widgets, so we'll load them from the
+                # skins overrides.xml instead
+                tree = self._load_overrides_skin()
+                widgets = []
+                
+                if tree is not None:
+                    elems = tree.findall('widgetdefault')
+                    for elem in elems:
+                        widgets.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                
+                # Save the widgets to a window property               
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", simplejson.dumps( [] ) )
+        else:
+            log( "### WIDGETS ALREADY LOADED ###" )
+
+        # Return the widgets
+        return simplejson.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsWidgets" ) )
+
+        
+        
+    def _get_customised_settings_string( self, group ):
+        # This function will return the customised settings string for the given group
+        tree = self._load_overrides_skin()
+        if tree is not None:
+            elems = tree.findall('settingslabel')
+            for elem in elems:
+                if elem is not None and elem.attrib.get( 'type' ) == group:
+                    if self.LEVEL != "":
+                        if elem.attrib.get( 'level' ) == self.LEVEL:
+                            if elem.text.isdigit():
+                                return xbmc.getLocalizedString( int( elem.text ) )
+                            else:
+                                return elem.text
+                    else:
+                        if 'level' not in elem.attrib:
+                            if elem.text.isdigit():
+                                return xbmc.getLocalizedString( int( elem.text ) )
+                            else:
+                                return elem.text
+                                
+        # If we get here, no strings have been specified in overrides.xml
+        if group == "mainmenu":
+            return __language__(32035)
+        elif group == "submenu" and self.LEVEL == "":
+            return __language__(32036)
+        elif group == "submenu" and self.LEVEL != "":
+            return "::MENUNAME::"
+        elif group == "reset":
+            return __language__(32037)
+        elif group == "widget":
+            return __language__(32039)
+        return "::MENUNAME::"
+        
         
     def _reset_all_shortcuts( self ):
         log( "### Resetting all shortcuts" )
@@ -474,6 +686,17 @@ class Main:
             return ""
             return True
             
+    def checkWidget( self, item ):
+        # Return any widget for mainmenu items
+        currentWidgets = ( self._get_widgets() )
+        
+        # Loop through current widgets, looking for the current item
+        for currentWidget in currentWidgets:
+            if currentWidget[0] == item:
+                return currentWidget[1]
+                
+        return ""
+
     def createNiceName ( self, item ):
         # Translate certain localized strings into non-localized form for labelID
         if item == "10006":
@@ -593,10 +816,8 @@ class Main:
             xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","False" )
             
     def reset_window_properties( self ):
-        log( "Cleared skin overrides" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
-        
-        log( "Cleared property for mainmenu" )
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsWidgets" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-mainmenu" )
         listitems = self._get_shortcuts( "mainmenu" )
         for item in listitems:
@@ -610,8 +831,19 @@ class Main:
                 groupName = self.createNiceName( item[0][9:] )        
                 
             # Clear the property
-            log( "Cleared property for " + groupName )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName )
+            
+            # Clear any additional submenus
+            i = 0
+            finished = False
+            while finished == False:
+                i = i + 1
+                log( "Current level: " + str( i ) )
+                if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + groupName + "." + str( i ) ):
+                    log( xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + groupName + "." + str( i ) ) )
+                    xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName + "." + str( i ) )
+                else:
+                    finished = True
             
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)

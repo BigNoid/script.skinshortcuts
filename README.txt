@@ -19,12 +19,14 @@ The script uses group=[groupname] property in order to determine which set of sh
 	programs
 	dvd
 	settings
- 
+
+	
 2. Let users manage their shortcuts
  
 In your skinsettings.xml file, you need to create a button for each [groupname] that you want to support, with the following in the <onclick> tag
  
 	RunScript(script.skinshortcuts?type=manage&amp;group=[groupname])
+ 
  
 3. Display user shortcuts
  
@@ -48,7 +50,8 @@ Using the script to provide both main menu and sub-menus
 
 1. Information
  
-This is a work in progress - it may not fully work as you expect, may require some creative skinning to get it looking right, and definitely has known issues!
+This is a work in progress - it may not fully work as you expect and may require some creative skinning to get it looking right!
+ 
  
 2. Let users manage their main menu and sub-menu shortcuts
  
@@ -57,6 +60,7 @@ The script can provide a list of controls for your skinsettings.xml to let the u
 Uses new method of filling the contents of a list in Gotham. In the list where you want these controls to appear, put the following in the <content> tag:
   
 	plugin://script.skinshortcuts?type=settings&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
+ 
  
 3. Display main menu and shortcuts
  
@@ -75,6 +79,7 @@ This will fill the list with items with the following properties:
 	Property(labelID)	Unlocalized string used for sub-menu and for displaying more controls depending on the main menu item
 	Property(action)	The action that will be run when the shortcut is selected
 	Property(group)		The [groupname] that this shortcut is listed from
+	Property(widget)	If your skin uses Skin Shortcuts to manage widgets, the [widgetID] will appear here (mainmenu only)
 
 In the list where you want the sub-menu to appear, put the following in the <content> tag:
  
@@ -82,11 +87,10 @@ In the list where you want the sub-menu to appear, put the following in the <con
    
 Remember to replace 9000 with the id of the list you are using for the main menu.
 
-*VERSION INFORMATION*
-
-The method type=submenu is new in version 0.1.1, which is not currently on the repo. For older versions, continue to use
+*VERSION INFORMATION* - The method type=submenu is new in version 0.1.1, which is not currently on the repo. It also allows you to have multiple sub-menus should you wish. See section on "Multiple sub menus" for more information. For older versions, continue to use:
 
 	plugin://script.skinshortcuts?type=list&amp;group=$INFO[Container(9000).ListItem.Property("labelID")]
+	
  
 4. Display more controls depending on the mainmenu item
  
@@ -108,6 +112,9 @@ So, for example, you could set visibility for your list of recently added movies
 	<visible>StringCompare(Container(50).ListItem.Property(labelID), movies)</visible>
    
 For more information on what labelID may contain, see section on localization. A full list of labelID's can be found in the Resources folder.
+
+*VERSION INFORMATION* - Version 0.1.1, which is not currently on the repo, provides an alternative way to provide a list of widgets, and let the user select which one should be used for each menu item. See section on "Widgets" for more information.
+
 
 5. Providing alternative access to settings
 
@@ -139,6 +146,48 @@ ID	Type	Description
 308	Button	Reset shortcuts
 
 
+Multiple Sub Menus
+------------------
+
+*VERSION INFORMATION* - This section only applies to version 0.1.1, which is not currently on the repo.
+
+When using Skin Shortcuts to provide the whole main menu system, you may wish to provide more than one sub menu. For example, you could ape Confluence's favourites - which are displayed below the main and sub-menu's - with an additional sub menu.
+
+In the list where you want an additional sub-menu to appear, put the following in the <content> tag:
+ 
+	plugin://script.skinshortcuts?type=submenu&amp;level=1&amp;mainmenuID=9000
+   
+Remember to replace 9000 with the id of the list you are using for the main menu. To provide more sub-menus for a main menu item, increase the value of the 'level' parameter.
+
+The script can provide a list of controls for your skinsettings.xml to let the user manage the additional sub-menu items.
+  
+In the list where you want these controls to appear, put the following in the <content> tag:
+  
+	plugin://script.skinshortcuts?type=settings&amp;level=1&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
+	
+You MUST provide a string for the settings list. See 'overrides.xml' (section 4) for details.
+	
+	
+Widgets
+-------
+
+*VERSION INFORMATION* - This section only applies to version 0.1.1, which is not currently on the repo.
+
+When using Skin Shortcuts to provide the whole main menu, you may wish to provide a series of widgets - such as PVR information, weather conditions, recently added movies, and so forth - that the user can choose from for each main menu item.
+
+Skin Shortcuts can provide a list of controls for your skinsettings.xml to let the user choose a widget for their main menu items.
+
+In the list where you want these controls to appear, put the following in the <content> tag:
+  
+	plugin://script.skinshortcuts?type=widgets&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
+	
+Then use the following in the visibility condition for each widget:
+
+	<visible>StringCompare(Container(9000).ListItem.Property(Widget),[WidgetID])</visible>
+	
+You can define your widgets - along with their WidgetID, and default labelID's they should appear against - in an overrides.xml file. See "overrides.xml" sections 3 and 4 for more details.
+
+
 Providing default shortcuts
 ---------------------------
 
@@ -150,62 +199,168 @@ The easiest way to create this file is to use the script to build a list of shor
 
 The script provides defaults equivalent to Confluence's main menu and sub-menus.
 
+*VERSION INFORMATION* The following applies to 0.1.1 only, which is not currently in the repo. To provide defaults for additional sub-menus, the filename will be [groupname].[level].shortcuts
 
-Overriding Actions
-------------------
 
-It's possible to override an action, allowing the skin to provide additional functionality from a menu item - for example, you may wish to override the default action for Movies (to go to the titles view) and run a script such as Cinema Experience instead.
+overrides.xml
+-------------
 
-To do this, you need to provide an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. The file format is as follows:
+Your skin can include an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. This file allows you to provide various defaults for Skin Shortcuts, as well as overriding various things including actions and icons, allowing you to create a customised experience for your skin.
 
-<?xml version="1.0" encoding="UTF-8"?>
-<overrides>
+
+1. Overriding an action
+
+You may wish to override an action in order to provide additional functionality. For example, you could override the default action for Movies (to go to the Movie Title view) to run Cinema Experience instead.
+
 	<override action="[command]">
 		<condition>[Boolean condition]</condition>
 		<action>[XBMC function]</action>
 	<override>
+	
+[command] - Replace with the action you are overriding
+[Boolean condition] - [Optional] Replace with a string that must evaluate to True for the custom action to be run
+[XBMC function] - Replace with the action that should be run instead. You may include multiple <action> tags.
+
+A complete example would look like:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
 	<override action="ActivateWindow(Videos,MovieTitles,return)">
-		<condition>Skin.HasSetting(CinemaExperience)</condition>
-		<condition>System.HasAddon(script.cinema.experience)</condition>
+		<condition>Skin.HasSetting(CinemaExperience) + System.HasAddon(script.cinema.experience)</condition>
 		<action>RunScript(script.cinema.experience,movietitles)</action>
 	</override>
 </overrides>
 
-In <override action="[command]"> specify the action that you are overriding.
+Users can also provide an overrides.xml file to override actions in special://profile/ - overrides in this file will take precedent over overrides provided by the skin.
 
-<condition> is optional, and contains an XBMC boolean condition that must be met for the custom action to run. Multiple <condition> tags can be included to check multiple conditions. If multiple conditions are specified, all of them must be satisfied for the custom action to run.
-
-<action> specified which action should be run. Multiple <action> tags can be included to run multiple actions.
-
-Users can also provide the file in special://profile/ - if provided here then any overrides will carry over between skins. Additionally, overrides in this file will take precedent over overrides provided by the skin.
-
-* VERSION INFORMATION *
-
-I'm testing using video nodes in version 0.1.1 - with nodes, the action for activating various areas of the video library will *not be what you expect*. Double-check the action you are wanting to override, and expect this to change further before 0.1.1 becomes final.
+*VERSION INFORMATION* - I'm testing using video nodes in version 0.1.1 - with nodes, the action for activating various areas of the video library will *not be what you expect*. Double-check the action you are wanting to override, and expect this to change further before 0.1.1 becomes final.
 
 
-Overriding Thumbnails
----------------------
+2. Overriding thumbnails
 
 The script tries to provide reasonable default images for all shortcuts, with a fallback on "DefaultShortcut.png", however you may wish to override images to specific ones provided by your skin.
 
-This can be done by providing an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. It provides two ways to override images, either overriding the image for a specific labelID, or overriding all instances of a particular image. The file format is as follows:
+This can be done by providing an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. It provides two ways to override images - either overriding the image for a specific labelID, or overriding all instances of a particular image - as follows:
+
+	<thumbnail labelID="[labelID]">[New image]</thumbnail>
+	<thumbnail image="[Old image]">[New image]</thumbnail>
+
+[labelID] - The labelID whose thumbnail you want to override
+[Old image] - The image you are overriding
+[New image] - The replacement image
+
+A complete example would look like:
 
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
-	<thumbnail labelID="[labelID]>[New image]</thumbnail>
-	<thumbnail labelID="movies">My Movie Image.png</thumbnail>
-	<thumbnail image="[Old image]>[New image]</thumbnail>
-	<thumbnail image="DefaultShortcut.png">My Shortcut Image.png</thumbnail>
+	<thumbnail labelID="movies">MyMovieImage.png</thumbnail>
+	<thumbnail image="DefaultShortcut.png">MyShortcutImage.png</thumbnail>
 </overrides>
 
 Note, any thumbnail image the user has set will take precedence over skin-provided overrides.
 
 A full list of labelID's and default thumbnail images can be found in the Resources folder.
 
-*VERSION INFORMATION*
+*VERSION INFORMATION* - I'm testing using video nodes in version 0.1.1 - with nodes, the default thumbnail may not be the same as in the list in the resources folder for video library shortcuts.
 
-I'm testing using video nodes in version 0.1.1 - with nodes, the default thumbnail may not be the same as in the list in the resources folder for video library shortcuts.
+
+3. Widgets
+
+*VERSION INFORMATION* - This only applies to version 0.1.1, which is not currently in the repo.
+
+If you want to use Skin Shortcuts to manage widgets that your skin provides (such as PVR information, current weather conditions, recently added movies) for main menu items, you need to tell the script about your widgets as follows:
+
+	<widget label="[label]">[WidgetID]</widget>
+	
+[label] - The display name of the widget, to be shown when choosing widgets (can be a localised string)
+[widgetID] - A string you use to identify this widget
+
+So, for example:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
+	<widget label="PVR Status">PVR</widget>
+	<widget label="30222">RecentMovies</widget>
+</overrides>
+
+You can also specify the default widget for a given labelID:
+
+	<widgetdefault labelID="[labelID]">[widgetID]</widgetdefault>
+	
+[labelID] - The labelID you are setting the default for
+[widgetID] - The string you have used to identify the target widget
+
+So, for example:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
+	<widgetdefault labelID="movies">RecentMovies</widgetdefault>
+	<widgetdefault labelID="livetv">PVR</widgetdefault>
+</overrides>
+
+A full list of labelID's and default thumbnail images can be found in the Resources folder.
+
+You can then use the following in the visibility for your widgets:
+
+	<visible>StringCompare(Container(9000).ListItem.Property("widget"),[widgetID])</visible>
+	
+Remember to replace 9000 with the ID of the list containing your main menu.
+
+
+4. Overriding settings labels
+
+When using Skin Shortcuts to provide the whole main menu, it will provide a list of controls for your skinsettings.xml to launch the management dialog. You can override the default labels for these controls.
+
+If you are using more than one sub-menu, you MUST provide the label otherwise they will be left blank.
+
+	<settingslabel type="[type]" level="[level]">[string]</settingslabel>
+	
+[type] - Either "main" (Main Menu), "submenu", "widget" or "reset"
+[level] - [OPTIONAL] Use this to indicate an additional sub-menu. See 'Multiple Sub-Menu's' for details. (Only works with type="submenu")
+[string] - The label that should be displayed. Can be a localised string. Include ::MENUNAME:: where you want the name of the menu to appear (does not apply to 'Main' or 'Reset').
+
+So, for example:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
+	<settingslabel type="main">Choose what to display on the main menu</settingslabel>
+	<settingslabel type="submenu">Pick submenu items for ::MENUNAME::</settingslabel>
+	<settingslabel type="submenu" level="1">30015</settingslabel>
+	<settingslabel type="widget">Choose widgets for menu item ::MENUNAME::</settingslabel>
+	<settingslabel type="reset">Reset all shortcuts back to default</settingslabel>
+</overrides>
+
+
+5. A complete example
+
+A complete overrides.xml file may look as follows:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
+	<!-- Override an action -->
+	<override action="ActivateWindow(Videos,MovieTitles,return)">
+		<condition>Skin.HasSetting(CinemaExperience) + System.HasAddon(script.cinema.experience)</condition>
+		<action>RunScript(script.cinema.experience,movietitles)</action>
+	</override>
+	
+	<!-- Override a thumbnail, first for a particular labelID and then all instances of a particular thumbnail -->
+	<thumbnail image="[Old image]>[New image]</thumbnail>
+	<thumbnail image="DefaultShortcut.png">My Shortcut Image.png</thumbnail>
+	
+	<!-- Create a widget the user can choose from -->
+	<widget label="PVR" label2="Recording status of your PVR">PVR</widget>
+	<widget label="30222" label2="30555">RecentMovies</widget>
+	
+	<!-- Set the default widget for the labelID movies -->
+	<widgetdefault labelID="movies">RecentMovies</widgetdefault>
+	<widgetdefault labelID="livetv">PVR</widgetdefault>
+	
+	<!-- Set labels for skinsettings lists -->
+	<settingslabel type="main">Choose what to display on the main menu</settingslabel>
+	<settingslabel type="submenu">Pick submenu items for ::MENUNAME::</settingslabel>
+	<settingslabel type="submenu" level="1">30015</settingslabel>
+	<settingslabel type="reset">Reset all shortcuts back to default</settingslabel>
+</overrides>
 
 
 Localization

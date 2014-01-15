@@ -147,11 +147,11 @@ msgid "Common Shortcut"
 msgstr ""
 
 msgctxt "#32035"
-msgid "Choose which items to display on the main menu"
+msgid "Choose which items to display on the Main Menu"
 msgstr ""
 
 msgctxt "#32036"
-msgid "Choose shortcuts for menu item "
+msgid "Choose shortcuts for ::MENUNAME::"
 msgstr ""
 
 msgctxt "#32037"
@@ -160,4 +160,8 @@ msgstr ""
 
 msgctxt "#32038"
 msgid "Are you sure you want to reset all shortcuts back to default?"
+msgstr ""
+
+msgctxt "#32039"
+msgid "Pick widget for ::MENUNAME::"
 msgstr ""
