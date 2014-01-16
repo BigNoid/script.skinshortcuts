@@ -36,6 +36,15 @@ class Main:
         self._parse_argv()
         self.WINDOW = xbmcgui.Window(10000)
         
+        # Check if the user has changed skin
+        if self.WINDOW.getProperty("skinsettings-currentSkin"):
+            if self.WINDOW.getProperty("skinsettings-currentSkin") != xbmc.getSkinDir():
+                self.reset_window_properties()
+                self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
+        else:
+            self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
+                
+        
         # Create datapath if not exists
         if not xbmcvfs.exists(__datapath__):
             xbmcvfs.mkdir(__datapath__)
@@ -119,7 +128,7 @@ class Main:
         self.reset_window_properties()
         
         # Save the widgets
-        path = os.path.join( __datapath__ , "skinshortcuts.widgets" )
+        path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" )
         
         try:
             f = xbmcvfs.File( path, 'w' )
@@ -181,9 +190,6 @@ class Main:
         
         # Clear window properties for this group
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + group )
-        
-        # Check for settings
-        self.checkForSettings()
         
     def _get_shortcuts( self, group ):
         # This will load the shortcut file, and save it as a window property
@@ -559,8 +565,8 @@ class Main:
             log( "### LOADING WIDGETS FROM FILE ###" )
             
             # Try to load user-defined widgets
-            if xbmcvfs.exists( os.path.join( __datapath__ , "skinshortcuts.widgets" ) ):
-                path = os.path.join( __datapath__ , "skinshortcuts.widgets" )
+            if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ) ):
+                path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" )
                 try:
                     # Try loading widgets
                     log ("### LOADING WIDGETS FILE ###" )
@@ -583,7 +589,9 @@ class Main:
                         widgets.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
                 
                 # Save the widgets to a window property               
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", simplejson.dumps( [] ) )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", simplejson.dumps( widgets ) )
+                log( "### Default widgets loaded:" )
+                log( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsWidgets" ) )
         else:
             log( "### WIDGETS ALREADY LOADED ###" )
 
@@ -612,7 +620,7 @@ class Main:
                             else:
                                 return elem.text
                                 
-        # If we get here, no strings have been specified in overrides.xml
+        # If we get here, no string has been specified in overrides.xml
         if group == "mainmenu":
             return __language__(32035)
         elif group == "submenu" and self.LEVEL == "":
@@ -646,10 +654,7 @@ class Main:
                     log( "### ERROR could not delete file %s" % file_path )
         
             # Update home window property (used to automatically refresh type=settings)
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
-            
-            # Check for settings
-            self.checkForSettings()   
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )   
             
             # Reset all window properties (so menus will be reloaded)
             self.reset_window_properties()
@@ -663,28 +668,20 @@ class Main:
         # Return whether mainmenu items should be displayed
         if item == "movies":
             return "Library.HasContent(Movies)"
-            return xbmc.getCondVisibility("Library.HasContent(Movies)")
         elif item == "tvshows":
             return "Library.HasContent(TVShows)"
-            return xbmc.getCondVisibility("Library.HasContent(TVShows)")
         if item == "livetv":
             return "System.GetBool(pvrmanager.enabled)"
-            return xbmc.getCondVisibility("System.GetBool(pvrmanager.enabled)")
         elif item == "musicvideos":
             return "Library.HasContent(MusicVideos)"
-            return xbmc.getCondVisibility("Library.HasContent(MusicVideos)")
         elif item == "music":
             return "Library.HasContent(Music)"
-            return xbmc.getCondVisibility("Library.HasContent(Music)")
         elif item == "weather":
             return "!IsEmpty(Weather.Plugin)"
-            return xbmc.getCondVisibility("!IsEmpty(Weather.Plugin)")
         elif item == "dvd":
             return "System.HasMediaDVD"
-            return xbmc.getCondVisibility("System.HasMediaDVD")
         else:
             return ""
-            return True
             
     def checkWidget( self, item ):
         # Return any widget for mainmenu items
@@ -723,98 +720,7 @@ class Main:
             return "settings"
         else:
             return item
-            
-    def checkForSettings( self ):
-        # Iterate through main menu, searching for a link to settings
-        hasSettingsLink = False
-        
-        if xbmcvfs.exists( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
-            # User defined shortcuts
-            mainmenuPath = os.path.join( __datapath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
-            # Skin-provided defaults
-            mainmenuPath = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
-            # Script-provided defaults
-            mainmenuPath = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
-        else:
-            # No custom shortcuts or defaults available
-            mainmenuPath = ""
-            
-        if not mainmenuPath == "":
-            try:
-                # Try loading shortcuts
-                loaditems = eval( file( mainmenuPath, "r" ).read() )
-                
-                for item in loaditems:
-                    # Check if the path (item 4) is for settings
-                    if urllib.unquote(item[4]) == "ActivateWindow(Settings)":
-                        hasSettingsLink = True
-                        break
-                    
-                    # Get labelID so we can check shortcuts for this menu item
-                    groupName = item[0].replace(" ", "").lower()
-                    
-                    # Localize strings
-                    if not item[0].find( "::SCRIPT::" ) == -1:
-                        groupName = self.createNiceName( item[0][10:] )
-                    elif not item[0].find( "::LOCAL::" ) == -1:
-                        groupName = self.createNiceName( item[0][9:] )
                         
-                    # Check if this item is actually being displayed
-                    if self.checkVisibility( groupName ):
-                        
-                        # Get path of submenu shortcuts
-                        if xbmcvfs.exists( os.path.join( __datapath__ , groupName + ".shortcuts" ) ):
-                            # User defined shortcuts
-                            submenuPath = os.path.join( __datapath__ , groupName + ".shortcuts" )
-                        elif xbmcvfs.exists( os.path.join( __skinpath__ , groupName + ".shortcuts" ) ):
-                            # Skin-provided defaults
-                            submenuPath = os.path.join( __skinpath__ , groupName + ".shortcuts" )
-                        elif xbmcvfs.exists( os.path.join( __defaultpath__ , groupName + ".shortcuts" ) ):
-                            # Script-provided defaults
-                            submenuPath = os.path.join( __defaultpath__ , groupName + ".shortcuts" )
-                        else:
-                            # No custom shortcuts or defaults available
-                            submenuPath = ""
-                            
-                        if not submenuPath == "":
-                            try:
-                                # Try loading shortcuts
-                                submenuitems = eval( file( submenuPath, "r" ).read() )
-                                
-                                for item in submenuitems:
-                                    if urllib.unquote(item[4]) == "ActivateWindow(Settings)":
-                                        hasSettingsLink = True
-                                        break
-                                    
-                            except:
-                                print_exc()
-                                log( "### ERROR could not load file %s" % submenuPath )
-                            
-                    if hasSettingsLink == True:
-                        break
-            except:
-                print_exc()
-                log( "### ERROR could not load file %s" % mainmenuPath )
-                
-        if hasSettingsLink:
-            log( " --- Skin has a link to settings" )
-            # There's a settings link, delete our info file
-            file_path = os.path.join( __datapath__, "nosettings.info")
-            if xbmcvfs.exists( file_path ):
-                xbmcvfs.delete( file_path )
-            xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","True" )
-        else:
-            # There's no settings link, create an info file
-            log( " --- Skin has no link to settings" )
-            file_path = os.path.join( __datapath__, "nosettings.info")
-            if not xbmcvfs.exists( file_path ):
-                f = xbmcvfs.File( file_path, 'w' )
-                f.write( "Meta-file to indicate there is no link to settings detected" )
-                f.close()
-            xbmcgui.Window( 10000 ).setProperty( "SettingsShortcut","False" )
-            
     def reset_window_properties( self ):
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsWidgets" )
@@ -849,5 +755,7 @@ if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
     
     Main()
+    
+    log( "### SKIN DIR: " + xbmc.getSkinDir() )
             
     log('script stopped')

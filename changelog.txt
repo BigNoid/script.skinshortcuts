@@ -1,5 +1,7 @@
 v0.1.1 (unstable)
+- Removed check for settings shortcut (skins are now recommended to always provide alternative settings access)
 - Video library shortcuts are loaded from video library node files (test)
+- Live TV renamed to PVR
 - Shortcuts with overriden images and override files are kept in memory to speed up listings
 - Submenu shortcuts are now all loaded at once, with visibility conditions for switching lists
 

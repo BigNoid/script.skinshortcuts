@@ -95,7 +95,7 @@ msgid "Programs Shortcut"
 msgstr ""
 
 msgctxt "#32022"
-msgid "Live TV"
+msgid "PVR"
 msgstr ""
 
 msgctxt "#32023"

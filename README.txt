@@ -120,9 +120,7 @@ For more information on what labelID may contain, see section on localization. A
 
 One of the side effects of using skinshortcuts to provide the whole main menu is that users have the ability to delete any shortcut, including those that they will later turn out to actually want. Generally, this isn't a problem as they can add them back at any time. However if they delete all links to settings, they will have no way to add it back unless your skin offers an alternative access.
 
-Therefore, the script will set a property on the home window if the user doesn't have any way to access settings in their customized menu. If the property "SettingsShortcut" is set to "False", and it doesn't already, then you should consider providing an alternative way for the user to access settings. For instance, you could have a button for settings with the visibility set as follows:
-
-	<visible>StringCompare(Window(10000).Property(SettingsShortcut),False)</visible>
+Therefore, it is recommended to have an alternative link to settings. One possible location is in your shutdown menu.
 
 
 Skinning the management dialog
