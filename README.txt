@@ -231,8 +231,6 @@ A complete example would look like:
 
 Users can also provide an overrides.xml file to override actions in special://profile/ - overrides in this file will take precedent over overrides provided by the skin.
 
-*VERSION INFORMATION* - I'm testing using video nodes in version 0.1.1 - with nodes, the action for activating various areas of the video library will *not be what you expect*. Double-check the action you are wanting to override, and expect this to change further before 0.1.1 becomes final.
-
 
 2. Overriding thumbnails
 

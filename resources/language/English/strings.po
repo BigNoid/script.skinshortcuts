@@ -63,35 +63,35 @@ msgid "<None>"
 msgstr ""
 
 msgctxt "#32014"
-msgid "Videos Shortcut"
+msgid "Videos"
 msgstr ""
 
 msgctxt "#32015"
-msgid "Movie Shortcut"
+msgid "Movies"
 msgstr ""
 
 msgctxt "#32016"
-msgid "TV Show Shortcut"
+msgid "TV Shows"
 msgstr ""
 
 msgctxt "#32017"
-msgid "Live TV Shortcut"
+msgid "PVR"
 msgstr ""
 
 msgctxt "#32018"
-msgid "Music Video Shortcut"
+msgid "Music Videos"
 msgstr ""
 
 msgctxt "#32019"
-msgid "Music Shortcut"
+msgid "Music"
 msgstr ""
 
 msgctxt "#32020"
-msgid "Pictures Shortcut"
+msgid "Pictures"
 msgstr ""
 
 msgctxt "#32021"
-msgid "Programs Shortcut"
+msgid "Programs"
 msgstr ""
 
 msgctxt "#32022"
@@ -164,4 +164,16 @@ msgstr ""
 
 msgctxt "#32039"
 msgid "Pick widget for ::MENUNAME::"
+msgstr ""
+
+msgctxt "#32040"
+msgid "Playlist"
+msgstr ""
+
+msgctxt "#32041"
+msgid "Action"
+msgstr ""
+
+msgctxt "#32042"
+msgid "Unknown video node"
 msgstr ""

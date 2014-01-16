@@ -621,7 +621,7 @@ class Main:
                                 return elem.text
                                 
         # If we get here, no string has been specified in overrides.xml
-        if group == "mainmenu":
+        if group == "main":
             return __language__(32035)
         elif group == "submenu" and self.LEVEL == "":
             return __language__(32036)

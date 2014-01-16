@@ -39,8 +39,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.arrayXBMCCommon = []
         self.arrayVideoLibrary = []
         self.arrayMusicLibrary = []
-        self.arrayVideoPlaylists = []
-        self.arrayAudioPlaylists = []
+        self.arrayPlaylists = []
         self.arrayFavourites = []
         self.arrayAddOns = []
         
@@ -71,8 +70,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self._load_musiclibrary()
             
             # Load favourites, playlists, add-ons
-            self._fetch_videoplaylists()
-            self._fetch_musicplaylists()
+            # self._fetch_videoplaylists()
+            # self._fetch_musicplaylists()
+            self._fetch_playlists()
             self._fetch_favourites()
             self._fetch_addons()
             
@@ -134,13 +134,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     label2 = label.text
             for file in files:
                 if not file == "index.xml":
+                    # Load the file
+                    tree = xmltree.parse( os.path.join( root, file) )
+                    
+                    # Check for a pretty library link
+                    prettyLink = self._pretty_videonode( tree, file )
+                    
                     # Create the action for this file
-                    path = "ActivateWindow(Videos,library://video/" + os.path.relpath( os.path.join( root, file), rootdir ) + ",return)"
-                    path.replace("\\", "/")
+                    if prettyLink == False:
+                        path = "ActivateWindow(Videos,library://video/" + os.path.relpath( os.path.join( root, file), rootdir ) + ",return)"
+                        path.replace("\\", "/")
+                    else:
+                        path = "ActivateWindow(Videos," + prettyLink + ",return)"
+                        
                     listitem = [path]
                     
                     # Get the label
-                    tree = xmltree.parse( os.path.join( root, file) )
                     label = tree.find( 'label' )
                     if label is not None:
                         if label.text.isdigit:
@@ -148,7 +157,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         else:
                             listitem.append( label.text )
                     else:
-                        listitem.append( "Unknown!" )
+                        listitem.append( "::SCRIPT::32042" )
                         
                     # Add the label2
                     listitem.append( label2 )
@@ -225,6 +234,97 @@ class GUI( xbmcgui.WindowXMLDialog ):
         #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoYears,return)", "::LOCAL::562", "::SCRIPT::32018", "DefaultMusicYears.png"]) )
         
         self.arrayVideoLibrary = listitems
+        
+    def _pretty_videonode( self, tree, filename ):
+        # We're going to do lots of matching, to try to figure out the pretty library link
+        
+        # Root
+        if filename == "addons.xml":
+            if self._check_videonode( tree, False ):
+                return "Addons"
+        elif filename == "files.xml":
+            if self._check_videonode( tree, False ):
+                return "Files"
+        # elif filename == "inprogressshows.xml": - Don't know a pretty library link for this...
+        elif filename == "playlists.xml":
+            if self._check_videonode( tree, False ):
+                return "Playlists"
+        elif filename == "recentlyaddedepisodes.xml":
+            if self._check_videonode( tree, False ):
+                return "RecentlyAddedEpisodes"
+        elif filename == "recentlyaddedmovies.xml":
+            if self._check_videonode( tree, False ):
+                return "RecentlyAddedMovies"
+        elif filename == "recentlyaddedmusicvideos.xml":
+            if self._check_videonode( tree, False ):
+                return "RecentlyAddedMusicVideos"
+              
+        # For the rest, they should all specify a type, so get that first
+        shortcutType = self._check_videonode_type( tree )
+        if shortcutType != "Custom Node":
+            if filename == "actors.xml":    # Movies, TV Shows
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Actors"
+            elif filename == "country.xml":   # Movies
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Countries"
+            elif filename == "directors.xml": # Movies
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Directors"
+            elif filename == "genres.xml":    # Movies, Music Videos, TV Shows
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Genres"
+            elif filename == "sets.xml":      # Movies
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Sets"
+            elif filename == "studios.xml":   # Movies, Music Videos, TV Shows
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Studios"
+            elif filename == "tags.xml":      # Movies, Music Videos, TV Shows
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Tags"
+            elif filename == "titles.xml":    # Movies, Music Videos, TV Shows
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Titles"
+            elif filename == "years.xml":     # Movies, Music Videos, TV Shows
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Years"
+            elif filename == "albums.xml":    # Music Videos
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Albums"
+            elif filename == "artists.xml":   # Music Videos
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Artists"
+            elif filename == "directors.xml": # Music Videos
+                if self._check_videonode( tree, True ):
+                    return shortcutType + "Directors"
+
+        # If we get here, we couldn't find a pretty link
+        return False
+            
+    def _check_videonode( self, tree, checkPath ):
+        # Check a video node for custom entries
+        if checkPath == False:
+            if tree.find( 'match' ) is not None or tree.find( 'rule' ) is not None or tree.find( 'limit' ) is not None:
+                return False
+            else:
+                return True
+        else:
+            if tree.find( 'match' ) is not None or tree.find( 'rule' ) is not None or tree.find( 'limit' ) is not None or tree.find( 'path' ) is not None:
+                return False
+            else:
+                return True
+                
+    def _check_videonode_type( self, tree ):
+        type = tree.find( 'content' ).text
+        if type == "movies":
+            return "Movie"
+        elif type == "tvshows":
+            return "TvShow"
+        elif type == "musicvideos":
+            return "MusicVideo"
+        else:
+            return "Custom Node"
                 
     def _load_musiclibrary( self ):
         listitems = []
@@ -280,123 +380,47 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         return( listitem )
         
-    def _fetch_videoplaylists( self ):
-        listitems = []
-        log('Loading playlists...')
-        path = 'special://profile/playlists/video/'
-        try:
-            dirlist = os.listdir( xbmc.translatePath( path ).decode('utf-8') )
-        except:
-            dirlist = []
-        for item in dirlist:
-            playlist = os.path.join( path, item)
-            playlistfile = xbmc.translatePath( playlist )
-            if item.endswith('.xsp'):
-                contents = xbmcvfs.File(playlistfile, 'r')
-                contents_data = contents.read().decode('utf-8')
-                xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
-                for line in xmldata.getiterator():
-                    if line.tag == "name":
-                        name = line.text
-                        if not name:
-                            name = item[:-4]
-                        log('Video playlist found %s' % name)
-                        listitem = xbmcgui.ListItem(label=name, label2=__language__(32004), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                        listitem.setProperty( "path", urllib.quote( "ActivateWindow(VideoLibrary," + playlist + ", return)" ) )
-                        listitem.setProperty( "icon", "DefaultShortcut.png" )
-                        listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                        listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32004" )
-                        listitems.append(listitem)
-                        break
-            elif item.endswith('.m3u'):
-                name = item[:-4]
-                log('Video playlist found %s' % name)
-                listitem = xbmcgui.ListItem(label=name, label2= __language__(32004), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                listitem.setProperty( "icon", "DefaultShortcut.png" )
-                listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32004" )
-                listitems.append(listitem)
-                
-        self.arrayVideoPlaylists = listitems
-
-    def _fetch_musicplaylists( self ):
+    def _fetch_playlists( self ):
         listitems = []
         # Music Playlists
         log('Loading music playlists...')
-        path = 'special://profile/playlists/music/'
-        try:
-            dirlist = os.listdir( xbmc.translatePath( path ).decode('utf-8') )
-        except:
-            dirlist = []
-        for item in dirlist:
-            playlist = os.path.join( path, item)
-            playlistfile = xbmc.translatePath( playlist )
-            if item.endswith('.xsp'):
-                contents = xbmcvfs.File(playlistfile, 'r')
-                contents_data = contents.read().decode('utf-8')
-                xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
-                for line in xmldata.getiterator():
-                    if line.tag == "name":
-                        name = line.text
-                        if not name:
-                            name = item[:-4]
-                        log('Music playlist found %s' % name)
-                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                        listitem.setProperty( "icon", "DefaultShortcut.png" )
-                        listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                        listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
-                        listitems.append(listitem)
-                        break
-            elif item.endswith('.m3u'):
-                name = item[:-4]
-                log('Music playlist found %s' % name)
-                listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                listitem.setProperty( urllib.quote( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                listitem.setProperty( "icon", "DefaultShortcut.png" )
-                listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
-                listitems.append(listitem)
-                
-        # Mixed Playlists
-        log('Loading mixed playlists...')
-        path = 'special://profile/playlists/mixed/'
-        try:
-            dirlist = os.listdir( xbmc.translatePath( path ).decode('utf-8') )
-        except:
-            dirlist = []
-        for item in dirlist:
-            playlist = os.path.join( path, item)
-            playlistfile = xbmc.translatePath( playlist )
-            if item.endswith('.xsp'):
-                contents = xbmcvfs.File(playlistfile, 'r')
-                contents_data = contents.read().decode('utf-8')
-                xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
-                for line in xmldata.getiterator():
-                    if line.tag == "name":
-                        name = line.text
-                        if not name:
-                            name = item[:-4]
-                        log('Music playlist found %s' % name)
-                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                        listitem.setProperty( "icon", "DefaultShortcut.png" )
-                        listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                        listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32008" )
-                        listitems.append(listitem)
-                        break
-            elif item.endswith('.m3u'):
-                name = item[:-4]
-                log('Music playlist found %s' % name)
-                listitem = xbmcgui.ListItem(label=name, label2= __language__(32008), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                listitem.setProperty( "icon", "DefaultShortcut.png" )
-                listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32008" )
-                listitems.append(listitem)
-        
-        self.arrayAudioPlaylists = listitems
+        paths = [['special://profile/playlists/video/','32004','VideoLibrary'], ['special://profile/playlists/music/','32005','MusicLibrary'], ['special://profile/playlists/mixed/','32008','MusicLibrary']]
+        for path in paths:
+            try:
+                dirlist = os.listdir( xbmc.translatePath( path[0] ).decode('utf-8') )
+            except:
+                dirlist = []
+            for item in dirlist:
+                playlist = os.path.join( path[0], item)
+                playlistfile = xbmc.translatePath( playlist )
+                if item.endswith('.xsp'):
+                    contents = xbmcvfs.File(playlistfile, 'r')
+                    contents_data = contents.read().decode('utf-8')
+                    xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
+                    for line in xmldata.getiterator():
+                        if line.tag == "name":
+                            name = line.text
+                            if not name:
+                                name = item[:-4]
+                            log('Playlist found %s' % name)
+                            listitem = xbmcgui.ListItem(label=name, label2= __language__(int(path[1])), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
+                            listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + path[2] + "," + playlist + ", return)" ) )
+                            listitem.setProperty( "icon", "DefaultShortcut.png" )
+                            listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                            listitem.setProperty( "shortcutType", "::SCRIPT::" + path[1] )
+                            listitems.append(listitem)
+                            break
+                elif item.endswith('.m3u'):
+                    name = item[:-4]
+                    log('Music playlist found %s' % name)
+                    listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
+                    listitem.setProperty( urllib.quote( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                    listitem.setProperty( "icon", "DefaultShortcut.png" )
+                    listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                    listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
+                    listitems.append(listitem)
+                        
+        self.arrayPlaylists = listitems
                 
     def _fetch_favourites( self ):
         log('Loading favourites...')
@@ -499,14 +523,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Move to previous type of shortcuts
             self.shortcutgroup = self.shortcutgroup - 1
             if self.shortcutgroup == 0:
-                self.shortcutgroup = 7
+                self.shortcutgroup = 6
                 
             self._display_shortcuts()
 
         if controlID == 103:
             # Move to next type of shortcuts
             self.shortcutgroup = self.shortcutgroup + 1
-            if self.shortcutgroup == 8:
+            if self.shortcutgroup == 7:
                 self.shortcutgroup = 1
                 
             self._display_shortcuts()
@@ -953,17 +977,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 101 ).setLabel( __language__(32031) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 4:
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(self.arrayVideoPlaylists)
-            self.getControl( 101 ).setLabel( __language__(32004) + " (%s)" %self.getControl( 111 ).size() )
+            self.getControl( 111 ).addItems(self.arrayPlaylists)
+            self.getControl( 101 ).setLabel( __language__(32040) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 5:
-            self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(self.arrayAudioPlaylists)
-            self.getControl( 101 ).setLabel( __language__(32005) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 6:
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(self.arrayFavourites)
             self.getControl( 101 ).setLabel( __language__(32006) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 7:
+        if self.shortcutgroup == 6:
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(self.arrayAddOns)
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
