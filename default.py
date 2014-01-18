@@ -653,15 +653,15 @@ class Main:
         
         # Loop through current widgets, looking for the current self.GROUP
         for currentWidget in currentWidgets:
-            if currentWidget[0] == self.GROUP:
-                saveWidgets.append( [ self.GROUP, widget[selectedWidget] ] )
+            if currentWidget[0].encode('utf-8') == self.GROUP:
+                saveWidgets.append( [ self.GROUP.decode('utf-8'), widget[selectedWidget].decode('utf-8') ] )
                 foundWidget = True
             else:
                 saveWidgets.append( [ currentWidget[0], currentWidget[1] ] )
                 
         # If we didn't find an existing widget for the group, add a new one
         if foundWidget == False:
-            saveWidgets.append( [ self.GROUP, widget[selectedWidget] ] )
+            saveWidgets.append( [ self.GROUP.decode('utf-8'), widget[selectedWidget].decode('utf-8') ] )
             
         # Clear the window property
         self.reset_window_properties()
@@ -806,15 +806,15 @@ class Main:
         
         # Loop through current widgets, looking for the current self.GROUP
         for currentBackground in currentBackgrounds:
-            if currentBackground[0] == self.GROUP:
-                saveBackgrounds.append( [ self.GROUP, background[selectedBackground] ] )
+            if currentBackground[0].encode('utf-8') == self.GROUP:
+                saveBackgrounds.append( [ self.GROUP.decode('utf-8'), background[selectedBackground].decode('utf-8') ] )
                 foundBackground = True
             else:
                 saveBackgrounds.append( [ currentBackground[0], currentBackground[1] ] )
                 
         # If we didn't find an existing widget for the group, add a new one
         if foundBackground == False:
-            saveBackgrounds.append( [ self.GROUP, background[selectedBackground] ] )
+            saveBackgrounds.append( [ self.GROUP.decode('utf-8'), background[selectedBackground].decode('utf-8') ] )
             
         # Clear the window property
         self.reset_window_properties()
@@ -956,7 +956,7 @@ class Main:
         
         # Loop through current widgets, looking for the current item
         for currentWidget in currentWidgets:
-            if currentWidget[0] == item:
+            if currentWidget[0].encode('utf-8') == item:
                 return currentWidget[1]
                 
         return ""
@@ -968,7 +968,7 @@ class Main:
         
         # Loop through current widgets, looking for the current item
         for currentBackground in currentBackgrounds:
-            if currentBackground[0] == item:
+            if currentBackground[0].encode('utf-8') == item:
                 return currentBackground[1]
                 
         return ""
@@ -1010,13 +1010,13 @@ class Main:
         listitems = self._get_shortcuts( "mainmenu" )
         for item in listitems:
             # Get labelID so we can check shortcuts for this menu item
-            groupName = item[0].replace(" ", "").lower()
+            groupName = item[0].replace(" ", "").lower().encode('utf-8')
             
             # Localize strings
             if not item[0].find( "::SCRIPT::" ) == -1:
-                groupName = self.createNiceName( item[0][10:] )
+                groupName = self.createNiceName( item[0][10:] ).encode('utf-8')
             elif not item[0].find( "::LOCAL::" ) == -1:
-                groupName = self.createNiceName( item[0][9:] )        
+                groupName = self.createNiceName( item[0][9:] ).encode('utf-8')
                 
             # Clear the property
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName )
