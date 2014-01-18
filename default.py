@@ -145,7 +145,7 @@ class Main:
     
     def _manage_shortcuts( self, group ):
         import gui
-        ui= gui.GUI( "script-overrides.xml", __cwd__, "default", group=group )
+        ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group )
         ui.doModal()
         del ui
         # Update home window property (used to automatically refresh type=settings)
