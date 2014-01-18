@@ -1,6 +1,18 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skins to handle.
 
+Version Information
+-------------------
+
+This version of the script has many changes to the previous version. These are highlighted throughout the readme with
+
+*VERSION INFORMATION*
+
+	
+Usage
+-----
+
 There are two ways to use this script. You can either (1) provide your own main menu items, and use the script to provide items for a sub-menu, or (2) use the script to provide both the main menu and sub-menu
+
 
 Using the script to provide sub-menus
 -------------------------------------
@@ -23,7 +35,7 @@ The script uses group=[groupname] property in order to determine which set of sh
 	
 2. Let users manage their shortcuts
  
-In your skinsettings.xml file, you need to create a button for each [groupname] that you want to support, with the following in the <onclick> tag
+In your overrides.xml file, you need to create a button for each [groupname] that you want to support, with the following in the <onclick> tag
  
 	RunScript(script.skinshortcuts?type=manage&amp;group=[groupname])
  
@@ -55,7 +67,7 @@ This is a work in progress - it may not fully work as you expect and may require
  
 2. Let users manage their main menu and sub-menu shortcuts
  
-The script can provide a list of controls for your skinsettings.xml to let the user manage both main menu and sub-menu.
+The script can provide a list of controls for your overrides.xml to let the user manage both main menu and sub-menu.
   
 Uses new method of filling the contents of a list in Gotham. In the list where you want these controls to appear, put the following in the <content> tag:
   
@@ -126,7 +138,7 @@ Therefore, it is recommended to have an alternative link to settings. One possib
 Skinning the management dialog
 ------------------------------
 
-To customize the look of the dialog displayed to allow the user to customize shortcuts, your skin needs to provide script-skinshortcuts.xml. It requires the following controls:
+To customize the look of the dialog displayed to allow the user to customize shortcuts, your skin needs to provide script-overrides.xml. It requires the following controls:
 
 ID	Type	Description
 101	Label	Current type of shortcut being viewed
@@ -157,7 +169,7 @@ In the list where you want an additional sub-menu to appear, put the following i
    
 Remember to replace 9000 with the id of the list you are using for the main menu. To provide more sub-menus for a main menu item, increase the value of the 'level' parameter.
 
-The script can provide a list of controls for your skinsettings.xml to let the user manage the additional sub-menu items.
+The script can provide a list of controls for your overrides.xml to let the user manage the additional sub-menu items.
   
 In the list where you want these controls to appear, put the following in the <content> tag:
   
@@ -173,7 +185,7 @@ Widgets
 
 When using Skin Shortcuts to provide the whole main menu, you may wish to provide a series of widgets - such as PVR information, weather conditions, recently added movies, and so forth - that the user can choose from for each main menu item.
 
-Skin Shortcuts can provide a list of controls for your skinsettings.xml to let the user choose a widget for their main menu items.
+Skin Shortcuts can provide a list of controls for your overrides.xml to let the user choose a widget for their main menu items.
 
 In the list where you want these controls to appear, put the following in the <content> tag:
   
@@ -184,6 +196,22 @@ Then use the following in the visibility condition for each widget:
 	<visible>StringCompare(Container(9000).ListItem.Property(Widget),[WidgetID])</visible>
 	
 You can define your widgets - along with their WidgetID, and default labelID's they should appear against - in an overrides.xml file. See "overrides.xml" sections 3 and 4 for more details.
+
+
+Additional Settings Menus
+-------------------------
+
+*VERSION INFORMATION* - This section only applies to version 0.1.1, which is not currently on the repo.
+
+When using Skin Shortcuts to provide the whole main menu, you have the option of providing one or more custom lists for your skin settings file. These lists could, for example, be used to launch your skins method for choosing a backgound image or setting a description.
+
+Skin Shortcuts will provide a list of controls for your overrides.xml, with one control for each main menu item.
+
+In the list where you want these controls to appear, put the following in the <content> tag:
+
+	plugin://script.skinshortcuts?type=customsettings&amp;customID=[Custom ID]&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
+	
+You can set the [Custom ID], along with the action(s) to be performed when the user selects the control and the control label in an overrides.xml file. See "overrides.xml" section 5 for more details.
 
 
 Providing default shortcuts
@@ -201,7 +229,9 @@ The script provides defaults equivalent to Confluence's main menu and sub-menus.
 
 
 overrides.xml
--------------
+----------------
+
+*VERSION INFORMATION* In version 0.1.0 - the version currently on the repo - this file is called 'overrides.xml'
 
 Your skin can include an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. This file allows you to provide various defaults for Skin Shortcuts, as well as overriding various things including actions and icons, allowing you to create a customised experience for your skin.
 
@@ -305,7 +335,7 @@ Remember to replace 9000 with the ID of the list containing your main menu.
 
 4. Overriding settings labels
 
-When using Skin Shortcuts to provide the whole main menu, it will provide a list of controls for your skinsettings.xml to launch the management dialog. You can override the default labels for these controls.
+When using Skin Shortcuts to provide the whole main menu, it will provide a list of controls for your overrides.xml to launch the management dialog. You can override the default labels for these controls.
 
 If you are using more than one sub-menu, you MUST provide the label otherwise they will be left blank.
 
@@ -327,7 +357,38 @@ So, for example:
 </overrides>
 
 
-5. A complete example
+5. Additional Settings Menus
+
+If you are using Skin Shortcuts to provide additional settings menu, you must define these menus in your overrides.xml file.
+
+	<settingsmenu id=[Custom ID]>
+		<label>[label]</label>
+		<action>[action]</action>
+		<onchange>[skinstring]</onchange>
+	</settingsmenu>
+	
+[Custom ID] - A string you use to identify this custom menu
+[label] - The label that should be displayed. Can be a localised string. Include ::MENUNAME:: where you want the name of the menu to appear.
+[action] - The action that should be run when the user selects the menu item. You can use ::LABELID:: if you want to use the labelID of the selected menu item in the action.
+[skinstring] - [OPTIONAL] [FOR FUTURE USE] The skin.string that is set by your custom action. Include ::LABELID:: where the labelID of the menu item should appear. Will be used in future to update the string if the labelID changes.
+
+Though [skinstring] is optional, if your custom menu sets a skin property it's recommended you include it as in future builds, this will be used to update the property if the labelID of the menu item changes.
+
+So, if we wanted to browse for an image to use as the background image for the selected menu item, which will be stored in skin.string("background-::LABELID::"), your overrides.xml may look like this:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
+	<settingsmenu id="background">
+		<label>Set background image for ::MENUNAME::</label>
+		<action>Skin.SetImage(Background_::LABELID::)</action>
+		<skinstring>Background_::LABELID::</skinstring>
+	</settingsmenu>
+</overrides>
+
+You could then also use ListItem.Property("SkinString") to get the current background image.
+
+
+6. A complete example
 
 A complete overrides.xml file may look as follows:
 

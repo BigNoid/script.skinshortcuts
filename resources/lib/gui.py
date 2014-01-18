@@ -811,15 +811,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
         log( "Loading shortcuts" )
         
         # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
-        if xbmcvfs.exists( os.path.join( __datapath__ , self.group + ".shortcuts" ) ):
+        if xbmcvfs.exists( os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" ) ):
             # User defined shortcuts
-            path = os.path.join( __datapath__ , self.group + ".shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __skinpath__ , self.group + ".shortcuts" ) ):
+            path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
+        elif xbmcvfs.exists( os.path.join( __skinpath__ , self.group.decode( 'utf-8' ) + ".shortcuts" ) ):
             # Skin-provided defaults
-            path = os.path.join( __skinpath__ , self.group + ".shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __defaultpath__ , self.group + ".shortcuts" ) ):
+            path = os.path.join( __skinpath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
+        elif xbmcvfs.exists( os.path.join( __defaultpath__ , self.group.decode( 'utf-8' ) + ".shortcuts" ) ):
             # Script-provided defaults
-            path = os.path.join( __defaultpath__ , self.group + ".shortcuts" )
+            path = os.path.join( __defaultpath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
         else:
             # No custom shortcuts or defaults available
             path = ""
@@ -929,20 +929,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem = self.getControl( 211 ).getListItem(x)
             
             if listitem.getLabel() != __language__(32013):
-                saveLabel = listitem.getLabel()
-                saveLabel2 = listitem.getLabel2()
+                saveLabel = listitem.getLabel().decode('utf-8')
+                saveLabel2 = listitem.getLabel2().decode('utf-8')
                 
                 if listitem.getProperty( "localizedString" ):
-                    saveLabel = listitem.getProperty( "localizedString" )
+                    saveLabel = listitem.getProperty( "localizedString" ).decode('utf-8')
                     
                 if listitem.getProperty( "customThumbnail" ):
-                    savedata=[saveLabel, listitem.getProperty("shortcutType"), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path"), listitem.getProperty("customThumbnail")]
+                    savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), listitem.getProperty("icon").decode('utf-8'), listitem.getProperty("thumbnail").decode('utf-8'), listitem.getProperty("path").decode('utf-8'), listitem.getProperty("customThumbnail").decode('utf-8')]
                 else:
-                    savedata=[saveLabel, listitem.getProperty("shortcutType"), listitem.getProperty("icon"), listitem.getProperty("thumbnail"), listitem.getProperty("path")]
+                    savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), listitem.getProperty("icon").decode('utf-8'), listitem.getProperty("thumbnail").decode('utf-8'), listitem.getProperty("path").decode('utf-8')]
                     
                 listitems.append(savedata)
         
-        path = os.path.join( __datapath__ , self.group + ".shortcuts" )
+        path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
+        log( path )
         
         if listitems:
             # If there are any shortcuts, save them
