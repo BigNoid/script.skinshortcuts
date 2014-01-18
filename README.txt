@@ -92,6 +92,7 @@ This will fill the list with items with the following properties:
 	Property(action)	The action that will be run when the shortcut is selected
 	Property(group)		The [groupname] that this shortcut is listed from
 	Property(widget)	If your skin uses Skin Shortcuts to manage widgets, the [widgetID] will appear here (mainmenu only)
+	Property(background)If your skin uses Skin Shortcuts to manage background, the [backgroundID] will appear here (mainmenu only)
 
 In the list where you want the sub-menu to appear, put the following in the <content> tag:
  
@@ -197,6 +198,8 @@ Then use the following in the visibility condition for each widget:
 	
 You can define your widgets - along with their WidgetID, and default labelID's they should appear against - in an overrides.xml file. See "overrides.xml" sections 3 and 4 for more details.
 
+Widgets are saved on a skin-by-skin basis.
+
 
 Additional Settings Menus
 -------------------------
@@ -212,6 +215,28 @@ In the list where you want these controls to appear, put the following in the <c
 	plugin://script.skinshortcuts?type=customsettings&amp;customID=[Custom ID]&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
 	
 You can set the [Custom ID], along with the action(s) to be performed when the user selects the control and the control label in an overrides.xml file. See "overrides.xml" section 5 for more details.
+
+
+Custom Backgrounds
+------------------
+
+*VERSION INFORMATION* - This section only applies to version 0.1.1, which is not currently on the repo.
+
+Many skin allow users to select custom backgrounds for various areas of the skin. If using Skin Shortcuts to provide the whole main menu, there are a few ways to extend these to the main menu items the user has selected, for example you could use the labelID or a custom settings menu.
+
+However, the recommended method is as follows:
+
+Continue to provide a method of setting the background for each area where you want the user to be able to specify a custom background.
+
+Tell Skin Shortcuts about each of these areas, including a custom ID for each one and the defaults for labelID's, in the overrides.xml file. (See "overrides.xml", section 6)
+
+Use Skin Shortcuts to provide a list of controls in your skinsettings.xml file for the user to choose which areas background they want to associate with each menu item. In the list where you want these controls to appear, include the following in the content tag:
+
+	plugin://script.skinshortcuts?type=background&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
+
+When populating main menu items, Skin Shortcuts will then add a 'background' property to each item, containing the custom ID of the background chosen, which you can test against for visibility.
+
+Custom backgrounds are saved on a skin-by-skin basis.
 
 
 Providing default shortcuts
@@ -230,8 +255,6 @@ The script provides defaults equivalent to Confluence's main menu and sub-menus.
 
 overrides.xml
 ----------------
-
-*VERSION INFORMATION* In version 0.1.0 - the version currently on the repo - this file is called 'overrides.xml'
 
 Your skin can include an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. This file allows you to provide various defaults for Skin Shortcuts, as well as overriding various things including actions and icons, allowing you to create a customised experience for your skin.
 
@@ -341,7 +364,7 @@ If you are using more than one sub-menu, you MUST provide the label otherwise th
 
 	<settingslabel type="[type]" level="[level]">[string]</settingslabel>
 	
-[type] - Either "main" (Main Menu), "submenu", "widget" or "reset"
+[type] - Either "main" (Main Menu), "submenu" (sub menu item), "widget" (Widgets menu), "background" (Background menu) or "reset" (Reset all shortcuts)
 [level] - [OPTIONAL] Use this to indicate an additional sub-menu. See 'Multiple Sub-Menu's' for details. (Only works with type="submenu")
 [string] - The label that should be displayed. Can be a localised string. Include ::MENUNAME:: where you want the name of the menu to appear (does not apply to 'Main' or 'Reset').
 
@@ -381,14 +404,24 @@ So, if we wanted to browse for an image to use as the background image for the s
 	<settingsmenu id="background">
 		<label>Set background image for ::MENUNAME::</label>
 		<action>Skin.SetImage(Background_::LABELID::)</action>
-		<skinstring>Background_::LABELID::</skinstring>
+		<onchange>Background_::LABELID::</onchange>
 	</settingsmenu>
 </overrides>
 
-You could then also use ListItem.Property("SkinString") to get the current background image.
+
+6. Custom background images
+
+If you are using Skin Shortcuts to set background images for main menu items, you need to tell the script what backgrounds you have defined and provide default backgrounds.
+
+	<background label="[Label]">[backgroundID]</background>
+	<backgrounddefault labelID="[LabelID]">[backgroundID]</backgroundDefault>
+	
+[Label] - The display name of the background (can be a localised string)
+[backgroundID] - A string you use to identify the background
+[labelID] - The labelID you are providing a default for.
 
 
-6. A complete example
+7. A complete example
 
 A complete overrides.xml file may look as follows:
 
