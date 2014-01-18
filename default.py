@@ -212,7 +212,7 @@ class Main:
         
         for mainmenuItem in mainmenuListItems:
             # Load menu for each labelID
-            mainmenuLabelID = mainmenuItem[5]
+            mainmenuLabelID = mainmenuItem[5].encode( 'utf-8' )
             # log( "unencoded: " + mainmenuLabelID )
             # mainmenuLabelID = mainmenuLabelID.encode('ascii', 'xmlcharrefreplace' )
             # log( "encoded: " + mainmenuLabelID )
@@ -221,7 +221,7 @@ class Main:
             else:
                 listitems = self._get_shortcuts( mainmenuLabelID + "." + levelInt )
             for item in listitems:
-                path = sys.argv[0] + "?type=launch&path=" + item[4] + "&group=" + mainmenuLabelID
+                path = sys.argv[0] + "?type=launch&path=" + item[4].encode('utf-8') + "&group=" + mainmenuLabelID
                 
                 listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
                 
@@ -286,15 +286,15 @@ class Main:
             log( "### LOADING SHORTCUTS FROM FILE ###" )
             
             # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
-            if xbmcvfs.exists( os.path.join( __datapath__ , group + ".shortcuts" ) ):
+            if xbmcvfs.exists( os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" ) ):
                 # User defined shortcuts
-                path = os.path.join( __datapath__ , group + ".shortcuts" )
-            elif xbmcvfs.exists( os.path.join( __skinpath__ , group + ".shortcuts" ) ):
+                path = os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" )
+            elif xbmcvfs.exists( os.path.join( __skinpath__ , group.decode( 'utf-8' ) + ".shortcuts" ) ):
                 # Skin-provided defaults
-                path = os.path.join( __skinpath__ , group + ".shortcuts" )
-            elif xbmcvfs.exists( os.path.join( __defaultpath__ , group + ".shortcuts" ) ):
+                path = os.path.join( __skinpath__ , group.decode( 'utf-8' ) + ".shortcuts" )
+            elif xbmcvfs.exists( os.path.join( __defaultpath__ , group.decode( 'utf-8' ) + ".shortcuts" ) ):
                 # Script-provided defaults
-                path = os.path.join( __defaultpath__ , group + ".shortcuts" )
+                path = os.path.join( __defaultpath__ , group.decode( 'utf-8' ) + ".shortcuts" )
             else:
                 # No custom shortcuts or defaults available
                 path = ""
@@ -462,9 +462,9 @@ class Main:
                 
                 for item in loaditems:
                     log( "### Original item: " + item[0] )
-                    itemEncoded = repr( item[0] )
+                    itemEncoded = item[0].encode( 'utf-8' )
                     log( itemEncoded )
-                    log( eval( itemEncoded ).encode( 'utf-8' ) )
+                    #log( item[0].encode( 'utf-8' ) )
                     # path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + itemEncoded.replace(" ", "").lower() + pathAddition + ")" )
                     path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + itemEncoded + pathAddition + ")" )
                     
@@ -562,14 +562,12 @@ class Main:
                         if not item[0].find( "::SCRIPT::" ) == -1:
                             localLabel = __language__(int( item[0][10:] ) )
                             labelID = self.createNiceName( item[0][10:] )
-                            path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][10:] ) + ")" )
                         elif not item[0].find( "::LOCAL::" ) == -1:
                             localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
                             labelID = self.createNiceName( item[0][9:] )
-                            path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][9:] ) + ")" )
                         
                         # Get custom action
-                        customAction = settingsMenuElem.find('action').text.replace("::LABELID::", labelID)
+                        customAction = settingsMenuElem.find('action').text.replace("::LABELID::", labelID).encode( 'utf-8' )
                         path = sys.argv[0] + "?type=launch&path=" + urllib.quote( customAction )
 
                         # Get display label
@@ -707,15 +705,15 @@ class Main:
                 listitems = []
                 
                 for item in loaditems:
-                    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + item[0].replace(" ", "").lower() + ")" )
+                    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + item[0].replace(" ", "").lower().encode( 'utf-8' ) + ")" )
                     
                     # Get localised label
                     if not item[0].find( "::SCRIPT::" ) == -1:
                         localLabel = __language__(int( item[0][10:] ) )
-                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][10:] ) + ")" )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][10:] ).encode( 'utf-8' ) + ")" )
                     elif not item[0].find( "::LOCAL::" ) == -1:
                         localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
-                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][9:] ) + ")" )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][9:] ).encode( 'utf-8' ) + ")" )
                     else:
                         localLabel = item[0]
                         
@@ -860,15 +858,15 @@ class Main:
                 listitems = []
                 
                 for item in loaditems:
-                    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + item[0].replace(" ", "").lower() + ")" )
+                    path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + item[0].replace(" ", "").lower().encode( 'utf-8' ) + ")" )
                     
                     # Get localised label
                     if not item[0].find( "::SCRIPT::" ) == -1:
                         localLabel = __language__(int( item[0][10:] ) )
-                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + self.createNiceName( item[0][10:] ) + ")" )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + self.createNiceName( item[0][10:] ).encode( 'utf-8' ) + ")" )
                     elif not item[0].find( "::LOCAL::" ) == -1:
                         localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
-                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + self.createNiceName( item[0][9:] ) + ")" )
+                        path = sys.argv[0] + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + self.createNiceName( item[0][9:] ).encode( 'utf-8' ) + ")" )
                     else:
                         localLabel = item[0]
                         

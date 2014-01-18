@@ -809,6 +809,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
     def load_shortcuts( self ):
         log( "Loading shortcuts" )
+        log( "Filename: " + self.group + ".shortcuts" )
         
         # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
         if xbmcvfs.exists( os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" ) ):
