@@ -57,9 +57,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 302 ).setLabel( __language__(32001) )
             self.getControl( 303 ).setLabel( __language__(32002) )
             self.getControl( 304 ).setLabel( __language__(32003) )
-            self.getControl( 305 ).setLabel( __language__(32025) )
+            try:
+                self.getControl( 305 ).setLabel( __language__(32025) )
+            except:
+                log( "Not set label for edit label button" )
             self.getControl( 306 ).setLabel( __language__(32026) )
-            self.getControl( 307 ).setLabel( __language__(32027) )
+            try:
+                self.getControl( 307 ).setLabel( __language__(32027) )
+            except:
+                log( "Not set label for edit action button" )
             self.getControl( 308 ).setLabel( __language__(32028) )
             
             # List XBMC common shortcuts (likely to be used on a main menu
@@ -514,9 +520,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         self.arrayAddOns = listitems
         
-    def onAction(self, action):
-        if action.getId() in ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, ):
-            self.close()
+    #def onAction(self, action):
+    #    if action.getId() in ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, ):
+    #        log( "### CLOSING WINDOW" )
+    #        log( action )
+    #        log( action.getId() )
+    #        if self.getFocusId() != 402:
+    #            self.close()
         
     def onClick(self, controlID):
         if controlID == 102:
@@ -715,7 +725,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             
         if controlID == 307:
-            # Change path
+            # Change Action
             
             #Retrieve properties, copy item, etc (in case the user changes focus)
             custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
@@ -806,6 +816,78 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 # Set focus
                 self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+                
+        
+        if controlID == 402:
+            # Change label (EDIT CONTROL)
+            
+            # Retrieve properties, copy item, etc (in case the user changes focus whilst we're running)
+            custom_label = self.getControl( 211 ).getSelectedItem().getLabel()
+            num = self.getControl( 211 ).getSelectedPosition()
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            
+            custom_label = self.getControl( 402 ).getText()
+            if custom_label == "":
+                custom_label = __language__(32013)
+                
+            # Set properties of the listitemCopy
+            listitemCopy.setLabel(custom_label)
+            listitemCopy.setProperty( "localizedString", "" )
+            
+            # If there's no label2, set it to custom shortcut
+            if not listitemCopy.getLabel2():
+                listitemCopy.setLabel2( __language__(32024) )
+                listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
+            
+            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
+            listitems = []
+            for x in range(0, self.getControl( 211 ).size()):
+                if x == num:
+                    listitems.append(listitemCopy)
+                else:
+                    # Duplicate the item and it to the listitems array
+                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                    
+                    listitems.append(listitemShortcutCopy)
+                    
+            self.getControl( 211 ).reset()
+            self.getControl( 211 ).addItems(listitems)
+            
+            self.getControl( 211 ).selectItem( num )
+        
+        
+        if controlID == 403:
+            # Change action (EDIT CONTROL)
+             #Retrieve properties, copy item, etc (in case the user changes focus)
+            custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            num = self.getControl( 211 ).getSelectedPosition()
+
+            custom_path = self.getControl( 403 ).getText()
+            if custom_path == "":
+                custom_path = "noop"
+                    
+            if not urllib.quote( custom_path ) == self.getControl( 211 ).getSelectedItem().getProperty( "path" ):
+                listitemCopy.setProperty( "path", urllib.quote( custom_path ) )
+                listitemCopy.setLabel2( __language__(32024) )
+                listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
+            
+            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered path
+            listitems = []
+            for x in range(0, self.getControl( 211 ).size()):
+                if x == num:
+                    listitems.append(listitemCopy)
+                else:
+                    # Duplicate the item and it to the listitems array
+                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                    
+                    listitems.append(listitemShortcutCopy)
+                    
+            self.getControl( 211 ).reset()
+            self.getControl( 211 ).addItems(listitems)
+            
+            self.getControl( 211 ).selectItem( num )
+
             
     def load_shortcuts( self ):
         log( "Loading shortcuts" )
@@ -993,6 +1075,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
     def onAction( self, action ):
         if action.getId() in ACTION_CANCEL_DIALOG:
+            log( "### CLOSING WINDOW" )
+            if self.getFocusId() == 402 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
+                return
             self._save_shortcuts()
             self._close()
 

@@ -36,13 +36,15 @@ class Main:
         self._parse_argv()
         self.WINDOW = xbmcgui.Window(10000)
         
-        # Check if the user has changed skin
-        if self.WINDOW.getProperty("skinsettings-currentSkin-Path"):
-            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir():
+        # Check if the user has changed skin or profile
+        if self.WINDOW.getProperty("skinsettings-currentSkin-Path") and self.WINDOW.getProperty("skinsettings-currentProfile-Path"):
+            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir() or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__:
                 self.reset_window_properties()
                 self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
+                self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
         else:
             self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
+            self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
                 
         
         # Create datapath if not exists

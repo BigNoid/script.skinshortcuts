@@ -139,7 +139,12 @@ Therefore, it is recommended to have an alternative link to settings. One possib
 Skinning the management dialog
 ------------------------------
 
-To customize the look of the dialog displayed to allow the user to customize shortcuts, your skin needs to provide script-overrides.xml. It requires the following controls:
+*VERSION INFORMATION* Version 0.1.0, the version on the repo, only supports the non-optional controls below. Non of the optional controls are supported.
+*VERSION INFORMATION* Optional controls are a work in progress. Only 402 and 403 are currently supported.
+
+1. List of controls
+
+To customize the look of the dialog displayed to allow the user to customize shortcuts, your skin needs to provide script-skinsettings.xml. It requires the following controls:
 
 ID	Type	Description
 101	Label	Current type of shortcut being viewed
@@ -147,14 +152,80 @@ ID	Type	Description
 103	Button	Change type of shortcut being viewed (up)
 111	List	Available shortcuts for the current type being viewed
 211	List	Shortcuts the user has chosen for the [groupname]
-301	Button	Add a new shortcut
+301	Button	Add a new shortcut (optional if including 'Add New...' in control 211)
 302	Button	Delete shortcut
 303	Button	Move shortcut up
 304	Button	Move shortcut down
-305	Button	Change shortcut label
+305	Button	Change shortcut label (optional if control 402 included)
 306	Button	Change shortcut thumbnail
-307	Button	Change shortcut action
+307	Button	Change shortcut action (optional if control 403 included)
 308	Button	Reset shortcuts
+
+Optional controls:
+
+309 Button  Change widget (See section on 'Widgets')
+310 Button  Change background (See section on 'Custom backgrounds')
+
+401 Button	Alternative method to set a shortcut
+402 Edit	Alternative method to edit a label
+403 Edit	Alternative method to edit an action
+404 Button	Set a custom property
+405 Button	Launch management dialog for submenu / additional menus
+
+
+2. Alternative method to set a shortcut *TO DO*
+
+Rather than using list 111 to let the user select a shortcut, you can include button 401. When clicked it will show the user, via the standard Select dialog, first a list of the available categories of shortcuts, then the shortcuts within that category.
+
+You can also use the button to go straight to the list of shortcuts for a category by first setting the window property "category", then sending a click to the button. The available categories are:
+
+	common		(Items commonly found on a main menu)
+	video		(Video library)
+	music		(Music library)
+	playlists	(Users playlists)
+	favourites	(Users favourites)
+	addons		(Programs, video add-ons, music add-ons, picture add-ons)
+	
+Note, you must still include all controls in the 100 range in your xml file. However, they do not have to be visible to the user. After a click to 401 has been registered, the window property "category" will be cleared.
+
+
+3. Alternative method to edit label
+
+Rather than using a button to open the keyboard dialog to edit the current label, you can include an edit control with id 402. This will allow users with keyboards attached to edit the label inline, or otherwise display the keyboard dialog.
+
+If you include control 402, you can omit control 305 from your xml file.
+
+
+4. Alternative method to edit an action
+
+Rather than using a button to open the Keyboard dialog to edit the current action, you can include an edit control with id 403. This will allow users with keyboard attached to edit the action inline, or otherwise display the keyboard dialog.
+
+If you include control 403, you can omit control 307 from your xml file.
+
+
+5. Set a custom property *TO DO*
+
+If you want to attach a custom property to a menu item, you can include button 404.
+
+To set a property, first set the following window properties
+
+	customProperty	The name you are giving to the custom property
+	customValue		The value of the custom property
+	
+Then send a click to control 404. The two properties will be cleared afterwards.
+
+You can set defaults for your custom property in your overrides.xml file.
+
+
+6. Launch management dialog for submenu / additional menus *TO DO*
+
+You can give the users a way to launch the management dialog for the submenu or an additional menu (see section on Multiple Sub-Menus) from the management dialog.
+
+To do this include the control 405. Clicking it will launch the management dialog for the submenu of the selected item.
+
+To launch the management dialog for an additional sub menu, first set the window property "submenuLevel", then send a click to 405. The property will be cleared afterwards.
+
+You will likely only want to include this when editing the main menu. You can check the window property "groupname" for the value "mainmenu" to only display it when relevant.
 
 
 Multiple Sub Menus
