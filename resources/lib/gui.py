@@ -86,6 +86,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Load current shortcuts
             self.load_shortcuts()
+            
+            self.updateEditControls()
         
     def _load_xbmccommon( self ):
         listitems = []
@@ -818,6 +820,93 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
                 
         
+        if controlID == 401:
+            # Choose shortcut (SELECT DIALOG)
+            
+            # Check for a window property designating category
+            currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+            shortcutCategory = -1
+            if currentWindow.getProperty("category"):
+                skinCategory = currentWindow.getProperty("category")
+                if skinCategory == "common":
+                    shortcutCategory = 0
+                elif skinCategory == "video":
+                    shortcutCategory = 1
+                elif skinCategory == "music":
+                    shortcutCategory = 2
+                elif skinCategory == "playlists":
+                    shortcutCategory = 3
+                elif skinCategory == "favourites":
+                    shortcutCategory = 4
+                elif skinCategory == "addons":
+                    shortcutCategory = 5
+            else:
+                # No window property passed, ask the user what category they want
+                shortcutCategories = [__language__(32029), __language__(32030), __language__(32031), __language__(32040), __language__(32006), __language__(32007)]
+                shortcutCategory = xbmcgui.Dialog().select( __language__(32043), shortcutCategories )
+                
+            # Clear the window property
+            currentWindow.clearProperty("category")
+            
+            # Get the shortcuts for the group the user has selected
+            displayLabel2 = False
+            if shortcutCategory == 0: # Common
+                availableShortcuts = self.arrayXBMCCommon
+            elif shortcutCategory == 1: # Video Library
+                availableShortcuts = self.arrayVideoLibrary
+                displayLabel2 = True
+            elif shortcutCategory == 2: # Music Library
+                availableShortcuts = self.arrayMusicLibrary
+                displayLabel2 = True
+            elif shortcutCategory == 3: # Playlists
+                availableShortcuts = self.arrayPlaylists
+                displayLabel2 = True
+            elif shortcutCategory == 4: # Favourites
+                availableShortcuts = self.arrayFavourites
+            elif shortcutCategory == 5: # Add-ons
+                availableShortcuts = self.arrayAddOns
+                displayLabel2 = True
+                
+                
+            elif shortcutCategory != -1: # No category selected
+                return
+                
+            log( "### Selected category: " + shortcutCategories[shortcutCategory] )
+            log( availableShortcuts )
+            
+            # Now build an array of items to show to the user
+            displayShortcuts = []
+            for shortcut in availableShortcuts:
+                if displayLabel2:
+                    displayShortcuts.append( "(" + shortcut.getLabel2() + ") " + shortcut.getLabel() )
+                else:
+                    displayShortcuts.append( shortcut.getLabel() )
+
+            log( displayShortcuts )
+            
+            selectedShortcut = xbmcgui.Dialog().select( shortcutCategories[shortcutCategory], displayShortcuts )
+            
+            if selectedShortcut != -1:
+                # Create a copy of the listitem
+                listitemCopy = self._duplicate_listitem( availableShortcuts[selectedShortcut] )
+                
+                # Loop through the original list, and replace the currently selected listitem with our new listitem
+                listitems = []
+                num = self.getControl( 211 ).getSelectedPosition()
+                for x in range(0, self.getControl( 211 ).size()):
+                    if x == num:
+                        log ( "### Found the item" )
+                        listitems.append(listitemCopy)
+                    else:
+                        # Duplicate the item and add it to the listitems array
+                        listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                        listitems.append(listitemShortcutCopy)
+                        
+                self.getControl( 211 ).reset()
+                self.getControl( 211 ).addItems(listitems)
+                
+                self.getControl( 211 ).selectItem( num )
+        
         if controlID == 402:
             # Change label (EDIT CONTROL)
             
@@ -1072,14 +1161,31 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 111 ).addItems(self.arrayAddOns)
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
             
+    def updateEditControls( self ):
+        # Try setting 402's text to the current label
+        try:
+            self.getControl( 402 ).setText( self.getControl( 211 ).getSelectedItem().getLabel() )
+        except:
+            log( "Not able to set label edit control" )
+
+        # Try setting 403's text to the current action
+        try:
+            self.getControl( 403 ).setText( urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') ) )
+        except:
+            log( "Not able to set label edit control" )
                 
     def onAction( self, action ):
+        log( action.getId() )
         if action.getId() in ACTION_CANCEL_DIALOG:
             log( "### CLOSING WINDOW" )
             if self.getFocusId() == 402 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
                 return
+            if self.getFocusId() == 403 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
+                return
             self._save_shortcuts()
             self._close()
+        if self.getFocusId() == 211: # User focused on currently selected shortcut
+            self.updateEditControls()
 
     def _close( self ):
             log('Gui closed')

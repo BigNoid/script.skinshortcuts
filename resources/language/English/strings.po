@@ -177,3 +177,7 @@ msgstr ""
 msgctxt "#32042"
 msgid "Unknown video node"
 msgstr ""
+
+msgctxt "#32043"
+msgid "Choose shortcut category"
+msgstr ""

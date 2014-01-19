@@ -173,7 +173,7 @@ Optional controls:
 405 Button	Launch management dialog for submenu / additional menus
 
 
-2. Alternative method to set a shortcut *TO DO*
+2. Alternative method to set a shortcut
 
 Rather than using list 111 to let the user select a shortcut, you can include button 401. When clicked it will show the user, via the standard Select dialog, first a list of the available categories of shortcuts, then the shortcuts within that category.
 
@@ -559,3 +559,4 @@ With Thanks
 Huge thanks to Ronie, whose code for listing plugins is used in this script
 Equally huge thanks to Ronie and `Black, for their favourites code used in this script
 More huge thanks to BigNoid, for the ability to edit shortcuts
+And the biggest thanks of all to Annie and my family, for feature suggestions, testing and shouting at me when I broke things
