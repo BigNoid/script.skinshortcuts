@@ -181,3 +181,11 @@ msgstr ""
 msgctxt "#32043"
 msgid "Choose shortcut category"
 msgstr ""
+
+msgctxt "#32044"
+msgid "Choose a widget"
+msgstr ""
+
+msgctxt "#32045"
+msgid "Choose a background"
+msgstr ""

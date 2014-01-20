@@ -670,6 +670,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set properties of the listitemCopy
             listitemCopy.setLabel(custom_label)
             listitemCopy.setProperty( "localizedString", "" )
+            listitemCopy.setProperty( "labelID", self._get_labelID(custom_label) )
             
             # If there's no label2, set it to custom shortcut
             if not listitemCopy.getLabel2():
@@ -793,8 +794,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
                     # If we've loaded anything, save them to the list
                     if len(listitems) != 0:
-                        self.getControl( 211 ).addItems(listitems)
-                    
+                        returnItems = self._load_properties( listitems )
+                        self.getControl( 211 ).addItems(returnItems)   
+                        
                     # If there are no items in the list, add an empty one...
                     if self.getControl( 211 ).size() == 0:
                         listitem = xbmcgui.ListItem( __language__(32013) )
@@ -819,6 +821,151 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Set focus
                 self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
                 
+        if controlID == 309:
+            # Choose widget
+            
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            num = self.getControl( 211 ).getSelectedPosition()
+            
+            # Load skin overrides
+            path = os.path.join( __skinpath__ , "overrides.xml" )
+            if xbmcvfs.exists( path ):
+                try:
+                    tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
+                except:
+                    print_exc()
+            
+            # Get widgets
+            widgetLabel = ["None"]
+            widget = [""]
+            
+            if tree is not None:
+                elems = tree.findall('widget')
+                for elem in elems:
+                    if elem.attrib.get( 'label' ).isdigit():
+                        widgetLabel.append( xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) )
+                    else:
+                        widgetLabel.append( elem.attrib.get( 'label' ) )
+                    widget.append( elem.text )           
+            
+            dialog = xbmcgui.Dialog()
+            selectedWidget = dialog.select( __language__(32044), widgetLabel )
+            
+            if selectedWidget != -1:
+                # Update the widget
+                if selectedWidget == 0:
+                    # No widget
+                    if listitemCopy.getProperty( "additionalListItemProperties" ):
+                        newAdditionalList = []
+                        for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
+                            if listitemProperty[0] != "widget":
+                                newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
+                                
+                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                            
+                    # Copy the item again - this will clear the widget property
+                    listitemCopy = self._duplicate_listitem( listitemCopy )
+                else:
+                    listitemCopy.setProperty( "widget", widget[selectedWidget] )
+                    if listitemCopy.getProperty( "additionalListItemProperties" ):
+                        log( listitemCopy.getProperty( "additionalListItemProperties" ) )
+                        newAdditionalList = [ ["widget", widget[selectedWidget]] ]
+                        log( repr (newAdditionalList ) )
+                        for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
+                            log( listitemProperty )
+                            if listitemProperty[0] != "widget":
+                                newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
+                                log( repr (newAdditionalList ) )
+                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                    
+                # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
+                listitems = []
+                for x in range(0, self.getControl( 211 ).size()):
+                    if x == num:
+                        listitems.append(listitemCopy)
+                    else:
+                        # Duplicate the item and it to the listitems array
+                        listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                        
+                        listitems.append(listitemShortcutCopy)
+                        
+                self.getControl( 211 ).reset()
+                self.getControl( 211 ).addItems(listitems)
+                
+                self.getControl( 211 ).selectItem( num )
+                
+        if controlID == 310:
+            # Choose widget
+            
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            num = self.getControl( 211 ).getSelectedPosition()
+            
+            # Load skin overrides
+            path = os.path.join( __skinpath__ , "overrides.xml" )
+            if xbmcvfs.exists( path ):
+                try:
+                    tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
+                except:
+                    print_exc()
+            
+            # Get backgrounds
+            backgroundLabel = ["Default"]
+            background = [""]
+            
+            if tree is not None:
+                elems = tree.findall('background')
+                for elem in elems:
+                    if elem.attrib.get( 'label' ).isdigit():
+                        backgroundLabel.append( xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) )
+                    else:
+                        backgroundLabel.append( elem.attrib.get( 'label' ) )
+                    background.append( elem.text )           
+            
+            dialog = xbmcgui.Dialog()
+            selectedBackground = dialog.select( __language__(32045), backgroundLabel )
+            
+            if selectedBackground != -1:
+                # Update the Background
+                if selectedBackground == 0:
+                    # No background
+                    if listitemCopy.getProperty( "additionalListItemProperties" ):
+                        newAdditionalList = []
+                        for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
+                            if listitemProperty[0] != "background":
+                                newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
+                                
+                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                            
+                    # Copy the item again - this will clear the background property
+                    listitemCopy = self._duplicate_listitem( listitemCopy )
+                else:
+                    listitemCopy.setProperty( "background", background[selectedBackground] )
+                    if listitemCopy.getProperty( "additionalListItemProperties" ):
+                        log( listitemCopy.getProperty( "additionalListItemProperties" ) )
+                        newAdditionalList = [ ["background", background[selectedBackground]] ]
+                        log( repr (newAdditionalList ) )
+                        for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
+                            log( listitemProperty )
+                            if listitemProperty[0] != "background":
+                                newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
+                                log( repr (newAdditionalList ) )
+                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                    
+                # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
+                listitems = []
+                for x in range(0, self.getControl( 211 ).size()):
+                    if x == num:
+                        listitems.append(listitemCopy)
+                    else:
+                        # Duplicate the item and it to the listitems array
+                        listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                        
+                        listitems.append(listitemShortcutCopy)
+                        
+                self.getControl( 211 ).reset()
+                self.getControl( 211 ).addItems(listitems)
+                
+                self.getControl( 211 ).selectItem( num )
         
         if controlID == 401:
             # Choose shortcut (SELECT DIALOG)
@@ -922,6 +1069,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set properties of the listitemCopy
             listitemCopy.setLabel(custom_label)
             listitemCopy.setProperty( "localizedString", "" )
+            listitemCopy.setProperty( "labelID", self._get_labelID(custom_label) )
             
             # If there's no label2, set it to custom shortcut
             if not listitemCopy.getLabel2():
@@ -1006,11 +1154,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitems = []
                 
                 for item in loaditems:
-                    listitems.append( self._parse_listitem( item ) )
+                    # Parse any localised labels
+                    newItem = self._parse_listitem( item )
+                    
+                    # Load widgets, backgrounds and any skin-specific properties
+                    # newItem = self._load_properties( newItem )
+                    
+                    # Add to list
+                    listitems.append( newItem )
                     
                 # If we've loaded anything, save them to the list
                 if len(listitems) != 0:
-                    self.getControl( 211 ).addItems(listitems)
+                    # Load widgets, backgrounds and any skin-specific properties
+                    returnItems = self._load_properties( listitems )
+                    
+                    self.getControl( 211 ).addItems(returnItems)
                 
                 # If there are no items in the list, add an empty one...
                 if self.getControl( 211 ).size() == 0:
@@ -1077,8 +1235,118 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if len(item) == 6:
             listitem.setProperty( "customThumbnail", item[5] )
             
+        listitem.setProperty( "labelID", self._get_labelID( loadLabel ) )
         return listitem
+        
+    def _get_labelID ( self, item ):
+        # Translate certain localized strings into non-localized form for labelID
+        item = item.replace("::SCRIPT::", "")
+        item = item.replace("::LOCAL::", "")
+        if item == "10006":
+            return "videos"
+        if item == "342":
+            return "movies"
+        if item == "20343":
+            return "tvshows"
+        if item == "32022":
+            return "livetv"
+        if item == "10005":
+            return "music"
+        if item == "20389":
+            return "musicvideos"
+        if item == "10002":
+            return "pictures"
+        if item == "12600":
+            return "weather"
+        if item == "10001":
+            return "programs"
+        if item == "32032":
+            return "dvd"
+        if item == "10004":
+            return "settings"
+        else:
+            return item.replace(" ", "").lower()
+        
+    def _load_properties( self, listitems ):
+        # Load widget, background and custom properties and add them as properties of the listitems
+        
+        # Load the files
+        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"]]
+        overrides = False
+        dataFiles = []
+        for path in paths:
+            if xbmcvfs.exists( path[0] ):
+                log( path[0] )
+                try:
+                    # Try loading file
+                    listProperties = eval( xbmcvfs.File( path[0] ).read() )
+                    dataFiles.append( [listProperties, path[1]] )
+                except:
+                    print_exc()
+                    log( "### ERROR could not load file %s" % path )   
+            else:
+                # Try to get defaults from skins overrides.xml
+                if overrides == False:
+                    # Load the overrides file
+                    overridepath = os.path.join( __skinpath__ , "overrides.xml" )
+                    if xbmcvfs.exists(overridepath):
+                        try:
+                            log( "### Loaded overrides" )
+                            overrides = xmltree.fromstring( xbmcvfs.File( overridepath ).read() )
+                        except:
+                            print_exc()
+                            overrides = "::NONE::"
+                    else:
+                        overrides = "::NONE::"
+                        
+                # If we have loaded an overrides file, get all defaults
+                if overrides != "::NONE::":
+                    elems = ""
+                    if path[1] == "widget":
+                        elems = overrides.findall('widgetdefault')
+                    elif path[1] == "background":
+                        elems = overrides.findall('backgrounddefault')
+                    
+                    # Add each default to data array
+                    data = []
+                    for elem in elems:
+                        log( "### Found override - " + elem.attrib.get( 'labelID' ) + ", " + elem.text )
+                        data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                    if len( data ) != 0:
+                        dataFiles.append( [data, path[1]] )
+                    
+        # Check if we've loaded anything
+        if len( dataFiles ) == 0:
+            return listitems
             
+        # Process the files we've loaded, and match any properties to listitems
+        returnitems = []
+        for listitem in listitems:
+            # Copy this listitem
+            listitemCopy = self._duplicate_listitem( listitem )
+            
+            # Loop through all the data we've loaded
+            for dataFile in dataFiles:
+                for listProperty in dataFile[0]:
+                    log( "Comparing " + listProperty[0] + " to " + listitemCopy.getProperty( "labelID" ) )
+                    if listProperty[0] == listitemCopy.getProperty( "labelID" ):
+                        log( dataFile[1] + ": " + listProperty[1] )
+                        listitemCopy.setProperty( dataFile[1], listProperty[1] )
+                        if listitemCopy.getProperty( "additionalListItemProperties" ):
+                            listitemProperties = eval( listitemCopy.getProperty( "additionalListItemProperties" ) )
+                            listitemProperties.append( [dataFile[1], listProperty[1]] )
+                            listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
+                        else:
+                            listitemProperties = [[ dataFile[1], listProperty[1] ]]
+                            listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
+                if listitemCopy.getProperty( dataFile[1] ):
+                    log( "Property '" + dataFile[1] + "' set: " + listitemCopy.getProperty( dataFile[1] ) )
+            
+            returnitems.append( listitemCopy )
+            
+        return returnitems
+        
+        
     def _duplicate_listitem( self, listitem ):
         # Create a copy of an existing listitem
         listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=listitem.getProperty("thumbnail"))
@@ -1087,14 +1355,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
         listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
+        listitemCopy.setProperty( "labelID", listitem.getProperty("labelID") )
         if listitem.getProperty( "customThumbnail" ):
             listitemCopy.setProperty( "customThumbnail", listitem.getProperty( "customThumbnail" ) )
+        if listitem.getProperty( "additionalListItemProperties" ):
+            listitemCopy.setProperty( "additionalListItemProperties", listitem.getProperty( "additionalListItemProperties" ) )
+            listitemProperties = eval( listitem.getProperty( "additionalListItemProperties" ) )
+            for listitemProperty in listitemProperties:
+                listitemCopy.setProperty( listitemProperty[0], listitemProperty[1] )
         return listitemCopy
         
     def _save_shortcuts( self ):
         # Save shortcuts
         log( "Saving shortcuts" )
         listitems = []
+        properties = []
         
         for x in range(0, self.getControl( 211 ).size()):
             # If the item has a path, push it to an array
@@ -1112,7 +1387,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 else:
                     savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), listitem.getProperty("icon").decode('utf-8'), listitem.getProperty("thumbnail").decode('utf-8'), listitem.getProperty("path").decode('utf-8')]
                     
+                if listitem.getProperty( "additionalListItemProperties" ):
+                    properties.append( [ listitem.getProperty( "labelID" ), eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
+                    
                 listitems.append(savedata)
+                
+        log( repr( properties ) )
         
         path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
         log( path )
@@ -1126,6 +1406,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             except:
                 print_exc()
                 log( "### ERROR could not save file %s" % __datapath__ )
+                
+            # Save widgets, backgrounds and custom properties
+            self._save_properties( properties )
+            
         else:
             # There are no shortcuts, delete the existing file if it exists
             try:
@@ -1133,6 +1417,118 @@ class GUI( xbmcgui.WindowXMLDialog ):
             except:
                 print_exc()
                 log( "### No shortcuts, no existing file %s" % __datapath__ )            
+    
+    def _save_properties( self, properties ):
+        # Load widget, background and custom properties and add them as properties of the listitems
+        
+        dataFiles = {"widget":[], "background":[]}
+        
+        # Load the files
+        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"]]
+        overrides = False
+        for path in paths:
+            if xbmcvfs.exists( path[0] ):
+                try:
+                    # Try loading file
+                    dataFiles[path[1]] = eval( xbmcvfs.File( path[0] ).read() )
+                except:
+                    print_exc()
+                    log( "### ERROR could not load file %s" % path )   
+            else:
+                # Try to get defaults from skins overrides.xml
+                if overrides == False:
+                    # Load the overrides file
+                    overridepath = os.path.join( __skinpath__ , "overrides.xml" )
+                    if xbmcvfs.exists(overridepath):
+                        try:
+                            log( "### Loaded overrides" )
+                            overrides = xmltree.fromstring( xbmcvfs.File( overridepath ).read() )
+                        except:
+                            print_exc()
+                            overrides = "::NONE::"
+                    else:
+                        overrides = "::NONE::"
+                        
+                # If we have loaded an overrides file, get all defaults
+                if overrides != "::NONE::":
+                    elems = ""
+                    if path[1] == "widget":
+                        elems = overrides.findall('widgetdefault')
+                    elif path[1] == "background":
+                        elems = overrides.findall('backgrounddefault')
+                    
+                    # Add each default to data array
+                    data = []
+                    for elem in elems:
+                        data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                    if len( data ) != 0:
+                        log( path[1] )
+                        log( repr( data ) )
+                        dataFiles[path[1]] = data
+        
+        log( repr( dataFiles ) )
+        ## [ [labelID, [property name, property value]] , [labelID, [property name, property value]] ]
+        for group in properties:
+            # group[0] - labelID
+            # group[1] - [ [property name, property value], [] ]
+            for property in group[1]:
+                type = ""
+                if property[0] == "widget":
+                    type = "widget"
+                elif property[0] == "background":
+                    type = "background"
+                
+                if type == "":
+                    break
+                    
+                datafile = dataFiles[type]
+                    
+                if len( datafile ) != 0:
+                    # Look for an existing value
+                    found = False
+                    for currentProperty in datafile:
+                        # currentProperty[0] = labelID
+                        # currentProperty[1] = property value
+                        log( "Checking shortcut..." )
+                        log( "labelID: " + currentProperty[0] )
+                        log( "value: " + currentProperty[1] )
+                        log( "Checking against: " + group[0] )
+                        if currentProperty[0] == group[0]:
+                            found = True
+                            currentProperty[1] = property[1]
+                    if found == False:
+                        # No existing value found, add one
+                        datafile.append( [ group[0], property[1] ] )
+                        
+                    # Update the dataFiles
+                    dataFiles[type] = datafile
+                else:
+                    # There is nothing in the datafile, so add this
+                    datafile.append( [ group[0], property[1] ] )
+                    dataFiles[type] = datafile
+        
+        log( repr( dataFiles ) )
+        # Save the files
+        for path in paths:
+            log( "Saving " + path[1] )
+            if len( dataFiles[path[1]] ) == 0:
+                log( "No items to save" )
+                # Try to delete any existing file
+                try:
+                    xbmcvfs.delete( path[0] )
+                except:
+                    print_exc()
+                    log( "### No shortcuts, no existing file %s" % __datapath__ )            
+            else:
+                # Try to save the file
+                try:
+                    f = xbmcvfs.File( path[0], 'w' )
+                    f.write( repr( dataFiles[path[1]] ) )
+                    f.close()
+                    log( "File saved" )
+                except:
+                    print_exc()
+                    log( "### ERROR could not save file %s" % __datapath__ )                
     
     def _display_shortcuts( self ):
         # Load the currently selected shortcut group

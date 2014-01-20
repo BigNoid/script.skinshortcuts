@@ -485,11 +485,22 @@ So, if we wanted to browse for an image to use as the background image for the s
 If you are using Skin Shortcuts to set background images for main menu items, you need to tell the script what backgrounds you have defined and provide default backgrounds.
 
 	<background label="[Label]">[backgroundID]</background>
-	<backgrounddefault labelID="[LabelID]">[backgroundID]</backgroundDefault>
+	<backgrounddefault labelID="[LabelID]">[backgroundID]</backgrounddefault>
 	
 [Label] - The display name of the background (can be a localised string)
 [backgroundID] - A string you use to identify the background
 [labelID] - The labelID you are providing a default for.
+
+
+6. Custom shortcut properties *TO DO*
+
+If you are using Skin Shortcuts to set custom properties for shortcuts, you can set defaults for these items:
+
+	<propertydefault labelID="[LabelID]" property="[Property]">[Property Value]</propertydefault>
+	
+[labelID] - The labelID you are providing a default for.
+[Property] - The string used to identify the property
+[Property Value] - The default value of the property
 
 
 7. A complete example
