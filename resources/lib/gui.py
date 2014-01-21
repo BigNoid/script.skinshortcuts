@@ -1124,6 +1124,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).addItems(listitems)
             
             self.getControl( 211 ).selectItem( num )
+            
+        if controlID == 405:
+            # Launch management dialog for submenu
+            log( "### Launching management dialog for submenu" )
+            
+            # Check if 'level' property has been set
+            currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+            launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
+            if currentWindow.getProperty("level"):
+                launchGroup = launchGroup + "." + currentWindow.getProperty("level")
+            xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + ")" )
 
             
     def load_shortcuts( self ):
@@ -1367,7 +1378,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
     def _save_shortcuts( self ):
         # Save shortcuts
-        log( "Saving shortcuts" )
         listitems = []
         properties = []
         
@@ -1391,11 +1401,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     properties.append( [ listitem.getProperty( "labelID" ), eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
                     
                 listitems.append(savedata)
-                
-        log( repr( properties ) )
-        
+                        
         path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
-        log( path )
         
         if listitems:
             # If there are any shortcuts, save them
@@ -1462,11 +1469,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     for elem in elems:
                         data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
                     if len( data ) != 0:
-                        log( path[1] )
-                        log( repr( data ) )
                         dataFiles[path[1]] = data
         
-        log( repr( dataFiles ) )
         ## [ [labelID, [property name, property value]] , [labelID, [property name, property value]] ]
         for group in properties:
             # group[0] - labelID
@@ -1489,10 +1493,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     for currentProperty in datafile:
                         # currentProperty[0] = labelID
                         # currentProperty[1] = property value
-                        log( "Checking shortcut..." )
-                        log( "labelID: " + currentProperty[0] )
-                        log( "value: " + currentProperty[1] )
-                        log( "Checking against: " + group[0] )
                         if currentProperty[0] == group[0]:
                             found = True
                             currentProperty[1] = property[1]
@@ -1507,12 +1507,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     datafile.append( [ group[0], property[1] ] )
                     dataFiles[type] = datafile
         
-        log( repr( dataFiles ) )
         # Save the files
         for path in paths:
-            log( "Saving " + path[1] )
             if len( dataFiles[path[1]] ) == 0:
-                log( "No items to save" )
                 # Try to delete any existing file
                 try:
                     xbmcvfs.delete( path[0] )
@@ -1525,7 +1522,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     f = xbmcvfs.File( path[0], 'w' )
                     f.write( repr( dataFiles[path[1]] ) )
                     f.close()
-                    log( "File saved" )
                 except:
                     print_exc()
                     log( "### ERROR could not save file %s" % __datapath__ )                
@@ -1562,16 +1558,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
         try:
             self.getControl( 402 ).setText( self.getControl( 211 ).getSelectedItem().getLabel() )
         except:
-            log( "Not able to set label edit control" )
+            i = 0
 
         # Try setting 403's text to the current action
         try:
             self.getControl( 403 ).setText( urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') ) )
         except:
-            log( "Not able to set label edit control" )
+            i = 0
                 
     def onAction( self, action ):
-        log( action.getId() )
         if action.getId() in ACTION_CANCEL_DIALOG:
             log( "### CLOSING WINDOW" )
             if self.getFocusId() == 402 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
