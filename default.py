@@ -2,6 +2,7 @@ import os, sys
 import xbmc, xbmcaddon, xbmcgui, xbmcplugin, urllib, xbmcvfs
 import xml.etree.ElementTree as xmltree
 import cPickle as pickle
+import cProfile
 from time import gmtime, strftime
 from datetime import datetime
 from traceback import print_exc
@@ -86,7 +87,7 @@ class Main:
             params = dict( arg.split( "=" ) for arg in sys.argv[ 1 ].split( "&" ) )
             self.TYPE = params.get( "type", "" )
         except:
-            print_exc()
+            #print_exc()
             try:
                 params = dict( arg.split( "=" ) for arg in sys.argv[ 2 ].split( "&" ) )
                 self.TYPE = params.get( "?type", "" )
@@ -1060,6 +1061,14 @@ class Main:
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
     
-    Main()
+    filename = os.path.join( __datapath__, strftime( "%Y%m%d%H%M%S",gmtime() ) + ".log" )
+    cProfile.run( 'Main()', filename )
+    
+    import pstats
+    stream = open( filename + ".txt", 'w')
+    p = pstats.Stats( filename, stream = stream )
+    p.sort_stats( "cumulative" )
+    p.print_stats()
+
     
     log('script stopped')
