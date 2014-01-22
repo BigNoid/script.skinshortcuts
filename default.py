@@ -224,23 +224,16 @@ class Main:
             if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
                 listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
                             
-            # Add item
-            if group == "mainmenu":
-                visibilityCheck = self.checkVisibility( listitem.getProperty( 'labelID' ) )
-                if visibilityCheck != "":
-                    listitem.setProperty( "node.visible", visibilityCheck )
-                widgetCheck = self.checkWidget( listitem.getProperty( 'labelID' ) )
-                if widgetCheck != "":
-                    listitem.setProperty( "widget", widgetCheck )
-                backgroundCheck = self.checkBackground( listitem.getProperty( 'labelID' ) )
-                if backgroundCheck != "":
-                    listitem.setProperty( "background", backgroundCheck )
+            # Add additional properties
+            if len( item[6] ) != 0:
+                for property in item[6]:
+                    listitem.setProperty( property[0], property[1] )
+                    log( "Additional property: " + property[0] + " = " + property[1] )
             
-            saveItems.append( listitem )
-            
-            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
+            saveItems.append( ( path, listitem ) )
         
         # Return the list
+        xbmcplugin.addDirectoryItems( handle=int(sys.argv[1]), items=saveItems )
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
         
                 
@@ -254,13 +247,11 @@ class Main:
             
         # Load shortcuts for the main menu
         mainmenuListItems = self._get_shortcuts( "mainmenu" )
+        saveItems = []
         
         for mainmenuItem in mainmenuListItems:
             # Load menu for each labelID
             mainmenuLabelID = mainmenuItem[5].encode( 'utf-8' )
-            # log( "unencoded: " + mainmenuLabelID )
-            # mainmenuLabelID = mainmenuLabelID.encode('ascii', 'xmlcharrefreplace' )
-            # log( "encoded: " + mainmenuLabelID )
             if levelInt == "":
                 listitems = self._get_shortcuts( mainmenuLabelID )
             else:
@@ -281,10 +272,17 @@ class Main:
                 # Localize label2 (type of shortcut)
                 if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
                     listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
-                                
-                # Add item
-                xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
-            
+                
+                # Add additional properties
+                if len( item[6] ) != 0:
+                    for property in item[6]:
+                        listitem.setProperty( property[0], property[1] )
+                        log( "Additional property: " + property[0] + " = " + property[1] )
+                
+                saveItems.append( ( path, listitem ) )
+        
+        # Return the list
+        xbmcplugin.addDirectoryItems( handle=int(sys.argv[1]), items=saveItems )
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
     
 
@@ -364,31 +362,7 @@ class Main:
 
         # Return this shortcut group
         return pickle.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group ) )
-    
-    
-    def _load_overrides_skin( self ):
-        # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin", __skinpath__ )
-            overridepath = os.path.join( __skinpath__ , "overrides.xml" )
-            if xbmcvfs.exists(overridepath):
-                try:
-                    file = xbmcvfs.File( overridepath )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( file.read().encode( 'utf-8' ) ) )
-                    file.close
-                except:
-                    print_exc()
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
-            else:
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
-   
-        # Return the overrides
-        returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" )
-        if returnData == "No overrides":
-            return None
-        else:
-            return xmltree.fromstring( pickle.loads( returnData ) )
-            
+                
             
     def _process_shortcuts( self, listitems, group ):
         # This function will process any graphics overrides provided by the skin, and return a set of listitems ready to be stored
@@ -419,14 +393,51 @@ class Main:
                             item[3] = elem.text
                         if elem is not None and elem.attrib.get( 'image' ) == item[2]:
                             item[2] = elem.text
-            
+                            
+            # Get additional mainmenu properties
+            additionalProperties = []
+            if group == "mainmenu":
+                visibilityCheck = self.checkVisibility( labelID )
+                if visibilityCheck != "":
+                    additionalProperties.append( ["node.visible", visibilityCheck] )
+                widgetCheck = self.checkWidget( labelID )
+                if widgetCheck != "":
+                    additionalProperties.append( ["widget", widgetCheck] )
+                backgroundCheck = self.checkBackground( labelID )
+                if backgroundCheck != "":
+                    additionalProperties.append( ["background", backgroundCheck] )
+
             # Add item
-            returnitems.append( [label, item[1], item[2], item[3], item[4], labelID] )
+            returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
             #returnitems.append( item )
                 
         return returnitems            
-            
-    
+      
+      
+    def _load_overrides_skin( self ):
+        # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
+        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin", __skinpath__ )
+            overridepath = os.path.join( __skinpath__ , "overrides.xml" )
+            if xbmcvfs.exists(overridepath):
+                try:
+                    file = xbmcvfs.File( overridepath )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( file.read().encode( 'utf-8' ) ) )
+                    file.close
+                except:
+                    print_exc()
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
+            else:
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
+   
+        # Return the overrides
+        returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" )
+        if returnData == "No overrides":
+            return None
+        else:
+            return xmltree.fromstring( pickle.loads( returnData ) )
+
+
     def _load_overrides_user( self ):
         # If we haven't already loaded user overrides
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" ):
