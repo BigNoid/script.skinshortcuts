@@ -1134,6 +1134,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
             if currentWindow.getProperty("level"):
                 launchGroup = launchGroup + "." + currentWindow.getProperty("level")
+                currentWindow.clearProperty("level")
             xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + ")" )
 
             
