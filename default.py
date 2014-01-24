@@ -3,6 +3,9 @@ import xbmc, xbmcaddon, xbmcgui, xbmcplugin, urllib, xbmcvfs
 import xml.etree.ElementTree as xmltree
 import cPickle as pickle
 import cProfile
+import pstats
+import random
+import time
 from time import gmtime, strftime
 from datetime import datetime
 from traceback import print_exc
@@ -204,7 +207,7 @@ class Main:
             # Return an empty list
             xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
             return None
-            
+        
         # Load shortcuts and overrides
         listitems = self._get_shortcuts( group )
         saveItems = []
@@ -222,8 +225,8 @@ class Main:
             listitem.setProperty( "path", path )
             
             # Localize label2 (type of shortcut)
-            if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
-                listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
+            if not item[1].find( "::SCRIPT::" ) == -1:
+                listitem.setLabel2( __language__( int( item[1][10:] ) ) )
                             
             # Add additional properties
             if len( item[6] ) != 0:
@@ -293,18 +296,17 @@ class Main:
         
         # Ask the user if they're sure they want to do this
         if dialog.yesno(__language__(32037), __language__(32038)):
-            # List all shortcuts
-            files = xbmcvfs.listdir( __datapath__ )
-            for file in files:
-                try:
-                    # Try deleting all shortcuts
-                    if file:
-                        file_path = os.path.join( __datapath__, file[0])
+            for files in xbmcvfs.listdir( __datapath__ ):
+                # Try deleting all shortcuts
+                if files:
+                    for file in files:
+                        file_path = os.path.join( __datapath__, file.decode( 'utf-8' ) ).encode( 'utf-8' )
                         if xbmcvfs.exists( file_path ):
-                            xbmcvfs.delete( file_path )
-                except:
-                    print_exc()
-                    log( "### ERROR could not delete file %s" % file_path )
+                            try:
+                                xbmcvfs.delete( file_path )
+                            except:
+                                print_exc()
+                                log( "### ERROR could not delete file %s" % file[0] )
         
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )   
@@ -326,7 +328,6 @@ class Main:
         
         # If we've not loaded this shortcut group...
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group ):
-            
             # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
             if xbmcvfs.exists( os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" ) ):
                 # User defined shortcuts
@@ -340,25 +341,25 @@ class Main:
             else:
                 # No custom shortcuts or defaults available
                 path = ""
-                
+                                
             # If no path was found ... (this means there are no shortcuts for this group)
             if path == "":
                 # Save an empty array to the global property
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
+                return []
             else:
                 # We've found a file containing shortcuts
                 try:
                     # Try loading shortcuts
-                    file = xbmcvfs.File( path )
-                    unprocessedList = eval( file.read() )
-                    file.close
+                    unprocessedList = eval( xbmcvfs.File( path ).read() )
                     processedList = self._process_shortcuts( unprocessedList, group )
-                    log ( processedList )
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
+                    return processedList
                 except:
                     print_exc()
                     log( "### ERROR could not load file %s" % path )
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
+                    return []
                     
 
         # Return this shortcut group
@@ -407,6 +408,10 @@ class Main:
                 backgroundCheck = self.checkBackground( labelID )
                 if backgroundCheck != "":
                     additionalProperties.append( ["background", backgroundCheck] )
+            customProperties = self.checkCustomProperties( labelID )
+            if len( customProperties ) != 0:
+                for customProperty in customProperties:
+                    additionalProperties.append( [customProperty[0], customProperty[1]] )
 
             # Add item
             returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
@@ -417,38 +422,43 @@ class Main:
       
     def _load_overrides_skin( self ):
         # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:
+        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin", __skinpath__ )
             overridepath = os.path.join( __skinpath__ , "overrides.xml" )
             if xbmcvfs.exists(overridepath):
                 try:
-                    file = xbmcvfs.File( overridepath )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( file.read().encode( 'utf-8' ) ) )
-                    file.close
+                    tree = xmltree.parse( overridepath )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( tree ) )
+                    return tree
                 except:
                     print_exc()
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
+                    return None
             else:
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
+                return None
    
         # Return the overrides
         returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" )
         if returnData == "No overrides":
             return None
         else:
-            return xmltree.fromstring( pickle.loads( returnData ) )
+            return pickle.loads( returnData )
 
 
     def _load_overrides_user( self ):
         # If we haven't already loaded user overrides
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" ):
+        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" ) == __profilepath__:
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user", __profilepath__ )
             overridepath = os.path.join( __profilepath__ , "overrides.xml" )
             if xbmcvfs.exists(overridepath):
                 try:
-                    file = xbmcvfs.File( overridepath )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( file.read().encode( 'utf-8' ) ) )
-                    file.close
+                    tree = xmltree.parse( overridepath )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( tree ) )
+                    return tree
+                    #file = xbmcvfs.File( overridepath )
+                    #xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( file.read().encode( 'utf-8' ) ) )
+                    #file.close
                 except:
                     print_exc()
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", "No overrides" )
@@ -460,7 +470,8 @@ class Main:
         if returnData == "No overrides":
             return None
         else:
-            return xmltree.fromstring( pickle.loads( returnData ) )
+            #return xmltree.parse( pickle.loads( returnData ) )
+            return pickle.loads( returnData )
     
     
     # ----------------
@@ -783,12 +794,14 @@ class Main:
                 path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" )
                 try:
                     # Try loading widgets
-                    file = xbmcvfs.File( path )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", pickle.dumps( eval( file.read() ) ) )
+                    contents = eval( xbmcvfs.File( path ).read() )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", pickle.dumps( contents ) )
+                    return contents
                 except:
                     print_exc()
                     log( "### ERROR could not load file %s" % path )
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", pickle.dumps( [] ) )
+                    return []
 
             else:
                 # User hasn't set any widgets, so we'll load them from the
@@ -803,9 +816,49 @@ class Main:
                 
                 # Save the widgets to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", pickle.dumps( widgets ) )
+                return widgets
 
         # Return the widgets
         return pickle.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsWidgets" ) )
+
+
+    def _get_customproperties( self ):
+        # This will load the shortcut file, and save it as a window property
+        # Additionally, if the override files haven't been loaded, we'll load them too
+        
+        # If we've not loaded custom properties...
+        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcutsCustomProperties" ):
+            # Try to load user-defined custom properties
+            if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ) ):
+                path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" )
+                try:
+                    # Try loading custom properties
+                    contents = eval( xbmcvfs.File( path ).read() )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcutsCustomProperties", pickle.dumps( contents ) )
+                    return contents
+                except:
+                    print_exc()
+                    log( "### ERROR could not load file %s" % path )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcutsCustomProperties", pickle.dumps( [] ) )
+                    return []
+
+            else:
+                # User hasn't set any custom properties, so we'll load them from the
+                # skins overrides.xml instead
+                tree = self._load_overrides_skin()
+                properties = []
+                
+                if tree is not None:
+                    elems = tree.findall('propertydefault')
+                    for elem in elems:
+                        properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text ] )
+                
+                # Save the custom properties to a window property               
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcutsCustomProperties", pickle.dumps( properties ) )
+                return properties
+
+        # Return the custom properties
+        return pickle.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsCustomProperties" ) )
     
     
     # --------------------
@@ -926,27 +979,29 @@ class Main:
                 path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" )
                 try:
                     # Try loading widgets
-                    file = xbmcvfs.File( path )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( eval( file.read() ) ) )
+                    contents = eval( xbmcvfs.File( path ).read() )
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( contents ) )
+                    return contents
                 except:
                     print_exc()
                     log( "### ERROR could not load file %s" % path )
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( [] ) )
+                    return []
 
             else:
                 # User hasn't set any widgets, so we'll load them from the
                 # skins overrides.xml instead
                 tree = self._load_overrides_skin()
-                widgets = []
+                backgrounds = []
                 
                 if tree is not None:
                     elems = tree.findall('backgrounddefault')
                     for elem in elems:
-                        widgets.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                        backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
                 
                 # Save the widgets to a window property               
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( widgets ) )
-                log( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsBackgrounds" ) )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( backgrounds ) )
+                return backgrounds
 
         # Return the widgets
         return pickle.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsBackgrounds" ) )
@@ -990,7 +1045,7 @@ class Main:
     
     def checkBackground( self, item ):
         # Return any widget for mainmenu items
-        currentBackgrounds = ( self._get_widgets() )
+        currentBackgrounds = ( self._get_backgrounds() )
         
         # Loop through current widgets, looking for the current item
         for currentBackground in currentBackgrounds:
@@ -998,6 +1053,19 @@ class Main:
                 return currentBackground[1]
                 
         return ""
+        
+    
+    def checkCustomProperties( self, item ):
+        # Return any custom properties for mainmenu items
+        currentProperties = ( self._get_customproperties() )
+        
+        # Loop through current properties, looking for the current item
+        returnVals = []
+        for currentProperty in currentProperties:
+            if currentProperty[0].encode('utf-8') == item:
+                returnVals.append( [currentProperty[1], currentProperty[2]] )
+                
+        return returnVals
 
      
     def createNiceName ( self, item ):
@@ -1061,14 +1129,17 @@ class Main:
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
     
-    filename = os.path.join( __datapath__, strftime( "%Y%m%d%H%M%S",gmtime() ) + ".log" )
-    cProfile.run( 'Main()', filename )
+    # Profiling
+    #filename = os.path.join( __datapath__, strftime( "%Y%m%d%H%M%S",gmtime() ) + "-" + str( random.randrange(0,100000) ) + ".log" )
+    #cProfile.run( 'Main()', filename )
+    #
+    #stream = open( filename + ".txt", 'w')
+    #p = pstats.Stats( filename, stream = stream )
+    #p.sort_stats( "cumulative" )
+    #p.print_stats()
     
-    import pstats
-    stream = open( filename + ".txt", 'w')
-    p = pstats.Stats( filename, stream = stream )
-    p.sort_stats( "cumulative" )
-    p.print_stats()
+    # No profiling
+    Main()
 
     
     log('script stopped')

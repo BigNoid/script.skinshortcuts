@@ -61,7 +61,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 305 ).setLabel( __language__(32025) )
             except:
                 log( "Not set label for edit label button" )
-            self.getControl( 306 ).setLabel( __language__(32026) )
+            #self.getControl( 306 ).setLabel( __language__(32026) )
             try:
                 self.getControl( 307 ).setLabel( __language__(32027) )
             except:
@@ -867,16 +867,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     listitemCopy = self._duplicate_listitem( listitemCopy )
                 else:
                     listitemCopy.setProperty( "widget", widget[selectedWidget] )
+                    newAdditionalList = [ ["widget", widget[selectedWidget]] ]
                     if listitemCopy.getProperty( "additionalListItemProperties" ):
-                        log( listitemCopy.getProperty( "additionalListItemProperties" ) )
-                        newAdditionalList = [ ["widget", widget[selectedWidget]] ]
-                        log( repr (newAdditionalList ) )
                         for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                            log( listitemProperty )
                             if listitemProperty[0] != "widget":
                                 newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                                log( repr (newAdditionalList ) )
-                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                    listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
                     
                 # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
                 listitems = []
@@ -895,7 +891,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).selectItem( num )
                 
         if controlID == 310:
-            # Choose widget
+            # Choose background
             
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
             num = self.getControl( 211 ).getSelectedPosition()
@@ -940,16 +936,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     listitemCopy = self._duplicate_listitem( listitemCopy )
                 else:
                     listitemCopy.setProperty( "background", background[selectedBackground] )
+                    newAdditionalList = [ ["background", background[selectedBackground]] ]
                     if listitemCopy.getProperty( "additionalListItemProperties" ):
-                        log( listitemCopy.getProperty( "additionalListItemProperties" ) )
-                        newAdditionalList = [ ["background", background[selectedBackground]] ]
-                        log( repr (newAdditionalList ) )
                         for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                            log( listitemProperty )
                             if listitemProperty[0] != "background":
                                 newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                                log( repr (newAdditionalList ) )
-                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                    listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
                     
                 # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
                 listitems = []
@@ -971,7 +963,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Choose shortcut (SELECT DIALOG)
             
             # Check for a window property designating category
-            currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+            currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
             shortcutCategory = -1
             if currentWindow.getProperty("category"):
                 skinCategory = currentWindow.getProperty("category")
@@ -1124,13 +1116,82 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).addItems(listitems)
             
             self.getControl( 211 ).selectItem( num )
+
+            
+        if controlID == 404:
+            # Set custom property
+            log( "### Setting custom property" )
+            
+            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+            num = self.getControl( 211 ).getSelectedPosition()
+            
+            # Retrieve window properties
+            currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+            propertyName = ""
+            propertyValue = ""
+            if currentWindow.getProperty( "customProperty" ):
+                propertyName = currentWindow.getProperty( "customProperty" )
+                currentWindow.clearProperty( "customProperty" )
+            else:
+                # The customProperty value needs to be set, so return
+                log( "### NO CUSTOM PROPERTY!")
+                currentWindow.clearProperty( "customValue" )
+                return
+                
+            if currentWindow.getProperty( "customValue" ):
+                propertyValue = currentWindow.getProperty( "customValue" )
+                currentWindow.clearProperty( "customValue" )
+                
+            log( "Property: " + propertyName )
+            log( "Value: " + propertyValue )
+                
+            if propertyValue == "":
+                # No value set, so remove it from additionalListItemProperties
+                if listitemCopy.getProperty( "additionalListItemProperties" ):
+                    newAdditionalList = []
+                    for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
+                        if listitemProperty[0] != propertyName:
+                            newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
+                            
+                    listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                        
+                # Copy the item again - this will clear the background property
+                listitemCopy = self._duplicate_listitem( listitemCopy )
+                
+            else:
+                # Set the property
+                listitemCopy.setProperty( propertyName, propertyValue )
+                newAdditionalList = [ [propertyName, propertyValue] ]
+                if listitemCopy.getProperty( "additionalListItemProperties" ):
+                    for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
+                        log( listitemProperty )
+                        if listitemProperty[0] != propertyName:
+                            newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
+                listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+
+            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
+            listitems = []
+            for x in range(0, self.getControl( 211 ).size()):
+                if x == num:
+                    listitems.append(listitemCopy)
+                else:
+                    # Duplicate the item and it to the listitems array
+                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                    
+                    listitems.append(listitemShortcutCopy)
+                    
+            self.getControl( 211 ).reset()
+            self.getControl( 211 ).addItems(listitems)
+            
+            self.getControl( 211 ).selectItem( num )
+
             
         if controlID == 405:
             # Launch management dialog for submenu
             log( "### Launching management dialog for submenu" )
             
             # Check if 'level' property has been set
-            currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+            currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
             launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
             if currentWindow.getProperty("level"):
                 launchGroup = launchGroup + "." + currentWindow.getProperty("level")
@@ -1283,7 +1344,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load widget, background and custom properties and add them as properties of the listitems
         
         # Load the files
-        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"]]
+        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
         overrides = False
         dataFiles = []
         for path in paths:
@@ -1318,12 +1379,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         elems = overrides.findall('widgetdefault')
                     elif path[1] == "background":
                         elems = overrides.findall('backgrounddefault')
+                    elif path[1] == "custom":
+                        elems = overrides.findall('propertydefault')
                     
                     # Add each default to data array
                     data = []
                     for elem in elems:
-                        log( "### Found override - " + elem.attrib.get( 'labelID' ) + ", " + elem.text )
-                        data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                        if path[1] == "custom":
+                            data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text ] )
+                        else:
+                            data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
                     if len( data ) != 0:
                         dataFiles.append( [data, path[1]] )
                     
@@ -1339,20 +1404,28 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Loop through all the data we've loaded
             for dataFile in dataFiles:
+                log( "### Reproduction of dataFile:" )
+                log( repr( dataFile ) )
                 for listProperty in dataFile[0]:
-                    log( "Comparing " + listProperty[0] + " to " + listitemCopy.getProperty( "labelID" ) )
+                    #log( "Comparing " + listProperty[0] + " to " + listitemCopy.getProperty( "labelID" ) )
                     if listProperty[0] == listitemCopy.getProperty( "labelID" ):
-                        log( dataFile[1] + ": " + listProperty[1] )
-                        listitemCopy.setProperty( dataFile[1], listProperty[1] )
+                        setProperty = dataFile[1]
+                        setValue = listProperty[1]
+                        if dataFile[1] == "custom":
+                            # If we're loading custom values, the properties we'll set are slightly different...
+                            setProperty = listProperty[1]
+                            setValue = listProperty[2]
+                        # Add a custom property
+                        listitemCopy.setProperty( setProperty, setValue )
+                        # If there is already an additionalListItemProperties array, add this to it
                         if listitemCopy.getProperty( "additionalListItemProperties" ):
                             listitemProperties = eval( listitemCopy.getProperty( "additionalListItemProperties" ) )
-                            listitemProperties.append( [dataFile[1], listProperty[1]] )
+                            listitemProperties.append( [setProperty, setValue] )
                             listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
                         else:
-                            listitemProperties = [[ dataFile[1], listProperty[1] ]]
+                            # Create a new additionalListItemProperties array
+                            listitemProperties = [[ setProperty, setValue ]]
                             listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
-                if listitemCopy.getProperty( dataFile[1] ):
-                    log( "Property '" + dataFile[1] + "' set: " + listitemCopy.getProperty( dataFile[1] ) )
             
             returnitems.append( listitemCopy )
             
@@ -1432,7 +1505,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         dataFiles = {"widget":[], "background":[]}
         
         # Load the files
-        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"]]
+        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
         overrides = False
         for path in paths:
             if xbmcvfs.exists( path[0] ):
@@ -1464,11 +1537,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         elems = overrides.findall('widgetdefault')
                     elif path[1] == "background":
                         elems = overrides.findall('backgrounddefault')
-                    
+                    elif path[1] == "custom":
+                        elems = overrides.findall('propertydefault')
+
                     # Add each default to data array
                     data = []
                     for elem in elems:
-                        data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                        if path[1] == "custom":
+                            data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text ] )
+                        else:
+                            data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
                     if len( data ) != 0:
                         dataFiles[path[1]] = data
         
@@ -1477,14 +1555,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # group[0] - labelID
             # group[1] - [ [property name, property value], [] ]
             for property in group[1]:
-                type = ""
+                type = "custom"
                 if property[0] == "widget":
                     type = "widget"
                 elif property[0] == "background":
                     type = "background"
-                
-                if type == "":
-                    break
                     
                 datafile = dataFiles[type]
                     
@@ -1493,19 +1568,29 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     found = False
                     for currentProperty in datafile:
                         # currentProperty[0] = labelID
-                        # currentProperty[1] = property value
+                        # currentProperty[1] = property value / (custom) property name
+                        # currentProperty[2] = (custom) property value
                         if currentProperty[0] == group[0]:
                             found = True
-                            currentProperty[1] = property[1]
+                            if type == "custom":
+                                currentProperty[2] = property[1]
+                            else:
+                                currentProperty[1] = property[1]
                     if found == False:
                         # No existing value found, add one
-                        datafile.append( [ group[0], property[1] ] )
+                        if type == "custom":
+                            datafile.append( [ group[0], property[0], property[1] ] )
+                        else:
+                            datafile.append( [ group[0], property[1] ] )
                         
                     # Update the dataFiles
                     dataFiles[type] = datafile
                 else:
                     # There is nothing in the datafile, so add this
-                    datafile.append( [ group[0], property[1] ] )
+                    if type == "custom":
+                        datafile.append( [ group[0], property[0], property[1] ] )
+                    else:
+                        datafile.append( [ group[0], property[1] ] )
                     dataFiles[type] = datafile
         
         # Save the files
@@ -1516,7 +1601,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     xbmcvfs.delete( path[0] )
                 except:
                     print_exc()
-                    log( "### No shortcuts, no existing file %s" % __datapath__ )            
+                    log( "### No properties, no existing file %s" % __datapath__ )            
             else:
                 # Try to save the file
                 try:

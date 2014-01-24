@@ -203,21 +203,21 @@ Rather than using a button to open the Keyboard dialog to edit the current actio
 If you include control 403, you can omit control 307 from your xml file.
 
 
-5. Set a custom property *TO DO*
+5. Set a custom property
 
 If you want to attach a custom property to a menu item, you can include button 404.
 
 To set a property, first set the following window properties
 
 	customProperty	The name you are giving to the custom property
-	customValue		The value of the custom property
+	customValue		The value of the custom property (to clear a property, don't set this property)
 	
 Then send a click to control 404. The two properties will be cleared afterwards.
 
 You can set defaults for your custom property in your overrides.xml file.
 
 
-6. Launch management dialog for submenu / additional menus *TO DO*
+6. Launch management dialog for submenu / additional menus
 
 You can give the users a way to launch the management dialog for the submenu or an additional menu (see section on Multiple Sub-Menus) from the management dialog.
 
@@ -501,38 +501,6 @@ If you are using Skin Shortcuts to set custom properties for shortcuts, you can 
 [labelID] - The labelID you are providing a default for.
 [Property] - The string used to identify the property
 [Property Value] - The default value of the property
-
-
-7. A complete example
-
-A complete overrides.xml file may look as follows:
-
-<?xml version="1.0" encoding="UTF-8"?>
-<overrides>
-	<!-- Override an action -->
-	<override action="ActivateWindow(Videos,MovieTitles,return)">
-		<condition>Skin.HasSetting(CinemaExperience) + System.HasAddon(script.cinema.experience)</condition>
-		<action>RunScript(script.cinema.experience,movietitles)</action>
-	</override>
-	
-	<!-- Override a thumbnail, first for a particular labelID and then all instances of a particular thumbnail -->
-	<thumbnail image="[Old image]>[New image]</thumbnail>
-	<thumbnail image="DefaultShortcut.png">My Shortcut Image.png</thumbnail>
-	
-	<!-- Create a widget the user can choose from -->
-	<widget label="PVR" label2="Recording status of your PVR">PVR</widget>
-	<widget label="30222" label2="30555">RecentMovies</widget>
-	
-	<!-- Set the default widget for the labelID movies -->
-	<widgetdefault labelID="movies">RecentMovies</widgetdefault>
-	<widgetdefault labelID="livetv">PVR</widgetdefault>
-	
-	<!-- Set labels for skinsettings lists -->
-	<settingslabel type="main">Choose what to display on the main menu</settingslabel>
-	<settingslabel type="submenu">Pick submenu items for ::MENUNAME::</settingslabel>
-	<settingslabel type="submenu" level="1">30015</settingslabel>
-	<settingslabel type="reset">Reset all shortcuts back to default</settingslabel>
-</overrides>
 
 
 Localization
