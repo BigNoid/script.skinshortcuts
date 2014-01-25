@@ -325,30 +325,14 @@ class Main:
     def _get_shortcuts( self, group ):
         # This will load the shortcut file, and save it as a window property
         # Additionally, if the override files haven't been loaded, we'll load them too
+        try:
+            returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group )
+            return pickle.loads( returnVal )
+        except:
         
-        # If we've not loaded this shortcut group...
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group ):
-            # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
-            if xbmcvfs.exists( os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" ) ):
-                # User defined shortcuts
-                path = os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" )
-            elif xbmcvfs.exists( os.path.join( __skinpath__ , group.decode( 'utf-8' ) + ".shortcuts" ) ):
-                # Skin-provided defaults
-                path = os.path.join( __skinpath__ , group.decode( 'utf-8' ) + ".shortcuts" )
-            elif xbmcvfs.exists( os.path.join( __defaultpath__ , group.decode( 'utf-8' ) + ".shortcuts" ) ):
-                # Script-provided defaults
-                path = os.path.join( __defaultpath__ , group.decode( 'utf-8' ) + ".shortcuts" )
-            else:
-                # No custom shortcuts or defaults available
-                path = ""
-                                
-            # If no path was found ... (this means there are no shortcuts for this group)
-            if path == "":
-                # Save an empty array to the global property
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
-                return []
-            else:
-                # We've found a file containing shortcuts
+            paths = [os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" ), os.path.join( __skinpath__ , group.decode( 'utf-8' ) + ".shortcuts"), os.path.join( __defaultpath__ , group.decode( 'utf-8' ) + ".shortcuts" ) ]
+            
+            for path in paths:
                 try:
                     # Try loading shortcuts
                     unprocessedList = eval( xbmcvfs.File( path ).read() )
@@ -356,14 +340,11 @@ class Main:
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
                     return processedList
                 except:
-                    print_exc()
-                    log( "### ERROR could not load file %s" % path )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
-                    return []
-                    
-
-        # Return this shortcut group
-        return pickle.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group ) )
+                    log( "No file %s" % path )    
+                
+        # No file loaded
+        xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
+        return [] 
                 
             
     def _process_shortcuts( self, listitems, group ):
@@ -786,9 +767,10 @@ class Main:
         # This will load the shortcut file, and save it as a window property
         # Additionally, if the override files haven't been loaded, we'll load them too
         
-        # If we've not loaded widgets...
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcutsWidgets" ):
-            
+        try:
+            returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcutsWidgets" )
+            return pickle.loads( returnVal )
+        except:
             # Try to load user-defined widgets
             if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ) ):
                 path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" )
@@ -818,16 +800,15 @@ class Main:
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", pickle.dumps( widgets ) )
                 return widgets
 
-        # Return the widgets
-        return pickle.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsWidgets" ) )
-
 
     def _get_customproperties( self ):
         # This will load the shortcut file, and save it as a window property
         # Additionally, if the override files haven't been loaded, we'll load them too
         
-        # If we've not loaded custom properties...
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcutsCustomProperties" ):
+        try:
+            returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcutsCustomProperties" )
+            return pickle.loads( returnVal )
+        except:
             # Try to load user-defined custom properties
             if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ) ):
                 path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" )
@@ -856,9 +837,6 @@ class Main:
                 # Save the custom properties to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsCustomProperties", pickle.dumps( properties ) )
                 return properties
-
-        # Return the custom properties
-        return pickle.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsCustomProperties" ) )
     
     
     # --------------------
@@ -973,7 +951,10 @@ class Main:
     
     def _get_backgrounds( self ):
         # This function will load users backgrounds settings
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcutsBackgrounds" ):
+        try:
+            returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcutsBackgrounds" )
+            return pickle.loads( returnVal )
+        except:
             # Try to load user-defined widgets
             if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ) ):
                 path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" )
@@ -1002,10 +983,7 @@ class Main:
                 # Save the widgets to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( backgrounds ) )
                 return backgrounds
-
-        # Return the widgets
-        return pickle.loads( xbmcgui.Window( 10000 ).getProperty( "skinshortcutsBackgrounds" ) )
-    
+                
     
     # ----------------
     # HELPER FUNCTIONS
