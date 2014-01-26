@@ -1487,7 +1487,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _save_properties( self, properties ):
         # Load widget, background and custom properties and add them as properties of the listitems
         
-        dataFiles = {"widget":[], "background":[]}
+        dataFiles = {"widget":[], "background":[], "custom":[]}
         
         # Load the files
         paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
