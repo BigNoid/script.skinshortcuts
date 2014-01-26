@@ -1,3 +1,4 @@
+# coding=utf-8
 import os, sys, datetime, unicodedata
 import xbmc, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
@@ -13,7 +14,7 @@ __addon__        = sys.modules[ "__main__" ].__addon__
 __addonid__      = sys.modules[ "__main__" ].__addonid__
 __addonversion__ = sys.modules[ "__main__" ].__addonversion__
 __cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
-__datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
+__datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).encode('utf-8'), __addonid__.encode( 'utf-8' ) ).decode( 'utf-8' )
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
 __language__     = sys.modules[ "__main__" ].__language__
@@ -400,8 +401,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             except:
                 dirlist = []
             for item in dirlist:
-                playlist = os.path.join( path[0], item)
-                playlistfile = xbmc.translatePath( playlist )
+                playlist = os.path.join( path[0].decode( 'utf-8' ), item).encode( 'utf-8' )
+                playlistfile = xbmc.translatePath( playlist ).decode( 'utf-8' )
                 if item.endswith('.xsp'):
                     contents = xbmcvfs.File(playlistfile, 'r')
                     contents_data = contents.read().decode('utf-8')
@@ -413,7 +414,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                 name = item[:-4]
                             log('Playlist found %s' % name)
                             listitem = xbmcgui.ListItem(label=name, label2= __language__(int(path[1])), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                            listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + path[2] + "," + playlist + ", return)" ) )
+                            listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + path[2] + "," + playlist + ", return)" ).encode( 'utf-8' ) )
                             listitem.setProperty( "icon", "DefaultShortcut.png" )
                             listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                             listitem.setProperty( "shortcutType", "::SCRIPT::" + path[1] )
@@ -456,7 +457,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     action = item['path']
                 
                 log( action )
-                listitem.setProperty( "path", urllib.quote( action ) )
+                listitem.setProperty( "path", urllib.quote( action.encode( 'utf-8' ) ) )
                 
                 if not item['thumbnail'] == "":
                     listitem.setProperty( "thumbnail", item['thumbnail'] )
@@ -503,7 +504,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for item in json_response['result']['addons']:
                     if item['enabled'] == True:
                         listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
-                        listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'] + ")" ) )
+                        listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
                         if item['thumbnail'] != "":
                             listitem.setProperty( "thumbnail", item['thumbnail'] )
                         else:
