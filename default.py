@@ -149,44 +149,6 @@ class Main:
             
         # Tell XBMC not to try playing any media
         xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
-        return
-        
-        runDefaultCommand = True
-        paths = [os.path.join( __profilepath__ , "overrides.xml" ),os.path.join( __skinpath__ , "overrides.xml" )]
-        action = urllib.unquote( self.PATH )
-        for path in paths:
-            if xbmcvfs.exists( path ) and runDefaultCommand:    
-                trees = [self._load_overrides_skin(), self._load_overrides_user()]
-                for tree in trees:
-                    if tree is not None:
-                        tree = xmltree.parse( path )
-                        # Search for any overrides
-                        elems = tree.findall( 'override' )
-                        for elem in elems:
-                            if elem.attrib.get( 'action' ) == action:
-                                runCustomCommand = True
-                                
-                                # Check any conditions
-                                conditions = elem.findall('condition')
-                                for condition in conditions:
-                                    if xbmc.getCondVisibility( condition.text ) == False:
-                                        runCustomCommand = False
-                                        break
-                                
-                                # If any and all conditions have been met, run actions
-                                if runCustomCommand == True:
-                                    actions = elem.findall( 'action' )
-                                    for action in actions:
-                                        runDefaultCommand = False
-                                        xbmc.executebuiltin( action.text )
-                                    break
-        
-        # If we haven't overridden the command, run the original
-        if runDefaultCommand == True:
-            xbmc.executebuiltin( urllib.unquote(self.PATH) )
-            
-        # Tell XBMC not to try playing any media
-        xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
         
     
     def _manage_shortcuts( self, group ):
@@ -1110,7 +1072,7 @@ if ( __name__ == "__main__" ):
     # Profiling
     #filename = os.path.join( __datapath__, strftime( "%Y%m%d%H%M%S",gmtime() ) + "-" + str( random.randrange(0,100000) ) + ".log" )
     #cProfile.run( 'Main()', filename )
-    #
+    
     #stream = open( filename + ".txt", 'w')
     #p = pstats.Stats( filename, stream = stream )
     #p.sort_stats( "cumulative" )

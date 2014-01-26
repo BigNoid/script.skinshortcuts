@@ -34,6 +34,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
         self.group = kwargs[ "group" ]
         self.shortcutgroup = 1
+        self.has402403 = True
         
         # Empty arrays for different shortcut types
         self.arrayXBMCCommon = []
@@ -61,7 +62,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 305 ).setLabel( __language__(32025) )
             except:
                 log( "Not set label for edit label button" )
-            #self.getControl( 306 ).setLabel( __language__(32026) )
+            self.getControl( 306 ).setLabel( __language__(32026) )
             try:
                 self.getControl( 307 ).setLabel( __language__(32027) )
             except:
@@ -433,14 +434,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _fetch_favourites( self ):
         log('Loading favourites...')
         
-        #json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "video" } }')
-        #json_query = unicode(json_query, 'utf-8', errors='ignore')
-        #json_response = simplejson.loads(json_query)
-        
-        #log( json_response )
-        
-        #listitems = []
-        
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Favourites.GetFavourites", "params": { "properties": ["path", "thumbnail", "window", "windowparameter"] } }')
         json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = simplejson.loads(json_query)
@@ -522,13 +515,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         self.arrayAddOns = listitems
         
-    #def onAction(self, action):
-    #    if action.getId() in ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, ):
-    #        log( "### CLOSING WINDOW" )
-    #        log( action )
-    #        log( action.getId() )
-    #        if self.getFocusId() != 402:
-    #            self.close()
         
     def onClick(self, controlID):
         if controlID == 102:
@@ -1404,8 +1390,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Loop through all the data we've loaded
             for dataFile in dataFiles:
-                log( "### Reproduction of dataFile:" )
-                log( repr( dataFile ) )
                 for listProperty in dataFile[0]:
                     #log( "Comparing " + listProperty[0] + " to " + listitemCopy.getProperty( "labelID" ) )
                     if listProperty[0] == listitemCopy.getProperty( "labelID" ):
@@ -1641,16 +1625,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
     def updateEditControls( self ):
         # Try setting 402's text to the current label
-        try:
-            self.getControl( 402 ).setText( self.getControl( 211 ).getSelectedItem().getLabel() )
-        except:
-            i = 0
-
-        # Try setting 403's text to the current action
-        try:
-            self.getControl( 403 ).setText( urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') ) )
-        except:
-            i = 0
+        if self.has402403 == True:
+            try:
+                self.getControl( 402 ).setText( self.getControl( 211 ).getSelectedItem().getLabel() )
+                self.getControl( 403 ).setText( urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') ) )
+            except:
+                self.has402403 = False
                 
     def onAction( self, action ):
         if action.getId() in ACTION_CANCEL_DIALOG:
