@@ -424,7 +424,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     name = item[:-4]
                     log('Music playlist found %s' % name)
                     listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                    listitem.setProperty( urllib.quote( "path", "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                    listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
                     listitem.setProperty( "icon", "DefaultShortcut.png" )
                     listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                     listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
