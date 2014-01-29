@@ -1463,26 +1463,27 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
         path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
         
-        if listitems:
-            # If there are any shortcuts, save them
-            try:
-                f = xbmcvfs.File( path, 'w' )
-                f.write( repr( listitems ) )
-                f.close()
-            except:
-                print_exc()
-                log( "### ERROR could not save file %s" % __datapath__ )
-                
-            # Save widgets, backgrounds and custom properties
-            self._save_properties( properties )
+        #if listitems:
+
+        # If there are any shortcuts, save them
+        try:
+            f = xbmcvfs.File( path, 'w' )
+            f.write( repr( listitems ) )
+            f.close()
+        except:
+            print_exc()
+            log( "### ERROR could not save file %s" % __datapath__ )
             
-        else:
-            # There are no shortcuts, delete the existing file if it exists
-            try:
-                xbmcvfs.delete( path )
-            except:
-                print_exc()
-                log( "### No shortcuts, no existing file %s" % __datapath__ )            
+        # Save widgets, backgrounds and custom properties
+        self._save_properties( properties )
+            
+        #else:
+        #    # There are no shortcuts, delete the existing file if it exists
+        #    try:
+        #        xbmcvfs.delete( path )
+        #    except:
+        #        print_exc()
+        #        log( "### No shortcuts, no existing file %s" % __datapath__ )            
     
     def _save_properties( self, properties ):
         # Load widget, background and custom properties and add them as properties of the listitems
