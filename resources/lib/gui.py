@@ -44,6 +44,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.arrayFavourites = []
         self.arrayAddOns = []
         
+        self.has311 = True
+        self.has312 = True
+        
         log('script version %s started - management module' % __addonversion__)
 
     def onInit( self ):
@@ -146,6 +149,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self._display_shortcuts()
             except:
                 log( "No list of shortcuts to choose from on GUI" )
+            
+            # Load widget and background names
+            self._load_widgetsbackgrounds()
             
             # Load current shortcuts
             self.load_shortcuts()
@@ -532,6 +538,40 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         self.arrayAddOns = listitems
         
+    
+    def _load_widgetsbackgrounds( self ):
+        self.widgets = {}
+        self.backgrounds = {}
+        
+        # Load skin overrides
+        path = os.path.join( __skinpath__ , "overrides.xml" )
+        tree = None
+        if xbmcvfs.exists( path ):
+            try:
+                tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
+            except:
+                print_exc()
+        
+        # Get widgets
+        if tree is not None:
+            elems = tree.findall('widget')
+            for elem in elems:
+                if elem.attrib.get( 'label' ).isdigit():
+                    self.widgets[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+                else:
+                    self.widgets[elem.text] = elem.attrib.get( 'label' )
+        # Get backgrounds
+        if tree is not None:
+            elems = tree.findall('background')
+            for elem in elems:
+                if elem.attrib.get( 'label' ).isdigit():
+                    self.backgrounds[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+                else:
+                    self.backgrounds[elem.text] = elem.attrib.get( 'label' )
+                    
+        log( repr( self.widgets ) )
+        log( repr( self.backgrounds ) )
+        
         
     def onClick(self, controlID):
         if controlID == 102:
@@ -571,6 +611,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).addItems(listitems)
             
             self.getControl( 211 ).selectItem( num )
+            
+            self.updateEditControls()
         
         if controlID == 301:
             # Add a new item
@@ -581,6 +623,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Set focus
             self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+            log( "New item added" )
+            self.updateEditControls()
         
         if controlID == 302:
             # Delete an item
@@ -605,6 +649,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 # Set focus
                 self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+                
+            self.updateEditControls()
             
         if controlID == 303:
             # Move item up in list
@@ -628,6 +674,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).addItems(listitems)
                 
                 self.getControl( 211 ).selectItem( num - 1 )
+                
+            self.updateEditControls()
 
         if controlID == 304:
             # Move item down in list
@@ -652,6 +700,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).addItems(listitems)
                 
                 self.getControl( 211 ).selectItem( num + 1 )
+                
+            self.updateEditControls()
 
         if controlID == 305:
             # Change label
@@ -695,6 +745,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).addItems(listitems)
             
             self.getControl( 211 ).selectItem( num )
+            self.updateEditControls()
 
         if controlID == 306:
             # Change thumbnail
@@ -728,6 +779,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).addItems(listitems)
             
             self.getControl( 211 ).selectItem( num )
+            self.updateEditControls()
 
             
         if controlID == 307:
@@ -767,6 +819,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 211 ).addItems(listitems)
             
             self.getControl( 211 ).selectItem( num )
+            self.updateEditControls()
             
         if controlID == 308:
             # Reset shortcuts
@@ -809,6 +862,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
                         # Set focus
                         self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+                        
+                    self.updateEditControls()
                 except:
                     # We couldn't load the file
                     print_exc()
@@ -823,6 +878,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 # Set focus
                 self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+                self.updateEditControls()
                 
         if controlID == 309:
             # Choose widget
@@ -830,26 +886,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
             num = self.getControl( 211 ).getSelectedPosition()
             
-            # Load skin overrides
-            path = os.path.join( __skinpath__ , "overrides.xml" )
-            if xbmcvfs.exists( path ):
-                try:
-                    tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
-                except:
-                    print_exc()
-            
             # Get widgets
             widgetLabel = ["None"]
-            widget = [""]
-            
-            if tree is not None:
-                elems = tree.findall('widget')
-                for elem in elems:
-                    if elem.attrib.get( 'label' ).isdigit():
-                        widgetLabel.append( xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) )
-                    else:
-                        widgetLabel.append( elem.attrib.get( 'label' ) )
-                    widget.append( elem.text )           
+            widget = [""]         
+            for key in self.widgets:
+                widgetLabel.append( self.widgets[key] )
+                widget.append( key )
             
             dialog = xbmcgui.Dialog()
             selectedWidget = dialog.select( __language__(32044), widgetLabel )
@@ -893,32 +935,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 self.getControl( 211 ).selectItem( num )
                 
+                self.updateEditControls()
+                
         if controlID == 310:
             # Choose background
             
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
             num = self.getControl( 211 ).getSelectedPosition()
             
-            # Load skin overrides
-            path = os.path.join( __skinpath__ , "overrides.xml" )
-            if xbmcvfs.exists( path ):
-                try:
-                    tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
-                except:
-                    print_exc()
-            
             # Get backgrounds
             backgroundLabel = ["Default"]
-            background = [""]
-            
-            if tree is not None:
-                elems = tree.findall('background')
-                for elem in elems:
-                    if elem.attrib.get( 'label' ).isdigit():
-                        backgroundLabel.append( xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) )
-                    else:
-                        backgroundLabel.append( elem.attrib.get( 'label' ) )
-                    background.append( elem.text )           
+            background = [""]         
+            log( repr( self.backgrounds ) )
+            for key in self.backgrounds:
+                backgroundLabel.append( self.backgrounds[key] )
+                background.append( key )
             
             dialog = xbmcgui.Dialog()
             selectedBackground = dialog.select( __language__(32045), backgroundLabel )
@@ -961,6 +992,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).addItems(listitems)
                 
                 self.getControl( 211 ).selectItem( num )
+                
+            self.updateEditControls()
         
         if controlID == 401:
             # Choose shortcut (SELECT DIALOG)
@@ -1023,8 +1056,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     displayShortcuts.append( "(" + shortcut.getLabel2() + ") " + shortcut.getLabel() )
                 else:
                     displayShortcuts.append( shortcut.getLabel() )
-
-            log( displayShortcuts )
             
             selectedShortcut = xbmcgui.Dialog().select( shortcutCategories[shortcutCategory], displayShortcuts )
             
@@ -1048,6 +1079,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).addItems(listitems)
                 
                 self.getControl( 211 ).selectItem( num )
+                
+            self.updateEditControls()
         
         if controlID == 402:
             # Change label (EDIT CONTROL)
@@ -1418,6 +1451,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             setValue = listProperty[2]
                         # Add a custom property
                         listitemCopy.setProperty( setProperty, setValue )
+                        log( setProperty + " : " + setValue )
                         # If there is already an additionalListItemProperties array, add this to it
                         if listitemCopy.getProperty( "additionalListItemProperties" ):
                             listitemProperties = eval( listitemCopy.getProperty( "additionalListItemProperties" ) )
@@ -1625,12 +1659,46 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
             
     def updateEditControls( self ):
+        xbmc.sleep(50)
+        
+        # Label edit control
         if self.has402 == True:
-            self.getControl( 402 ).setText( self.getControl( 211 ).getSelectedItem().getLabel() )
+            label = self.getControl( 211 ).getSelectedItem().getLabel()
+            log( label )
+            if label == __language__(32013):
+                self.getControl( 402 ).setText( "" )
+            else:
+                self.getControl( 402 ).setText( label )
+                
+        # Action edit control
         if self.has403 == True:
-            self.getControl( 403 ).setText( urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') ) )
+            label = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') )
+            log( label )
+            if label == "noop":
+                self.getControl( 403 ).setText( "" )
+            else:
+                self.getControl( 403 ).setText( label )
+                
+        # Widget name
+        if self.has311 == True:
+            try:
+                self.getControl( 311 ).setLabel( self.widgets[self.getControl( 211 ).getSelectedItem().getProperty('Widget')] )
+            except KeyError:
+                self.getControl( 311 ).setLabel( "" )
+            except:
+                self.has311 == False
+        
+        # Background name
+        if self.has312 == True:
+            try:
+                self.getControl( 312 ).setLabel( self.backgrounds[self.getControl( 211 ).getSelectedItem().getProperty('background')] )
+            except KeyError:
+                self.getControl( 312 ).setLabel( "" )
+            except:
+                self.has312 == False
                 
     def onAction( self, action ):
+        log( action.getId() )
         if action.getId() in ACTION_CANCEL_DIALOG:
             log( "### CLOSING WINDOW" )
             if self.getFocusId() == 402 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog

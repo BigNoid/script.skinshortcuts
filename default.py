@@ -149,8 +149,12 @@ class Main:
         # Update home window property (used to automatically refresh type=settings)
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
         
-        # Clear window properties for this group
+        # Clear window properties for this group, and for backgrounds, widgets, properties
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + group )        
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsWidgets" )        
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsCustomProperties" )        
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsBackgrounds" )        
+        
 
     def _list_shortcuts( self, group ):
         log( "### Listing shortcuts ..." )
@@ -276,7 +280,10 @@ class Main:
             self.reset_window_properties()
                 
         # Tell XBMC not to try playing any media
-        xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
+        try:
+            xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
+        except:
+            log( "Not launched from a list item" )
     
     
     # ---------

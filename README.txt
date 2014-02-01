@@ -26,7 +26,7 @@ The script uses group=[groupname] property in order to determine which set of sh
  
 In your overrides.xml file, you need to create a button for each [groupname] that you want to support, with the following in the <onclick> tag
  
-	RunScript(script.skinshortcuts?type=manage&amp;group=[groupname])
+	RunScript(script.skinshortcuts,type=manage&amp;group=[groupname])
  
  
 3. Display user shortcuts
@@ -59,13 +59,13 @@ Uses new method of filling the contents of a list in Gotham. In the list where y
 	
 Alternatively, you can create a button with the following onclick method:
 
-	RunScript(script.skinshortcuts?type=manage&amp;group=mainmenu)
+	RunScript(script.skinshortcuts,type=manage&amp;group=mainmenu)
 	
 Then, within the management dialog, provide a button with the id 405 to let the user manage sub-menus. You must use this method if you want to provide more than one sub-menu.
 
 If using the second method, you may also want to provide a reset button, with the following in the onclick method:
 
-	RunScript(script.skinshortcuts?type=resetall)
+	RunScript(script.skinshortcuts,type=resetall)
  
  
 2. Display main menu and shortcuts
@@ -156,6 +156,8 @@ Additional controls:
 
 309 Button  Change widget (See "Advanced Usage")
 310 Button  Change background (See "Advanced Usage")
+311 Label	Selected widget name
+312 Label	Selected background name
 
 401 Button	Alternative method to set a shortcut
 402 Edit	Alternative method to edit a label
@@ -163,7 +165,7 @@ Additional controls:
 404 Button	Set a custom property
 405 Button	Launch management dialog for submenu / additional menus
 
-You can set a label on any of these controls EXCEPT 101. If no label is set, Skin Shortcuts will provide a label.
+You can set a label on any of these controls EXCEPT 101, 311 and 312. If no label is set, Skin Shortcuts will provide a label.
 
 You MUST include a label if you include controls 404 and 405.
 
