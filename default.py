@@ -164,7 +164,10 @@ class Main:
         listitems = self._get_shortcuts( group )
         saveItems = []
         
+        i = 0
+        
         for item in listitems:
+            i += 1
             # Generate a listitem
             path = sys.argv[0].decode( 'utf-8' ) + "?type=launch&path=" + item[4] + "&group=" + self.GROUP
             
@@ -175,6 +178,9 @@ class Main:
             listitem.setProperty( "action", urllib.unquote( item[4] ) )
             listitem.setProperty( "group", group )
             listitem.setProperty( "path", path )
+            
+            # Set an additional, decoded, version of the labelID to use for inbuilt submenu visibility
+            listitem.setProperty( "visibilitycheck", str( i ) )
             
             # Localize label2 (type of shortcut)
             if not item[1].find( "::SCRIPT::" ) == -1:
@@ -205,7 +211,10 @@ class Main:
         mainmenuListItems = self._get_shortcuts( "mainmenu" )
         saveItems = []
         
+        i = 0
+        
         for mainmenuItem in mainmenuListItems:
+            i += 1
             # Load menu for each labelID
             mainmenuLabelID = mainmenuItem[5].encode( 'utf-8' )
             if levelInt == "":
@@ -223,9 +232,7 @@ class Main:
                 listitem.setProperty( "group", mainmenuLabelID.decode('utf-8') )
                 listitem.setProperty( "path", path )
                 
-                log(mainmenuLabelID)
-                log(mainmenuLabelID.decode('utf-8') )
-                listitem.setProperty( "node.visible", "StringCompare(Container(" + mainmenuID + ").ListItem.Property(labelID)," + mainmenuLabelID.decode('utf-8') + ")" )
+                listitem.setProperty( "node.visible", "StringCompare(Container(" + mainmenuID + ").ListItem.Property(visibilitycheck)," + str( i ) + ")" )
                 
                 # Localize label2 (type of shortcut)
                 if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
