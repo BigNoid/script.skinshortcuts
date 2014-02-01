@@ -1,3 +1,5 @@
+* THIS FILE IS OUT OF DATE*
+
 The following is a list of all labelID's, their default thumbnail image and their corresponding English translation.
 
 labelID		Thumbnail					English translation	
@@ -17,6 +19,8 @@ settings								Settings
 7			DefaultFolder.png			File Manager
 13200		UnknownUser.png				Profiles
 10003									System Information
+32046									Update video library
+32047									Update audio library
 
 744			DefaultFolder.png			Files
 136			DefaultVideoPlaylists.png	Playlists (video library)
@@ -40,6 +44,8 @@ settings								Settings
 19069		DefaultTVShows.png			EPG
 19163		DefaultTVShows.png			Recordings
 32023		DefaultTVShows.png			Timers
+20390		DefaultRecentlyAddedMusicVideos.png		Recently Added Music Videos
+626			DefaultInProgressShows.png	In Progress TV Shows
 
 20389		DefaultMusicVideos.png		Music Videos
 133			DefaultMusicArtists.png		Artists

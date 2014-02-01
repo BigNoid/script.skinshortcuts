@@ -115,6 +115,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems.append( self._create(["ActivateWindow(FileManager)", "::LOCAL::7", "::SCRIPT::32034", "DefaultFolder.png"]) )
         listitems.append( self._create(["ActivateWindow(Profiles)", "::LOCAL::13200", "::SCRIPT::32034", "UnknownUser.png"]) )
         listitems.append( self._create(["ActivateWindow(SystemInfo)", "::LOCAL::10007", "::SCRIPT::32034", ""]) )
+
+        listitems.append( self._create(["UpdateLibrary(video)", "::SCRIPT::32046", "::SCRIPT::32034", ""]) )
+        listitems.append( self._create(["UpdateLibrary(audio)", "::SCRIPT::32047", "::SCRIPT::32034", ""]) )
         
         self.arrayXBMCCommon = listitems
         
@@ -122,9 +125,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems = []
         log('Listing video library...')
         
-        # os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
         rootdir = os.path.join( xbmc.translatePath( "special://userdata".decode('utf-8') ), "library", "video" )
-        log( "Trying " + rootdir )
         if not os.path.exists( rootdir ):
             log( "Custom user library nodes aren't in existance!" )
             rootdir = os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" )
@@ -189,42 +190,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
             for key in sorted(videonodes.iterkeys()):
                 listitems.append( self._create( videonodes[ key ] ) )
-                        
-                    
-                        
-                    
-                #log( os.path.relpath( os.path.join( root, file ), rootdir ) )
-            #for file in files:
-            #    print subdir+'/'+file
-        
-        # Videos
-        #listitems.append( self._create(["ActivateWindow(Videos,Movies,return)", "::LOCAL::342", "::SCRIPT::32014", "DefaultMovies.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,TVShows,return)", "::LOCAL::20343", "::SCRIPT::32014", "DefaultTVShows.png"]) )
-        #listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::SCRIPT::32022", "::SCRIPT::32014", "DefaultTVShows.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32014", "DefaultMusicVideos.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,Files,return)", "::LOCAL::744", "::SCRIPT::32014", "DefaultFolder.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,Playlists,return)", "::LOCAL::136", "::SCRIPT::32014", "DefaultVideoPlaylists.png"]) )
-        
-        # Movies
-        #listitems.append( self._create(["ActivateWindow(Videos,RecentlyAddedMovies,return)", "::LOCAL::20386", "::SCRIPT::32015", "DefaultRecentlyAddedMovies.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieActors,return)", "::LOCAL::344", "::SCRIPT::32015", "DefaultActor.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieCountries,return)", "::LOCAL::20451", "::SCRIPT::32015", "DefaultCountry.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieDirectors,return)", "::LOCAL::20348", "::SCRIPT::32015", "DefaultDirector.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieGenres,return)", "::LOCAL::135", "::SCRIPT::32015", "DefaultGenre.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieSets,return)", "::LOCAL::20434", "::SCRIPT::32015", "DefaultSets.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieStudios,return)", "::LOCAL::20388", "::SCRIPT::32015", "DefaultStudios.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieTags,return)", "::LOCAL::20459", "::SCRIPT::32015", "DefaultTags.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "::LOCAL::369", "::SCRIPT::32015", "DefaultMovieTitle.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MovieYears,return)", "::LOCAL::562", "::SCRIPT::32015", "DefaultYear.png"]) )
-
-        # TV Shows
-        #listitems.append( self._create(["ActivateWindow(Videos,RecentlyAddedEpisodes,return)", "::LOCAL::20387", "::SCRIPT::32016", "DefaultRecentlyAddedEpisodes.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,TVShowActors,return)", "::LOCAL::344", "::SCRIPT::32016", "DefaultActor.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,TVShowGenres,return)", "::LOCAL::135", "::SCRIPT::32016", "DefaultGenre.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,TVShowStudios,return)", "::LOCAL::20388", "::SCRIPT::32016", "DefaultStudios.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,TVShowTags,return)", "::LOCAL::20459", "::SCRIPT::32016", "DefaultTags.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "::LOCAL::369", "::SCRIPT::32016", "DefaultTVShowTitle.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,TVShowYears,return)", "::LOCAL::562", "::SCRIPT::32016", "DefaultYear.png"]) )
 
         # PVR
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "::LOCAL::19023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
@@ -232,16 +197,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "::LOCAL::19069", "::SCRIPT::32017", "DefaultTVShows.png"]) )
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::LOCAL::19163", "::SCRIPT::32017", "DefaultTVShows.png"]) )
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::SCRIPT::32023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
-        
-        # Music Videos
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoAlbums,return)", "::LOCAL::20389", "::SCRIPT::32018", "DefaultMusicVideos.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoArtists,return)", "::LOCAL::133", "::SCRIPT::32018", "DefaultMusicArtists.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoDirectors,return)", "::LOCAL::20348", "::SCRIPT::32018", "DefaultDirector.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoGenres,return)", "::LOCAL::135", "::SCRIPT::32018", "DefaultMusicGenres.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoStudios,return)", "::LOCAL::20388", "::SCRIPT::32018", "DefaultStudios.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoTags,return)", "::LOCAL::20459", "::SCRIPT::32018", "DefaultTags.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoTitles,return)", "::LOCAL::369", "::SCRIPT::32018", "DefaultMusicVideoTitle.png"]) )
-        #listitems.append( self._create(["ActivateWindow(Videos,MusicVideoYears,return)", "::LOCAL::562", "::SCRIPT::32018", "DefaultMusicYears.png"]) )
         
         self.arrayVideoLibrary = listitems
         

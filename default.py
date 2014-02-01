@@ -65,7 +65,6 @@ class Main:
         if self.TYPE=="launch":
             self._launch_shortcut( self.PATH )
         if self.TYPE=="manage":
-            log( "### GROUP: " + self.GROUP )
             self._manage_shortcuts( self.GROUP )
         if self.TYPE=="list":
             self._list_shortcuts( self.GROUP )
@@ -73,16 +72,6 @@ class Main:
             self._list_submenu( self.MENUID, self.LEVEL )
         if self.TYPE=="settings":
             self._manage_shortcut_links() 
-        if self.TYPE=="customsettings":
-            self._manage_custom_links()
-        if self.TYPE=="widgets":
-            self._manage_widgets()
-        if self.TYPE=="setWidget":
-            self._set_widget()
-        if self.TYPE=="backgrounds":
-            self._manage_backgrounds()
-        if self.TYPE=="setBackgrounds":
-            self._set_background()
         if self.TYPE=="resetall":
             self._reset_all_shortcuts()
 
@@ -431,7 +420,7 @@ class Main:
         
         # Create link to manage main menu
         if self.LEVEL == "":
-            path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.ßkinshortcuts,type=manage&group=mainmenu)" )
+            path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=mainmenu)" )
             displayLabel = self._get_customised_settings_string("main")
             listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
             listitem.setProperty('isPlayable', 'False')
@@ -499,80 +488,6 @@ class Main:
         
         # Save the list
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-
-    
-    def _manage_custom_links ( self ):
-        log( "### Generating custom list for skin settings" )
-        # Set path based on user defined mainmenu, then skin-provided, then script-provided
-        if xbmcvfs.exists( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
-            # User defined shortcuts
-            path = os.path.join( __datapath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
-            # Skin-provided defaults
-            path = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
-            # Script-provided defaults
-            path = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
-        else:
-            # No custom shortcuts or defaults available
-            path = ""
-            
-        if not path == "":
-            try:
-                # Try loading shortcuts
-                file = xbmcvfs.File( path )
-                loaditems = eval( file.read() )
-                file.close()
-                
-                # Load skin overrides, and get the specified override
-                tree = self._load_overrides_skin()
-                settingsMenuElem = None
-                
-                if tree is not None:
-                    elems = tree.findall('settingsmenu')
-                    for elem in elems:
-                        log( elem.attrib.get( 'id' ) )
-                        if elem.attrib.get( 'id' ) == self.CUSTOMID:
-                            settingsMenuElem = elem
-                            break
-
-                
-                listitems = []
-                
-                if settingsMenuElem is not None:
-                    for item in loaditems:                        
-                        # Get localised label and labelID
-                        localLabel = item[0]
-                        labelID = item[0].replace(" ", "").lower()
-                        if not item[0].find( "::SCRIPT::" ) == -1:
-                            localLabel = __language__(int( item[0][10:] ) )
-                            labelID = self.createNiceName( item[0][10:] )
-                        elif not item[0].find( "::LOCAL::" ) == -1:
-                            localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
-                            labelID = self.createNiceName( item[0][9:] )
-                        
-                        # Get custom action
-                        customAction = settingsMenuElem.find('action').text.replace("::LABELID::", labelID).encode( 'utf-8' )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( customAction )
-
-                        # Get display label
-                        displayLabel = settingsMenuElem.find('label').text
-                        if displayLabel.isdigit():
-                            displayLabel = xbmc.getLocalisedString( displayLabel )
-                        displayLabel = displayLabel.replace("::MENUNAME::", localLabel)
-                        
-                        #listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
-                        listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="", thumbnailImage="")
-                        listitem.setProperty('isPlayable', 'True')
-                                                
-                        xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
-
-            except:
-                print_exc()
-                log( "### ERROR could not load file %s" % path )
-        
-        # Save the list
-        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
     
     
     def _get_customised_settings_string( self, group ):
@@ -604,120 +519,12 @@ class Main:
             return "::MENUNAME::"
         elif group == "reset":
             return __language__(32037)
-        elif group == "widget":
-            return __language__(32039)
         return "::MENUNAME::"
     
     
     # ----------------
     # WIDGET FUNCTIONS
-    # ----------------
-    
-    def _set_widget( self ):
-        # Load the widgets the skin has defined
-        tree = self._load_overrides_skin()
-        widgetLabel = ["None"]
-        widget = [""]
-        
-        if tree is not None:
-            elems = tree.findall('widget')
-            for elem in elems:
-                if elem.attrib.get( 'label' ).isdigit():
-                    widgetLabel.append( xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) )
-                else:
-                    widgetLabel.append( elem.attrib.get( 'label' ) )
-                widget.append( elem.text )
-        
-        dialog = xbmcgui.Dialog()
-        selectedWidget = dialog.select( "Choose a widget", widgetLabel )
-        
-        # Load the current widgets
-        currentWidgets = ( self._get_widgets() )
-        saveWidgets = []
-        foundWidget = False
-        
-        # Loop through current widgets, looking for the current self.GROUP
-        for currentWidget in currentWidgets:
-            if currentWidget[0].encode('utf-8') == self.GROUP:
-                saveWidgets.append( [ self.GROUP.decode('utf-8'), widget[selectedWidget].decode('utf-8') ] )
-                foundWidget = True
-            else:
-                saveWidgets.append( [ currentWidget[0], currentWidget[1] ] )
-                
-        # If we didn't find an existing widget for the group, add a new one
-        if foundWidget == False:
-            saveWidgets.append( [ self.GROUP.decode('utf-8'), widget[selectedWidget].decode('utf-8') ] )
-            
-        # Clear the window property
-        self.reset_window_properties()
-        
-        # Save the widgets
-        path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" )
-        
-        try:
-            f = xbmcvfs.File( path, 'w' )
-            f.write( repr( saveWidgets ) )
-            f.close()
-        except:
-            print_exc()
-            log( "### ERROR could not save file %s" % __datapath__ )
-    
-    
-    def _manage_widgets ( self ):
-        log( "### Generating widget list for skin settings" )
-        
-        # Set path based on user defined mainmenu, then skin-provided, then script-provided
-        if xbmcvfs.exists( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
-            # User defined shortcuts
-            path = os.path.join( __datapath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
-            # Skin-provided defaults
-            path = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
-            # Script-provided defaults
-            path = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
-        else:
-            # No custom shortcuts or defaults available
-            path = ""
-            
-        if not path == "":
-            try:
-                # Try loading shortcuts
-                file = xbmcvfs.File( path )
-                loaditems = eval( file.read() )
-                file.close()
-                
-                listitems = []
-                
-                for item in loaditems:
-                    path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + item[0].replace(" ", "").lower().encode( 'utf-8' ) + ")" )
-                    
-                    # Get localised label
-                    if not item[0].find( "::SCRIPT::" ) == -1:
-                        localLabel = __language__(int( item[0][10:] ) )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][10:] ).encode( 'utf-8' ) + ")" )
-                    elif not item[0].find( "::LOCAL::" ) == -1:
-                        localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setWidget&group=" + self.createNiceName( item[0][9:] ).encode( 'utf-8' ) + ")" )
-                    else:
-                        localLabel = item[0]
-                        
-                    # Get display label
-                    displayLabel = self._get_customised_settings_string("widget").replace("::MENUNAME::", localLabel)
-                    
-                    #listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
-                    listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="", thumbnailImage="")
-                    listitem.setProperty('isPlayable', 'True')
-                                            
-                    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
-
-            except:
-                print_exc()
-                log( "### ERROR could not load file %s" % path )
-        
-        # Save the list
-        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-    
+    # ----------------    
     
     def _get_widgets( self ):
         # This will load the shortcut file, and save it as a window property
@@ -797,113 +604,7 @@ class Main:
     
     # --------------------
     # BACKGROUND FUNCTIONS
-    # --------------------
-    
-    def _set_background( self ):
-        # Load the widgets the skin has defined
-        tree = self._load_overrides_skin()
-        backgroundLabel = ["None"]
-        background = [""]
-        
-        if tree is not None:
-            elems = tree.findall('background')
-            for elem in elems:
-                if elem.attrib.get( 'label' ).isdigit():
-                    backgroundLabel.append( xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) )
-                else:
-                    backgroundLabel.append( elem.attrib.get( 'label' ) )
-                background.append( elem.text )
-        
-        dialog = xbmcgui.Dialog()
-        selectedBackground = dialog.select( "Choose a background", backgroundLabel )
-        
-        # Load the current widgets
-        currentBackgrounds = ( self._get_background() )
-        saveBackgrounds = []
-        foundBackgrounds = False
-        
-        # Loop through current widgets, looking for the current self.GROUP
-        for currentBackground in currentBackgrounds:
-            if currentBackground[0].encode('utf-8') == self.GROUP:
-                saveBackgrounds.append( [ self.GROUP.decode('utf-8'), background[selectedBackground].decode('utf-8') ] )
-                foundBackground = True
-            else:
-                saveBackgrounds.append( [ currentBackground[0], currentBackground[1] ] )
-                
-        # If we didn't find an existing widget for the group, add a new one
-        if foundBackground == False:
-            saveBackgrounds.append( [ self.GROUP.decode('utf-8'), background[selectedBackground].decode('utf-8') ] )
-            
-        # Clear the window property
-        self.reset_window_properties()
-        
-        # Save the widgets
-        path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" )
-        
-        try:
-            f = xbmcvfs.File( path, 'w' )
-            f.write( repr( saveBackgrounds ) )
-            f.close()
-        except:
-            print_exc()
-            log( "### ERROR could not save file %s" % __datapath__ )
-    
-    
-    def _manage_background ( self ):
-        log( "### Generating background list for skin settings" )
-        
-        # Set path based on user defined mainmenu, then skin-provided, then script-provided
-        if xbmcvfs.exists( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
-            # User defined shortcuts
-            path = os.path.join( __datapath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
-            # Skin-provided defaults
-            path = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
-            # Script-provided defaults
-            path = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
-        else:
-            # No custom shortcuts or defaults available
-            path = ""
-            
-        if not path == "":
-            try:
-                # Try loading shortcuts
-                file = xbmcvfs.File( path )
-                loaditems = eval( file.read() )
-                file.close()
-                
-                listitems = []
-                
-                for item in loaditems:
-                    path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + item[0].replace(" ", "").lower().encode( 'utf-8' ) + ")" )
-                    
-                    # Get localised label
-                    if not item[0].find( "::SCRIPT::" ) == -1:
-                        localLabel = __language__(int( item[0][10:] ) )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + self.createNiceName( item[0][10:] ).encode( 'utf-8' ) + ")" )
-                    elif not item[0].find( "::LOCAL::" ) == -1:
-                        localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=setBackground&group=" + self.createNiceName( item[0][9:] ).encode( 'utf-8' ) + ")" )
-                    else:
-                        localLabel = item[0]
-                        
-                    # Get display label
-                    displayLabel = self._get_customised_settings_string("background").replace("::MENUNAME::", localLabel)
-                    
-                    #listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
-                    listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="", thumbnailImage="")
-                    listitem.setProperty('isPlayable', 'True')
-                                            
-                    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
-
-            except:
-                print_exc()
-                log( "### ERROR could not load file %s" % path )
-        
-        # Save the list
-        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-    
+    # --------------------    
     
     def _get_backgrounds( self ):
         # This function will load users backgrounds settings

@@ -189,3 +189,11 @@ msgstr ""
 msgctxt "#32045"
 msgid "Choose a background"
 msgstr ""
+
+msgctxt "#32046"
+msgid "Update video library"
+msgstr ""
+
+msgctxt "#32047"
+msgid "Update audio library"
+msgstr ""
