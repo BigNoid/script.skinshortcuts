@@ -222,7 +222,7 @@ You can give the users a way to launch the management dialog for the submenu or 
 
 To do this include the control 405. Clicking it will launch the management dialog for the submenu of the selected item.
 
-To launch the management dialog for an additional sub menu, first set the window property "submenuLevel", then send a click to 405. The property will be cleared afterwards.
+To launch the management dialog for an additional sub menu, first set the window property "level", then send a click to 405. The property will be cleared afterwards.
 
 You will likely only want to include this when editing the main menu. You can check the window property "groupname" for the value "mainmenu" to only display it when relevant.
 
