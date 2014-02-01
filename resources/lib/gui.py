@@ -35,7 +35,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
         self.group = kwargs[ "group" ]
         self.shortcutgroup = 1
-        self.has402403 = True
         
         # Empty arrays for different shortcut types
         self.arrayXBMCCommon = []
@@ -52,23 +51,84 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self._close()
         else:
             self.window_id = xbmcgui.getCurrentWindowDialogId()
-            xbmcgui.Window(self.window_id).setProperty('SkinShortcuts.CurrentGroup', self.group)
+            xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
             
             # Set button labels
-            self.getControl( 301 ).setLabel( __language__(32000) )
-            self.getControl( 302 ).setLabel( __language__(32001) )
-            self.getControl( 303 ).setLabel( __language__(32002) )
-            self.getControl( 304 ).setLabel( __language__(32003) )
             try:
-                self.getControl( 305 ).setLabel( __language__(32025) )
+                if self.getControl( 301 ).getLabel() == "":
+                    self.getControl( 301 ).setLabel( __language__(32000) )
             except:
-                log( "Not set label for edit label button" )
-            self.getControl( 306 ).setLabel( __language__(32026) )
+                log( "No add shortcut button on GUI" )
             try:
-                self.getControl( 307 ).setLabel( __language__(32027) )
+                if self.getControl( 302 ).getLabel() == "":
+                    self.getControl( 302 ).setLabel( __language__(32001) )
             except:
-                log( "Not set label for edit action button" )
-            self.getControl( 308 ).setLabel( __language__(32028) )
+                log( "No delete shortcut button on GUI" )
+            try:
+                if self.getControl( 303 ).getLabel() == "":
+                    self.getControl( 303 ).setLabel( __language__(32002) )
+            except:
+                log( "No move shortcut up button on GUI" )
+            try:
+                if self.getControl( 304 ).getLabel() == "":
+                    self.getControl( 304 ).setLabel( __language__(32003) )
+            except:
+                log( "No move shortcut down button on GUI" )
+            
+            try:
+                if self.getControl( 305 ).getLabel() == "":
+                    self.getControl( 305 ).setLabel( __language__(32025) )
+            except:
+                log( "Not set label button on GUI" )
+                
+            try:
+                if self.getControl( 306 ).getLabel() == "":
+                    self.getControl( 306 ).setLabel( __language__(32026) )
+            except:
+                log( "No edit thumbnail button on GUI" )
+                
+            try:
+                if self.getControl( 307 ).getLabel() == "":
+                    self.getControl( 307 ).setLabel( __language__(32027) )
+            except:
+                log( "Not adit action button on GUI" )
+                
+            try:
+                if self.getControl( 308 ).getLabel() == "":
+                    self.getControl( 308 ).setLabel( __language__(32028) )
+            except:
+                log( "No reset shortcuts button on GUI" )
+                
+            try:
+                if self.getControl( 309 ).getLabel() == "":
+                    self.getControl( 309 ).setLabel( __language__(32044) )
+            except:
+                log( "No widget button on GUI" )
+            try:
+                if self.getControl( 310 ).getLabel() == "":
+                    self.getControl( 310 ).setLabel( __language__(32045) )
+            except:
+                log( "No background button on GUI" )
+                
+            try:
+                if self.getControl( 401 ).getLabel() == "":
+                    self.getControl( 401 ).setLabel( __language__(32048) )
+            except:
+                log( "No widget button on GUI" )
+            try:
+                self.has402 = True
+                if self.getControl( 402 ).getLabel() == "":
+                    self.getControl( 402 ).setLabel( __language__(32025) )
+            except:
+                self.has402 = False
+                log( "No background button on GUI" )
+            try:
+                self.has403 = True
+                if self.getControl( 403 ).getLabel() == "":
+                    self.getControl( 403 ).setLabel( __language__(32041) )
+            except:
+                self.has403 = False
+                log( "No background button on GUI" )
             
             # List XBMC common shortcuts (likely to be used on a main menu
             self._load_xbmccommon()
@@ -78,13 +138,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self._load_musiclibrary()
             
             # Load favourites, playlists, add-ons
-            # self._fetch_videoplaylists()
-            # self._fetch_musicplaylists()
             self._fetch_playlists()
             self._fetch_favourites()
             self._fetch_addons()
             
-            self._display_shortcuts()
+            try:
+                self._display_shortcuts()
+            except:
+                log( "No list of shortcuts to choose from on GUI" )
             
             # Load current shortcuts
             self.load_shortcuts()
@@ -1418,8 +1479,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
         path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
         
-        #if listitems:
-
         # If there are any shortcuts, save them
         try:
             f = xbmcvfs.File( path, 'w' )
@@ -1431,15 +1490,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         # Save widgets, backgrounds and custom properties
         self._save_properties( properties )
-            
-        #else:
-        #    # There are no shortcuts, delete the existing file if it exists
-        #    try:
-        #        xbmcvfs.delete( path )
-        #    except:
-        #        print_exc()
-        #        log( "### No shortcuts, no existing file %s" % __datapath__ )            
-    
+
+        
     def _save_properties( self, properties ):
         # Load widget, background and custom properties and add them as properties of the listitems
         
@@ -1536,22 +1588,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Save the files
         for path in paths:
-            if len( dataFiles[path[1]] ) == 0:
-                # Try to delete any existing file
-                try:
-                    xbmcvfs.delete( path[0] )
-                except:
-                    print_exc()
-                    log( "### No properties, no existing file %s" % __datapath__ )            
-            else:
-                # Try to save the file
-                try:
-                    f = xbmcvfs.File( path[0], 'w' )
-                    f.write( repr( dataFiles[path[1]] ) )
-                    f.close()
-                except:
-                    print_exc()
-                    log( "### ERROR could not save file %s" % __datapath__ )                
+            # Try to save the file
+            try:
+                f = xbmcvfs.File( path[0], 'w' )
+                f.write( repr( dataFiles[path[1]] ) )
+                f.close()
+            except:
+                print_exc()
+                log( "### ERROR could not save file %s" % __datapath__ )                
     
     def _display_shortcuts( self ):
         # Load the currently selected shortcut group
@@ -1581,13 +1625,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
             
     def updateEditControls( self ):
-        # Try setting 402's text to the current label
-        if self.has402403 == True:
-            try:
-                self.getControl( 402 ).setText( self.getControl( 211 ).getSelectedItem().getLabel() )
-                self.getControl( 403 ).setText( urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') ) )
-            except:
-                self.has402403 = False
+        if self.has402 == True:
+            self.getControl( 402 ).setText( self.getControl( 211 ).getSelectedItem().getLabel() )
+        if self.has403 == True:
+            self.getControl( 403 ).setText( urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') ) )
                 
     def onAction( self, action ):
         if action.getId() in ACTION_CANCEL_DIALOG:

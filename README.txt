@@ -165,7 +165,9 @@ Additional controls:
 
 You can set a label on any of these controls EXCEPT 101. If no label is set, Skin Shortcuts will provide a label.
 
-Most of these controls are optional (though it is recommended to include them), but you MUST include controls 101, 111 and 211.
+You MUST include a label if you include controls 404 and 405.
+
+Most of these controls are optional (though it is recommended to include them), but you MUST include control 211. Controls 101, 102, 103 and 111 all rely on the others being present.
 
 
 2. Alternative method to set a shortcut
