@@ -184,8 +184,8 @@ class Main:
             listitem.setProperty( "group", group )
             listitem.setProperty( "path", path )
             
-            # Set an additional, decoded, version of the labelID to use for inbuilt submenu visibility
-            listitem.setProperty( "visibilitycheck", str( i ) )
+            # Set an additional property to use for inbuilt submenu visibility
+            listitem.setProperty( "submenuVisibility", str( i ) )
             
             # Localize label2 (type of shortcut)
             if not item[1].find( "::SCRIPT::" ) == -1:
@@ -212,8 +212,19 @@ class Main:
             xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
             return None
             
-        # Load shortcuts for the main menu
-        mainmenuListItems = self._get_shortcuts( "mainmenu" )
+        fullMenu = True
+        mainmenuListItems = []
+        if self.GROUP:
+            # Retrieve passed main menu items
+            groups = self.GROUP.split( ",")
+            for group in groups:
+                mainmenuListItems.append( group )
+            fullMenu = False
+        else:
+            # Load shortcuts for the main menu
+            mainmenuListItems = self._get_shortcuts( "mainmenu" )
+            
+        log( repr( mainmenuListItems ) )
         saveItems = []
         
         i = 0
@@ -221,7 +232,11 @@ class Main:
         for mainmenuItem in mainmenuListItems:
             i += 1
             # Load menu for each labelID
-            mainmenuLabelID = mainmenuItem[5].encode( 'utf-8' )
+            mainmenuLabelID = mainmenuItem
+            log( mainmenuLabelID )
+            if fullMenu == True:
+                mainmenuLabelID = mainmenuItem[5].encode( 'utf-8' )
+                
             if levelInt == "":
                 listitems = self._get_shortcuts( mainmenuLabelID )
             else:
@@ -237,7 +252,10 @@ class Main:
                 listitem.setProperty( "group", mainmenuLabelID.decode('utf-8') )
                 listitem.setProperty( "path", path )
                 
-                listitem.setProperty( "node.visible", "StringCompare(Container(" + mainmenuID + ").ListItem.Property(visibilitycheck)," + str( i ) + ")" )
+                if fullMenu == True:
+                    listitem.setProperty( "node.visible", "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + str( i ) + ")" )
+                else:
+                    listitem.setProperty( "node.visible", "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + mainmenuLabelID + ")" )
                 
                 # Localize label2 (type of shortcut)
                 if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
