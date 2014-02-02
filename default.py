@@ -310,8 +310,6 @@ class Main:
                     return processedList
                 except:
                     log( "No file %s" % path )    
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
-                    return [] 
                 
         # No file loaded
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
