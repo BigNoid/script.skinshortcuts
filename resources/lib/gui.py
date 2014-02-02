@@ -54,7 +54,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self._close()
         else:
             self.window_id = xbmcgui.getCurrentWindowDialogId()
-            xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
+            #xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
             
             # Set button labels
             try:
@@ -118,20 +118,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self.getControl( 401 ).setLabel( __language__(32048) )
             except:
                 log( "No widget button on GUI" )
-            try:
-                self.has402 = True
-                if self.getControl( 402 ).getLabel() == "":
-                    self.getControl( 402 ).setLabel( __language__(32025) )
-            except:
-                self.has402 = False
-                log( "No background button on GUI" )
-            try:
-                self.has403 = True
-                if self.getControl( 403 ).getLabel() == "":
-                    self.getControl( 403 ).setLabel( __language__(32041) )
-            except:
-                self.has403 = False
-                log( "No background button on GUI" )
+            
+            #try:
+            #    self.has402 = True
+            #    if self.getControl( 402 ).getLabel() == "":
+            #        self.getControl( 402 ).setLabel( __language__(32025) )
+            #except:
+            #    self.has402 = False
+            #    log( "No label edit control on GUI" )
+            #try:
+            #    self.has403 = True
+            #    if self.getControl( 403 ).getLabel() == "":
+            #        self.getControl( 403 ).setLabel( __language__(32041) )
+            #except:
+            #    self.has403 = False
+            #    log( "No action edit control on GUI" )
             
             # List XBMC common shortcuts (likely to be used on a main menu
             self._load_xbmccommon()
@@ -1082,77 +1083,76 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             self.updateEditControls()
         
-        if controlID == 402:
-            # Change label (EDIT CONTROL)
-            
-            # Retrieve properties, copy item, etc (in case the user changes focus whilst we're running)
-            custom_label = self.getControl( 211 ).getSelectedItem().getLabel()
-            num = self.getControl( 211 ).getSelectedPosition()
-            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
-            
-            custom_label = self.getControl( 402 ).getText()
-            if custom_label == "":
-                custom_label = __language__(32013)
-                
-            # Set properties of the listitemCopy
-            listitemCopy.setLabel(custom_label)
-            listitemCopy.setProperty( "localizedString", "" )
-            listitemCopy.setProperty( "labelID", self._get_labelID(custom_label) )
-            
-            # If there's no label2, set it to custom shortcut
-            if not listitemCopy.getLabel2():
-                listitemCopy.setLabel2( __language__(32024) )
-                listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
-            
-            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
-            listitems = []
-            for x in range(0, self.getControl( 211 ).size()):
-                if x == num:
-                    listitems.append(listitemCopy)
-                else:
-                    # Duplicate the item and it to the listitems array
-                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                    
-                    listitems.append(listitemShortcutCopy)
-                    
-            self.getControl( 211 ).reset()
-            self.getControl( 211 ).addItems(listitems)
-            
-            self.getControl( 211 ).selectItem( num )
+        #if controlID == 402:
+        #    # Change label (EDIT CONTROL)
+        #    
+        #    # Retrieve properties, copy item, etc (in case the user changes focus whilst we're running)
+        #    custom_label = self.getControl( 211 ).getSelectedItem().getLabel()
+        #    num = self.getControl( 211 ).getSelectedPosition()
+        #    listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+        #    
+        #    custom_label = self.getControl( 402 ).getText()
+        #    if custom_label == "":
+        #        custom_label = __language__(32013)
+        #        
+        #    # Set properties of the listitemCopy
+        #    listitemCopy.setLabel(custom_label)
+        #    listitemCopy.setProperty( "localizedString", "" )
+        #    listitemCopy.setProperty( "labelID", self._get_labelID(custom_label) )
+        #    
+        #    # If there's no label2, set it to custom shortcut
+        #    if not listitemCopy.getLabel2():
+        #        listitemCopy.setLabel2( __language__(32024) )
+        #        listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
+        #    
+        #    # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
+        #    listitems = []
+        #    for x in range(0, self.getControl( 211 ).size()):
+        #        if x == num:
+        #            listitems.append(listitemCopy)
+        #        else:
+        #            # Duplicate the item and it to the listitems array
+        #            listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+        #            
+        #            listitems.append(listitemShortcutCopy)
+        #            
+        #    self.getControl( 211 ).reset()
+        #    self.getControl( 211 ).addItems(listitems)
+        #    
+        #    self.getControl( 211 ).selectItem( num )
         
         
-        if controlID == 403:
-            # Change action (EDIT CONTROL)
-             #Retrieve properties, copy item, etc (in case the user changes focus)
-            custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
-            listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
-            num = self.getControl( 211 ).getSelectedPosition()
-
-            custom_path = self.getControl( 403 ).getText()
-            if custom_path == "":
-                custom_path = "noop"
-                    
-            if not urllib.quote( custom_path ) == self.getControl( 211 ).getSelectedItem().getProperty( "path" ):
-                listitemCopy.setProperty( "path", urllib.quote( custom_path ) )
-                listitemCopy.setLabel2( __language__(32024) )
-                listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
-            
-            # Loop through the original list, and replace the currently selected listitem with our new listitem with altered path
-            listitems = []
-            for x in range(0, self.getControl( 211 ).size()):
-                if x == num:
-                    listitems.append(listitemCopy)
-                else:
-                    # Duplicate the item and it to the listitems array
-                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                    
-                    listitems.append(listitemShortcutCopy)
-                    
-            self.getControl( 211 ).reset()
-            self.getControl( 211 ).addItems(listitems)
-            
-            self.getControl( 211 ).selectItem( num )
-
+        #if controlID == 403:
+        #    # Change action (EDIT CONTROL)
+        #     #Retrieve properties, copy item, etc (in case the user changes focus)
+        #    custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
+        #    listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
+        #    num = self.getControl( 211 ).getSelectedPosition()
+        #
+        #    custom_path = self.getControl( 403 ).getText()
+        #    if custom_path == "":
+        #        custom_path = "noop"
+        #            
+        #    if not urllib.quote( custom_path ) == self.getControl( 211 ).getSelectedItem().getProperty( "path" ):
+        #        listitemCopy.setProperty( "path", urllib.quote( custom_path ) )
+        #        listitemCopy.setLabel2( __language__(32024) )
+        #        listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
+        #    
+        #    # Loop through the original list, and replace the currently selected listitem with our new listitem with altered path
+        #    listitems = []
+        #    for x in range(0, self.getControl( 211 ).size()):
+        #        if x == num:
+        #            listitems.append(listitemCopy)
+        #        else:
+        #            # Duplicate the item and it to the listitems array
+        #            listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+        #            
+        #            listitems.append(listitemShortcutCopy)
+        #            
+        #    self.getControl( 211 ).reset()
+        #    self.getControl( 211 ).addItems(listitems)
+        #    
+        #    self.getControl( 211 ).selectItem( num )
             
         if controlID == 404:
             # Set custom property
@@ -1662,22 +1662,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
         xbmc.sleep(50)
         
         # Label edit control
-        if self.has402 == True:
-            label = self.getControl( 211 ).getSelectedItem().getLabel()
-            log( label )
-            if label == __language__(32013):
-                self.getControl( 402 ).setText( "" )
-            else:
-                self.getControl( 402 ).setText( label )
+        #if self.has402 == True:
+        #    label = self.getControl( 211 ).getSelectedItem().getLabel()
+        #    log( label )
+        #    if label == __language__(32013):
+        #        self.getControl( 402 ).setText( "" )
+        #    else:
+        #        self.getControl( 402 ).setText( label )
                 
         # Action edit control
-        if self.has403 == True:
-            label = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') )
-            log( label )
-            if label == "noop":
-                self.getControl( 403 ).setText( "" )
-            else:
-                self.getControl( 403 ).setText( label )
+        #if self.has403 == True:
+        #    label = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty('path') )
+        #    log( label )
+        #    if label == "noop":
+        #        self.getControl( 403 ).setText( "" )
+        #    else:
+        #        self.getControl( 403 ).setText( label )
                 
         # Widget name
         if self.has311 == True:
@@ -1698,15 +1698,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.has312 == False
                 
     def onAction( self, action ):
-        log( action.getId() )
         if action.getId() in ACTION_CANCEL_DIALOG:
             log( "### CLOSING WINDOW" )
-            if self.getFocusId() == 402 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
-                return
-            if self.getFocusId() == 403 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
-                return
+            #if self.getFocusId() == 402 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
+            #    return
+            #if self.getFocusId() == 403 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
+            #    return
             self._save_shortcuts()
+            xbmcgui.Window(self.window_id).clearProperty('groupname')
             self._close()
+            
         if self.getFocusId() == 211: # User focused on currently selected shortcut
             self.updateEditControls()
 

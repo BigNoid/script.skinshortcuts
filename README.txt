@@ -160,8 +160,6 @@ Additional controls:
 312 Label	Selected background name
 
 401 Button	Alternative method to set a shortcut
-402 Edit	Alternative method to edit a label
-403 Edit	Alternative method to edit an action
 404 Button	Set a custom property
 405 Button	Launch management dialog for submenu / additional menus
 
@@ -188,21 +186,7 @@ You can also use the button to go straight to the list of shortcuts for a catego
 Note, you must still include all controls in the 100 range in your xml file. However, they do not have to be visible to the user. After a click to 401 has been registered, the window property "category" will be cleared.
 
 
-3. Alternative method to edit label
-
-Rather than using a button to open the keyboard dialog to edit the current label, you can include an edit control with id 402. This will allow users with keyboards attached to edit the label inline, or otherwise display the keyboard dialog.
-
-If you include control 402, you can omit control 305 from your xml file.
-
-
-4. Alternative method to edit an action
-
-Rather than using a button to open the Keyboard dialog to edit the current action, you can include an edit control with id 403. This will allow users with keyboard attached to edit the action inline, or otherwise display the keyboard dialog.
-
-If you include control 403, you can omit control 307 from your xml file.
-
-
-5. Set a custom property
+3. Set a custom property
 
 If you want to attach a custom property to a menu item, you can include button 404.
 
@@ -216,7 +200,7 @@ Then send a click to control 404. The two properties will be cleared afterwards.
 You can set defaults for your custom property in your overrides.xml file. See "Advanced Usage"
 
 
-6. Launch management dialog for submenu / additional menus
+4. Launch management dialog for submenu / additional menus
 
 You can give the users a way to launch the management dialog for the submenu or an additional menu from the management dialog.
 
@@ -227,7 +211,7 @@ To launch the management dialog for an additional sub menu, first set the window
 You will likely only want to include this when editing the main menu. You can check the window property "groupname" for the value "mainmenu" to only display it when relevant.
 
 
-7. Limit controls to main menu only
+5. Limit controls to main menu only
 
 You may wish to only show some of these controls when the user is editing the main menu only, not a submenu. To do this, check the window property "groupname" for the value "mainmenu".
 
