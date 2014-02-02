@@ -146,6 +146,7 @@ class Main:
         ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group )
         ui.doModal()
         del ui
+        
         # Update home window property (used to automatically refresh type=settings)
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
         
@@ -301,7 +302,6 @@ class Main:
             paths = [os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , group.decode( 'utf-8' ) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , group.decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8') ]
             
             for path in paths:
-                log( path )
                 try:
                     # Try loading shortcuts
                     unprocessedList = eval( xbmcvfs.File( path ).read() )
@@ -310,6 +310,8 @@ class Main:
                     return processedList
                 except:
                     log( "No file %s" % path )    
+                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
+                    return [] 
                 
         # No file loaded
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
