@@ -130,11 +130,13 @@ class Main:
                                 actions = elem.findall( 'action' )
                                 for action in actions:
                                     runDefaultCommand = False
+                                    log( "Launching: " + action.text )
                                     xbmc.executebuiltin( action.text )
                                 break
                                 
         # If we haven't overridden the command, run the original
         if runDefaultCommand == True:
+            log( "Launching: " + urllib.unquote(self.PATH) )
             xbmc.executebuiltin( urllib.unquote(self.PATH) )
             
         # Tell XBMC not to try playing any media
@@ -177,7 +179,6 @@ class Main:
             path = sys.argv[0].decode( 'utf-8' ) + "?type=launch&path=" + item[4] + "&group=" + self.GROUP
             
             listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
-            
             listitem.setProperty( 'IsPlayable', 'True')
             listitem.setProperty( "labelID", item[5].encode('utf-8') )
             listitem.setProperty( "action", urllib.unquote( item[4] ) )

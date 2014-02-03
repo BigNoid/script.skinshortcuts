@@ -29,7 +29,7 @@ In your overrides.xml file, you need to create a button for each [groupname] tha
 	RunScript(script.skinshortcuts,type=manage&amp;group=[groupname])
  
  
-3. Display user shortcuts
+3. Display user shortcuts (single group)
  
 Uses new method of filling the contents of a list in Gotham. In the list where you want the submenu to appear, put the following in the <content> tag:
  
@@ -44,6 +44,19 @@ This will fill the list with items with the following properties:
 	Property(labelID)	Unlocalized string primarily used when displaying both main menu and sub-menus
 	Property(action)	The action that will be run when the shortcut is selected
 	Property(group)		The [groupname] that this shortcut is listed from
+	
+	
+4. Display user shortcuts based on another list
+
+If your skin provides a main menu you want to display shortcuts for using the script, then you need to add an additional property to each main menu item, called submenuVisibility, containing the [groupname] of the submenu to associate with that main menu.
+
+	<property name="submenuVisibility">[groupname]</property>
+	
+Then, in the list where you want the submenu to appear, put the following in the <content> tag:
+
+	plugin://script.skinshortcuts?type=submenu&amp;mainmenuID=9000&amp;group=[groupname],[groupname],[groupname]
+	
+Replace 9000 with the ID of the list you are using for the mainmenu. You should include all [groupname]'s that your skin supports, separated by a comma. The script will then load all of the submenus, and set visibility conditions on each one.
 
 
 Using the script to provide both main menu and sub-menus

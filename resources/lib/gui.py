@@ -54,7 +54,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self._close()
         else:
             self.window_id = xbmcgui.getCurrentWindowDialogId()
-            #xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
+            xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
             
             # Set button labels
             try:
