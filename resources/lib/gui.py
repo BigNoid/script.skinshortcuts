@@ -56,6 +56,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.window_id = xbmcgui.getCurrentWindowDialogId()
             xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
             
+            # Load current shortcuts
+            self.load_shortcuts()
+            
             # Set button labels
             try:
                 if self.getControl( 301 ).getLabel() == "":
@@ -153,9 +156,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Load widget and background names
             self._load_widgetsbackgrounds()
-            
-            # Load current shortcuts
-            self.load_shortcuts()
             
             self.updateEditControls()
         
@@ -384,17 +384,23 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _create ( self, item ):
         # Create localised label
         displayLabel = item[1]
-        if not item[1].find( "::SCRIPT::" ) == -1:
-            displayLabel = __language__(int( item[1][10:] ) )
-        elif not item[1].find( "::LOCAL::" ) == -1:
-            displayLabel = xbmc.getLocalizedString(int( item[1][9:] ) )
+        try:
+            if not item[1].find( "::SCRIPT::" ) == -1:
+                displayLabel = __language__(int( item[1][10:] ) )
+            elif not item[1].find( "::LOCAL::" ) == -1:
+                displayLabel = xbmc.getLocalizedString(int( item[1][9:] ) )
+        except:
+            print_exc()
         
         # Create localised label2
         displayLabel2 = item[2]
-        if not item[2].find( "::SCRIPT::" ) == -1:
-            displayLabel2 = __language__(int( item[2][10:] ) )
-        elif not item[2].find( "::LOCAL::" ) == -1:
-            displayLabel2 = xbmc.getLocalizedString(int( item[2][9:] ) )
+        try:
+            if not item[2].find( "::SCRIPT::" ) == -1:
+                displayLabel2 = __language__(int( item[2][10:] ) )
+            elif not item[2].find( "::LOCAL::" ) == -1:
+                displayLabel2 = xbmc.getLocalizedString(int( item[2][9:] ) )
+        except:
+            print_exc()
             
         # Build listitem
         listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage="DefaultShortcut.png", thumbnailImage=item[3])
