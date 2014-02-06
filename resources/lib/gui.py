@@ -207,7 +207,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Parse the XML file to get the type of these nodes
                 tree = xmltree.parse( os.path.join( root, "index.xml") )
                 label = tree.find( 'label' )
-                if label.text.isdigit:
+                if label.text.isdigit():
                     label2 = "::LOCAL::" + label.text
                 else:
                     label2 = label.text
@@ -231,7 +231,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Get the label
                     label = tree.find( 'label' )
                     if label is not None:
-                        if label.text.isdigit:
+                        if label.text.isdigit():
                             listitem.append( "::LOCAL::" + label.text )
                         else:
                             listitem.append( label.text )
