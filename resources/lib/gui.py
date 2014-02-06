@@ -349,14 +349,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return True
                 
     def _check_videonode_type( self, tree ):
-        type = tree.find( 'content' ).text
-        if type == "movies":
-            return "Movie"
-        elif type == "tvshows":
-            return "TvShow"
-        elif type == "musicvideos":
-            return "MusicVideo"
-        else:
+        try:
+            type = tree.find( 'content' ).text
+            if type == "movies":
+                return "Movie"
+            elif type == "tvshows":
+                return "TvShow"
+            elif type == "musicvideos":
+                return "MusicVideo"
+            else:
+                return "Custom Node"
+        except:
             return "Custom Node"
                 
     def _load_musiclibrary( self ):
