@@ -102,45 +102,23 @@ class Main:
     def _launch_shortcut( self, path ):
         log( "### Launching shortcut" )
         
-        runDefaultCommand = True
         action = urllib.unquote( self.PATH )
         
-        # Load overrides
-        trees = [self._load_overrides_skin(), self._load_overrides_user()]
-        
-        for tree in trees:
-            if runDefaultCommand == True:
-                if tree is not None:
-                    #tree = xmltree.parse( path )
-                    # Search for any overrides
-                    elems = tree.findall( 'override' )
-                    for elem in elems:
-                        if elem.attrib.get( 'action' ) == action:
-                            runCustomCommand = True
-                            
-                            # Check any conditions
-                            conditions = elem.findall('condition')
-                            for condition in conditions:
-                                if xbmc.getCondVisibility( condition.text ) == False:
-                                    runCustomCommand = False
-                                    break
-                            
-                            # If any and all conditions have been met, run actions
-                            if runCustomCommand == True:
-                                actions = elem.findall( 'action' )
-                                for action in actions:
-                                    runDefaultCommand = False
-                                    log( "Launching: " + action.text )
-                                    xbmc.executebuiltin( action.text )
-                                break
-                                
-        # If we haven't overridden the command, run the original
-        if runDefaultCommand == True:
-            log( "Launching: " + urllib.unquote(self.PATH) )
-            xbmc.executebuiltin( urllib.unquote(self.PATH) )
+        if action.find("::MULTIPLE::") == -1:
+            # Single action, run it
+            xbmc.executebuiltin( action )
+            log( action )
+        else:
+            # Multiple actions, separated by |
+            actions = action.split( "|" )
+            for singleAction in actions:
+                if singleAction != "::MULTIPLE::":
+                    xbmc.executebuiltin( singleAction )
+                    log( action )
             
         # Tell XBMC not to try playing any media
         xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
+        return
         
     
     def _manage_shortcuts( self, group ):
@@ -194,11 +172,14 @@ class Main:
                             
             # Add additional properties
             if len( item[6] ) != 0:
+                repr( item[6] )
                 for property in item[6]:
                     listitem.setProperty( property[0], property[1] )
                     log( "Additional property: " + property[0] + " = " + property[1] )
             
             saveItems.append( ( path, listitem ) )
+            
+        log( repr( saveItems ) )
         
         # Return the list
         xbmcplugin.addDirectoryItems( handle=int(sys.argv[1]), items=saveItems )
@@ -265,8 +246,11 @@ class Main:
                 # Add additional properties
                 if len( item[6] ) != 0:
                     for property in item[6]:
-                        listitem.setProperty( property[0], property[1] )
-                        log( "Additional property: " + property[0] + " = " + property[1] )
+                        if property[0] == "node.visible":
+                            listitem.setProperty( property[0], listitem.getProperty( "node.visible" ) + " + [" + property[1] + "]" )
+                        else:
+                            listitem.setProperty( property[0], property[1] )
+                        #log( "Additional property: " + property[0] + " = " + listitem.getProperty( property[0] ) )
                 
                 saveItems.append( ( path, listitem ) )
         
@@ -336,8 +320,10 @@ class Main:
                 
             
     def _process_shortcuts( self, listitems, group ):
-        # This function will process any graphics overrides provided by the skin, and return a set of listitems ready to be stored
+        # This function will process any overrides, and return a set of listitems ready to be stored
+        #  - We will process graphics overrides, action overrides and any visibility conditions set
         tree = self._load_overrides_skin()
+        usertree = self._load_overrides_user()
         returnitems = []
         
         for item in listitems:
@@ -367,10 +353,12 @@ class Main:
                             
             # Get additional mainmenu properties
             additionalProperties = []
+            visibilityCondition = ""
             if group == "mainmenu":
                 visibilityCheck = self.checkVisibility( labelID )
                 if visibilityCheck != "":
-                    additionalProperties.append( ["node.visible", visibilityCheck] )
+                    #additionalProperties.append( ["node.visible", visibilityCheck] )
+                    visibilityCondition = visibilityCheck
                 widgetCheck = self.checkWidget( labelID )
                 if widgetCheck != "":
                     additionalProperties.append( ["widget", widgetCheck] )
@@ -381,10 +369,60 @@ class Main:
             if len( customProperties ) != 0:
                 for customProperty in customProperties:
                     additionalProperties.append( [customProperty[0], customProperty[1]] )
-
-            # Add item
-            returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
-            #returnitems.append( item )
+                    
+            # Check for actions and visibilities set in the overrides.xml files
+            trees = [usertree, tree]
+            hasOverriden = False
+            action = urllib.unquote( item[4] )
+            newAction = ""
+            showInverse = False
+            for overridetree in trees:
+                
+                if overridetree is not None:
+                    elems = overridetree.findall( 'override' )
+                    overridecount = 0
+                    for elem in elems:
+                        if elem.attrib.get( 'action' ) == action:
+                            overridecount = overridecount + 1
+                            log( "Override " + str( overridecount ) )
+                            hasOverriden = True
+                            overrideVisibility = visibilityCondition
+                    
+                            # Check for visibility conditions
+                            condition = elem.find( "condition" )
+                            if condition is not None:
+                                if overrideVisibility == "":
+                                    # New visibility condition
+                                    overrideVisibility = condition.text
+                                else:
+                                    # Add this to existing visibility condition
+                                    overrideVisibility = overrideVisibility + " + [" + condition.text + "]"                        
+                                    
+                            # Check for overriden action
+                            newAction = action
+                            multiAction = "::MULTIPLE::"
+                            actions = elem.findall( "action" )
+                            count = 0
+                            for singleAction in actions:
+                                count = count + 1
+                                if count == 1:
+                                    newAction = urllib.quote( singleAction.text )
+                                multiAction = multiAction + "|" + singleAction.text
+                                
+                            if count != 1 and count != 0:
+                                newAction = urllib.quote( multiAction )
+                                
+                            overrideProperties = list( additionalProperties )
+                            overrideProperties.append( [ "node.visible", overrideVisibility ] )
+            
+                            # Add item
+                            returnitems.append( [label, item[1], item[2], item[3], newAction, labelID, overrideProperties] )
+                            
+            # If we haven't added any overrides, add the item
+            if hasOverriden == False:
+                if visibilityCondition != "":
+                    additionalProperties.append( [ "node.visible", visibilityCondition ] )
+                returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
                 
         return returnitems            
       
