@@ -137,17 +137,51 @@ class GUI( xbmcgui.WindowXMLDialog ):
             #    self.has403 = False
             #    log( "No action edit control on GUI" )
             
-            # List XBMC common shortcuts (likely to be used on a main menu
-            self._load_xbmccommon()
+            # List XBMC common shortcuts (likely to be used on a main menu)
+            try:
+                self._load_xbmccommon()
+            except:
+                log( "Failed to load common XBMC shortcuts" )
+                print_exc()
             
             # List video and music library shortcuts
-            self._load_videolibrary()
-            self._load_musiclibrary()
+            try:
+                if self._load_videolibrary( "custom" ) == False:
+                    self._load_videolibrary( "default" )
+            except:
+                log( "Failed to load custom video nodes" )
+                print_exc()
+                try:
+                    self._load_videolibrary( "default" )
+                except:
+                    log( "Failed to load default video nodes" )
+                    print_exc()
+                
+                
+            try:
+                self._load_musiclibrary()
+            except:
+                log( "Failed to load music library" )
+                print_exc()
             
             # Load favourites, playlists, add-ons
-            self._fetch_playlists()
-            self._fetch_favourites()
-            self._fetch_addons()
+            try:
+                self._fetch_playlists()
+            except:
+                log( "Failed to load playlists" )
+                print_exc()
+            
+            try:
+                self._fetch_favourites()
+            except:
+                log( "Failed to load favourites" )
+                print_exc()
+                
+            try:
+                self._fetch_addons()
+            except:
+                log( "Failed to load add-ons" )
+                print_exc()
             
             try:
                 self._display_shortcuts()
@@ -189,16 +223,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         self.arrayXBMCCommon = listitems
         
-    def _load_videolibrary( self ):
+    def _load_videolibrary( self, type ):
         listitems = []
-        log('Listing video library...')
-        
         rootdir = os.path.join( xbmc.translatePath( "special://userdata".decode('utf-8') ), "library", "video" )
-        if not os.path.exists( rootdir ):
-            log( "Custom user library nodes aren't in existance!" )
+        if type == "custom":
+            log('Listing custom video nodes...')
+        else:
             rootdir = os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" )
- 
+            log( "Listing default video nodes..." )
         
+        # Check the path exists
+        if not os.path.exists( rootdir ):
+            log( "No nodes found" )
+            return False
+            
+        # Walk the path
         for root, subdirs, files in os.walk(rootdir):
             videonodes = {}
             unnumberedNode = 100
