@@ -40,18 +40,7 @@ class Main:
     # MAIN ENTRY POINT
     def __init__(self):
         self._parse_argv()
-        self.WINDOW = xbmcgui.Window(10000)
-        
-        # Check if the user has changed skin or profile
-        if self.WINDOW.getProperty("skinsettings-currentSkin-Path") and self.WINDOW.getProperty("skinsettings-currentProfile-Path"):
-            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir() or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__:
-                self.reset_window_properties()
-                self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
-                self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
-        else:
-            self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
-            self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
-                
+        self.WINDOW = xbmcgui.Window(10000)                
         
         # Create datapath if not exists
         if not xbmcvfs.exists(__datapath__):
@@ -63,16 +52,26 @@ class Main:
             xbmcgui.Dialog().ok(__addonname__, line1)
             
         if self.TYPE=="launch":
+            # Tell XBMC not to try playing any media
+            xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
             self._launch_shortcut( self.PATH )
         if self.TYPE=="manage":
             self._manage_shortcuts( self.GROUP )
         if self.TYPE=="list":
+            self._check_Window_Properties()
             self._list_shortcuts( self.GROUP )
         if self.TYPE=="submenu":
+            self._check_Window_Properties()
             self._list_submenu( self.MENUID, self.LEVEL )
         if self.TYPE=="settings":
+            self._check_Window_Properties()
             self._manage_shortcut_links() 
         if self.TYPE=="resetall":
+            # Tell XBMC not to try playing any media
+            try:
+                xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
+            except:
+                log( "Not launched from a list item" )
             self._reset_all_shortcuts()
 
     def _parse_argv( self ):
@@ -93,6 +92,18 @@ class Main:
         self.MENUID = params.get( "mainmenuID", "0" )
         self.LEVEL = params.get( "level", "" )
         self.CUSTOMID = params.get( "customid", "" )
+        
+        
+    def _check_Window_Properties( self ):
+        # Check if the user has changed skin or profile
+        if self.WINDOW.getProperty("skinsettings-currentSkin-Path") and self.WINDOW.getProperty("skinsettings-currentProfile-Path"):
+            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir() or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__:
+                self.reset_window_properties()
+                self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
+                self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
+        else:
+            self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
+            self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
     
     
     # -----------------
@@ -107,18 +118,12 @@ class Main:
         if action.find("::MULTIPLE::") == -1:
             # Single action, run it
             xbmc.executebuiltin( action )
-            log( action )
         else:
             # Multiple actions, separated by |
             actions = action.split( "|" )
             for singleAction in actions:
                 if singleAction != "::MULTIPLE::":
                     xbmc.executebuiltin( singleAction )
-                    log( action )
-            
-        # Tell XBMC not to try playing any media
-        xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
-        return
         
     
     def _manage_shortcuts( self, group ):
@@ -282,12 +287,6 @@ class Main:
             
             # Reset all window properties (so menus will be reloaded)
             self.reset_window_properties()
-                
-        # Tell XBMC not to try playing any media
-        try:
-            xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
-        except:
-            log( "Not launched from a list item" )
     
     
     # ---------
@@ -432,16 +431,12 @@ class Main:
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin", __skinpath__ )
             overridepath = os.path.join( __skinpath__ , "overrides.xml" )
-            if xbmcvfs.exists(overridepath):
-                try:
-                    tree = xmltree.parse( overridepath )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( tree ) )
-                    return tree
-                except:
-                    print_exc()
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
-                    return None
-            else:
+            try:
+                tree = xmltree.parse( overridepath )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( tree ) )
+                return tree
+            except:
+                print_exc()
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
                 return None
    
@@ -458,26 +453,21 @@ class Main:
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" ) == __profilepath__:
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user", __profilepath__ )
             overridepath = os.path.join( __profilepath__ , "overrides.xml" )
-            if xbmcvfs.exists(overridepath):
-                try:
-                    tree = xmltree.parse( overridepath )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( tree ) )
-                    return tree
-                    #file = xbmcvfs.File( overridepath )
-                    #xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( file.read().encode( 'utf-8' ) ) )
-                    #file.close
-                except:
-                    print_exc()
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", "No overrides" )
-            else:
+            try:
+                tree = xmltree.parse( overridepath )
+                log( repr( tree ) )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( tree ) )
+                return tree
+            except:
+                log( "Failed to load user overrides" )
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", "No overrides" )
+                return None
                 
         # Return the overrides
         returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" )
         if returnData == "No overrides":
             return None
         else:
-            #return xmltree.parse( pickle.loads( returnData ) )
             return pickle.loads( returnData )
     
     
@@ -846,6 +836,5 @@ if ( __name__ == "__main__" ):
     
     # No profiling
     Main()
-
     
     log('script stopped')
