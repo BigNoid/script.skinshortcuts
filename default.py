@@ -40,18 +40,7 @@ class Main:
     # MAIN ENTRY POINT
     def __init__(self):
         self._parse_argv()
-        self.WINDOW = xbmcgui.Window(10000)
-        
-        # Check if the user has changed skin or profile
-        if self.WINDOW.getProperty("skinsettings-currentSkin-Path") and self.WINDOW.getProperty("skinsettings-currentProfile-Path"):
-            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir() or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__:
-                self.reset_window_properties()
-                self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
-                self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
-        else:
-            self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
-            self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
-                
+        self.WINDOW = xbmcgui.Window(10000)                
         
         # Create datapath if not exists
         if not xbmcvfs.exists(__datapath__):
@@ -63,16 +52,26 @@ class Main:
             xbmcgui.Dialog().ok(__addonname__, line1)
             
         if self.TYPE=="launch":
+            # Tell XBMC not to try playing any media
+            xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
             self._launch_shortcut( self.PATH )
         if self.TYPE=="manage":
             self._manage_shortcuts( self.GROUP )
         if self.TYPE=="list":
+            self._check_Window_Properties()
             self._list_shortcuts( self.GROUP )
         if self.TYPE=="submenu":
+            self._check_Window_Properties()
             self._list_submenu( self.MENUID, self.LEVEL )
         if self.TYPE=="settings":
+            self._check_Window_Properties()
             self._manage_shortcut_links() 
         if self.TYPE=="resetall":
+            # Tell XBMC not to try playing any media
+            try:
+                xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
+            except:
+                log( "Not launched from a list item" )
             self._reset_all_shortcuts()
 
     def _parse_argv( self ):
@@ -93,6 +92,18 @@ class Main:
         self.MENUID = params.get( "mainmenuID", "0" )
         self.LEVEL = params.get( "level", "" )
         self.CUSTOMID = params.get( "customid", "" )
+        
+        
+    def _check_Window_Properties( self ):
+        # Check if the user has changed skin or profile
+        if self.WINDOW.getProperty("skinsettings-currentSkin-Path") and self.WINDOW.getProperty("skinsettings-currentProfile-Path"):
+            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir() or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__:
+                self.reset_window_properties()
+                self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
+                self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
+        else:
+            self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
+            self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
     
     
     # -----------------
@@ -102,45 +113,17 @@ class Main:
     def _launch_shortcut( self, path ):
         log( "### Launching shortcut" )
         
-        runDefaultCommand = True
         action = urllib.unquote( self.PATH )
         
-        # Load overrides
-        trees = [self._load_overrides_skin(), self._load_overrides_user()]
-        
-        for tree in trees:
-            if runDefaultCommand == True:
-                if tree is not None:
-                    #tree = xmltree.parse( path )
-                    # Search for any overrides
-                    elems = tree.findall( 'override' )
-                    for elem in elems:
-                        if elem.attrib.get( 'action' ) == action:
-                            runCustomCommand = True
-                            
-                            # Check any conditions
-                            conditions = elem.findall('condition')
-                            for condition in conditions:
-                                if xbmc.getCondVisibility( condition.text ) == False:
-                                    runCustomCommand = False
-                                    break
-                            
-                            # If any and all conditions have been met, run actions
-                            if runCustomCommand == True:
-                                actions = elem.findall( 'action' )
-                                for action in actions:
-                                    runDefaultCommand = False
-                                    log( "Launching: " + action.text )
-                                    xbmc.executebuiltin( action.text )
-                                break
-                                
-        # If we haven't overridden the command, run the original
-        if runDefaultCommand == True:
-            log( "Launching: " + urllib.unquote(self.PATH) )
-            xbmc.executebuiltin( urllib.unquote(self.PATH) )
-            
-        # Tell XBMC not to try playing any media
-        xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
+        if action.find("::MULTIPLE::") == -1:
+            # Single action, run it
+            xbmc.executebuiltin( action )
+        else:
+            # Multiple actions, separated by |
+            actions = action.split( "|" )
+            for singleAction in actions:
+                if singleAction != "::MULTIPLE::":
+                    xbmc.executebuiltin( singleAction )
         
     
     def _manage_shortcuts( self, group ):
@@ -194,11 +177,14 @@ class Main:
                             
             # Add additional properties
             if len( item[6] ) != 0:
+                repr( item[6] )
                 for property in item[6]:
                     listitem.setProperty( property[0], property[1] )
                     log( "Additional property: " + property[0] + " = " + property[1] )
             
             saveItems.append( ( path, listitem ) )
+            
+        log( repr( saveItems ) )
         
         # Return the list
         xbmcplugin.addDirectoryItems( handle=int(sys.argv[1]), items=saveItems )
@@ -265,8 +251,11 @@ class Main:
                 # Add additional properties
                 if len( item[6] ) != 0:
                     for property in item[6]:
-                        listitem.setProperty( property[0], property[1] )
-                        log( "Additional property: " + property[0] + " = " + property[1] )
+                        if property[0] == "node.visible":
+                            listitem.setProperty( property[0], listitem.getProperty( "node.visible" ) + " + [" + property[1] + "]" )
+                        else:
+                            listitem.setProperty( property[0], property[1] )
+                        #log( "Additional property: " + property[0] + " = " + listitem.getProperty( property[0] ) )
                 
                 saveItems.append( ( path, listitem ) )
         
@@ -298,12 +287,6 @@ class Main:
             
             # Reset all window properties (so menus will be reloaded)
             self.reset_window_properties()
-                
-        # Tell XBMC not to try playing any media
-        try:
-            xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
-        except:
-            log( "Not launched from a list item" )
     
     
     # ---------
@@ -336,8 +319,10 @@ class Main:
                 
             
     def _process_shortcuts( self, listitems, group ):
-        # This function will process any graphics overrides provided by the skin, and return a set of listitems ready to be stored
+        # This function will process any overrides, and return a set of listitems ready to be stored
+        #  - We will process graphics overrides, action overrides and any visibility conditions set
         tree = self._load_overrides_skin()
+        usertree = self._load_overrides_user()
         returnitems = []
         
         for item in listitems:
@@ -367,10 +352,12 @@ class Main:
                             
             # Get additional mainmenu properties
             additionalProperties = []
+            visibilityCondition = ""
             if group == "mainmenu":
                 visibilityCheck = self.checkVisibility( labelID )
                 if visibilityCheck != "":
-                    additionalProperties.append( ["node.visible", visibilityCheck] )
+                    #additionalProperties.append( ["node.visible", visibilityCheck] )
+                    visibilityCondition = visibilityCheck
                 widgetCheck = self.checkWidget( labelID )
                 if widgetCheck != "":
                     additionalProperties.append( ["widget", widgetCheck] )
@@ -381,10 +368,60 @@ class Main:
             if len( customProperties ) != 0:
                 for customProperty in customProperties:
                     additionalProperties.append( [customProperty[0], customProperty[1]] )
-
-            # Add item
-            returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
-            #returnitems.append( item )
+                    
+            # Check for actions and visibilities set in the overrides.xml files
+            trees = [usertree, tree]
+            hasOverriden = False
+            action = urllib.unquote( item[4] )
+            newAction = ""
+            showInverse = False
+            for overridetree in trees:
+                
+                if overridetree is not None:
+                    elems = overridetree.findall( 'override' )
+                    overridecount = 0
+                    for elem in elems:
+                        if elem.attrib.get( 'action' ) == action:
+                            overridecount = overridecount + 1
+                            log( "Override " + str( overridecount ) )
+                            hasOverriden = True
+                            overrideVisibility = visibilityCondition
+                    
+                            # Check for visibility conditions
+                            condition = elem.find( "condition" )
+                            if condition is not None:
+                                if overrideVisibility == "":
+                                    # New visibility condition
+                                    overrideVisibility = condition.text
+                                else:
+                                    # Add this to existing visibility condition
+                                    overrideVisibility = overrideVisibility + " + [" + condition.text + "]"                        
+                                    
+                            # Check for overriden action
+                            newAction = action
+                            multiAction = "::MULTIPLE::"
+                            actions = elem.findall( "action" )
+                            count = 0
+                            for singleAction in actions:
+                                count = count + 1
+                                if count == 1:
+                                    newAction = urllib.quote( singleAction.text )
+                                multiAction = multiAction + "|" + singleAction.text
+                                
+                            if count != 1 and count != 0:
+                                newAction = urllib.quote( multiAction )
+                                
+                            overrideProperties = list( additionalProperties )
+                            overrideProperties.append( [ "node.visible", overrideVisibility ] )
+            
+                            # Add item
+                            returnitems.append( [label, item[1], item[2], item[3], newAction, labelID, overrideProperties] )
+                            
+            # If we haven't added any overrides, add the item
+            if hasOverriden == False:
+                if visibilityCondition != "":
+                    additionalProperties.append( [ "node.visible", visibilityCondition ] )
+                returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
                 
         return returnitems            
       
@@ -394,16 +431,12 @@ class Main:
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin", __skinpath__ )
             overridepath = os.path.join( __skinpath__ , "overrides.xml" )
-            if xbmcvfs.exists(overridepath):
-                try:
-                    tree = xmltree.parse( overridepath )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( tree ) )
-                    return tree
-                except:
-                    print_exc()
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
-                    return None
-            else:
+            try:
+                tree = xmltree.parse( overridepath )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( tree ) )
+                return tree
+            except:
+                print_exc()
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
                 return None
    
@@ -420,26 +453,21 @@ class Main:
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" ) == __profilepath__:
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user", __profilepath__ )
             overridepath = os.path.join( __profilepath__ , "overrides.xml" )
-            if xbmcvfs.exists(overridepath):
-                try:
-                    tree = xmltree.parse( overridepath )
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( tree ) )
-                    return tree
-                    #file = xbmcvfs.File( overridepath )
-                    #xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( file.read().encode( 'utf-8' ) ) )
-                    #file.close
-                except:
-                    print_exc()
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", "No overrides" )
-            else:
+            try:
+                tree = xmltree.parse( overridepath )
+                log( repr( tree ) )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( tree ) )
+                return tree
+            except:
+                log( "Failed to load user overrides" )
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", "No overrides" )
+                return None
                 
         # Return the overrides
         returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" )
         if returnData == "No overrides":
             return None
         else:
-            #return xmltree.parse( pickle.loads( returnData ) )
             return pickle.loads( returnData )
     
     
@@ -808,6 +836,5 @@ if ( __name__ == "__main__" ):
     
     # No profiling
     Main()
-
     
     log('script stopped')

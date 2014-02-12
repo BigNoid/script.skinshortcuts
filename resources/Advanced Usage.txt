@@ -66,6 +66,8 @@ Your skin can include an optional file called 'overrides.xml' in a sub-directory
 
 You may wish to override an action in order to provide additional functionality. For example, you could override the default action for Movies (to go to the Movie Title view) to run Cinema Experience instead.
 
+Note, any override will replace the original menu item with one which is only visible when any conditions are met. This means you will also need an override for when the conditions are not met.
+
 <override action="[command]">
 	<condition>[Boolean condition]</condition>
 	<action>[XBMC function]</action>
@@ -73,17 +75,20 @@ You may wish to override an action in order to provide additional functionality.
 	
 [command] - Replace with the action you are overriding
 [Boolean condition] - [Optional] Replace with a string that must evaluate to True for the custom action to be run
-[XBMC function] - Replace with the action that should be run instead. You may include multiple <action> tags.
+[XBMC function] - Replace with the action that should be run instead. You may include multiple <action> tags. Omit to run the original command.
 
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
+	<override action="ActivateWindow(Videos,MovieTitles,return)">
+		<condition>!Skin.HasSetting(CinemaExperience) | !System.HasAddon(script.cinema.experience)</condition>
+	</override>
 	<override action="ActivateWindow(Videos,MovieTitles,return)">
 		<condition>Skin.HasSetting(CinemaExperience) + System.HasAddon(script.cinema.experience)</condition>
 		<action>RunScript(script.cinema.experience,movietitles)</action>
 	</override>
 </overrides>
 
-Users can also provide an overrides.xml file to override actions in special://profile/ - overrides in this file will take precedent over overrides provided by the skin.
+Users can also provide an overrides.xml file to override actions in special://profile/
 
 
 2. Overriding thumbnails
