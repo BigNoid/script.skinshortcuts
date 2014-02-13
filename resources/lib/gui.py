@@ -47,6 +47,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.has311 = True
         self.has312 = True
         
+        self.changeMade = False
+        
         log('script version %s started - management module' % __addonversion__)
 
     def onInit( self ):
@@ -641,6 +643,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if controlID == 111:
             # User has selected an available shortcut they want in their menu
+            self.changeMade = True
+            
             # Create a copy of the listitem
             listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
             
@@ -665,6 +669,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         if controlID == 301:
             # Add a new item
+            self.changeMade = True
+            
             listitem = xbmcgui.ListItem( __language__(32013) )
             listitem.setProperty( "Path", 'noop' )
             
@@ -677,6 +683,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         if controlID == 302:
             # Delete an item
+            self.changeMade = True
             listitems = []
             num = self.getControl( 211 ).getSelectedPosition()
             
@@ -703,6 +710,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if controlID == 303:
             # Move item up in list
+            self.changeMade = True
+            
             listitems = []
             num = self.getControl( 211 ).getSelectedPosition()
             if num != 0:
@@ -728,6 +737,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         if controlID == 304:
             # Move item down in list
+            self.changeMade = True
+            
             listitems = []
             num = self.getControl( 211 ).getSelectedPosition()
             if num != self.getControl( 211 ).size() -1:
@@ -754,6 +765,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         if controlID == 305:
             # Change label
+            self.changeMade = True
             
             # Retrieve properties, copy item, etc (in case the user changes focus whilst we're running)
             custom_label = self.getControl( 211 ).getSelectedItem().getLabel()
@@ -798,6 +810,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         if controlID == 306:
             # Change thumbnail
+            self.changeMade = True
             
             # Retrieve properties, copy item, etc (in case the user changes focus)
             custom_thumbnail = self.getControl( 211 ).getSelectedItem().getProperty( "thumbnail" )
@@ -833,6 +846,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if controlID == 307:
             # Change Action
+            self.changeMade = True
             
             #Retrieve properties, copy item, etc (in case the user changes focus)
             custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
@@ -872,6 +886,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if controlID == 308:
             # Reset shortcuts
+            self.changeMade = True
             self.getControl( 211 ).reset()
             
             # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
@@ -931,6 +946,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         if controlID == 309:
             # Choose widget
+            self.changeMade = True
             
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
             num = self.getControl( 211 ).getSelectedPosition()
@@ -988,6 +1004,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         if controlID == 310:
             # Choose background
+            self.changeMade = True
             
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
             num = self.getControl( 211 ).getSelectedPosition()
@@ -1046,6 +1063,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         if controlID == 401:
             # Choose shortcut (SELECT DIALOG)
+            self.changeMade = True
             
             # Check for a window property designating category
             currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
@@ -1204,6 +1222,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if controlID == 404:
             # Set custom property
+            self.changeMade = True
             log( "### Setting custom property" )
             
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
@@ -1535,44 +1554,48 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
     def _save_shortcuts( self ):
         # Save shortcuts
-        listitems = []
-        properties = []
-        
-        for x in range(0, self.getControl( 211 ).size()):
-            # If the item has a path, push it to an array
-            listitem = self.getControl( 211 ).getListItem(x)
+        if self.changeMade == True:
+            listitems = []
+            properties = []
             
-            if listitem.getLabel() != __language__(32013):
-                saveLabel = listitem.getLabel().decode('utf-8')
-                saveLabel2 = listitem.getLabel2().decode('utf-8')
+            for x in range(0, self.getControl( 211 ).size()):
+                # If the item has a path, push it to an array
+                listitem = self.getControl( 211 ).getListItem(x)
                 
-                if listitem.getProperty( "localizedString" ):
-                    saveLabel = listitem.getProperty( "localizedString" ).decode('utf-8')
+                if listitem.getLabel() != __language__(32013):
+                    saveLabel = listitem.getLabel().decode('utf-8')
+                    saveLabel2 = listitem.getLabel2().decode('utf-8')
                     
-                if listitem.getProperty( "customThumbnail" ):
-                    savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), listitem.getProperty("icon").decode('utf-8'), listitem.getProperty("thumbnail").decode('utf-8'), listitem.getProperty("path").decode('utf-8'), listitem.getProperty("customThumbnail").decode('utf-8')]
-                else:
-                    savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), listitem.getProperty("icon").decode('utf-8'), listitem.getProperty("thumbnail").decode('utf-8'), listitem.getProperty("path").decode('utf-8')]
-                    
-                if listitem.getProperty( "additionalListItemProperties" ):
-                    properties.append( [ listitem.getProperty( "labelID" ), eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
-                    
-                listitems.append(savedata)
+                    if listitem.getProperty( "localizedString" ):
+                        saveLabel = listitem.getProperty( "localizedString" ).decode('utf-8')
                         
-        path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
-        
-        # If there are any shortcuts, save them
-        try:
-            f = xbmcvfs.File( path, 'w' )
-            f.write( repr( listitems ) )
-            f.close()
-        except:
-            print_exc()
-            log( "### ERROR could not save file %s" % __datapath__ )
+                    if listitem.getProperty( "customThumbnail" ):
+                        savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), listitem.getProperty("icon").decode('utf-8'), listitem.getProperty("thumbnail").decode('utf-8'), listitem.getProperty("path").decode('utf-8'), listitem.getProperty("customThumbnail").decode('utf-8')]
+                    else:
+                        savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), listitem.getProperty("icon").decode('utf-8'), listitem.getProperty("thumbnail").decode('utf-8'), listitem.getProperty("path").decode('utf-8')]
+                        
+                    if listitem.getProperty( "additionalListItemProperties" ):
+                        properties.append( [ listitem.getProperty( "labelID" ), eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
+                        
+                    listitems.append(savedata)
+                            
+            path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
             
-        # Save widgets, backgrounds and custom properties
-        self._save_properties( properties )
-
+            # If there are any shortcuts, save them
+            try:
+                f = xbmcvfs.File( path, 'w' )
+                f.write( repr( listitems ) )
+                f.close()
+            except:
+                print_exc()
+                log( "### ERROR could not save file %s" % __datapath__ )
+                
+            # Save widgets, backgrounds and custom properties
+            self._save_properties( properties )
+            
+            # Note that we've saved stuff
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-reloadmainmenu", "True" )
+            
         
     def _save_properties( self, properties ):
         # Load widget, background and custom properties and add them as properties of the listitems
