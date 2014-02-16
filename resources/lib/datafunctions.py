@@ -111,13 +111,17 @@ class DataFunctions():
                 if visibilityCheck != "":
                     #additionalProperties.append( ["node.visible", visibilityCheck] )
                     visibilityCondition = visibilityCheck
-                widgetCheck = self.checkWidget( labelID )
-                if widgetCheck != "":
-                    additionalProperties.append( ["widget", widgetCheck] )
-                backgroundCheck = self.checkBackground( labelID )
-                if backgroundCheck != "":
-                    additionalProperties.append( ["background", backgroundCheck] )
-            customProperties = self.checkCustomProperties( labelID )
+                    
+            widgetCheck = self.checkWidget( labelID, group )
+            if widgetCheck != "":
+                additionalProperties.append( ["widget", widgetCheck] )
+                
+            log( "### CHECKING BACKGROUND" )
+            backgroundCheck = self.checkBackground( labelID, group )
+            if backgroundCheck != "":
+                additionalProperties.append( ["background", backgroundCheck] )
+                    
+            customProperties = self.checkCustomProperties( labelID, group )
             if len( customProperties ) != 0:
                 for customProperty in customProperties:
                     additionalProperties.append( [customProperty[0], customProperty[1]] )
@@ -259,7 +263,7 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('widgetdefault')
                     for elem in elems:
-                        widgets.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                        widgets.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
                 
                 # Save the widgets to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", pickle.dumps( widgets ) )
@@ -298,7 +302,7 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('propertydefault')
                     for elem in elems:
-                        properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text ] )
+                        properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
                 
                 # Save the custom properties to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsCustomProperties", pickle.dumps( properties ) )
@@ -306,6 +310,7 @@ class DataFunctions():
 
     def _get_backgrounds( self, isXML = False ):
         # This function will load users backgrounds settings
+        log( "### LOADING BACKGROUNDS" )
         try:
             returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcutsBackgrounds" )
             return pickle.loads( returnVal )
@@ -319,6 +324,7 @@ class DataFunctions():
                     contents = eval( file )
                     self._save_hash( path, file )
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( contents ) )
+                    log( repr( contents ) )
                     return contents
                 except:
                     self._save_hash( path, None )
@@ -326,7 +332,7 @@ class DataFunctions():
                     return []
 
             else:
-                # User hasn't set any widgets, so we'll load them from the
+                # User hasn't set any backgrounds, so we'll load them from the
                 # skins overrides.xml instead
                 tree = self._get_overrides_skin( isXML )
                 backgrounds = []
@@ -334,7 +340,7 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('backgrounddefault')
                     for elem in elems:
-                        backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                        backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
                 
                 # Save the widgets to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( backgrounds ) )
@@ -386,31 +392,33 @@ class DataFunctions():
         else:
             return ""
             
-    def checkWidget( self, item, isXML = False ):
+    def checkWidget( self, item, group, isXML = False ):
         # Return any widget for mainmenu items
         currentWidgets = ( self._get_widgets( isXML ) )
         
         # Loop through current widgets, looking for the current item
         for currentWidget in currentWidgets:
             if currentWidget[0].encode('utf-8') == item:
-                return currentWidget[1]
+                if currentWidget[2] == group:
+                    return currentWidget[1]
                 
         return ""
         
     
-    def checkBackground( self, item, isXML = False ):
+    def checkBackground( self, item, group, isXML = False ):
         # Return any widget for mainmenu items
         currentBackgrounds = ( self._get_backgrounds( isXML ) )
         
         # Loop through current widgets, looking for the current item
         for currentBackground in currentBackgrounds:
             if currentBackground[0].encode('utf-8') == item:
-                return currentBackground[1]
+                if currentBackground[2] == group:
+                    return currentBackground[1]
                 
         return ""
         
     
-    def checkCustomProperties( self, item, isXML = False ):
+    def checkCustomProperties( self, item, group, isXML = False ):
         # Return any custom properties for mainmenu items
         currentProperties = ( self._get_customproperties( isXML ) )
         
@@ -418,7 +426,8 @@ class DataFunctions():
         returnVals = []
         for currentProperty in currentProperties:
             if currentProperty[0].encode('utf-8') == item:
-                returnVals.append( [currentProperty[1], currentProperty[2]] )
+                if currentProperty[3] == group:
+                    returnVals.append( [currentProperty[1], currentProperty[2]] )
                 
         return returnVals
         

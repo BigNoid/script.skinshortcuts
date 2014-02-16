@@ -1004,15 +1004,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         if controlID == 310:
             # Choose background
+            log( "Changing background" )
             self.changeMade = True
             
             listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
             num = self.getControl( 211 ).getSelectedPosition()
             
             # Get backgrounds
-            backgroundLabel = ["Default"]
-            background = [""]         
-            log( repr( self.backgrounds ) )
+            backgroundLabel = ["Default", "Single image", "Multi-image"]
+            background = ["", "", ""]         
             for key in self.backgrounds:
                 backgroundLabel.append( self.backgrounds[key] )
                 background.append( key )
@@ -1021,6 +1021,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             selectedBackground = dialog.select( __language__(32045), backgroundLabel )
             
             if selectedBackground != -1:
+                log( "selectedBackground = " + str(selectedBackground) )
                 # Update the Background
                 if selectedBackground == 0:
                     # No background
@@ -1034,7 +1035,26 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             
                     # Copy the item again - this will clear the background property
                     listitemCopy = self._duplicate_listitem( listitemCopy )
+                    
+                elif selectedBackground == 1 or selectedBackground == 2:
+                    # Single image or multi-image
+                    imagedialog = xbmcgui.Dialog()
+                    if selectedBackground == 1:
+                        custom_image = dialog.browse( 2 , xbmc.getLocalizedString(1030), 'files')
+                    else:
+                        custom_image = dialog.browse( 0 , xbmc.getLocalizedString(1030), 'files')
+                    
+                    if custom_image:
+                        listitemCopy.setProperty( "background", custom_image )
+                        newAdditionalList = [ ["background", custom_image] ]
+                        if listitemCopy.getProperty( "additionalListItemProperties" ):
+                            for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
+                                if listitemProperty[0] != "background":
+                                    newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
+                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+
                 else:
+                    log( "Setting background property - " + backgroundLabel[selectedBackground] )
                     listitemCopy.setProperty( "background", background[selectedBackground] )
                     newAdditionalList = [ ["background", background[selectedBackground]] ]
                     if listitemCopy.getProperty( "additionalListItemProperties" ):
@@ -1489,9 +1509,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     data = []
                     for elem in elems:
                         if path[1] == "custom":
-                            data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text ] )
+                            data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
                         else:
-                            data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
+                            data.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
                     if len( data ) != 0:
                         dataFiles.append( [data, path[1]] )
                     
@@ -1508,26 +1528,33 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Loop through all the data we've loaded
             for dataFile in dataFiles:
                 for listProperty in dataFile[0]:
-                    #log( "Comparing " + listProperty[0] + " to " + listitemCopy.getProperty( "labelID" ) )
-                    if listProperty[0] == listitemCopy.getProperty( "labelID" ):
-                        setProperty = dataFile[1]
-                        setValue = listProperty[1]
-                        if dataFile[1] == "custom":
-                            # If we're loading custom values, the properties we'll set are slightly different...
-                            setProperty = listProperty[1]
-                            setValue = listProperty[2]
-                        # Add a custom property
-                        listitemCopy.setProperty( setProperty, setValue )
-                        log( setProperty + " : " + setValue )
-                        # If there is already an additionalListItemProperties array, add this to it
-                        if listitemCopy.getProperty( "additionalListItemProperties" ):
-                            listitemProperties = eval( listitemCopy.getProperty( "additionalListItemProperties" ) )
-                            listitemProperties.append( [setProperty, setValue] )
-                            listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
-                        else:
-                            # Create a new additionalListItemProperties array
-                            listitemProperties = [[ setProperty, setValue ]]
-                            listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
+                    try:
+                        if listProperty[0] == listitemCopy.getProperty( "labelID" ):
+                            setProperty = dataFile[1]
+                            setValue = listProperty[1]
+                            groupValue = listProperty[2]
+                            if dataFile[1] == "custom":
+                                # If we're loading custom values, the properties we'll set are slightly different...
+                                setProperty = listProperty[1]
+                                setValue = listProperty[2]
+                                groupValue = listProperty[3]
+                                
+                            # Check the group matches...
+                            if groupValue == self.group:
+                                # Add a custom property
+                                listitemCopy.setProperty( setProperty, setValue )
+                                log( setProperty + " : " + setValue )
+                                # If there is already an additionalListItemProperties array, add this to it
+                                if listitemCopy.getProperty( "additionalListItemProperties" ):
+                                    listitemProperties = eval( listitemCopy.getProperty( "additionalListItemProperties" ) )
+                                    listitemProperties.append( [setProperty, setValue] )
+                                    listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
+                                else:
+                                    # Create a new additionalListItemProperties array
+                                    listitemProperties = [[ setProperty, setValue ]]
+                                    listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
+                    except:
+                        log( "Couldn't load data" )
             
             returnitems.append( listitemCopy )
             
@@ -1555,6 +1582,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _save_shortcuts( self ):
         # Save shortcuts
         if self.changeMade == True:
+            log( "Saving changes" )
             listitems = []
             properties = []
             
@@ -1599,6 +1627,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
     def _save_properties( self, properties ):
         # Load widget, background and custom properties and add them as properties of the listitems
+        log( "Saving properties" )
         
         dataFiles = {"widget":[], "background":[], "custom":[]}
         
@@ -1677,18 +1706,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if found == False:
                         # No existing value found, add one
                         if type == "custom":
-                            datafile.append( [ group[0], property[0], property[1] ] )
+                            datafile.append( [ group[0], property[0], property[1], self.group ] )
                         else:
-                            datafile.append( [ group[0], property[1] ] )
+                            datafile.append( [ group[0], property[1], self.group ] )
                         
                     # Update the dataFiles
                     dataFiles[type] = datafile
                 else:
                     # There is nothing in the datafile, so add this
                     if type == "custom":
-                        datafile.append( [ group[0], property[0], property[1] ] )
+                        datafile.append( [ group[0], property[0], property[1], self.group ] )
                     else:
-                        datafile.append( [ group[0], property[1] ] )
+                        datafile.append( [ group[0], property[1], self.group ] )
                     dataFiles[type] = datafile
         
         # Save the files
