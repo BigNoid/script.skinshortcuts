@@ -1526,7 +1526,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
                     # Check that properties have a groupname set:
                     for listProperty in listProperties:
-                        if path[1] == "widget" or path[1] == "backgrounds":
+                        if path[1] == "widget" or path[1] == "background":
                             try:
                                 groupName = listProperty[2]
                             except:
