@@ -201,3 +201,7 @@ msgstr ""
 msgctxt "#32048"
 msgid "Choose shortcut"
 msgstr ""
+
+msgctxt "#32049"
+msgid "Building menu..."
+msgstr ""
