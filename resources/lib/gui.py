@@ -1771,7 +1771,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             except KeyError:
                 self.getControl( 311 ).setLabel( "" )
             except:
-                self.has311 == False
+                self.has311 = False
         
         # Background name
         if self.has312 == True:
@@ -1780,7 +1780,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             except KeyError:
                 self.getControl( 312 ).setLabel( "" )
             except:
-                self.has312 == False
+                self.has312 = False
                 
     def onAction( self, action ):
         if action.getId() in ACTION_CANCEL_DIALOG:
