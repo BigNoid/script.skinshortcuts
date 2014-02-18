@@ -399,8 +399,12 @@ class DataFunctions():
         # Loop through current widgets, looking for the current item
         for currentWidget in currentWidgets:
             if currentWidget[0].encode('utf-8') == item:
-                if currentWidget[2] == group:
-                    return currentWidget[1]
+                try:
+                    if currentWidget[2] == group:
+                        return currentWidget[1]
+                except:
+                    if group == "mainmenu":
+                        return currentWidget[1]
                 
         return ""
         
@@ -412,8 +416,12 @@ class DataFunctions():
         # Loop through current widgets, looking for the current item
         for currentBackground in currentBackgrounds:
             if currentBackground[0].encode('utf-8') == item:
-                if currentBackground[2] == group:
-                    return currentBackground[1]
+                try:
+                    if currentBackground[2] == group:
+                        return currentBackground[1]
+                except:
+                    if group == "mainmenu":
+                        return currentBackground[1]
                 
         return ""
         
@@ -426,8 +434,12 @@ class DataFunctions():
         returnVals = []
         for currentProperty in currentProperties:
             if currentProperty[0].encode('utf-8') == item:
-                if currentProperty[3] == group:
-                    returnVals.append( [currentProperty[1], currentProperty[2]] )
+                try:
+                    if currentProperty[3] == group:
+                        returnVals.append( [currentProperty[1], currentProperty[2]] )
+                except:
+                    if group == "mainmenu":
+                        returnVals.append( [currentProperty[1], currentProperty[2]] )
                 
         return returnVals
         

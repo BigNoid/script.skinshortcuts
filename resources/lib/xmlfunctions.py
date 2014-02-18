@@ -26,12 +26,36 @@ class XMLFunctions():
         
     def buildMenu( self, mainmenuID, groups, numLevels ):
         # Entry point for building includes.xml files
-        if self.shouldwerun() == False:
-            log( "Menu is up to date" )
+        if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
             return
             
+        xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-isrunning", "True" )
+           
+        runType = self.shouldwerun()
+        if runType == False:
+            log( "Menu is up to date" )
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-isrunning" )
+            return
+
+        progress = None
+        if runType == True:
+            # Create a progress dialog
+            progress = xbmcgui.DialogProgressBG()
+            progress.create("Skin Shortcuts", __language__( 32049 ) )
+            progress.update( 0 )
+        else:
+            # Create a progress dialog
+            progress = xbmcgui.DialogProgress()
+            progress.create("Skin Shortcuts", __language__( 32049 ) )
+            progress.update( 0 )
+
+            
         # Write the menus
-        self.writexml( mainmenuID, groups, numLevels )
+        try:
+            self.writexml( mainmenuID, groups, numLevels, progress )
+        except:
+            log( "Failed to write menu" )
+            print_exc()
         
         # Clear window properties for overrides, widgets, backgrounds, properties
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
@@ -41,6 +65,10 @@ class XMLFunctions():
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsWidgets" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsCustomProperties" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsBackgrounds" )
+        
+        # Mark that we're no longer running, clear the progress dialog
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-isrunning" )
+        progress.close()
         
         # Reload the skin
         xbmc.executebuiltin( "XBMC.ReloadSkin()" )
@@ -62,18 +90,23 @@ class XMLFunctions():
         addon = xmltree.parse( addonpath )
         extensionpoints = addon.findall( "extension" )
         paths = []
+        skinpaths = []
         for extensionpoint in extensionpoints:
             if extensionpoint.attrib.get( "point" ) == "xbmc.gui.skin":
                 resolutions = extensionpoint.findall( "res" )
                 for resolution in resolutions:
                     path = xbmc.translatePath( os.path.join( "special://skin/", resolution.attrib.get( "folder" ), "script-skinshortcuts-includes.xml").encode("utf-8") ).decode("utf-8")
                     paths.append( path )
+                    skinpaths.append( path )
         
         # Check for the includes file
         for path in paths:
             if not xbmcvfs.exists( path ):
                 log( "Includes file does not exist" )
-                return True
+                if path in skinpaths:
+                    return "Full"
+                else:
+                    return True
 
         
         log( "Checking hashes..." )
@@ -105,12 +138,7 @@ class XMLFunctions():
                 
         return False
         
-    def writexml( self, mainmenuID, groups, numLevels ):
-        # Create a progress dialog
-        progress = xbmcgui.DialogProgress()
-        progress.create("Skin Shortcuts", "Building menu...")
-        progress.update( 0 )
-        
+    def writexml( self, mainmenuID, groups, numLevels, progress ):        
         # Clear the hashlist
         hashlist.list = []
 
@@ -184,7 +212,9 @@ class XMLFunctions():
             for group in groups:
                 submenus.append( group )
                 
-        # Now build the submenus        
+        # Now build the submenus
+        log( "Num submenus: " + str( len( submenus ) ) )
+        log( "Num levels: " + numLevels )
         percent = 100 / ( len(submenus) * ( int( numLevels) + 1 ) )
         for level in range( 0,  int( numLevels) + 1 ):
             log( "### DEBUG - LEVEL = " + str( level ) )
@@ -297,8 +327,6 @@ class XMLFunctions():
         file.write( repr( hashlist.list ) )
         file.close
         
-        
-        progress.close()
 
         
     def findIncludePosition( self, list, item ):
