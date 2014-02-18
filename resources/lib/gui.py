@@ -914,7 +914,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
                     # If we've loaded anything, save them to the list
                     if len(listitems) != 0:
-                        returnItems = self._load_properties( listitems )
+                        returnItems = self._check_properties( listitems )
                         self.getControl( 211 ).addItems(returnItems)   
                         
                     # If there are no items in the list, add an empty one...
@@ -1353,17 +1353,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Parse any localised labels
                     newItem = self._parse_listitem( item )
                     
-                    # Load widgets, backgrounds and any skin-specific properties
-                    # newItem = self._load_properties( newItem )
-                    
                     # Add to list
                     listitems.append( newItem )
                     
-                # If we've loaded anything, save them to the list
+                # If we've loaded anything...
                 if len(listitems) != 0:
                     # Load widgets, backgrounds and any skin-specific properties
-                    returnItems = self._load_properties( listitems )
+                    returnItems = self._check_properties( listitems )
                     
+                    # Add them to the list of current shortcuts
                     self.getControl( 211 ).addItems(returnItems)
                 
                 # If there are no items in the list, add an empty one...
@@ -1463,57 +1461,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         else:
             return item.replace(" ", "").lower()
         
-    def _load_properties( self, listitems ):
+    def _check_properties( self, listitems ):
         # Load widget, background and custom properties and add them as properties of the listitems
-        
-        # Load the files
-        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
-        overrides = False
-        dataFiles = []
-        for path in paths:
-            if xbmcvfs.exists( path[0] ):
-                log( path[0] )
-                try:
-                    # Try loading file
-                    listProperties = eval( xbmcvfs.File( path[0] ).read() )
-                    dataFiles.append( [listProperties, path[1]] )
-                except:
-                    print_exc()
-                    log( "### ERROR could not load file %s" % path )   
-            else:
-                # Try to get defaults from skins overrides.xml
-                if overrides == False:
-                    # Load the overrides file
-                    overridepath = os.path.join( __skinpath__ , "overrides.xml" )
-                    if xbmcvfs.exists(overridepath):
-                        try:
-                            log( "### Loaded overrides" )
-                            overrides = xmltree.fromstring( xbmcvfs.File( overridepath ).read() )
-                        except:
-                            print_exc()
-                            overrides = "::NONE::"
-                    else:
-                        overrides = "::NONE::"
-                        
-                # If we have loaded an overrides file, get all defaults
-                if overrides != "::NONE::":
-                    elems = ""
-                    if path[1] == "widget":
-                        elems = overrides.findall('widgetdefault')
-                    elif path[1] == "background":
-                        elems = overrides.findall('backgrounddefault')
-                    elif path[1] == "custom":
-                        elems = overrides.findall('propertydefault')
-                    
-                    # Add each default to data array
-                    data = []
-                    for elem in elems:
-                        if path[1] == "custom":
-                            data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
-                        else:
-                            data.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
-                    if len( data ) != 0:
-                        dataFiles.append( [data, path[1]] )
+        dataFiles = self._load_properties()
                     
         # Check if we've loaded anything
         if len( dataFiles ) == 0:
@@ -1560,6 +1510,71 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         return returnitems
         
+    
+    def _load_properties( self ):
+        # Load all widgets, backgrounds and custom properties
+        # Load the files
+        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
+        overrides = False
+        dataFiles = []
+        for path in paths:
+            if xbmcvfs.exists( path[0] ):
+                log( path[0] )
+                try:
+                    # Try loading file
+                    listProperties = eval( xbmcvfs.File( path[0] ).read() )
+                    
+                    # Check that properties have a groupname set:
+                    for listProperty in listProperties:
+                        if path[1] == "widget" or path[1] == "backgrounds":
+                            try:
+                                groupName = listProperty[2]
+                            except:
+                                listProperty.append( "mainmenu" )
+                        else:
+                            try:
+                                groupName = listProperty[3]
+                            except:
+                                listProperty.append( "mainmenu" )
+
+                    dataFiles.append( [listProperties, path[1]] )
+                except:
+                    log( "### ERROR could not load file %s" % path )   
+            else:
+                # Try to get defaults from skins overrides.xml
+                if overrides == False:
+                    # Load the overrides file
+                    overridepath = os.path.join( __skinpath__ , "overrides.xml" )
+                    if xbmcvfs.exists(overridepath):
+                        try:
+                            log( "### Loaded overrides" )
+                            overrides = xmltree.fromstring( xbmcvfs.File( overridepath ).read() )
+                        except:
+                            print_exc()
+                            overrides = "::NONE::"
+                    else:
+                        overrides = "::NONE::"
+                        
+                # If we have loaded an overrides file, get all defaults
+                if overrides != "::NONE::":
+                    elems = ""
+                    if path[1] == "widget":
+                        elems = overrides.findall('widgetdefault')
+                    elif path[1] == "background":
+                        elems = overrides.findall('backgrounddefault')
+                    elif path[1] == "custom":
+                        elems = overrides.findall('propertydefault')
+                    
+                    # Add each default to data array
+                    data = []
+                    for elem in elems:
+                        if path[1] == "custom":
+                            data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
+                        else:
+                            data.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                    if len( data ) != 0:
+                        dataFiles.append( [data, path[1]] )
+        return dataFiles
         
     def _duplicate_listitem( self, listitem ):
         # Create a copy of an existing listitem
@@ -1629,55 +1644,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load widget, background and custom properties and add them as properties of the listitems
         log( "Saving properties" )
         
+        rawData = self._load_properties()
         dataFiles = {"widget":[], "background":[], "custom":[]}
         
-        # Load the files
-        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
-        overrides = False
-        for path in paths:
-            if xbmcvfs.exists( path[0] ):
-                try:
-                    # Try loading file
-                    dataFiles[path[1]] = eval( xbmcvfs.File( path[0] ).read() )
-                except:
-                    print_exc()
-                    log( "### ERROR could not load file %s" % path )   
-            else:
-                # Try to get defaults from skins overrides.xml
-                if overrides == False:
-                    # Load the overrides file
-                    overridepath = os.path.join( __skinpath__ , "overrides.xml" )
-                    if xbmcvfs.exists(overridepath):
-                        try:
-                            log( "### Loaded overrides" )
-                            overrides = xmltree.fromstring( xbmcvfs.File( overridepath ).read() )
-                        except:
-                            print_exc()
-                            overrides = "::NONE::"
-                    else:
-                        overrides = "::NONE::"
-                        
-                # If we have loaded an overrides file, get all defaults
-                if overrides != "::NONE::":
-                    elems = ""
-                    if path[1] == "widget":
-                        elems = overrides.findall('widgetdefault')
-                    elif path[1] == "background":
-                        elems = overrides.findall('backgrounddefault')
-                    elif path[1] == "custom":
-                        elems = overrides.findall('propertydefault')
-
-                    # Add each default to data array
-                    data = []
-                    for elem in elems:
-                        if path[1] == "custom":
-                            data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text ] )
-                        else:
-                            data.append( [ elem.attrib.get( 'labelID' ), elem.text ] )
-                    if len( data ) != 0:
-                        dataFiles[path[1]] = data
+        # Convert to dictionary
+        for propertyGroup in rawData:
+            log( repr( propertyGroup ) )
+            dataFiles[propertyGroup[1]] = propertyGroup[0]
         
-        ## [ [labelID, [property name, property value]] , [labelID, [property name, property value]] ]
+        ## [ [labelID, [property name, property value, groupName]] , [labelID, [property name, property value, groupName]] ]
         for group in properties:
             # group[0] - labelID
             # group[1] - [ [property name, property value], [] ]
@@ -1696,13 +1671,20 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     for currentProperty in datafile:
                         # currentProperty[0] = labelID
                         # currentProperty[1] = property value / (custom) property name
-                        # currentProperty[2] = (custom) property value
+                        # currentProperty[2] = groupName / (custom) property value
+                        # currentProperty[3] = groupName
+                        
+                        # Check the labelID matched
                         if currentProperty[0] == group[0]:
                             found = True
+                            # Check the groupname matches
                             if type == "custom":
-                                currentProperty[2] = property[1]
+                                if currentProperty[3] == self.group:
+                                    found = True
+                                    currentProperty[2] = property[1]
                             else:
-                                currentProperty[1] = property[1]
+                                if currentProperty[2] == self.group:
+                                    currentProperty[1] = property[1]
                     if found == False:
                         # No existing value found, add one
                         if type == "custom":
@@ -1719,8 +1701,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     else:
                         datafile.append( [ group[0], property[1], self.group ] )
                     dataFiles[type] = datafile
+                    
+                log( repr( dataFiles ) )
         
         # Save the files
+        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
         for path in paths:
             # Try to save the file
             try:

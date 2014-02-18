@@ -60,7 +60,6 @@ class DataFunctions():
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
                 return processedList
             except:
-                print_exc()
                 self._save_hash( path, None )
                 log( "No file %s" % path )    
                 
