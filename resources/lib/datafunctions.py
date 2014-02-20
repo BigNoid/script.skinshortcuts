@@ -35,14 +35,13 @@ class DataFunctions():
         log( "### Getting shortcuts for group " + group )
         
         if isXML == False:
-            log( "Checking window value" )
             try:
                 returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group )
-                log( "Returning window value" )
+                log( " - Returning saved value" )
                 log( repr( pickle.loads( returnVal ) ) )
                 return pickle.loads( returnVal )
             except:
-                log( "### No saved value" )
+                log( " - No saved value" )
 
         paths = [os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , group.decode( 'utf-8' ) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , group.decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8') ]
         
@@ -55,17 +54,15 @@ class DataFunctions():
                 self._save_hash( path, list )
                 processedList = self._process_shortcuts( unprocessedList, group )
                 if isXML == False:
-                    log( "Saving group" )
-                    log( repr( processedList ) )
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
+                log( " - " + path )
                 return processedList
             except:
                 self._save_hash( path, None )
-                log( "No file %s" % path )    
                 
         # No file loaded
+        log( " - No shortcuts" )
         if isXML == False:
-            log( "Saving group" )
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( [] ) )
         return [] 
                 
@@ -95,12 +92,22 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('thumbnail')
                     for elem in elems:
-                        if elem is not None and elem.attrib.get( 'labelID' ) == labelID:
-                            item[3] = elem.text
-                        if elem is not None and elem.attrib.get( 'image' ) == item[3]:
-                            item[3] = elem.text
-                        if elem is not None and elem.attrib.get( 'image' ) == item[2]:
-                            item[2] = elem.text
+                        if elem is not None:
+                            if "group" in elem.attrib:
+                                if elem.attrib.get( "group" ) == group:
+                                    if elem.attrib.get( 'labelID' ) == labelID:
+                                        item[3] = elem.text
+                                    if elem.attrib.get( 'image' ) == item[3]:
+                                        item[3] = elem.text
+                                    if elem.attrib.get( 'image' ) == item[2]:
+                                        item[2] = elem.text
+                            else:
+                                if elem.attrib.get( 'labelID' ) == labelID:
+                                    item[3] = elem.text
+                                if elem.attrib.get( 'image' ) == item[3]:
+                                    item[3] = elem.text
+                                if elem.attrib.get( 'image' ) == item[2]:
+                                    item[2] = elem.text
                             
             # Get additional mainmenu properties
             additionalProperties = []
@@ -115,7 +122,6 @@ class DataFunctions():
             if widgetCheck != "":
                 additionalProperties.append( ["widget", widgetCheck] )
                 
-            log( "### CHECKING BACKGROUND" )
             backgroundCheck = self.checkBackground( labelID, group )
             if backgroundCheck != "":
                 additionalProperties.append( ["background", backgroundCheck] )
@@ -137,9 +143,13 @@ class DataFunctions():
                     elems = overridetree.findall( 'override' )
                     overridecount = 0
                     for elem in elems:
-                        if elem.attrib.get( 'action' ) == action:
+                        if "group" in elem.attrib:
+                            checkGroup = elem.attrib.get( "group" )
+                        else:
+                            checkGroup = None
+                        if elem.attrib.get( 'action' ) == action and (checkGroup == None or checkGroup == group):
+                            
                             overridecount = overridecount + 1
-                            log( "Override " + str( overridecount ) )
                             hasOverriden = True
                             overrideVisibility = visibilityCondition
                     
@@ -167,6 +177,8 @@ class DataFunctions():
                             if count != 1 and count != 0:
                                 newAction = urllib.quote( multiAction )
                                 
+                            log( "Override: " + newAction )
+                                
                             overrideProperties = list( additionalProperties )
                             overrideProperties.append( [ "node.visible", overrideVisibility ] )
             
@@ -184,7 +196,6 @@ class DataFunctions():
     def _get_overrides_skin( self, isXML = False ):
         # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:
-            log( "LOADING SKIN OVERRIDES" )
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin", __skinpath__ )
             overridepath = os.path.join( __skinpath__ , "overrides.xml" )
             try:
@@ -193,7 +204,6 @@ class DataFunctions():
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( tree ) )
                 return tree
             except:
-                log( "Failed to load skin overrides" )
                 self._save_hash( overridepath, None )
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
                 return None
@@ -201,7 +211,6 @@ class DataFunctions():
         # Return the overrides
         returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" )
         if returnData == "No overrides":
-            log( "NO SKIN OVERRIDES" )
             return None
         else:
             return pickle.loads( returnData )
@@ -218,7 +227,6 @@ class DataFunctions():
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( tree ) )
                 return tree
             except:
-                log( "Failed to load user overrides" )
                 self._save_hash( overridepath, None )
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", "No overrides" )
                 return None
@@ -262,7 +270,10 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('widgetdefault')
                     for elem in elems:
-                        widgets.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                        if "group" not in elem.attrib:
+                            widgets.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                        else:
+                            widgets.append( [ elem.attrib.get( 'labelID' ), elem.text, elem.attrib.get( "group" ) ] )
                 
                 # Save the widgets to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", pickle.dumps( widgets ) )
@@ -301,7 +312,10 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('propertydefault')
                     for elem in elems:
-                        properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
+                        if "group" not in elem.attrib:
+                            properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
+                        else:
+                            properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, elem.attrib.get( "group" ) ] )
                 
                 # Save the custom properties to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsCustomProperties", pickle.dumps( properties ) )
@@ -309,7 +323,6 @@ class DataFunctions():
 
     def _get_backgrounds( self, isXML = False ):
         # This function will load users backgrounds settings
-        log( "### LOADING BACKGROUNDS" )
         try:
             returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcutsBackgrounds" )
             return pickle.loads( returnVal )
@@ -323,7 +336,6 @@ class DataFunctions():
                     contents = eval( file )
                     self._save_hash( path, file )
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( contents ) )
-                    log( repr( contents ) )
                     return contents
                 except:
                     self._save_hash( path, None )
@@ -339,7 +351,10 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('backgrounddefault')
                     for elem in elems:
-                        backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                        if "group" not in elem.attrib:
+                            backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                        else:
+                            backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text, elem.attrib.get( "group" ) ] )
                 
                 # Save the widgets to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( backgrounds ) )
@@ -451,7 +466,4 @@ class DataFunctions():
             hashlist.list.append( [filename, hasher.hexdigest()] )
         else:
             hashlist.list.append( [filename, None] )
-            
-        #log( "### HASHLIST IN PROGRESS ###" )
-        #log( repr( hashlist.list ) )
 
