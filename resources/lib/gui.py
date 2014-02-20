@@ -1714,10 +1714,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             properties = []
             
             for x in range(0, self.getControl( 211 ).size()):
-                # If the item has a path, push it to an array
+                # If the item has a label, push it to an array
                 listitem = self.getControl( 211 ).getListItem(x)
                 
-                if listitem.getLabel() != __language__(32013):
+                if listitem.getLabel().decode("utf-8") != __language__(32013):
                     saveLabel = listitem.getLabel().decode('utf-8')
                     saveLabel2 = listitem.getLabel2().decode('utf-8')
                     
