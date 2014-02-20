@@ -973,7 +973,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             num = self.getControl( 211 ).getSelectedPosition()
             
             # Get widgets
-            widgetLabel = ["None"]
+            widgetLabel = [__language__(32053)]
             widget = [""]         
             for key in self.widgets:
                 widgetLabel.append( self.widgets[key] )
@@ -1052,10 +1052,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Get backgrounds
             if self.backgroundBrowse == True:
-                backgroundLabel = ["Default", "Single image", "Multi-image"]
+                backgroundLabel = [__language__(32050), __language__(32051), __language__(32052)]
                 background = ["", "", ""]         
             else:
-                backgroundLabel = ["Default"]
+                backgroundLabel = [__language__(32050)]
                 background = [""]                         
                 
             for key in self.backgrounds:

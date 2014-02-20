@@ -5,6 +5,7 @@ v0.2.1
 - Overrides and defaults now limitable by groupname
 - Fix for custom video nodes
 - Bug fixes and stability improvements
+- Updated language files from Transifex
 
 v0.2.0
 - Removed check for settings shortcut (skins are now recommended to always provide alternative settings access)

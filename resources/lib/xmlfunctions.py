@@ -41,12 +41,12 @@ class XMLFunctions():
         if runType == True:
             # Create a progress dialog
             progress = xbmcgui.DialogProgressBG()
-            progress.create("Skin Shortcuts", __language__( 32049 ) )
+            progress.create(__addon__.getAddonInfo( "name" ), __language__( 32049 ) )
             progress.update( 0 )
         else:
             # Create a progress dialog
             progress = xbmcgui.DialogProgress()
-            progress.create("Skin Shortcuts", __language__( 32049 ) )
+            progress.create(__addon__.getAddonInfo( "name" ), __language__( 32049 ) )
             progress.update( 0 )
 
             
