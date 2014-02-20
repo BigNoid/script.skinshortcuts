@@ -1616,9 +1616,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     data = []
                     for elem in elems:
                         if path[1] == "custom":
-                            data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
+                            if "group" not in elem.attrib:
+                                data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
+                            else:
+                                data.append( [elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, elem.attrib.get( "group" ) ] )
                         else:
-                            data.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                            if "group" not in elem.attrib:
+                                data.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                            else:
+                                data.append( [ elem.attrib.get( 'labelID' ), elem.text, elem.attrib.get( "group" ) ] )
+                                
                     if len( data ) != 0:
                         dataFiles.append( [data, path[1]] )
         return dataFiles

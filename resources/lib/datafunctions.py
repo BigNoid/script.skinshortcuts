@@ -92,12 +92,22 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('thumbnail')
                     for elem in elems:
-                        if elem is not None and elem.attrib.get( 'labelID' ) == labelID:
-                            item[3] = elem.text
-                        if elem is not None and elem.attrib.get( 'image' ) == item[3]:
-                            item[3] = elem.text
-                        if elem is not None and elem.attrib.get( 'image' ) == item[2]:
-                            item[2] = elem.text
+                        if elem is not None:
+                            if "group" in elem.attrib:
+                                if elem.attrib.get( "group" ) == group:
+                                    if elem.attrib.get( 'labelID' ) == labelID:
+                                        item[3] = elem.text
+                                    if elem.attrib.get( 'image' ) == item[3]:
+                                        item[3] = elem.text
+                                    if elem.attrib.get( 'image' ) == item[2]:
+                                        item[2] = elem.text
+                            else:
+                                if elem.attrib.get( 'labelID' ) == labelID:
+                                    item[3] = elem.text
+                                if elem.attrib.get( 'image' ) == item[3]:
+                                    item[3] = elem.text
+                                if elem.attrib.get( 'image' ) == item[2]:
+                                    item[2] = elem.text
                             
             # Get additional mainmenu properties
             additionalProperties = []
@@ -133,7 +143,12 @@ class DataFunctions():
                     elems = overridetree.findall( 'override' )
                     overridecount = 0
                     for elem in elems:
-                        if elem.attrib.get( 'action' ) == action:
+                        if "group" in elem.attrib:
+                            checkGroup = elem.attrib.get( "group" )
+                        else:
+                            checkGroup = None
+                        if elem.attrib.get( 'action' ) == action and (checkGroup == None or checkGroup == group):
+                            
                             overridecount = overridecount + 1
                             hasOverriden = True
                             overrideVisibility = visibilityCondition
@@ -161,6 +176,8 @@ class DataFunctions():
                                 
                             if count != 1 and count != 0:
                                 newAction = urllib.quote( multiAction )
+                                
+                            log( "Override: " + newAction )
                                 
                             overrideProperties = list( additionalProperties )
                             overrideProperties.append( [ "node.visible", overrideVisibility ] )
@@ -253,7 +270,10 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('widgetdefault')
                     for elem in elems:
-                        widgets.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                        if "group" not in elem.attrib:
+                            widgets.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                        else:
+                            widgets.append( [ elem.attrib.get( 'labelID' ), elem.text, elem.attrib.get( "group" ) ] )
                 
                 # Save the widgets to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsWidgets", pickle.dumps( widgets ) )
@@ -292,7 +312,10 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('propertydefault')
                     for elem in elems:
-                        properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
+                        if "group" not in elem.attrib:
+                            properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, "mainmenu" ] )
+                        else:
+                            properties.append( [ elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, elem.attrib.get( "group" ) ] )
                 
                 # Save the custom properties to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsCustomProperties", pickle.dumps( properties ) )
@@ -328,7 +351,10 @@ class DataFunctions():
                 if tree is not None:
                     elems = tree.findall('backgrounddefault')
                     for elem in elems:
-                        backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                        if "group" not in elem.attrib:
+                            backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text, "mainmenu" ] )
+                        else:
+                            backgrounds.append( [ elem.attrib.get( 'labelID' ), elem.text, elem.attrib.get( "group" ) ] )
                 
                 # Save the widgets to a window property               
                 xbmcgui.Window( 10000 ).setProperty( "skinshortcutsBackgrounds", pickle.dumps( backgrounds ) )

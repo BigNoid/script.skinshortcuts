@@ -156,8 +156,18 @@ class XMLFunctions():
                 newelement = xmltree.SubElement( subelement, "item" )
                 
                 # Onclick
-                onclick = xmltree.SubElement( newelement, "onclick" )
-                onclick.text = urllib.unquote( item[4] )
+                action = urllib.unquote( item[4] )
+                if action.find("::MULTIPLE::") == -1:
+                    # Single action, run it
+                    onclick = xmltree.SubElement( newelement, "onclick" )
+                    onclick.text = action
+                else:
+                    # Multiple actions, separated by |
+                    actions = action.split( "|" )
+                    for singleAction in actions:
+                        if singleAction != "::MULTIPLE::":
+                            onclick = xmltree.SubElement( newelement, "onclick" )
+                            onclick.text = singleAction
                 
                 # Label
                 label = xmltree.SubElement( newelement, "label" )
@@ -236,10 +246,22 @@ class XMLFunctions():
                     newelementB = xmltree.SubElement( individualelement, "item" )
                     
                     # Onclick
-                    onclickA = xmltree.SubElement( newelementA, "onclick" )
-                    onclickA.text = urllib.unquote( item[4] )
-                    onclickB = xmltree.SubElement( newelementB, "onclick" )
-                    onclickB.text = urllib.unquote( item[4] )
+                    action = urllib.unquote( item[4] )
+                    if action.find("::MULTIPLE::") == -1:
+                        # Single action, run it
+                        onclickA = xmltree.SubElement( newelementA, "onclick" )
+                        onclickA.text = action
+                        onclickB = xmltree.SubElement( newelementB, "onclick" )
+                        onclickB.text = action
+                    else:
+                        # Multiple actions, separated by |
+                        actions = action.split( "|" )
+                        for singleAction in actions:
+                            if singleAction != "::MULTIPLE::":
+                                onclickA = xmltree.SubElement( newelementA, "onclick" )
+                                onclickA.text = singleAction
+                                onclickB = xmltree.SubElement( newelementB, "onclick" )
+                                onclickB.text = singleAction
                     
                     # Label
                     labelA = xmltree.SubElement( newelementA, "label" )
