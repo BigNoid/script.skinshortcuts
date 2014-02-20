@@ -28,26 +28,19 @@ class XMLFunctions():
         # Entry point for building includes.xml files
         if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
             return
-            
+        
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-isrunning", "True" )
-           
-        runType = self.shouldwerun()
-        if runType == False:
+        
+        if self.shouldwerun() == False:
             log( "Menu is up to date" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-isrunning" )
             return
 
         progress = None
-        if runType == True:
-            # Create a progress dialog
-            progress = xbmcgui.DialogProgressBG()
-            progress.create(__addon__.getAddonInfo( "name" ), __language__( 32049 ) )
-            progress.update( 0 )
-        else:
-            # Create a progress dialog
-            progress = xbmcgui.DialogProgress()
-            progress.create(__addon__.getAddonInfo( "name" ), __language__( 32049 ) )
-            progress.update( 0 )
+        # Create a progress dialog
+        progress = xbmcgui.DialogProgressBG()
+        progress.create(__addon__.getAddonInfo( "name" ), __language__( 32049 ) )
+        progress.update( 0 )
 
             
         # Write the menus
@@ -103,10 +96,7 @@ class XMLFunctions():
         for path in paths:
             if not xbmcvfs.exists( path ):
                 log( " - No" )
-                if path in skinpaths:
-                    return "Full"
-                else:
-                    return True
+                return True
             else:
                 log( " - Yes" )
 
