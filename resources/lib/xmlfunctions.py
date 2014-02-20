@@ -74,15 +74,15 @@ class XMLFunctions():
         xbmc.executebuiltin( "XBMC.ReloadSkin()" )
         
     def shouldwerun( self ):
-        log( "Checking is menu has been updated" )
+        log( "Checking is user has updated menu" )
         try:
             property = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-reloadmainmenu" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-reloadmainmenu" )
             if property == "True":
-                log( "Menu has been updated")
+                log( " - Yes")
                 return True
         except:
-            log( "Menu has not been updated" )
+            log( " - No" )
             
         log( "Checking include files exist" )
         # Get the skins addon.xml file
@@ -102,11 +102,13 @@ class XMLFunctions():
         # Check for the includes file
         for path in paths:
             if not xbmcvfs.exists( path ):
-                log( "Includes file does not exist" )
+                log( " - No" )
                 if path in skinpaths:
                     return "Full"
                 else:
                     return True
+            else:
+                log( " - Yes" )
 
         
         log( "Checking hashes..." )
@@ -120,20 +122,14 @@ class XMLFunctions():
             
         for hash in hashes:
             if hash[1] is not None:
-                log( hash[0] + " : " + hash[1] )
                 hasher = hashlib.md5()
                 hasher.update( xbmcvfs.File( hash[0] ).read() )
-                if hasher.hexdigest() == hash[1]:
-                    log( "  - Still match" )
-                else:
-                    log( "  - DO NOT MATCH : " + hasher.hexdigest() )
+                if hasher.hexdigest() != hash[1]:
+                    log( "  - Hash does not match on file " + hash[0] )
                     return True
             else:
-                log( hash[0] + " : File does not exist" )
-                if not xbmcvfs.exists( hash[0] ):
-                    log( "  - Still doesn't exist" )
-                else:
-                    log( "  - NOW EXISTS" )
+                if xbmcvfs.exists( hash[0] ):
+                    log( "  - File now exists " + hash[0] )
                     return True
                 
         return False
@@ -213,11 +209,8 @@ class XMLFunctions():
                 submenus.append( group )
                 
         # Now build the submenus
-        log( "Num submenus: " + str( len( submenus ) ) )
-        log( "Num levels: " + numLevels )
         percent = 100 / ( len(submenus) * ( int( numLevels) + 1 ) )
         for level in range( 0,  int( numLevels) + 1 ):
-            log( "### DEBUG - LEVEL = " + str( level ) )
             subelement = xmltree.SubElement(root, "include")
             if level == 0:
                 subelement.set( "name", "skinshortcuts-submenu" )
