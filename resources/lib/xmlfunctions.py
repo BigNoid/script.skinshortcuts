@@ -46,9 +46,12 @@ class XMLFunctions():
         # Write the menus
         try:
             self.writexml( mainmenuID, groups, numLevels, progress )
+            complete = True
         except:
             log( "Failed to write menu" )
             print_exc()
+            complete = False
+            
         
         # Clear window properties for overrides, widgets, backgrounds, properties
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
@@ -64,7 +67,10 @@ class XMLFunctions():
         progress.close()
         
         # Reload the skin
-        xbmc.executebuiltin( "XBMC.ReloadSkin()" )
+        if complete == True:
+            xbmc.executebuiltin( "XBMC.ReloadSkin()" )
+        else:
+            xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), "Unable to build menu" )
         
     def shouldwerun( self ):
         log( "Checking is user has updated menu" )

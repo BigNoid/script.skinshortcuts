@@ -111,12 +111,6 @@ class DataFunctions():
                             
             # Get additional mainmenu properties
             additionalProperties = []
-            visibilityCondition = ""
-            if group == "mainmenu":
-                visibilityCheck = self.checkVisibility( labelID )
-                if visibilityCheck != "":
-                    #additionalProperties.append( ["node.visible", visibilityCheck] )
-                    visibilityCondition = visibilityCheck
                     
             widgetCheck = self.checkWidget( labelID, group )
             if widgetCheck != "":
@@ -131,12 +125,20 @@ class DataFunctions():
                 for customProperty in customProperties:
                     additionalProperties.append( [customProperty[0], customProperty[1]] )
                     
-            # Check for actions and visibilities set in the overrides.xml files
-            trees = [usertree, tree]
-            hasOverriden = False
+            # Get action
             action = urllib.unquote( item[4] )
+            
+            # Check visibility
+            log( "### Checking visibility" )
+            visibilityCondition = self.checkVisibility( action )
+            log( visibilityCondition )
+                    
+            # Check action and visibility overrides
             newAction = ""
             showInverse = False
+            trees = [usertree, tree]
+            hasOverriden = False
+            log( "Checking overrides" )
             for overridetree in trees:
                 
                 if overridetree is not None:
@@ -186,11 +188,17 @@ class DataFunctions():
                             returnitems.append( [label, item[1], item[2], item[3], newAction, labelID, overrideProperties] )
                             
             # If we haven't added any overrides, add the item
-            if hasOverriden == False:
-                if visibilityCondition != "":
-                    additionalProperties.append( [ "node.visible", visibilityCondition ] )
-                returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
+            log( "Writing item" )
+            try:
+                if hasOverriden == False:
+                    if visibilityCondition != "":
+                        additionalProperties.append( [ "node.visible", visibilityCondition ] )
+                    returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
+            except:
+                print_exc()
+            log( "Written item" )
                 
+        log( repr( returnitems ) )
         return returnitems            
 
     def _get_overrides_skin( self, isXML = False ):
@@ -387,24 +395,29 @@ class DataFunctions():
         else:
             return item
             
-    def checkVisibility ( self, item ):
+    def checkVisibility ( self, action ):
         # Return whether mainmenu items should be displayed
-        if item == "movies":
-            return "Library.HasContent(Movies)"
-        elif item == "tvshows":
-            return "Library.HasContent(TVShows)"
-        if item == "livetv":
-            return "System.GetBool(pvrmanager.enabled)"
-        elif item == "musicvideos":
-            return "Library.HasContent(MusicVideos)"
-        elif item == "music":
-            return "Library.HasContent(Music)"
-        elif item == "weather":
+        if action == "ActivateWindow(Weather)":
             return "!IsEmpty(Weather.Plugin)"
-        elif item == "dvd":
+        if action.startswith( "ActivateWindowAndFocus(MyPVR" ):
+            return "System.GetBool(pvrmanager.enabled)"
+        if action.startswith( "ActivateWindow(Video,Movie" ):
+            return "Library.HasContent(Movies)"
+        if action.startswith( "ActivateWindow(Videos,RecentlyAddedMovies" ):
+            return "Library.HasContent(Movies)"
+        if action.startswith( "ActivateWindow(Video,TVShow" ):
+            return "Library.HasContent(TVShows)"
+        if action.startswith( "ActivateWindow(Video,MusicVideo" ):
+            return "Library.HasContent(MusicVideos)"
+        if action.startswith( "ActivateWindow(MusicLibrary,MusicVideos" ):
+            return "Library.HasContent(MusicVideos)"
+        if action.startswith( "ActivateWindow(MusicLibrary," ):
+            return "Library.HasContent(Music)"
+        if action == "XBMC.PlayDVD()" or action == "EjectTray()":
             return "System.HasMediaDVD"
-        else:
-            return ""
+            
+        return ""
+        
             
     def checkWidget( self, item, group, isXML = False ):
         # Return any widget for mainmenu items
