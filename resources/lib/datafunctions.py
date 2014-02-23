@@ -53,12 +53,15 @@ class DataFunctions():
             try:
                 returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group )
                 log( " - Returning saved value" )
-                log( repr( pickle.loads( returnVal ) ) )
                 return pickle.loads( returnVal )
             except:
-                log( " - No saved value" )
+                i = 1
+                
+        userShortcuts = os.path.join( __datapath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
+        skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".shortcuts").encode('utf-8')
+        defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
 
-        paths = [os.path.join( __datapath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , self.slugify( group ) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8') ]
+        paths = [userShortcuts, skinShortcuts, defaultShortcuts ]
         
         for path in paths:
             try:
@@ -67,14 +70,19 @@ class DataFunctions():
                 list = xbmcvfs.File( path ).read()
                 unprocessedList = eval( list )
                 self._save_hash( path, list )
+                
                 processedList = self._process_shortcuts( unprocessedList, group )
-                log( " - " + path )
+                
+                if path == userShortcuts:
+                    self._process_localised( path, unprocessedList )
+                    
                 if isXML == False:
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
-                log( " - " + path )
+                
+                log( " - " + path ) 
+                
                 return processedList
             except:
-                log( "Couldn't load file " + path )
                 self._save_hash( path, None )
                 
         # No file loaded
@@ -95,7 +103,6 @@ class DataFunctions():
         for item in listitems:
             # Generate the labelID
             label = item[0]
-            log( "Generating labelID" )
             labelID = item[0].replace(" ", "").lower()
             
             # Localize label & labelID
@@ -105,11 +112,16 @@ class DataFunctions():
             elif not label.find( "::LOCAL::" ) == -1:
                 labelID = self.createNiceName( label[9:] )
                 label = xbmc.getLocalizedString(int( label[9:] ) )
-                
-            log( labelID )
+                # Check for a localised label from a non-current skin
+                try:
+                    skinName = item[6]
+                    if skinName != xbmc.getSkinDir():
+                        label = item[7]
+                        log( "Using localised label from " + skinName )
+                except:
+                    hasChanged = False
             
             # If the user hasn't overridden the thumbnail, check for skin override
-            log( "Checking for thumbnail override" )
             if not len(item) == 6 or (len(item) == 6 and item[5] == "True"):
                 if tree is not None:
                     elems = tree.findall('thumbnail')
@@ -134,58 +146,43 @@ class DataFunctions():
             # Get additional mainmenu properties
             additionalProperties = []
                    
-            log( "Checking for widgets" )
             widgetCheck = self.checkWidget( labelID, group )
             if widgetCheck != "":
                 additionalProperties.append( ["widget", widgetCheck] )
                 
-            log( "Checking for background" )
             backgroundCheck = self.checkBackground( labelID, group )
             if backgroundCheck != "":
                 additionalProperties.append( ["background", backgroundCheck] )
                     
-            log( "Checking for custom properties" )
             customProperties = self.checkCustomProperties( labelID, group )
             if len( customProperties ) != 0:
                 for customProperty in customProperties:
                     additionalProperties.append( [customProperty[0], customProperty[1]] )
                     
             # Get action
-            log( "Getting action" )
             action = urllib.unquote( item[4] )
             
             # Check visibility
-            log( "### Checking visibility" )
             visibilityCondition = self.checkVisibility( action )
-            log( visibilityCondition )
                     
             # Check action and visibility overrides
             newAction = ""
             showInverse = False
             trees = [usertree, tree]
             hasOverriden = False
-            log( "Checking overrides" )
             
             for overridetree in trees:
                 
                 if overridetree is not None:
-                    log( "We have an override tree" )
                     elems = overridetree.findall( 'override' )
                     overridecount = 0
                     for elem in elems:
-                        log( "We have an element" )
                         if "group" in elem.attrib:
                             checkGroup = elem.attrib.get( "group" )
                         else:
                             checkGroup = None
-                        log( checkGroup )
-                        log( elem.attrib.get( "action" ) )
-                        log( action )
-                        
-                        log( "Checking that..." )
                         
                         if elem.attrib.get( 'action' ) == action and (checkGroup == None or checkGroup == group):
-                            log( "It matched" )
                             overridecount = overridecount + 1
                             hasOverriden = True
                             overrideVisibility = visibilityCondition
@@ -214,15 +211,13 @@ class DataFunctions():
                             if count != 1 and count != 0:
                                 newAction = urllib.quote( multiAction )
                                 
-                            log( "Override: " + newAction )
-                                
                             overrideProperties = list( additionalProperties )
                             overrideProperties.append( [ "node.visible", overrideVisibility ] )
             
                             # Add item
                             returnitems.append( [label, item[1], item[2], item[3], newAction, labelID, overrideProperties] )
                         else:
-                            log( "It didn't match" )
+                            i = 1
                             
             # If we haven't added any overrides, add the item
             if hasOverriden == False:
@@ -230,9 +225,46 @@ class DataFunctions():
                     additionalProperties.append( [ "node.visible", visibilityCondition ] )
                 returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
                 
-        log( "We've got here" )
-        log( repr( returnitems ) )
         return returnitems            
+        
+    def _process_localised( self, path, items ):
+        # We will check a file to see if it uses strings localised by the skin and, if so, save their non-localised version in case the user
+        # switches skins in the future
+        updatedString = False
+        for item in items:
+            if not item[0].find( "::LOCAL::" ) == -1:
+                stringInt = int( item[0][9:] )
+                if stringInt > 30000:
+                    # This is a string localized by the skin
+                    localID = xbmc.getLocalizedString( stringInt )
+                    updateString = False
+                    
+                    # Check whether the skin providing the string is the current skin
+                    try:
+                        if item[6] == xbmc.getSkinDir():
+                            # The string has already been localised, check it hasn't changed
+                            if localID != item[7]:
+                                item[7] = localID
+                                updatedString = True
+                    except:
+                        # The string hasn't been localised at all
+                        if len(item) == 5:
+                            item.append( "False" )
+                            
+                        item.append( xbmc.getSkinDir() )
+                        item.append( localID )
+                        updatedString = True
+            
+        if updatedString == True:
+            # We updated a string, so we want to save this file
+            try:
+                f = xbmcvfs.File( path, 'w' )
+                f.write( repr( items ) )
+                f.close()
+            except:
+                print_exc()
+                log( "### ERROR could not save file %s" % path )                          
+                    
 
     def _get_overrides_skin( self, isXML = False ):
         # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
@@ -586,7 +618,5 @@ class DataFunctions():
 
         if separator != '-':
             text = text.replace('-', separator)
-            
-        log( "Converted: " + text )
 
         return text

@@ -232,7 +232,9 @@ If you are providing default shortcuts and want to localize your label, you can 
 
   ::LOCAL::[id]
   
-Where [id] is any string id provided by XBMC or your skin. However, you should generally avoid using strings provided by your skin as they won't carry over if the user switches to a different skin.
+Where [id] is any string id provided by XBMC or your skin.
+
+You can use a string id by your skin, but be aware that it will only stay localised if the user switches languages whilst the user is using your skin.
 
 In your overrides.xml file, you can just use the string id provided by XBMC or your skin directly. As the overrides.xml is specific to your skin, it is safe to use strings provided by your skin in it.
 
