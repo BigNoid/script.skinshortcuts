@@ -3,7 +3,12 @@ import os, sys, datetime, unicodedata
 import xbmc, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
 from xml.dom.minidom import parse
+from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
+from unidecode import unidecode
+
+import datafunctions
+DATA = datafunctions.DataFunctions()
 
 if sys.version_info < (2, 7):
     import simplejson
@@ -912,12 +917,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.labelIDChanges = []
             
             # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
-            if xbmcvfs.exists( os.path.join( __skinpath__ , self.group + ".shortcuts" ) ):
+            if xbmcvfs.exists( os.path.join( __skinpath__ , urllib.quote( self.group ) + ".shortcuts" ) ):
                 # Skin-provided defaults
-                path = os.path.join( __skinpath__ , self.group + ".shortcuts" )
-            elif xbmcvfs.exists( os.path.join( __defaultpath__ , self.group + ".shortcuts" ) ):
+                path = os.path.join( __skinpath__ , urllib.quote( self.group ) + ".shortcuts" )
+            elif xbmcvfs.exists( os.path.join( __defaultpath__ , urllib.quote( self.group ) + ".shortcuts" ) ):
                 # Script-provided defaults
-                path = os.path.join( __defaultpath__ , self.group + ".shortcuts" )
+                path = os.path.join( __defaultpath__ , urllib.quote( self.group ) + ".shortcuts" )
             else:
                 # No custom shortcuts or defaults available
                 path = ""
@@ -1379,15 +1384,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
         log( "Loading shortcuts" )
         
         # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
-        if xbmcvfs.exists( os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" ) ):
+        loadGroup = DATA.slugify( self.group )
+        if xbmcvfs.exists( os.path.join( __datapath__ , loadGroup + ".shortcuts" ) ):
             # User defined shortcuts
-            path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __skinpath__ , self.group.decode( 'utf-8' ) + ".shortcuts" ) ):
+            path = os.path.join( __datapath__ , loadGroup + ".shortcuts" )
+        elif xbmcvfs.exists( os.path.join( __skinpath__ , loadGroup + ".shortcuts" ) ):
             # Skin-provided defaults
-            path = os.path.join( __skinpath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __defaultpath__ , self.group.decode( 'utf-8' ) + ".shortcuts" ) ):
+            path = os.path.join( __skinpath__ , loadGroup + ".shortcuts" )
+        elif xbmcvfs.exists( os.path.join( __defaultpath__ , loadGroup + ".shortcuts" ) ):
             # Script-provided defaults
-            path = os.path.join( __defaultpath__ , self.group.decode( 'utf-8' ) + ".shortcuts" )
+            path = os.path.join( __defaultpath__ , loadGroup + ".shortcuts" )
         else:
             # No custom shortcuts or defaults available
             path = ""
@@ -1734,10 +1740,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
                     listitems.append(savedata)
                             
-            path = os.path.join( __datapath__ , self.group.decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8')
+            path = os.path.join( __datapath__ , DATA.slugify( self.group.decode( 'utf-8' ) ) + ".shortcuts" ).encode('utf-8')
             
             # If there are any shortcuts, save them
             try:
+                log( "Saving " + path )
                 f = xbmcvfs.File( path, 'w' )
                 f.write( repr( listitems ) )
                 f.close()
@@ -1753,11 +1760,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for i in range( 0, 6 ):
                     for labelIDChange in self.labelIDChanges:
                         if i == 0:
-                            paths = [os.path.join( __datapath__ , labelIDChange[0].decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , labelIDChange[0].decode( 'utf-8' ) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , labelIDChange[0].decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8') ]
-                            target = os.path.join( __datapath__ , labelIDChange[1].decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8')
+                            paths = [os.path.join( __datapath__ , DATA.slugify( labelIDChange[0] ) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , DATA.slugify( labelIDChange[0] ) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , DATA.slugify( labelIDChange[0] ) + ".shortcuts" ).encode('utf-8') ]
+                            target = os.path.join( __datapath__ , DATA.slugify( labelIDChange[1] ) + ".shortcuts" ).encode('utf-8')
                         else:
-                            paths = [os.path.join( __datapath__ , labelIDChange[0].decode( 'utf-8' ) + "." + str(i) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , labelIDChange[0].decode( 'utf-8' ) + "." + str(i) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , labelIDChange[0].decode( 'utf-8' ) + "." + str(i) + ".shortcuts" ).encode('utf-8') ]
-                            target = os.path.join( __datapath__ , labelIDChange[1].decode( 'utf-8' ) + "." + str(i) + ".shortcuts" ).encode('utf-8')
+                            paths = [os.path.join( __datapath__ , DATA.slugify( labelIDChange[0] ) + "." + str(i) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , DATA.slugify( labelIDChange[0] ) + "." + str(i) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , DATA.slugify( labelIDChange[0] ) + "." + str(i) + ".shortcuts" ).encode('utf-8') ]
+                            target = os.path.join( __datapath__ , DATA.slugify( labelIDChange[1] ) + "." + str(i) + ".shortcuts" ).encode('utf-8')
                         count = 0
                         for path in paths:
                             count += 1
@@ -1794,11 +1801,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         for labelIDChange in self.labelIDChanges:
                             for data in dataFiles[dataFile]:
                                 if dataFile == "custom":
-                                    if data[3] == labelIDChange[0]:
-                                        data[3] = labelIDChange[1]
+                                    if data[3] == DATA.slugify( labelIDChange[0] ):
+                                        data[3] = DATA.slugify( labelIDChange[1] )
                                 else:
-                                    if data[2] == labelIDChange[0]:
-                                        data[2] = labelIDChange[1]
+                                    if data[2] == DATA.slugify( labelIDChange[0] ):
+                                        data[2] = DATA.slugify( labelIDChange[1] )
         
         
         ## [ [labelID, [property name, property value, groupName]] , [labelID, [property name, property value, groupName]] ]

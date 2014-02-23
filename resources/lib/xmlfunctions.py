@@ -3,6 +3,7 @@ import os, sys, datetime, unicodedata
 import xbmc, xbmcgui, xbmcvfs, xbmcaddon, urllib
 import xml.etree.ElementTree as xmltree
 from xml.dom.minidom import parse
+from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
 
 __addon__        = xbmcaddon.Addon()
@@ -156,44 +157,44 @@ class XMLFunctions():
                 if action.find("::MULTIPLE::") == -1:
                     # Single action, run it
                     onclick = xmltree.SubElement( newelement, "onclick" )
-                    onclick.text = action
+                    onclick.text = escapeXML( action )
                 else:
                     # Multiple actions, separated by |
                     actions = action.split( "|" )
                     for singleAction in actions:
                         if singleAction != "::MULTIPLE::":
                             onclick = xmltree.SubElement( newelement, "onclick" )
-                            onclick.text = singleAction
+                            onclick.text = escapeXML( singleAction )
                 
                 # Label
                 label = xmltree.SubElement( newelement, "label" )
-                label.text = item[0]
+                label.text = escapeXML( item[0] )
                 
                 # Label 2
                 label2 = xmltree.SubElement( newelement, "label2" )
                 if not item[1].find( "::SCRIPT::" ) == -1:
-                    label2.text = __language__( int( item[1][10:] ) )
+                    label2.text = escapeXML( __language__( int( item[1][10:] ) ) )
                 else:
-                    label2.text = item[1]
+                    label2.text = escapeXML( item[1] )
 
                 # Icon
                 icon = xmltree.SubElement( newelement, "icon" )
-                icon.text = item[2]
+                icon.text = escapeXML( item[2] )
                 
                 # Thumb
                 thumb = xmltree.SubElement( newelement, "thumb" )
-                thumb.text = item[3]
+                thumb.text = escapeXML( item[3] )
                 
                 # LabelID
                 labelID = xmltree.SubElement( newelement, "property" )
                 labelID.set( "name", "labelID" )
-                labelID.text = item[5].encode('utf-8')
+                labelID.text = escapeXML( item[5].encode('utf-8') )
                 submenus.append( item[5].encode('utf-8') )
                 
                 # Submenu visibility
                 submenuVisibility = xmltree.SubElement( newelement, "property" )
                 submenuVisibility.set( "name", "submenuVisibility" )
-                submenuVisibility.text = item[5].encode('utf-8')
+                submenuVisibility.text = escapeXML( DATA.slugify( item[5] ) )
                 
                 # Additional properties
                 if len( item[6] ) != 0:
@@ -201,11 +202,11 @@ class XMLFunctions():
                     for property in item[6]:
                         if property[0] == "node.visible":
                             visibleProperty = xmltree.SubElement( newelement, "visible" )
-                            visibleProperty.text = property[1]
+                            visibleProperty.text = escapeXML( property[1] )
                         else:
                             additionalproperty = xmltree.SubElement( newelement, "property" )
                             additionalproperty.set( "name", property[0] )
-                            additionalproperty.text = property[1]
+                            additionalproperty.text = escapeXML( property[1] )
         
         else:
             # We're building just for specific submenus, so pop these into the
@@ -213,6 +214,8 @@ class XMLFunctions():
             groups = groups.split( "," )
             for group in groups:
                 submenus.append( group )
+                
+        log( repr( submenus) )
                 
         # Now build the submenus
         percent = 100 / ( len(submenus) * ( int( numLevels) + 1 ) )
@@ -229,10 +232,10 @@ class XMLFunctions():
                 progress.update( percent * i )
                 individualelement = xmltree.SubElement( root, "include" )
                 if level == 0:
-                    individualelement.set( "name", "skinshortcuts-group-" + submenu )
+                    individualelement.set( "name", "skinshortcuts-group-" + escapeXML( DATA.slugify( submenu ) ) )
                     menuitems = DATA._get_shortcuts( submenu, True )
                 else:
-                    individualelement.set( "name", "skinshortcuts-group-" + submenu + "-" + str( level ) )
+                    individualelement.set( "name", "skinshortcuts-group-" + escapeXML( DATA.slugify( submenu ) ) + "-" + str( level ) )
                     menuitems = DATA._get_shortcuts( submenu + "." + str( level ), True )
                 
                 
@@ -297,7 +300,7 @@ class XMLFunctions():
                     
                     # Submenu visibility
                     submenuVisibility = xmltree.SubElement( newelementA, "visible" )
-                    submenuVisibility.text = "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + submenu + ")"
+                    submenuVisibility.text = "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")"
                     
                     # Additional properties
                     if len( item[6] ) != 0:

@@ -1,11 +1,13 @@
 # coding=utf-8
-import os, sys, datetime, unicodedata
+import os, sys, datetime, unicodedata, re, types
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
-from xml.dom.minidom import parse
-from traceback import print_exc
 import hashlib, hashlist
 import cPickle as pickle
+from xml.dom.minidom import parse
+from traceback import print_exc
+from htmlentitydefs import name2codepoint
+from unidecode import unidecode
 
 __addon__        = xbmcaddon.Addon()
 __addonid__      = __addon__.getAddonInfo('id').decode( 'utf-8' )
@@ -18,6 +20,19 @@ __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_da
 __profilepath__  = xbmc.translatePath( "special://profile/" ).decode('utf-8')
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
+
+# character entity reference
+CHAR_ENTITY_REXP = re.compile('&(%s);' % '|'.join(name2codepoint))
+
+# decimal character reference
+DECIMAL_REXP = re.compile('&#(\d+);')
+
+# hexadecimal character reference
+HEX_REXP = re.compile('&#x([\da-fA-F]+);')
+
+REPLACE1_REXP = re.compile(r'[\']+')
+REPLACE2_REXP = re.compile(r'[^-a-z0-9]+')
+REMOVE_REXP = re.compile('-{2,}')
 
 def log(txt):
     if isinstance (txt,str):
@@ -43,7 +58,7 @@ class DataFunctions():
             except:
                 log( " - No saved value" )
 
-        paths = [os.path.join( __datapath__ , group.decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , group.decode( 'utf-8' ) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , group.decode( 'utf-8' ) + ".shortcuts" ).encode('utf-8') ]
+        paths = [os.path.join( __datapath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , self.slugify( group ) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8') ]
         
         for path in paths:
             try:
@@ -53,11 +68,13 @@ class DataFunctions():
                 unprocessedList = eval( list )
                 self._save_hash( path, list )
                 processedList = self._process_shortcuts( unprocessedList, group )
+                log( " - " + path )
                 if isXML == False:
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
                 log( " - " + path )
                 return processedList
             except:
+                log( "Couldn't load file " + path )
                 self._save_hash( path, None )
                 
         # No file loaded
@@ -70,6 +87,7 @@ class DataFunctions():
     def _process_shortcuts( self, listitems, group, isXML = False ):
         # This function will process any overrides, and return a set of listitems ready to be stored
         #  - We will process graphics overrides, action overrides and any visibility conditions set
+        
         tree = self._get_overrides_skin( isXML )
         usertree = self._get_overrides_user( isXML )
         returnitems = []
@@ -77,6 +95,7 @@ class DataFunctions():
         for item in listitems:
             # Generate the labelID
             label = item[0]
+            log( "Generating labelID" )
             labelID = item[0].replace(" ", "").lower()
             
             # Localize label & labelID
@@ -86,8 +105,11 @@ class DataFunctions():
             elif not label.find( "::LOCAL::" ) == -1:
                 labelID = self.createNiceName( label[9:] )
                 label = xbmc.getLocalizedString(int( label[9:] ) )
+                
+            log( labelID )
             
             # If the user hasn't overridden the thumbnail, check for skin override
+            log( "Checking for thumbnail override" )
             if not len(item) == 6 or (len(item) == 6 and item[5] == "True"):
                 if tree is not None:
                     elems = tree.findall('thumbnail')
@@ -111,21 +133,25 @@ class DataFunctions():
                             
             # Get additional mainmenu properties
             additionalProperties = []
-                    
+                   
+            log( "Checking for widgets" )
             widgetCheck = self.checkWidget( labelID, group )
             if widgetCheck != "":
                 additionalProperties.append( ["widget", widgetCheck] )
                 
+            log( "Checking for background" )
             backgroundCheck = self.checkBackground( labelID, group )
             if backgroundCheck != "":
                 additionalProperties.append( ["background", backgroundCheck] )
                     
+            log( "Checking for custom properties" )
             customProperties = self.checkCustomProperties( labelID, group )
             if len( customProperties ) != 0:
                 for customProperty in customProperties:
                     additionalProperties.append( [customProperty[0], customProperty[1]] )
                     
             # Get action
+            log( "Getting action" )
             action = urllib.unquote( item[4] )
             
             # Check visibility
@@ -139,18 +165,27 @@ class DataFunctions():
             trees = [usertree, tree]
             hasOverriden = False
             log( "Checking overrides" )
+            
             for overridetree in trees:
                 
                 if overridetree is not None:
+                    log( "We have an override tree" )
                     elems = overridetree.findall( 'override' )
                     overridecount = 0
                     for elem in elems:
+                        log( "We have an element" )
                         if "group" in elem.attrib:
                             checkGroup = elem.attrib.get( "group" )
                         else:
                             checkGroup = None
+                        log( checkGroup )
+                        log( elem.attrib.get( "action" ) )
+                        log( action )
+                        
+                        log( "Checking that..." )
+                        
                         if elem.attrib.get( 'action' ) == action and (checkGroup == None or checkGroup == group):
-                            
+                            log( "It matched" )
                             overridecount = overridecount + 1
                             hasOverriden = True
                             overrideVisibility = visibilityCondition
@@ -186,18 +221,16 @@ class DataFunctions():
             
                             # Add item
                             returnitems.append( [label, item[1], item[2], item[3], newAction, labelID, overrideProperties] )
+                        else:
+                            log( "It didn't match" )
                             
             # If we haven't added any overrides, add the item
-            log( "Writing item" )
-            try:
-                if hasOverriden == False:
-                    if visibilityCondition != "":
-                        additionalProperties.append( [ "node.visible", visibilityCondition ] )
-                    returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
-            except:
-                print_exc()
-            log( "Written item" )
+            if hasOverriden == False:
+                if visibilityCondition != "":
+                    additionalProperties.append( [ "node.visible", visibilityCondition ] )
+                returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
                 
+        log( "We've got here" )
         log( repr( returnitems ) )
         return returnitems            
 
@@ -480,3 +513,80 @@ class DataFunctions():
         else:
             hashlist.list.append( [filename, None] )
 
+    def smart_truncate(string, max_length=0, word_boundaries=False, separator=' '):
+        string = string.strip(separator)
+
+        if not max_length:
+            return string
+
+        if len(string) < max_length:
+            return string
+
+        if not word_boundaries:
+            return string[:max_length].strip(separator)
+
+        if separator not in string:
+            return string[:max_length]
+
+        truncated = ''
+        for word in string.split(separator):
+            if word:
+                next_len = len(truncated) + len(word) + len(separator)
+                if next_len <= max_length:
+                    truncated += '{0}{1}'.format(word, separator)
+        if not truncated:
+            truncated = string[:max_length]
+        return truncated.strip(separator)
+
+    def slugify(self, text, entities=True, decimal=True, hexadecimal=True, max_length=0, word_boundary=False, separator='-'):
+        # text to unicode
+        if type(text) != types.UnicodeType:
+            text = unicode(text, 'utf-8', 'ignore')
+
+        # decode unicode ( 影師嗎 = Ying Shi Ma)
+        text = unidecode(text)
+
+        # text back to unicode
+        if type(text) != types.UnicodeType:
+            text = unicode(text, 'utf-8', 'ignore')
+
+        # character entity reference
+        if entities:
+            text = CHAR_ENTITY_REXP.sub(lambda m: unichr(name2codepoint[m.group(1)]), text)
+
+        # decimal character reference
+        if decimal:
+            try:
+                text = DECIMAL_REXP.sub(lambda m: unichr(int(m.group(1))), text)
+            except:
+                pass
+
+        # hexadecimal character reference
+        if hexadecimal:
+            try:
+                text = HEX_REXP.sub(lambda m: unichr(int(m.group(1), 16)), text)
+            except:
+                pass
+
+        # translate
+        text = unicodedata.normalize('NFKD', text)
+        if sys.version_info < (3,):
+            text = text.encode('ascii', 'ignore')
+
+        # replace unwanted characters
+        text = REPLACE1_REXP.sub('', text.lower()) # replace ' with nothing instead with -
+        text = REPLACE2_REXP.sub('-', text.lower())
+
+        # remove redundant -
+        text = REMOVE_REXP.sub('-', text).strip('-')
+
+        # smart truncate if requested
+        if max_length > 0:
+            text = smart_truncate(text, max_length, word_boundary, '-')
+
+        if separator != '-':
+            text = text.replace('-', separator)
+            
+        log( "Converted: " + text )
+
+        return text
