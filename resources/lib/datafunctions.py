@@ -16,7 +16,7 @@ __language__     = __addon__.getLocalizedString
 __cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
 __addonname__    = __addon__.getAddonInfo('name').decode("utf-8")
 __resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) ).decode("utf-8")
-__datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).encode('utf-8'), __addonid__.encode( 'utf-8' ) ).decode('utf-8')
+__datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
 __profilepath__  = xbmc.translatePath( "special://profile/" ).decode('utf-8')
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
@@ -120,6 +120,8 @@ class DataFunctions():
                         log( "Using localised label from " + skinName )
                 except:
                     hasChanged = False
+					
+            log( label )
             
             # If the user hasn't overridden the thumbnail, check for skin override
             if not len(item) == 6 or (len(item) == 6 and item[5] == "True"):

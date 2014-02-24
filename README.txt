@@ -8,7 +8,7 @@ What's New for Skinners (version 0.2.2)
  - Limit overrides and defaults by group (see "resource/Advanced Usage.txt" - "Overrides.xml")
  - Option to allow user to browse for background image (see "resources/Advanced Usage.txt" - "Managing Custom Backgrounds" & "Overrides.xml")
  - Option to allow user to use a playlist as a widget (see "resources/Advanced Usage.txt" - "Managing Widgets" & "Overrides.xml")
- - Full support for skin-provided localisations in default files (see "resources/Advanced Usage.txt" - "Localisation"
+ - Full support for skin-provided localisations in default files (see "resources/Advanced Usage.txt" - "Localisation")
  
  
 Where To Get Help

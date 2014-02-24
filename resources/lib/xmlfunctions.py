@@ -8,7 +8,7 @@ from traceback import print_exc
 
 __addon__        = xbmcaddon.Addon()
 __addonid__      = sys.modules[ "__main__" ].__addonid__
-__datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).encode('utf-8'), __addonid__.encode( 'utf-8' ) ).decode('utf-8')
+__datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ ).encode('utf-8')
 __language__     = __addon__.getLocalizedString
 
 import datafunctions
