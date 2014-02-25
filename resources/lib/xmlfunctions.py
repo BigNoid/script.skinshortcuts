@@ -218,6 +218,14 @@ class XMLFunctions():
         log( repr( submenus) )
                 
         # Now build the submenus
+        if len(submenus) == 0:
+            log( "No submenus found. Last error:" )
+            try:
+                print_exc()
+            except:
+                i = 1
+            return
+            
         percent = 100 / ( len(submenus) * ( int( numLevels) + 1 ) )
         for level in range( 0,  int( numLevels) + 1 ):
             subelement = xmltree.SubElement(root, "include")

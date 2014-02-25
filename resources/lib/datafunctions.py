@@ -47,12 +47,11 @@ class DataFunctions():
     def _get_shortcuts( self, group, isXML = False ):
         # This will load the shortcut file, and save it as a window property
         # Additionally, if the override files haven't been loaded, we'll load them too
-        log( "### Getting shortcuts for group " + group )
+        log( "### Loading shortcuts for group " + group )
         
         if isXML == False:
             try:
                 returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group )
-                log( " - Returning saved value" )
                 return pickle.loads( returnVal )
             except:
                 i = 1
@@ -79,7 +78,7 @@ class DataFunctions():
                 if isXML == False:
                     xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
                 
-                log( " - " + path ) 
+                log( " - Loaded file " + path ) 
                 
                 return processedList
             except:
@@ -120,8 +119,6 @@ class DataFunctions():
                         log( "Using localised label from " + skinName )
                 except:
                     hasChanged = False
-					
-            log( label )
             
             # If the user hasn't overridden the thumbnail, check for skin override
             if not len(item) == 6 or (len(item) == 6 and item[5] == "True"):

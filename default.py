@@ -109,7 +109,7 @@ class Main:
     def _check_Window_Properties( self ):
         # Check if the user has changed skin or profile
         if self.WINDOW.getProperty("skinsettings-currentSkin-Path") and self.WINDOW.getProperty("skinsettings-currentProfile-Path"):
-            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir() or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__:
+            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir().encode( 'utf-8' ) or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__.encode( 'utf-8' ):
                 self.reset_window_properties()
                 self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
                 self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
@@ -155,7 +155,7 @@ class Main:
         
 
     def _list_shortcuts( self, group ):
-        log( "### Listing shortcuts ..." )
+        log( "### Listing shortcuts for group " + group )
         if group == "":
             log( "### - NO GROUP PASSED")
             # Return an empty list
@@ -171,6 +171,7 @@ class Main:
         for item in listitems:
             i += 1
             # Generate a listitem
+            log( " - " + item[0] )
             path = sys.argv[0].decode( 'utf-8' ) + "?type=launch&path=" + item[4] + "&group=" + self.GROUP
             
             listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
@@ -192,19 +193,17 @@ class Main:
                 repr( item[6] )
                 for property in item[6]:
                     listitem.setProperty( property[0], property[1] )
-                    log( "Additional property: " + property[0] + " = " + property[1] )
+                    log( " - Additional Property: " + property[0] + " = " + property[1] )
             
             saveItems.append( ( path, listitem ) )
-            
-        log( repr( saveItems ) )
-        
+
         # Return the list
         xbmcplugin.addDirectoryItems( handle=int(sys.argv[1]), items=saveItems )
         xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
         
                 
     def _list_submenu( self, mainmenuID, levelInt ):
-        log( "### Listing submenu ..." )
+        log( "### Listing submenu group " + mainmenuID )
         if mainmenuID == "0":
             log( "### - NO MAIN MENU ID PASSED")
             # Return an empty list
@@ -231,7 +230,6 @@ class Main:
             i += 1
             # Load menu for each labelID
             mainmenuLabelID = mainmenuItem
-            log( mainmenuLabelID )
             if fullMenu == True:
                 mainmenuLabelID = mainmenuItem[5].encode( 'utf-8' )
                 
@@ -240,6 +238,7 @@ class Main:
             else:
                 listitems = DATA._get_shortcuts( mainmenuLabelID + "." + levelInt )
             for item in listitems:
+                log( " - " + item[0] )
                 path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + item[4].encode('utf-8') + "&group=" + mainmenuLabelID.decode('utf-8')
                 
                 listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
@@ -266,7 +265,7 @@ class Main:
                             listitem.setProperty( property[0], listitem.getProperty( "node.visible" ) + " + [" + property[1] + "]" )
                         else:
                             listitem.setProperty( property[0], property[1] )
-                        #log( "Additional property: " + property[0] + " = " + listitem.getProperty( property[0] ) )
+                            log( " - Additional Property: " + property[0] + " = " + property[1] )
                 
                 saveItems.append( ( path, listitem ) )
         
