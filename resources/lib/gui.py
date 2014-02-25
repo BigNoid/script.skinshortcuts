@@ -996,38 +996,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Update the widget
                 if selectedWidget == 0:
                     # No widget
-                    if listitemCopy.getProperty( "additionalListItemProperties" ):
-                        newAdditionalList = []
-                        for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                            if listitemProperty[0] != "widget":
-                                newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                                
-                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                    self._remove_additionalproperty( listitemCopy, "widget" )
+                    self._remove_additionalproperty( listitemCopy, "widgetPlaylist" )
                             
                     # Copy the item again - this will clear the widget property
                     listitemCopy = self._duplicate_listitem( listitemCopy )
                 else:
                     if widget[selectedWidget].startswith( "::PLAYLIST::" ):
-                        log( "We selected a playlist!" )
-                        log( widget[selectedWidget].strip( "::PLAYLIST:: " ) )
-                        listitemCopy.setProperty( "widget", "Playlist" )
-                        listitemCopy.setProperty( "widgetPlaylist", widget[selectedWidget].strip( "::PLAYLIST::" ) )
-                        newAdditionalList = [ ["widget", "Playlist"], ["WidgetPlaylist", widget[selectedWidget].strip( "::PLAYLIST::" ) ] ]
-                        if listitemCopy.getProperty( "additionalListItemProperties" ):
-                            for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                                if listitemProperty[0] != "widget" and listitemProperty[0] != "widgetPlaylist":
-                                    newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                        log( repr( newAdditionalList ) )
-                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                        self._add_additionalproperty( listitemCopy, "widget", "Playlist" )
+                        self._add_additionalproperty( listitemCopy, "widgetPlaylist", widget[selectedWidget].strip( "::PLAYLIST::" ) )
 
                     else:
-                        listitemCopy.setProperty( "widget", widget[selectedWidget] )
-                        newAdditionalList = [ ["widget", widget[selectedWidget]] ]
-                        if listitemCopy.getProperty( "additionalListItemProperties" ):
-                            for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                                if listitemProperty[0] != "widget":
-                                    newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                        self._add_additionalproperty( listitemCopy, "widget", widget[selectedWidget] )
+                        self._remove_additionalproperty( listitemCopy, "widgetPlaylist" )
                     
                 # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
                 listitems = []
@@ -1064,8 +1045,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 background = [""]                         
                 
             for key in self.backgrounds:
-                backgroundLabel.append( self.backgrounds[key] )
-                background.append( key )
+                log( key )
+                if "::PLAYLIST::" in self.backgrounds[key]:
+                    for playlist in self.widgetPlaylistsList:
+                        backgroundLabel.append( self.backgrounds[key].replace( "::PLAYLIST::", playlist[1] ) )
+                        background.append( [ key, playlist[0], playlist[1] ] )
+                else:
+                    backgroundLabel.append( self.backgrounds[key] )
+                    background.append( key )
             
             dialog = xbmcgui.Dialog()
             selectedBackground = dialog.select( __language__(32045), backgroundLabel )
@@ -1075,12 +1062,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if selectedBackground == 0:
                     # No background
                     if listitemCopy.getProperty( "additionalListItemProperties" ):
-                        newAdditionalList = []
-                        for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                            if listitemProperty[0] != "background":
-                                newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                                
-                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                        self._remove_additionalproperty( listitemCopy, "background" )
+                        self._remove_additionalproperty( listitemCopy, "backgroundPlaylist" )
+                        self._remove_additionalproperty( listitemCopy, "backgroundPlaylistName" )
                             
                     # Copy the item again - this will clear the background property
                     listitemCopy = self._duplicate_listitem( listitemCopy )
@@ -1094,22 +1078,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         custom_image = dialog.browse( 0 , xbmc.getLocalizedString(1030), 'files')
                     
                     if custom_image:
-                        listitemCopy.setProperty( "background", custom_image )
-                        newAdditionalList = [ ["background", custom_image] ]
-                        if listitemCopy.getProperty( "additionalListItemProperties" ):
-                            for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                                if listitemProperty[0] != "background":
-                                    newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                        listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                        self._add_additionalproperty( listitemCopy, "background", custom_image )
+                        self._remove_additionalproperty( listitemCopy, "backgroundPlaylist" )
+                        self._remove_additionalproperty( listitemCopy, "backgroundPlaylistName" )
 
                 else:
-                    listitemCopy.setProperty( "background", background[selectedBackground] )
-                    newAdditionalList = [ ["background", background[selectedBackground]] ]
-                    if listitemCopy.getProperty( "additionalListItemProperties" ):
-                        for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                            if listitemProperty[0] != "background":
-                                newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                    listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                    if isinstance( background[selectedBackground], list ):
+                        # User has selected a playlist backgrounds
+                        self._add_additionalproperty( listitemCopy, "background", background[selectedBackground][0] )
+                        self._add_additionalproperty( listitemCopy, "backgroundPlaylist", background[selectedBackground][1] )
+                        self._add_additionalproperty( listitemCopy, "backgroundPlaylistName", background[selectedBackground][2] )
+                        
+                    else:
+                        # User has selected a normal background
+                        self._add_additionalproperty( listitemCopy, "background", background[selectedBackground] )
+                        self._remove_additionalproperty( listitemCopy, "backgroundPlaylist" )
+                        self._remove_additionalproperty( listitemCopy, "backgroundPlaylistName" )
                     
                 # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
                 listitems = []
@@ -1316,26 +1300,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             if propertyValue == "":
                 # No value set, so remove it from additionalListItemProperties
-                if listitemCopy.getProperty( "additionalListItemProperties" ):
-                    newAdditionalList = []
-                    for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                        if listitemProperty[0] != propertyName:
-                            newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                            
-                    listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
-                        
-                # Copy the item again - this will clear the background property
-                listitemCopy = self._duplicate_listitem( listitemCopy )
-                
+                self._remove_additionalproperty( listitemCopy, propertyName )
             else:
                 # Set the property
-                listitemCopy.setProperty( propertyName, propertyValue )
-                newAdditionalList = [ [propertyName, propertyValue] ]
-                if listitemCopy.getProperty( "additionalListItemProperties" ):
-                    for listitemProperty in eval( listitemCopy.getProperty( "additionalListItemProperties" ) ):
-                        if listitemProperty[0] != propertyName:
-                            newAdditionalList.append( [listitemProperty[0], listitemProperty[1]] )
-                listitemCopy.setProperty( "additionalListItemProperties", repr( newAdditionalList ) )
+                self._add_additionalproperty( listitemCopy, propertyName, propertyValue )
 
             # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
             listitems = []
@@ -1446,6 +1414,53 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set focus
             self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
         
+                
+    def _add_additionalproperty( self, listitem, propertyName, propertyValue ):
+        # Add an item to the additional properties of a user items
+        properties = []
+        if listitem.getProperty( "additionalListItemProperties" ):
+            properties = eval( listitem.getProperty( "additionalListItemProperties" ) )
+        
+        foundProperty = False
+        for property in properties:
+            if property[0] == propertyName:
+                foundProperty = True
+                property[1] = propertyValue
+                listitem.setProperty( propertyName, propertyValue )
+                
+        if foundProperty == False:
+            properties.append( [propertyName, propertyValue] )
+            listitem.setProperty( propertyName, propertyValue )
+            
+        log( "Added property: " + propertyName + " = " + propertyValue ) 
+            
+        listitem.setProperty( "additionalListItemProperties", repr( properties ) )
+        
+        return
+        
+    def _remove_additionalproperty( self, listitem, propertyName ):
+        # Remove an item from the additional properties of a user item
+        properties = []
+        hasProperties = False
+        if listitem.getProperty( "additionalListItemProperties" ):
+            properties = eval( listitem.getProperty( "additionalListItemProperties" ) )
+            hasProperties = True
+        
+        for property in properties:
+            if property[0] == propertyName:
+                properties.remove( property )
+        
+        if len( properties ) == 0:
+            if hasProperties == True:
+                listitem.clearProperty( "additionalListItemProperties" )
+        else:
+            listitem.setProperty( "additionalListItemProperties", repr( properties ) )
+            
+        log( "Removed property: " + propertyName )
+            
+        listitem.setProperty( propertyName, None )
+        
+        return                
                 
     def _parse_listitem( self, item ):
         # Parse a loaded listitem, replacing ::SCRIPT:: or ::LOCAL:: with localized strings
@@ -1582,16 +1597,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             # Check the group matches...
                             if groupValue == self.group:
                                 # Add a custom property
-                                listitemCopy.setProperty( setProperty, setValue )
+                                #listitemCopy.setProperty( setProperty, setValue )
                                 # If there is already an additionalListItemProperties array, add this to it
-                                if listitemCopy.getProperty( "additionalListItemProperties" ):
-                                    listitemProperties = eval( listitemCopy.getProperty( "additionalListItemProperties" ) )
-                                    listitemProperties.append( [setProperty, setValue] )
-                                    listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
-                                else:
-                                    # Create a new additionalListItemProperties array
-                                    listitemProperties = [[ setProperty, setValue ]]
-                                    listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
+                                self._add_additionalproperty( listitemCopy, setProperty, setValue )
+                                #if listitemCopy.getProperty( "additionalListItemProperties" ):
+                                #    listitemProperties = eval( listitemCopy.getProperty( "additionalListItemProperties" ) )
+                                #    listitemProperties.append( [setProperty, setValue] )
+                                #    listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
+                                #else:
+                                #    # Create a new additionalListItemProperties array
+                                #    listitemProperties = [[ setProperty, setValue ]]
+                                #    listitemCopy.setProperty( "additionalListItemProperties", repr( listitemProperties ) )
                     except:
                         log( "Couldn't load data" )
             
@@ -1807,6 +1823,28 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                     if data[2] == DATA.slugify( labelIDChange[0] ):
                                         data[2] = DATA.slugify( labelIDChange[1] )
         
+        # Get a list of all labelID's
+        labelIDList = []
+        for group in properties:
+            if not group[0] in labelIDList:
+                labelIDList.append( group[0] )
+                
+        # Remove all properties from the datafiles with the current group and a matching labelID
+        dataFileTypes = "custom", "background", "widget"
+        for dataFileType in dataFileTypes:
+            dataFile = dataFiles[dataFileType]
+            if len( dataFile ) != 0:
+                for currentProperty in dataFile:
+                    if currentProperty[0] in labelIDList:
+                        if dataFileType == "custom" and currentProperty[3] == self.group:
+                            dataFile.remove( currentProperty )
+                        elif currentProperty[2] == self.group:
+                            dataFile.remove( currentProperty )
+                            
+        # Now add all properties to the datafiles
+        
+            
+            
         
         ## [ [labelID, [property name, property value, groupName]] , [labelID, [property name, property value, groupName]] ]
         for group in properties:
@@ -1821,46 +1859,20 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
                 datafile = dataFiles[type]
                     
-                if len( datafile ) != 0:
-                    # Look for an existing value
-                    found = False
-                    for currentProperty in datafile:
-                        # currentProperty[0] = labelID
-                        # currentProperty[1] = property value / (custom) property name
-                        # currentProperty[2] = groupName / (custom) property value
-                        # currentProperty[3] = groupName
-                        
-                        # Check the labelID matched
-                        if currentProperty[0] == group[0]:
-                            found = True
-                            # Check the groupname matches
-                            if type == "custom":
-                                if currentProperty[3] == self.group:
-                                    found = True
-                                    currentProperty[2] = property[1]
-                            else:
-                                if currentProperty[2] == self.group:
-                                    currentProperty[1] = property[1]
-                    if found == False:
-                        # No existing value found, add one
-                        if type == "custom":
-                            datafile.append( [ group[0], property[0], property[1], self.group ] )
-                        else:
-                            datafile.append( [ group[0], property[1], self.group ] )
-                        
-                    # Update the dataFiles
-                    dataFiles[type] = datafile
+                if type == "custom":
+                    log( "Adding that..." )
+                    datafile.append( [ group[0], property[0], property[1], self.group ] )
                 else:
-                    # There is nothing in the datafile, so add this
-                    if type == "custom":
-                        datafile.append( [ group[0], property[0], property[1], self.group ] )
-                    else:
-                        datafile.append( [ group[0], property[1], self.group ] )
-                    dataFiles[type] = datafile        
-        
+                    datafile.append( [ group[0], property[1], self.group ] )
+                        
+                # Update the dataFiles
+                dataFiles[type] = datafile
+
+                
         # Save the files
         paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
         for path in paths:
+            log( repr( dataFiles[path[1]] ) )
             # Try to save the file
             try:
                 f = xbmcvfs.File( path[0], 'w' )
@@ -1923,6 +1935,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             try:
                 self.getControl( 311 ).setLabel( self.widgets[self.getControl( 211 ).getSelectedItem().getProperty('widget')] )
             except KeyError:
+                log( "Running alternative???" )
                 try:
                     widgetLabel = self.getControl( 211 ).getSelectedItem().getProperty('widget')
                     if widgetLabel == "Playlist":
@@ -1937,12 +1950,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Background name
         if self.has312 == True:
             try:
-                self.getControl( 312 ).setLabel( self.backgrounds[self.getControl( 211 ).getSelectedItem().getProperty('background')] )
+                backgroundLabel = self.getControl( 211 ).getSelectedItem().getProperty( 'background' )
+                backgroundLabel = self.backgrounds[backgroundLabel]
+                if "::PLAYLIST::" in backgroundLabel:
+                    log( "Playlist..." )
+                    self.getControl( 312 ).setLabel( backgroundLabel.replace( "::PLAYLIST::", self.getControl( 211 ).getSelectedItem().getProperty( "backgroundPlaylistName" ) ) )
+                else:
+                    self.getControl( 312 ).setLabel( backgroundLabel )
             except KeyError:
-                try:
-                    self.getControl( 312 ).setLabel( self.getControl( 211 ).getSelectedItem().getProperty('background') )
-                except:
-                    self.getControl( 312 ).setLabel( "" )
+                self.getControl( 312 ).setLabel( "" )
             except:
                 self.has312 = False
                 

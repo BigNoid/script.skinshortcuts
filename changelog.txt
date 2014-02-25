@@ -1,6 +1,6 @@
 v0.2.2
 - New optional method of listing shortcuts via includes file
-- Option to allow user to browse for image to use as background
+- Option to allow user to browse for image or use playlist as background
 - Option to allow user to choose playlist as widget
 - Overrides and defaults now limitable by groupname
 - Fix for custom video nodes

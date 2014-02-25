@@ -23,6 +23,8 @@ When populating a menu, Skin Shortcuts will then add a 'background' property to 
 
 Remembering to replace 9000 with the id of the list containing your menu.
 
+You can also let the user choose to use a playlist for background images for use with, for example, script.grab.fanart, in which case the item will also have the property 'backgroundPlaylist', which will contain the path of the playlist.
+
 Custom backgrounds are saved on a skin-by-skin basis.
 
 
@@ -147,12 +149,15 @@ If you want to let the user browse for either a single or multi-image background
 
 <backgroundBrowse>True</backgroundBrowse>
 
+You can also let the user choose a playlist to use as a background. In that case, set the label to a localised string containing the string "::PLAYLIST::". Skin Shortcuts will create multiple copies of this entry, with ::PLAYLIST:: replaced by the name of each of the users defined playlists. List items will then have the additional property "backgroundPlaylist", containing the path of the playlist.
+
 Note, you can use the script to manage backgrounds for main menu and sub-menu items, but you can only set defaults for main menu items.
 	
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
 	<background label="Weather">weather</background>
 	<background label="30222">movieFanart</background>
+	<background label="Images from ::PLAYLIST::>playlistBackground</background>
 	<backgrounddefault labelID="movies">movieFanart</backgrounddefault>
 	<backgrounddefault labelID="weather">weather</backgrounddefault>
 	<backgroundBrowse>True</backgroundBrowse>
@@ -256,3 +261,5 @@ For common main menu items, it will contain one of the following strings
 For other localized strings, it will contain the id of the string. For non-localized strings, it will contain the string in lowercase and without any spaces.
 
 A full list of labelID's can be found in the Resources folder.
+
+If you are using either "::MENUNAME::" or "::PLAYLIST::" (or similar) in your skins localised strings, it's recommended to leave a note for translators that these should NOT be translated, otherwise users in different languages may not have all options.
