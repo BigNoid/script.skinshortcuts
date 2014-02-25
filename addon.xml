@@ -3,6 +3,7 @@
 	<requires>
 		<import addon="xbmc.python" version="2.12.0"/>
 		<import addon="script.module.simplejson" version="3.3.0"/>
+		<import addon="script.module.unidecode" version="0.4.14"/>
 	</requires>
 	<extension point="xbmc.python.library" library="default.py"/>
 	<extension point="xbmc.addon.metadata">
