@@ -319,8 +319,8 @@ class DataFunctions():
             return pickle.loads( returnVal )
         except:
             # Try to load user-defined widgets
-            if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ) ):
-                path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" )
+            if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".widgets" ) ):
+                path = os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".widgets" )
                 try:
                     # Try loading widgets
                     file = xbmcvfs.File( path ).read()
@@ -361,8 +361,8 @@ class DataFunctions():
             return pickle.loads( returnVal )
         except:
             # Try to load user-defined custom properties
-            if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ) ):
-                path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" )
+            if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".customproperties" ) ):
+                path = os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".customproperties" )
                 try:
                     # Try loading custom properties
                     file = xbmcvfs.File( path ).read()
@@ -400,8 +400,8 @@ class DataFunctions():
             return pickle.loads( returnVal )
         except:
             # Try to load user-defined widgets
-            if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ) ):
-                path = os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" )
+            if xbmcvfs.exists( os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".backgrounds" ) ):
+                path = os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".backgrounds" )
                 try:
                     # Try loading widgets
                     file = xbmcvfs.File( path ).read()

@@ -1619,7 +1619,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _load_properties( self ):
         # Load all widgets, backgrounds and custom properties
         # Load the files
-        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
+        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".customproperties" ),"custom"]]
         overrides = False
         loadedProperties = False
         dataFiles = []
@@ -1842,10 +1842,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             dataFile.remove( currentProperty )
                             
         # Now add all properties to the datafiles
-        
-            
-            
-        
         ## [ [labelID, [property name, property value, groupName]] , [labelID, [property name, property value, groupName]] ]
         for group in properties:
             # group[0] - labelID
@@ -1860,7 +1856,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 datafile = dataFiles[type]
                     
                 if type == "custom":
-                    log( "Adding that..." )
                     datafile.append( [ group[0], property[0], property[1], self.group ] )
                 else:
                     datafile.append( [ group[0], property[1], self.group ] )
@@ -1870,9 +1865,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
                 
         # Save the files
-        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir() + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir() + ".customproperties" ),"custom"]]
+        paths = [[os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".widgets" ),"widget"], [os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".backgrounds" ),"background"], [os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".customproperties" ),"custom"]]
         for path in paths:
-            log( repr( dataFiles[path[1]] ) )
             # Try to save the file
             try:
                 f = xbmcvfs.File( path[0], 'w' )
@@ -1935,7 +1929,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             try:
                 self.getControl( 311 ).setLabel( self.widgets[self.getControl( 211 ).getSelectedItem().getProperty('widget')] )
             except KeyError:
-                log( "Running alternative???" )
                 try:
                     widgetLabel = self.getControl( 211 ).getSelectedItem().getProperty('widget')
                     if widgetLabel == "Playlist":
@@ -1953,7 +1946,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 backgroundLabel = self.getControl( 211 ).getSelectedItem().getProperty( 'background' )
                 backgroundLabel = self.backgrounds[backgroundLabel]
                 if "::PLAYLIST::" in backgroundLabel:
-                    log( "Playlist..." )
                     self.getControl( 312 ).setLabel( backgroundLabel.replace( "::PLAYLIST::", self.getControl( 211 ).getSelectedItem().getProperty( "backgroundPlaylistName" ) ) )
                 else:
                     self.getControl( 312 ).setLabel( backgroundLabel )

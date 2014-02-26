@@ -188,8 +188,8 @@ class XMLFunctions():
                 # LabelID
                 labelID = xmltree.SubElement( newelement, "property" )
                 labelID.set( "name", "labelID" )
-                labelID.text = escapeXML( item[5].encode('utf-8') )
-                submenus.append( item[5].encode('utf-8') )
+                labelID.text = escapeXML( item[5] )
+                submenus.append( item[5] )
                 
                 # Submenu visibility
                 submenuVisibility = xmltree.SubElement( newelement, "property" )
@@ -223,111 +223,112 @@ class XMLFunctions():
             try:
                 print_exc()
             except:
-                i = 1
-            return
-            
-        percent = 100 / ( len(submenus) * ( int( numLevels) + 1 ) )
-        for level in range( 0,  int( numLevels) + 1 ):
-            subelement = xmltree.SubElement(root, "include")
-            if level == 0:
-                subelement.set( "name", "skinshortcuts-submenu" )
-            else:
-                subelement.set( "name", "skinshortcuts-submenu-" + str( level ) )
-
-            i = 0
-            for submenu in submenus:
-                i += 1
-                progress.update( percent * i )
-                individualelement = xmltree.SubElement( root, "include" )
+                pass
+                
+        else:
+            percent = 100 / ( len(submenus) * ( int( numLevels) + 1 ) )
+            for level in range( 0,  int( numLevels) + 1 ):
+                subelement = xmltree.SubElement(root, "include")
                 if level == 0:
-                    individualelement.set( "name", "skinshortcuts-group-" + escapeXML( DATA.slugify( submenu ) ) )
-                    menuitems = DATA._get_shortcuts( submenu, True )
+                    subelement.set( "name", "skinshortcuts-submenu" )
                 else:
-                    individualelement.set( "name", "skinshortcuts-group-" + escapeXML( DATA.slugify( submenu ) ) + "-" + str( level ) )
-                    menuitems = DATA._get_shortcuts( submenu + "." + str( level ), True )
-                
-                
-                
-                for item in menuitems:
-                    newelementA = xmltree.SubElement( subelement, "item" )
-                    newelementB = xmltree.SubElement( individualelement, "item" )
-                    
-                    # Onclick
-                    action = urllib.unquote( item[4] )
-                    if action.find("::MULTIPLE::") == -1:
-                        # Single action, run it
-                        onclickA = xmltree.SubElement( newelementA, "onclick" )
-                        onclickA.text = action
-                        onclickB = xmltree.SubElement( newelementB, "onclick" )
-                        onclickB.text = action
-                    else:
-                        # Multiple actions, separated by |
-                        actions = action.split( "|" )
-                        for singleAction in actions:
-                            if singleAction != "::MULTIPLE::":
-                                onclickA = xmltree.SubElement( newelementA, "onclick" )
-                                onclickA.text = singleAction
-                                onclickB = xmltree.SubElement( newelementB, "onclick" )
-                                onclickB.text = singleAction
-                    
-                    # Label
-                    labelA = xmltree.SubElement( newelementA, "label" )
-                    labelA.text = item[0]
-                    labelB = xmltree.SubElement( newelementB, "label" )
-                    labelB.text = item[0]
-                    
-                    # Label 2
-                    label2A = xmltree.SubElement( newelementA, "label2" )
-                    label2B = xmltree.SubElement( newelementB, "label2" )
-                    if not item[1].find( "::SCRIPT::" ) == -1:
-                        label2A.text = __language__( int( item[1][10:] ) )
-                        label2B.text = __language__( int( item[1][10:] ) )
-                    else:
-                        label2A.text = item[1]
-                        label2B.text = item[1]
+                    subelement.set( "name", "skinshortcuts-submenu-" + str( level ) )
 
-                    # Icon
-                    iconA = xmltree.SubElement( newelementA, "icon" )
-                    iconA.text = item[2]
-                    iconB = xmltree.SubElement( newelementB, "icon" )
-                    iconB.text = item[2]
+                i = 0
+                for submenu in submenus:
+                    i += 1
+                    progress.update( percent * i )
+                    individualelement = xmltree.SubElement( root, "include" )
+                    if level == 0:
+                        individualelement.set( "name", "skinshortcuts-group-" + escapeXML( DATA.slugify( submenu ) ) )
+                        menuitems = DATA._get_shortcuts( submenu, True )
+                    else:
+                        individualelement.set( "name", "skinshortcuts-group-" + escapeXML( DATA.slugify( submenu ) ) + "-" + str( level ) )
+                        menuitems = DATA._get_shortcuts( submenu + "." + str( level ), True )
                     
-                    # Thumb
-                    thumbA = xmltree.SubElement( newelementA, "thumb" )
-                    thumbA.text = item[3]
-                    thumbB = xmltree.SubElement( newelementB, "thumb" )
-                    thumbB.text = item[3]
                     
-                    # LabelID
-                    labelIDA = xmltree.SubElement( newelementA, "property" )
-                    labelIDA.set( "name", "labelID" )
-                    labelIDA.text = item[5].encode('utf-8')
-                    labelIDB = xmltree.SubElement( newelementB, "property" )
-                    labelIDB.set( "name", "labelID" )
-                    labelIDB.text = item[5].encode('utf-8')
                     
-                    # Submenu visibility
-                    submenuVisibility = xmltree.SubElement( newelementA, "visible" )
-                    submenuVisibility.text = "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")"
-                    
-                    # Additional properties
-                    if len( item[6] ) != 0:
-                        repr( item[6] )
-                        for property in item[6]:
-                            if property[0] == "node.visible":
-                                visiblePropertyA = xmltree.SubElement( newelementA, "visible" )
-                                visiblePropertyA.text = property[1]
-                                visiblePropertyB = xmltree.SubElement( newelementB, "visible" )
-                                visiblePropertyB.text = property[1]
-                            else:
-                                additionalpropertyA = xmltree.SubElement( newelementA, "property" )
-                                additionalpropertyA.set( "name", property[0] )
-                                additionalpropertyA.text = property[1]
-                                additionalpropertyB = xmltree.SubElement( newelementB, "property" )
-                                additionalpropertyB.set( "name", property[0] )
-                                additionalpropertyB.text = property[1]
+                    for item in menuitems:
+                        newelementA = xmltree.SubElement( subelement, "item" )
+                        newelementB = xmltree.SubElement( individualelement, "item" )
+                        
+                        # Onclick
+                        action = urllib.unquote( item[4] )
+                        if action.find("::MULTIPLE::") == -1:
+                            # Single action, run it
+                            onclickA = xmltree.SubElement( newelementA, "onclick" )
+                            onclickA.text = action
+                            onclickB = xmltree.SubElement( newelementB, "onclick" )
+                            onclickB.text = action
+                        else:
+                            # Multiple actions, separated by |
+                            actions = action.split( "|" )
+                            for singleAction in actions:
+                                if singleAction != "::MULTIPLE::":
+                                    onclickA = xmltree.SubElement( newelementA, "onclick" )
+                                    onclickA.text = singleAction
+                                    onclickB = xmltree.SubElement( newelementB, "onclick" )
+                                    onclickB.text = singleAction
+                        
+                        # Label
+                        labelA = xmltree.SubElement( newelementA, "label" )
+                        labelA.text = item[0]
+                        labelB = xmltree.SubElement( newelementB, "label" )
+                        labelB.text = item[0]
+                        
+                        # Label 2
+                        label2A = xmltree.SubElement( newelementA, "label2" )
+                        label2B = xmltree.SubElement( newelementB, "label2" )
+                        if not item[1].find( "::SCRIPT::" ) == -1:
+                            label2A.text = __language__( int( item[1][10:] ) )
+                            label2B.text = __language__( int( item[1][10:] ) )
+                        else:
+                            label2A.text = item[1]
+                            label2B.text = item[1]
 
-        progress.update( 100 )
+                        # Icon
+                        iconA = xmltree.SubElement( newelementA, "icon" )
+                        iconA.text = item[2]
+                        iconB = xmltree.SubElement( newelementB, "icon" )
+                        iconB.text = item[2]
+                        
+                        # Thumb
+                        thumbA = xmltree.SubElement( newelementA, "thumb" )
+                        thumbA.text = item[3]
+                        thumbB = xmltree.SubElement( newelementB, "thumb" )
+                        thumbB.text = item[3]
+                        
+                        # LabelID
+                        labelIDA = xmltree.SubElement( newelementA, "property" )
+                        labelIDA.set( "name", "labelID" )
+                        labelIDA.text = item[5]
+                        labelIDB = xmltree.SubElement( newelementB, "property" )
+                        labelIDB.set( "name", "labelID" )
+                        labelIDB.text = item[5]
+                        
+                        # Submenu visibility
+                        submenuVisibility = xmltree.SubElement( newelementA, "visible" )
+                        submenuVisibility.text = "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")"
+                        
+                        # Additional properties
+                        if len( item[6] ) != 0:
+                            repr( item[6] )
+                            for property in item[6]:
+                                if property[0] == "node.visible":
+                                    visiblePropertyA = xmltree.SubElement( newelementA, "visible" )
+                                    visiblePropertyA.text = property[1]
+                                    visiblePropertyB = xmltree.SubElement( newelementB, "visible" )
+                                    visiblePropertyB.text = property[1]
+                                else:
+                                    additionalpropertyA = xmltree.SubElement( newelementA, "property" )
+                                    additionalpropertyA.set( "name", property[0] )
+                                    additionalpropertyA.text = property[1]
+                                    additionalpropertyB = xmltree.SubElement( newelementB, "property" )
+                                    additionalpropertyB.set( "name", property[0] )
+                                    additionalpropertyB.text = property[1]
+
+            progress.update( 100 )
+            
         # Get the skins addon.xml file
         addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")
         addon = xmltree.parse( addonpath )
@@ -343,6 +344,7 @@ class XMLFunctions():
         # Save the tree
         for path in paths:
             tree.write( path, encoding="UTF-8" )
+            #tree.write( "C://temp//temp.xml", encoding="UTF-8" )
         
         # Save the hashes
         file = xbmcvfs.File( os.path.join( __datapath__ , xbmc.getSkinDir() + ".hash" ), "w" )
