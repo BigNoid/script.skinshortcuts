@@ -1936,7 +1936,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     else:
                         self.getControl( 311 ).setLabel( widgetLabel )
                 except:
-                    self.getControl( 311 ).setLabel( "" )
+                    try:
+                        self.getControl( 311 ).setLabel( "" )
+                    except:
+                        self.has311 = False
             except:
                 self.has311 = False
         
@@ -1950,7 +1953,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 else:
                     self.getControl( 312 ).setLabel( backgroundLabel )
             except KeyError:
-                self.getControl( 312 ).setLabel( "" )
+                try:
+                    self.getControl( 312 ).setLabel( "" )
+                except:
+                    self.has312 = False
             except:
                 self.has312 = False
                 
