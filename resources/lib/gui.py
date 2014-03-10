@@ -522,39 +522,78 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _fetch_favourites( self ):
         log('Loading favourites...')
         
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Favourites.GetFavourites", "params": { "properties": ["path", "thumbnail", "window", "windowparameter"] } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-        
         listitems = []
+        listing = None
         
-        if json_response.has_key('result') and json_response['result'].has_key('favourites') and json_response['result']['favourites'] is not None:
-            for item in json_response['result']['favourites']:
-                listitem = xbmcgui.ListItem(label=item['title'], label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=item['thumbnail'])
-                
-                # Build a path depending on the type of favourite returns
-                if item['type'] == "window":
-                    action = 'ActivateWindow(' + item['window'] + ', ' + item['windowparameter'] + ', return)'
-                elif item['type'] == "media":
-                    action = 'PlayMedia("' + item['path'] + '")'
-                elif item['type'] == "script":
-                    action = 'RunScript("' + item['path'] + '")'
-                else:
-                    action = item['path']
-                
-                log( action )
-                listitem.setProperty( "path", urllib.quote( action.encode( 'utf-8' ) ) )
-                
-                if not item['thumbnail'] == "":
-                    listitem.setProperty( "thumbnail", item['thumbnail'] )
-                else:
-                    listitem.setThumbnailImage( "DefaultShortcut.png" )
-                    listitem.setProperty( "thumbnail", "DefaultShortcut.png" )
-                
-                listitem.setProperty( "icon", "DefaultShortcut.png" )
-                listitem.setProperty( "shortcutType", "::SCRIPT::32006" )
-                listitems.append(listitem)
+        fav_file = xbmc.translatePath( 'special://profile/favourites.xml' ).decode("utf-8")
+        if xbmcvfs.exists( fav_file ):
+            doc = parse( fav_file )
+            listing = doc.documentElement.getElementsByTagName( 'favourite' )
+        else:
+            self.arrayFavourites = listitems
+            return
+            
+        for count, favourite in enumerate(listing):
+            name = favourite.attributes[ 'name' ].nodeValue
+            path = favourite.childNodes [ 0 ].nodeValue
+            if ('RunScript' not in path) and ('StartAndroidActivity' not in path):
+                path = path.rstrip(')')
+                path = path + ',return)'
+            if 'playlists/music' in path or 'playlists/video' in path:
+                thumb = "DefaultPlaylist.png"
+                if self.PLAY:
+                    if 'playlists/music' in path:
+                        path = path.replace( 'ActivateWindow(10502,', 'PlayMedia(' )
+                    else:
+                        path = path.replace( 'ActivateWindow(10025,', 'PlayMedia(' )
+            else:
+                try:
+                    thumb = favourite.attributes[ 'thumb' ].nodeValue
+                except:
+                    thumb = "DefaultFolder.png"
+                    
+            log( "Favourite found " + name + " - " + path )
+            listitem = xbmcgui.ListItem(label=name, label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=thumb)
+            listitem.setProperty( "path", urllib.quote( path.encode( 'utf-8' ) ) )
+            listitem.setProperty( "thumbnail", thumb )
+            listitem.setProperty( "shortcutType", "::SCRIPT::32006" )
+            listitems.append(listitem)
         
+        #json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Favourites.GetFavourites", "params": { "properties": ["window", "windowparameter", "thumbnail", "path"] } }')
+        #json_query = unicode(json_query, 'utf-8', errors='ignore')
+        #json_response = simplejson.loads(json_query)
+        #
+        #listitems = []
+        #
+        #if json_response.has_key('result') and json_response['result'].has_key('favourites') and json_response['result']['favourites'] is not None:
+        #    for item in json_response['result']['favourites']:
+        #        listitem = xbmcgui.ListItem(label=item['title'], label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=item['thumbnail'])
+        #        
+        #        # Build a path depending on the type of favourite returns
+        #        if item['type'] == "window":
+        #            action = 'ActivateWindow(' + item['window'] + ', ' + item['windowparameter'] + ', return)'
+        #        elif item['type'] == "media":
+        #            action = 'PlayMedia("' + item['path'] + '")'
+        #        elif item['type'] == "script":
+        #            action = 'RunScript("' + item['path'] + '")'
+        #        else:
+        #            if not 'path' in item.keys():
+        #                break
+        #            action = item['path']
+        #        
+        #        log( action )
+        #        listitem.setProperty( "path", urllib.quote( action.encode( 'utf-8' ) ) )
+        #        
+        #        if not item['thumbnail'] == "":
+        #            listitem.setProperty( "thumbnail", item['thumbnail'] )
+        #        else:
+        #            listitem.setThumbnailImage( "DefaultShortcut.png" )
+        #            listitem.setProperty( "thumbnail", "DefaultShortcut.png" )
+        #        
+        #        listitem.setProperty( "icon", "DefaultShortcut.png" )
+        #        listitem.setProperty( "shortcutType", "::SCRIPT::32006" )
+        #        listitems.append(listitem)
+        #
         self.arrayFavourites = listitems
         
     def _fetch_addons( self ):
