@@ -166,9 +166,9 @@ In home.xml, add the line:
 
 And in skinsettings.xml, the line:
 
-	<onunload>RunScript(script.skinshortcuts,type=buildxml&amp;mainmenuID=9000&amp;group=[groupname],[groupname],[groupname])</onunload>
+	<onunload>RunScript(script.skinshortcuts,type=buildxml&amp;mainmenuID=9000&amp;group=[groupname]|[groupname]|[groupname])</onunload>
 	
-Replace 9000 with the ID of the list you are using for the mainmenu. You should include all [groupname]'s that your skin supports, separated by a comma. The script will then load all of the submenus, and set visibility conditions on each one.
+Replace 9000 with the ID of the list you are using for the mainmenu. You should include all [groupname]'s that your skin supports, separated by a pipe. The script will then load all of the submenus, and set visibility conditions on each one.
 
 
 2. Let the user manage their shortcuts
