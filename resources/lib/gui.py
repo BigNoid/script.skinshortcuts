@@ -48,6 +48,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.arrayPlaylists = []
         self.arrayFavourites = []
         self.arrayAddOns = []
+        self.arrayMoreCommands = []
         
         self.has311 = True
         self.has312 = True
@@ -194,6 +195,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             except:
                 log( "Failed to load add-ons" )
                 print_exc()
+                
+            try:
+                self._load_moreCommands()
+            except:
+                log( "Failed to load more XBMC commands" )
+                print_exc()
             
             try:
                 self._display_shortcuts()
@@ -229,9 +236,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems.append( self._create(["ActivateWindow(FileManager)", "::LOCAL::7", "::SCRIPT::32034", "DefaultFolder.png"]) )
         listitems.append( self._create(["ActivateWindow(Profiles)", "::LOCAL::13200", "::SCRIPT::32034", "UnknownUser.png"]) )
         listitems.append( self._create(["ActivateWindow(SystemInfo)", "::LOCAL::10007", "::SCRIPT::32034", ""]) )
-
-        listitems.append( self._create(["UpdateLibrary(video)", "::SCRIPT::32046", "::SCRIPT::32034", ""]) )
-        listitems.append( self._create(["UpdateLibrary(audio)", "::SCRIPT::32047", "::SCRIPT::32034", ""]) )
+        
+        listitems.append( self._create(["ActivateWindow(Favourites)", "::LOCAL::1036", "::SCRIPT::32034", ""]) )
         
         self.arrayXBMCCommon = listitems
         
@@ -641,6 +647,29 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         self.arrayAddOns = listitems
         
+    def _load_moreCommands( self ):
+        listitems = []
+        log( 'Listing more XBMC commands...' )
+        
+        listitems.append( self._create(["Reboot", "::LOCAL::13013", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["ShutDown", "::LOCAL::13005", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["PowerDown", "::LOCAL::13016", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["Quit", "::LOCAL::13009", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["Hibernate", "::LOCAL::13010", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["Suspend", "::LOCAL::13011", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["ActivateScreensaver", "::LOCAL::360", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["Minimize", "::LOCAL::13014", "::SCRIPT::32054", ""]) )
+
+        listitems.append( self._create(["Mastermode", "::LOCAL::20045", "::SCRIPT::32054", ""]) )
+        
+        listitems.append( self._create(["RipCD", "::LOCAL::600", "::SCRIPT::32054", ""]) )
+        
+        listitems.append( self._create(["UpdateLibrary(video)", "::SCRIPT::32046", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["UpdateLibrary(audio)", "::SCRIPT::32047", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["CleanLibrary(video)", "::SCRIPT::32055", "::SCRIPT::32054", ""]) )
+        listitems.append( self._create(["CleanLibrary(audio)", "::SCRIPT::32056", "::SCRIPT::32054", ""]) )
+        
+        self.arrayMoreCommands = listitems
     
     def _load_widgetsbackgrounds( self ):
         self.widgets = {}
@@ -679,14 +708,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Move to previous type of shortcuts
             self.shortcutgroup = self.shortcutgroup - 1
             if self.shortcutgroup == 0:
-                self.shortcutgroup = 6
+                self.shortcutgroup = 7
                 
             self._display_shortcuts()
 
         if controlID == 103:
             # Move to next type of shortcuts
             self.shortcutgroup = self.shortcutgroup + 1
-            if self.shortcutgroup == 7:
+            if self.shortcutgroup == 8:
                 self.shortcutgroup = 1
                 
             self._display_shortcuts()
@@ -1174,9 +1203,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     shortcutCategory = 4
                 elif skinCategory == "addons":
                     shortcutCategory = 5
+                elif skinCategory == "commands":
+                    shortcutCategory = 6
             else:
                 # No window property passed, ask the user what category they want
-                shortcutCategories = [__language__(32029), __language__(32030), __language__(32031), __language__(32040), __language__(32006), __language__(32007)]
+                shortcutCategories = [__language__(32029), __language__(32030), __language__(32031), __language__(32040), __language__(32006), __language__(32007), __language__(32057)]
                 shortcutCategory = xbmcgui.Dialog().select( __language__(32043), shortcutCategories )
                 
             # Clear the window property
@@ -1200,6 +1231,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             elif shortcutCategory == 5: # Add-ons
                 availableShortcuts = self.arrayAddOns
                 displayLabel2 = True
+            elif shortcutCategory == 6: # XBMC Commands
+                availableShortcuts = self.arrayMoreCommands
                 
                 
             elif shortcutCategory != -1: # No category selected
@@ -1941,6 +1974,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(self.arrayAddOns)
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
+        if self.shortcutgroup == 7:
+            self.getControl( 111 ).reset()
+            self.getControl( 111 ).addItems(self.arrayMoreCommands)
+            self.getControl( 101 ).setLabel( __language__(32057) + " (%s)" %self.getControl( 111 ).size() )
             
     def updateEditControls( self ):
         xbmc.sleep(50)
