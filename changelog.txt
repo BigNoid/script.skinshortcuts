@@ -1,5 +1,11 @@
+v0.2.4
+- Fix listing individual groups with <include> method
+- Parse favourites.xml directly
+- Add XBMC Commands shortcut group
+- Updated language files from Transifex
+
 v0.2.3
-- Parse favourites.xml directly (fix for android apps)
+- Unpublished development revision
 
 v0.2.2
 - New optional method of listing shortcuts via includes file

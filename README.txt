@@ -1,14 +1,12 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.2.2)
+What's New for Skinners (version 0.2.4)
 -----------------------
 
- - Alternative method of listing shortcuts via an includes file (see below)
- - Limit overrides and defaults by group (see "resource/Advanced Usage.txt" - "Overrides.xml")
- - Option to allow user to browse for background image (see "resources/Advanced Usage.txt" - "Managing Custom Backgrounds" & "Overrides.xml")
- - Option to allow user to use a playlist as a widget (see "resources/Advanced Usage.txt" - "Managing Widgets" & "Overrides.xml")
- - Full support for skin-provided localisations in default files (see "resources/Advanced Usage.txt" - "Localisation")
+This revision includes no new features for skinners, but does include the following important fix:
+
+ - Listing groups when using the <include>'s method, now separate [groupname]s with a pipe symbol. See "Using <includes> - sub-menu only" below.
  
  
 Where To Get Help
