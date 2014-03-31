@@ -243,7 +243,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
     def _load_videolibrary( self, type ):
         listitems = []
-        rootdir = os.path.join( xbmc.translatePath( "special://userdata".decode('utf-8') ), "library", "video" )
+        rootdir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" )
         if type == "custom":
             log('Listing custom video nodes...')
         else:
@@ -1047,7 +1047,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Get widgets
             widgetLabel = [__language__(32053)]
-            widget = [""]         
+            widget = [""]      
             for key in self.widgets:
                 widgetLabel.append( self.widgets[key] )
                 widget.append( key )

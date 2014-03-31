@@ -1,11 +1,11 @@
+v0.2.5 - Unstable development revision
+- Fix for custom nodes when using profiles
+
 v0.2.4
 - Fix listing individual groups with <include> method
 - Parse favourites.xml directly
 - Add XBMC Commands shortcut group
 - Updated language files from Transifex
-
-v0.2.3
-- Unpublished development revision
 
 v0.2.2
 - New optional method of listing shortcuts via includes file
