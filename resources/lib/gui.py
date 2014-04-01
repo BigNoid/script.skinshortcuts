@@ -674,8 +674,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.arrayMoreCommands = listitems
     
     def _load_widgetsbackgrounds( self ):
-        self.widgets = {}
-        self.backgrounds = {}
+        self.widgets = []
+        self.widgetsPretty = {}
+        self.backgrounds = []
+        self.backgroundsPretty = {}
         
         # Load skin overrides
         path = os.path.join( __skinpath__ , "overrides.xml" )
@@ -691,17 +693,25 @@ class GUI( xbmcgui.WindowXMLDialog ):
             elems = tree.findall('widget')
             for elem in elems:
                 if elem.attrib.get( 'label' ).isdigit():
-                    self.widgets[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+                    self.widgets.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) ] )
+                    self.widgetsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+                    log( "Widget: " + xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) )
                 else:
-                    self.widgets[elem.text] = elem.attrib.get( 'label' )
+                    self.widgets.append( [elem.text, elem.attrib.get( 'label' ) ] )
+                    self.widgetsPretty[elem.text] = elem.attrib.get( 'label' )
+                    log( "Widget: " + elem.attrib.get( 'label' ) )
+                    
+            log( repr( self.widgets ) )
         # Get backgrounds
         if tree is not None:
             elems = tree.findall('background')
             for elem in elems:
                 if elem.attrib.get( 'label' ).isdigit():
-                    self.backgrounds[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+                    self.backgrounds.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )] )
+                    self.backgroundsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
                 else:
-                    self.backgrounds[elem.text] = elem.attrib.get( 'label' )
+                    self.backgrounds.append( [elem.text, elem.attrib.get( 'label' ) ] )
+                    self.backgroundsPretty[elem.text] = elem.attrib.get( 'label' )
                     
         
         
@@ -1051,8 +1061,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             widgetLabel = [__language__(32053)]
             widget = [""]      
             for key in self.widgets:
-                widgetLabel.append( self.widgets[key] )
-                widget.append( key )
+                widgetLabel.append( key[1] )
+                widget.append( key[0] )
                 
             if self.widgetPlaylists == True:
                 for playlist in self.widgetPlaylistsList:
@@ -1115,14 +1125,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 background = [""]                         
                 
             for key in self.backgrounds:
-                log( key )
-                if "::PLAYLIST::" in self.backgrounds[key]:
+                if "::PLAYLIST::" in key[1]:
                     for playlist in self.widgetPlaylistsList:
-                        backgroundLabel.append( self.backgrounds[key].replace( "::PLAYLIST::", playlist[1] ) )
-                        background.append( [ key, playlist[0], playlist[1] ] )
+                        backgroundLabel.append( key[1].replace( "::PLAYLIST::", playlist[1] ) )
+                        background.append( [ key[0], playlist[0], playlist[1] ] )
                 else:
-                    backgroundLabel.append( self.backgrounds[key] )
-                    background.append( key )
+                    backgroundLabel.append( key[1] )
+                    background.append( key[0] )
             
             dialog = xbmcgui.Dialog()
             selectedBackground = dialog.select( __language__(32045), backgroundLabel )
@@ -2005,7 +2014,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Widget name
         if self.has311 == True:
             try:
-                self.getControl( 311 ).setLabel( self.widgets[self.getControl( 211 ).getSelectedItem().getProperty('widget')] )
+                self.getControl( 311 ).setLabel( self.widgetsPretty[self.getControl( 211 ).getSelectedItem().getProperty('widget')] )
             except KeyError:
                 try:
                     widgetLabel = self.getControl( 211 ).getSelectedItem().getProperty('widget')
@@ -2025,7 +2034,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if self.has312 == True:
             try:
                 backgroundLabel = self.getControl( 211 ).getSelectedItem().getProperty( 'background' )
-                backgroundLabel = self.backgrounds[backgroundLabel]
+                backgroundLabel = self.backgroundsPretty[backgroundLabel]
                 if "::PLAYLIST::" in backgroundLabel:
                     self.getControl( 312 ).setLabel( backgroundLabel.replace( "::PLAYLIST::", self.getControl( 211 ).getSelectedItem().getProperty( "backgroundPlaylistName" ) ) )
                 else:
