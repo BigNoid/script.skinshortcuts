@@ -482,47 +482,49 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _fetch_playlists( self ):
         listitems = []
         # Music Playlists
-        log('Loading music playlists...')
+        log('Loading playlists...')
         paths = [['special://profile/playlists/video/','32004','VideoLibrary'], ['special://profile/playlists/music/','32005','MusicLibrary'], ['special://profile/playlists/mixed/','32008','MusicLibrary']]
         for path in paths:
-            try:
-                dirlist = os.listdir( xbmc.translatePath( path[0] ).decode('utf-8') )
-            except:
-                dirlist = []
-            for item in dirlist:
-                playlist = os.path.join( path[0].decode( 'utf-8' ), item).encode( 'utf-8' )
-                playlistfile = xbmc.translatePath( playlist ).decode( 'utf-8' )
-                if item.endswith('.xsp'):
-                    contents = xbmcvfs.File(playlistfile, 'r')
-                    contents_data = contents.read().decode('utf-8')
-                    xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
-                    for line in xmldata.getiterator():
-                        if line.tag == "name":
-                            name = line.text
-                            if not name:
-                                name = item[:-4]
-                            log('Playlist found %s' % name)
-                            # Create a list item
-                            listitem = xbmcgui.ListItem(label=name, label2= __language__(int(path[1])), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                            listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + path[2] + "," + playlist + ", return)" ).encode( 'utf-8' ) )
-                            listitem.setProperty( "icon", "DefaultShortcut.png" )
-                            listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                            listitem.setProperty( "shortcutType", "::SCRIPT::" + path[1] )
-                            listitems.append(listitem)
-                            
-                            # Save it for the widgets list
-                            self.widgetPlaylistsList.append( [playlist.decode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name] )
-                            break
-                elif item.endswith('.m3u'):
-                    name = item[:-4]
-                    log('Music playlist found %s' % name)
-                    listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                    listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                    listitem.setProperty( "icon", "DefaultShortcut.png" )
-                    listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                    listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
-                    listitems.append(listitem)
-                        
+            rootpath = xbmc.translatePath( path[0] ).decode('utf-8')
+            for root, subdirs, files in os.walk( rootpath ):
+                for file in files:
+                    playlist = root.replace( rootpath, path[0] )
+                    if not playlist.endswith( '/' ):
+                        playlist = playlist + "/"
+                    playlist = playlist + file
+                    playlistfile = os.path.join( root, file ).decode( 'utf-8' )
+                    
+                    if file.endswith( '.xsp' ):
+                        contents = xbmcvfs.File(playlistfile, 'r')
+                        contents_data = contents.read().decode('utf-8')
+                        xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
+                        for line in xmldata.getiterator():
+                            if line.tag == "name":
+                                name = line.text
+                                if not name:
+                                    name = file[:-4]
+                                log('Playlist found %s' % name)
+                                # Create a list item
+                                listitem = xbmcgui.ListItem(label=name, label2= __language__(int(path[1])), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
+                                listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + path[2] + "," + playlist + ", return)" ).encode( 'utf-8' ) )
+                                listitem.setProperty( "icon", "DefaultShortcut.png" )
+                                listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                                listitem.setProperty( "shortcutType", "::SCRIPT::" + path[1] )
+                                listitems.append(listitem)
+                                
+                                # Save it for the widgets list
+                                self.widgetPlaylistsList.append( [playlist.decode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name] )
+                                break
+                    elif file.endswith( '.m3u' ):
+                        name = file[:-4]
+                        log('Music playlist found %s' % name)
+                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
+                        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                        listitem.setProperty( "icon", "DefaultShortcut.png" )
+                        listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                        listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
+                        listitems.append(listitem)
+            
         self.arrayPlaylists = listitems
                 
     def _fetch_favourites( self ):

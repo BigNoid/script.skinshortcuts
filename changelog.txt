@@ -1,5 +1,6 @@
 v0.2.5 - Unstable development revision
 - Fix for custom nodes when using profiles
+- Load playlists from sub-folders
 
 v0.2.4
 - Fix listing individual groups with <include> method
