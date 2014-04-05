@@ -157,44 +157,44 @@ class XMLFunctions():
                 if action.find("::MULTIPLE::") == -1:
                     # Single action, run it
                     onclick = xmltree.SubElement( newelement, "onclick" )
-                    onclick.text = escapeXML( action )
+                    onclick.text = action
                 else:
                     # Multiple actions, separated by |
                     actions = action.split( "|" )
                     for singleAction in actions:
                         if singleAction != "::MULTIPLE::":
                             onclick = xmltree.SubElement( newelement, "onclick" )
-                            onclick.text = escapeXML( singleAction )
+                            onclick.text = singleAction
                 
                 # Label
                 label = xmltree.SubElement( newelement, "label" )
-                label.text = escapeXML( item[0] )
+                label.text = item[0]
                 
                 # Label 2
                 label2 = xmltree.SubElement( newelement, "label2" )
                 if not item[1].find( "::SCRIPT::" ) == -1:
-                    label2.text = escapeXML( __language__( int( item[1][10:] ) ) )
+                    label2.text = __language__( int( item[1][10:] ) )
                 else:
-                    label2.text = escapeXML( item[1] )
+                    label2.text = item[1]
 
                 # Icon
                 icon = xmltree.SubElement( newelement, "icon" )
-                icon.text = escapeXML( item[2] )
+                icon.text = item[2]
                 
                 # Thumb
                 thumb = xmltree.SubElement( newelement, "thumb" )
-                thumb.text = escapeXML( item[3] )
+                thumb.text = item[3]
                 
                 # LabelID
                 labelID = xmltree.SubElement( newelement, "property" )
                 labelID.set( "name", "labelID" )
-                labelID.text = escapeXML( item[5] )
+                labelID.text = item[5]
                 submenus.append( item[5] )
                 
                 # Submenu visibility
                 submenuVisibility = xmltree.SubElement( newelement, "property" )
                 submenuVisibility.set( "name", "submenuVisibility" )
-                submenuVisibility.text = escapeXML( DATA.slugify( item[5] ) )
+                submenuVisibility.text = DATA.slugify( item[5] )
                 
                 # Additional properties
                 if len( item[6] ) != 0:
@@ -202,11 +202,11 @@ class XMLFunctions():
                     for property in item[6]:
                         if property[0] == "node.visible":
                             visibleProperty = xmltree.SubElement( newelement, "visible" )
-                            visibleProperty.text = escapeXML( property[1] )
+                            visibleProperty.text = property[1]
                         else:
                             additionalproperty = xmltree.SubElement( newelement, "property" )
                             additionalproperty.set( "name", property[0] )
-                            additionalproperty.text = escapeXML( property[1] )
+                            additionalproperty.text = property[1] )
         
         else:
             # We're building just for specific submenus, so pop these into the
