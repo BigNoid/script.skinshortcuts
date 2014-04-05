@@ -206,7 +206,7 @@ class XMLFunctions():
                         else:
                             additionalproperty = xmltree.SubElement( newelement, "property" )
                             additionalproperty.set( "name", property[0] )
-                            additionalproperty.text = property[1] )
+                            additionalproperty.text = property[1]
         
         else:
             # We're building just for specific submenus, so pop these into the

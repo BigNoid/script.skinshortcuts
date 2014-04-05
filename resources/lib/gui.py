@@ -544,7 +544,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         for count, favourite in enumerate(listing):
             name = favourite.attributes[ 'name' ].nodeValue
             path = favourite.childNodes [ 0 ].nodeValue
-            if ('RunScript' not in path) and ('StartAndroidActivity' not in path):
+            log( path )
+            if ('RunScript' not in path) and ('StartAndroidActivity' not in path) and not (path.endswith(',return)') ):
                 path = path.rstrip(')')
                 path = path + ',return)'
             if 'playlists/music' in path or 'playlists/video' in path:
@@ -637,7 +638,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for item in json_response['result']['addons']:
                     if item['enabled'] == True:
                         listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
-                        listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
+                        if contenttype == "executable":
+                            listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
+                        else:
+                            listitem.setProperty( "path", urllib.quote( "||BROWSE||" + item['addonid'].encode('utf-8') ) )
+                            listitem.setProperty( "action", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
                         if item['thumbnail'] != "":
                             listitem.setProperty( "thumbnail", item['thumbnail'] )
                         else:
@@ -735,6 +740,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if controlID == 111:
             # User has selected an available shortcut they want in their menu
             self.changeMade = True
+            
+            path = urllib.unquote( self.getControl( 111 ).getSelectedItem().getProperty( "Path" ) )
+            
+            # If this is a plugin, call our library browser
+            if path.startswith( "||BROWSE||" ):
+                self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                return
             
             # Create a copy of the listitem
             listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
@@ -1431,6 +1443,84 @@ class GUI( xbmcgui.WindowXMLDialog ):
             xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + ")" )
 
             
+    def _browseLibrary( self, history, location, label, thumbnail, itemToReplace, itemType ):
+        # JSON query
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + location + '", "media": "files" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+        
+        # Default action - create shortcut
+        displayList = [ " > Create shortcut to here" ]
+        displayListActions = [ "||CREATE||" ]
+        displayListThumbs = [ "NONE" ]
+        
+        dialogLabel = label[0]
+        
+        # If this isn't the root, create a link to go up the heirachy
+        if len( label ) is not 1:
+            displayList.append( " > .." )
+            displayListActions.append( "||BACK||" )
+            displayListThumbs.append( "NONE" )
+            
+            dialogLabel = label[0] + " - " + label[ len( label ) - 1 ]
+            
+        # Add all directories returned by the json query
+        if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
+            for item in json_response['result']['files']:
+                log( repr( item ) )
+                if item["filetype"] == "directory":
+                    displayList.append( item['label'] )
+                    displayListActions.append( item['file'] )
+                    displayListThumbs.append( item['thumbnail'] )
+            
+        # Show dialog
+        dialog = xbmcgui.Dialog()
+        selectedItem = dialog.select( dialogLabel, displayList )
+        
+        if selectedItem != -1:
+            if displayListActions[ selectedItem ] == "||CREATE||":
+                # User has chosen the shortcut they want
+                
+                # Build the action
+                if itemType == "::SCRIPT::32010":
+                    action = "ActivateWindow(10025," + location + ",Return)"
+                elif itemType == "::SCRIPT::32011":
+                    action = 'ActivateWindow(10501,&quot;' + location + '&quot;,Return)'
+                elif itemType == "::SCRIPT::32012":
+                    action = 'ActivateWindow(10002,&quot;' + location + '&quot;,Return)'
+                else:
+                    action = "RunAddon(" + location + ")"
+                
+                # Loop through existing list items, and replace the selected with our new item
+                listitems = []
+                for x in range(0, self.getControl( 211 ).size()):
+                    if x == itemToReplace:
+                        listitems.append( self._create([action, label[ len( label ) - 1 ], itemType, thumbnail[ len( thumbnail ) - 1 ]]) )
+                    else:
+                        # Duplicate the item and add it to the listitems array
+                        listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
+                        listitems.append(listitemShortcutCopy)
+                
+                self.getControl( 211 ).reset()
+                self.getControl( 211 ).addItems(listitems)
+                
+                self.getControl( 211 ).selectItem( itemToReplace )
+                
+            elif displayListActions[ selectedItem ] == "||BACK||":
+                # User is going up the heirarchy, remove current level and re-call this function
+                history.pop()
+                label.pop()
+                thumbnail.pop()
+                self._browseLibrary( history, history[ len( history ) -1 ], label, thumbnail, itemToReplace, itemType )
+                
+            else:
+                # User has chosen a sub-level to display, add details and re-call this function
+                history.append( displayListActions[ selectedItem ] )
+                label.append( displayList[ selectedItem ] )
+                thumbnail.append( displayListThumbs[ selectedItem ] )
+                self._browseLibrary( history, displayListActions[ selectedItem ], label, thumbnail, itemToReplace, itemType )
+                
+
     def load_shortcuts( self ):
         log( "Loading shortcuts" )
         
