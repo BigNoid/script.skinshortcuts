@@ -1,6 +1,8 @@
 v0.2.5 - Unstable development revision
+- Fix escaping of main menu items for includes method
 - Fix for custom nodes when using profiles
-- Load playlists from sub-folders
+- Load skin-provided playlists and playlists from sub-folders
+- Ability to browse a plugin from the management dialog
 
 v0.2.4
 - Fix listing individual groups with <include> method

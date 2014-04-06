@@ -483,7 +483,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitems = []
         # Music Playlists
         log('Loading playlists...')
-        paths = [['special://profile/playlists/video/','32004','VideoLibrary'], ['special://profile/playlists/music/','32005','MusicLibrary'], ['special://profile/playlists/mixed/','32008','MusicLibrary']]
+        paths = [['special://profile/playlists/video/','32004','VideoLibrary'], ['special://profile/playlists/music/','32005','MusicLibrary'], ['special://profile/playlists/mixed/','32008','MusicLibrary'], [xbmc.translatePath( "special://skin/extras/" ).decode('utf-8'),'32059',None]]
         for path in paths:
             rootpath = xbmc.translatePath( path[0] ).decode('utf-8')
             for root, subdirs, files in os.walk( rootpath ):
@@ -493,20 +493,28 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         playlist = playlist + "/"
                     playlist = playlist + file
                     playlistfile = os.path.join( root, file ).decode( 'utf-8' )
+                    mediaLibrary = path[2]
                     
                     if file.endswith( '.xsp' ):
                         contents = xbmcvfs.File(playlistfile, 'r')
                         contents_data = contents.read().decode('utf-8')
                         xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
                         for line in xmldata.getiterator():
-                            if line.tag == "name":
+                            if line.tag == "smartplaylist":
+                                mediaType = line.attrib['type']
+                                if mediaType == "movies" or mediaType == "tvshows" or mediaType == "seasons" or mediaType == "episodes" or mediaType == "musicvideos" or mediaType == "sets":
+                                    mediaLibrary = "VideoLibrary"
+                                elif mediaType == "albums" or mediaType == "artists" or mediaType == "songs":
+                                    mediaLibrary = "MusicLibrary"                                
+                                
+                            if line.tag == "name" and mediaLibrary is not None:
                                 name = line.text
                                 if not name:
                                     name = file[:-4]
                                 log('Playlist found %s' % name)
                                 # Create a list item
                                 listitem = xbmcgui.ListItem(label=name, label2= __language__(int(path[1])), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                                listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + path[2] + "," + playlist + ", return)" ).encode( 'utf-8' ) )
+                                listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist + ", return)" ).encode( 'utf-8' ) )
                                 listitem.setProperty( "icon", "DefaultShortcut.png" )
                                 listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                                 listitem.setProperty( "shortcutType", "::SCRIPT::" + path[1] )
@@ -544,7 +552,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         for count, favourite in enumerate(listing):
             name = favourite.attributes[ 'name' ].nodeValue
             path = favourite.childNodes [ 0 ].nodeValue
-            log( path )
             if ('RunScript' not in path) and ('StartAndroidActivity' not in path) and not (path.endswith(',return)') ):
                 path = path.rstrip(')')
                 path = path + ',return)'
@@ -1450,7 +1457,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         json_response = simplejson.loads(json_query)
         
         # Default action - create shortcut
-        displayList = [ " > Create shortcut to here" ]
+        displayList = [ " > " + __language__(32058) ]
         displayListActions = [ "||CREATE||" ]
         displayListThumbs = [ "NONE" ]
         
