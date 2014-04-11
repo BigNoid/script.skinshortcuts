@@ -1,12 +1,15 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.2.4)
+What's New for Skinners (version 0.2.5)
 -----------------------
 
-This revision includes no new features for skinners, but does include the following important fix:
-
- - Listing groups when using the <include>'s method, now separate [groupname]s with a pipe symbol. See "Using <includes> - sub-menu only" below.
+ - (Includes method) Menu items now only have the "hasSubmenu" property if there is a submenu
+ - Test of an alternative includes method "buildSingle" for including whole menu in a single list (incomplete) (undocumented)
+ - Numerous management dialog changes - see resources/Management Dialog.txt for full details - including
+	> Advice change - skins should now provide labels for all controls
+	> Labels 311 and 312 (background and widget name) replaced with listitem properties
+ - Management dialog will now list skin-provided playlists - this affects defaults, see "Providing Default Shortcuts" below (incomplete)
  
  
 Where To Get Help
@@ -288,6 +291,8 @@ To provide this optional file, create a new sub-directory in your skin called 's
 The easiest way to create this file is to use the script to build a list of shortcuts, then copy it from your userdata folder. See "Recommended [groupname]'s" for ideas of some of the default files you may wish to provide, along with mainmenu.shortcuts if you are using the script to manage the main menu.
 
 The script provides defaults equivalent to Confluence's main menu and sub-menus.
+
+Linking to skin-provided playlists is not currently supported. It will be added shortly.
 	
 	
 Properties returned

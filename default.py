@@ -60,7 +60,10 @@ class Main:
             
         if self.TYPE=="buildxml":
             #if not xbmcvfs.exists( os.path.join( __datapath__, "test.txt" ) ):
-            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS )
+            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, False )
+            
+        if self.TYPE=="buildsingle":
+            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, True )
             
         if self.TYPE=="launch":
             # Tell XBMC not to try playing any media
