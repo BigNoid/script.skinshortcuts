@@ -193,8 +193,8 @@ class XMLFunctions():
                 
                 # Get the submenu items
                 if count == 0:
-                    justmenuTreeA.set( "name", "skinshortcuts-group-" + escapeXML( DATA.slugify( submenu ) ) )
-                    justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + escapeXML( DATA.slugify( submenu ) ) )
+                    justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) )
+                    justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
                     submenuitems = DATA._get_shortcuts( submenu, True )
                     
                     # Set whether there are any submenu items for the main menu
@@ -209,8 +209,8 @@ class XMLFunctions():
                                 hasSubMenu.text = "True"
                             
                 else:
-                    justmenuTreeA.set( "name", "skinshortcuts-group-" + escapeXML( DATA.slugify( submenu ) ) + "-" + str( count ) )
-                    justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + escapeXML( DATA.slugify( submenu ) ) + "-" + str( count ) )
+                    justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) ) + "-" + str( count )
+                    justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) ) + "-" + str( count )
                     submenuitems = DATA._get_shortcuts( submenu + "." + str( count ), True )
                     
                 log( "Count: " + str( len( submenuitems ) ) )
@@ -222,9 +222,9 @@ class XMLFunctions():
                     onClickElement = mainmenuItemB.find( "onclick" )
                     altOnClick = xmltree.SubElement( mainmenuItemB, "onclick" )
                     altOnClick.text = onClickElement.text
-                    altOnClick.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")" )
-                    onClickElement.text = "SetProperty(submenuVisibility," + escapeXML( DATA.slugify( submenu ) ) + ",10000)"
-                    onClickElement.set( "condition", "!StringCompare(Window(10000).Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")" )
+                    altOnClick.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
+                    onClickElement.text = "SetProperty(submenuVisibility," + DATA.slugify( submenu ) + ",10000)"
+                    onClickElement.set( "condition", "!StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
                     
                     #self.buildElement( item, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")" )
                     #xmltree.SubElement( mainmenuItemB, "onclick" ).text = "Replaced :)"
@@ -232,9 +232,9 @@ class XMLFunctions():
                 for subitem in submenuitems:
                     self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")" )
                     self.buildElement( subitem, justmenuTreeA, submenu, None )
-                    self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")" )
+                    self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
                     if buildSingle:
-                        self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")" )
+                        self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
             
                 # Increase the counter
                 count += 1
@@ -273,39 +273,39 @@ class XMLFunctions():
         if action.find("::MULTIPLE::") == -1:
             # Single action, run it
             onclick = xmltree.SubElement( newelement, "onclick" )
-            onclick.text = escapeXML( action )
+            onclick.text = action
         else:
             # Multiple actions, separated by |
             actions = action.split( "|" )
             for singleAction in actions:
                 if singleAction != "::MULTIPLE::":
                     onclick = xmltree.SubElement( newelement, "onclick" )
-                    onclick.text = escapeXML( singleAction )
+                    onclick.text = singleAction
         
         # Label
         label = xmltree.SubElement( newelement, "label" )
-        label.text = escapeXML( item[0] )
+        label.text = item[0]
         
         # Label 2
         label2 = xmltree.SubElement( newelement, "label2" )
         if not item[1].find( "::SCRIPT::" ) == -1:
-            label2.text = escapeXML( __language__( int( item[1][10:] ) ) )
+            label2.text = __language__( int( item[1][10:] ) )
         else:
-            label2.text = escapeXML( item[1] )
+            label2.text = item[1]
 
 
         # Icon
         icon = xmltree.SubElement( newelement, "icon" )
-        icon.text = escapeXML( item[2] )
+        icon.text = item[2]
         
         # Thumb
         thumb = xmltree.SubElement( newelement, "thumb" )
-        thumb.text = escapeXML( item[3] )
+        thumb.text = item[3]
         
         # LabelID
         labelID = xmltree.SubElement( newelement, "property" )
         labelID.set( "name", "labelID" )
-        labelID.text = escapeXML( item[5] )
+        labelID.text = item[5]
         
         # Group name
         group = xmltree.SubElement( newelement, "property" )
@@ -316,7 +316,7 @@ class XMLFunctions():
         if groupName == "mainmenu":
             submenuVisibility = xmltree.SubElement( newelement, "property" )
             submenuVisibility.set( "name", "submenuVisibility" )
-            submenuVisibility.text = escapeXML( DATA.slugify( item[5] ) )
+            submenuVisibility.text = DATA.slugify( item[5] )
             
         # Visibility
         if visibilityCondition is not None:
@@ -332,11 +332,11 @@ class XMLFunctions():
             for property in item[6]:
                 if property[0] == "node.visible":
                     visibleProperty = xmltree.SubElement( newelement, "visible" )
-                    visibleProperty.text = escapeXML( property[1] )
+                    visibleProperty.text = property[1]
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0] )
-                    additionalproperty.text = escapeXML( property[1] )
+                    additionalproperty.text = property[1]
                     
         return newelement
         
