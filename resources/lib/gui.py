@@ -1,4 +1,4 @@
-# coding=utf-8 Hello World
+# coding=utf-8
 import os, sys, datetime, unicodedata
 import xbmc, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree

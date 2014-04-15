@@ -11,6 +11,8 @@ What's New for Skinners (version 0.2.5)
 	> Labels 311 and 312 (background and widget name) replaced with listitem properties
  - Management dialog will now list skin-provided playlists - this affects defaults, see "Providing Default Shortcuts" below (incomplete)
  
+Note: The code to manage additional properties including backgrounds and widgets has been re-written in this revision. The new method is not backwards compatible, so any backgrounds/widgets/additional properties will need to be re-set.
+ 
  
 Where To Get Help
 -----------------
@@ -137,13 +139,6 @@ Remember to replace 9000 with the id of the list you are using for the main menu
 If your skin provides widgets or has custom backgrounds, you can use Skin Shortcuts to manage these. You can also use Skin Shortcuts to manage any additional properties you wish. See "Advanced Usage".
 
 Otherwise, you can set visibility of any additional controls based on the labelID of the main menu listitems property 'labelID'. For information on what labelID may contain, see section "Advanced Usage". A full list of labelID's can be found in the Resources folder.
-
-
-4. Providing alternative access to settings
-
-One of the side effects of using skinshortcuts to provide the whole main menu is that users have the ability to delete any shortcut, including those that they will later turn out to actually want. Generally, this isn't a problem as they can add them back at any time. However if they delete all links to settings, they will have no way to add it back unless your skin offers an alternative access.
-
-Therefore, it is recommended to have an alternative link to settings. One possible location is in your shutdown menu.
 
 
 Using <includes> - sub-menu only
@@ -308,7 +303,9 @@ Regardless of which method you use, the script will always return a list with a 
 	Property(action)	The action that will be run when the shortcut is selected
 	Property(group)		The [groupname] that this shortcut is listed from
 	Property(widget)	If your skin uses Skin Shortcuts to manage widgets, the [widgetID] will appear here (mainmenu only)
+	Property(widgetName)        - The display name of the widget will appear here
 	Property(background)If your skin uses Skin Shortcuts to manage background, the [backgroundID] will appear here (mainmenu only)
+	Property(backgroundName)    - The display name of the widget will appear here
 
 You can also use the script to manage any additional properties you would like. See "resources/Management Dialog.txt" and "resources/Advanced Usage.txt" - "Overrides.xml" - section 5 (Custom shortcut properties)
 	

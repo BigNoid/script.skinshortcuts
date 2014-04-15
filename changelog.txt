@@ -3,6 +3,7 @@ v0.2.5 - Unstable development revision
 - Fix for custom nodes when using profiles
 - Load skin-provided playlists and playlists from sub-folders
 - Ability to browse a plugin from the management dialog
+- Improved method of managing additional properties
 - Method to list menu and submenus in a single include
 
 v0.2.4
