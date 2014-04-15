@@ -416,8 +416,7 @@ class Main:
     
     def reset_window_properties( self ):
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsWidgets" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsBackgrounds" )
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-mainmenu" )
         listitems = DATA._get_shortcuts( "mainmenu" )
         for item in listitems:

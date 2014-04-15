@@ -23,7 +23,7 @@ def log(txt):
     
 class XMLFunctions():
     def __init__(self):
-        log( "Loaded xml functions" )
+        pass
         
     def buildMenu( self, mainmenuID, groups, numLevels, buildSingle ):
         # Entry point for building includes.xml files
@@ -59,9 +59,7 @@ class XMLFunctions():
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin-data" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user-data" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsWidgets" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsCustomProperties" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsBackgrounds" )
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
         
         # Mark that we're no longer running, clear the progress dialog
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-isrunning" )
