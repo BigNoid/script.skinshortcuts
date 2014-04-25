@@ -8,6 +8,7 @@ from traceback import print_exc
 
 __addon__        = xbmcaddon.Addon()
 __addonid__      = sys.modules[ "__main__" ].__addonid__
+__addonversion__ = __addon__.getAddonInfo('version')
 __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ ).encode('utf-8')
 __language__     = __addon__.getLocalizedString
 
@@ -72,7 +73,7 @@ class XMLFunctions():
             xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), "Unable to build menu" )
         
     def shouldwerun( self ):
-        log( "Checking is user has updated menu" )
+        log( "Checking if user has updated menu" )
         try:
             property = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-reloadmainmenu" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-reloadmainmenu" )
@@ -89,6 +90,11 @@ class XMLFunctions():
         extensionpoints = addon.findall( "extension" )
         paths = []
         skinpaths = []
+        
+        # Get the skin version
+        skinVersion = addon.getroot().attrib.get( "version" )
+        
+        # Get the directories for resolutions this skin supports
         for extensionpoint in extensionpoints:
             if extensionpoint.attrib.get( "point" ) == "xbmc.gui.skin":
                 resolutions = extensionpoint.findall( "res" )
@@ -104,35 +110,60 @@ class XMLFunctions():
                 return True
             else:
                 log( " - Yes" )
+                
 
-        
-        log( "Checking hashes..." )
 
         try:
             hashes = eval( xbmcvfs.File( os.path.join( __datapath__ , xbmc.getSkinDir() + ".hash" ) ).read() )
         except:
             # There is no hash list, return True
+            log( "No hash list" )
             print_exc()
             return True
+        
+        log( "Checking hashes..." )
+        checkedSkinVer = False
+        checkedScriptVer = False
             
         for hash in hashes:
             if hash[1] is not None:
-                hasher = hashlib.md5()
-                hasher.update( xbmcvfs.File( hash[0] ).read() )
-                if hasher.hexdigest() != hash[1]:
-                    log( "  - Hash does not match on file " + hash[0] )
-                    return True
+                if hash[0] == "::SKINVER::":
+                    # Check the skin version is still the same as hash[1]
+                    checkedSkinVer = True
+                    if skinVersion != hash[1]:
+                        log( "  - Skin version does not match" )
+                        return True
+                elif hash[0] == "::SCRIPTVER::":
+                    # Check the script version is still the same as hash[1]
+                    checkedScriptVer = True
+                    if __addonversion__ != hash[1]:
+                        log( "  - Script version does not match" )
+                        return True
+                else:
+                    hasher = hashlib.md5()
+                    hasher.update( xbmcvfs.File( hash[0] ).read() )
+                    if hasher.hexdigest() != hash[1]:
+                        log( "  - Hash does not match on file " + hash[0] )
+                        return True
             else:
                 if xbmcvfs.exists( hash[0] ):
                     log( "  - File now exists " + hash[0] )
                     return True
                 
+        # If the skin or script version haven't been checked, we need to rebuild the menu (most likely we're running an old version of the script)
+        if checkedSkinVer == False:
+            return True
+        if checkedScriptVer == False:
+            return True
+            
+        # If we get here, the menu does not need to be rebuilt.
         return False
 
 
     def writexml( self, mainmenuID, groups, numLevels, buildMode, progress ):        
-        # Clear the hashlist
+        # Reset the hashlist, add the script version
         hashlist.list = []
+        hashlist.list.append( ["::SCRIPTVER::", __addonversion__] )
         
         # Create a new tree and includes for the various groups
         tree = xmltree.ElementTree( xmltree.Element( "includes" ) )
@@ -211,7 +242,7 @@ class XMLFunctions():
                     justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) ) + "-" + str( count )
                     submenuitems = DATA._get_shortcuts( submenu + "." + str( count ), True )
                     
-                log( "Count: " + str( len( submenuitems ) ) )
+                log( "Number of submenu items: " + str( len( submenuitems ) ) )
                 log( repr( submenuitems ) )
                 
                 # If there is a submenu, and we're building a single menu list, replace the onclick of mainmenuItemB AND recreate it as the first
@@ -250,6 +281,10 @@ class XMLFunctions():
                 for resolution in resolutions:
                     path = xbmc.translatePath( os.path.join( "special://skin/", resolution.attrib.get( "folder" ), "script-skinshortcuts-includes.xml").encode("utf-8") ).decode("utf-8")
                     paths.append( path )
+        skinVersion = addon.getroot().attrib.get( "version" )
+                    
+        # Append the skin version to the hashlist
+        hashlist.list.append( ["::SKINVER::", skinVersion] )
         
         # Save the tree
         for path in paths:
