@@ -5,11 +5,11 @@ What's New for Skinners (version 0.2.5)
 -----------------------
 
  - (Includes method) Menu items now only have the "hasSubmenu" property if there is a submenu
- - Test of an alternative includes method "buildSingle" for including whole menu in a single list (incomplete) (undocumented)
+ - Test of an alternative includes method for including whole menu in a single list, see "Alternative Listings Method" in Advanced Usage.txt
  - Numerous management dialog changes - see resources/Management Dialog.txt for full details - including
 	> Advice change - skins should now provide labels for all controls
 	> Labels 311 and 312 (background and widget name) replaced with listitem properties
- - Management dialog will now list skin-provided playlists - this affects defaults, see "Providing Default Shortcuts" below (incomplete)
+ - Management dialog will now list skin-provided playlists - this affects defaults, see "Providing Default Shortcuts" below
  
 Note: The code to manage additional properties including backgrounds and widgets has been re-written in this revision. The new method is not backwards compatible, so any backgrounds/widgets/additional properties will need to be re-set.
  
@@ -287,7 +287,7 @@ The easiest way to create this file is to use the script to build a list of shor
 
 The script provides defaults equivalent to Confluence's main menu and sub-menus.
 
-Linking to skin-provided playlists is not currently supported. It will be added shortly.
+If you want to provide a default which links to a playlist you include with your skin, then make sure the .shortcuts file uses the special protocol (e.g. special://skin/) as the URI to it. The script will replace this with a localised version, so that the playlist link will continue to work even if the user switches to another skin supporting skin shortcuts.
 	
 	
 Properties returned

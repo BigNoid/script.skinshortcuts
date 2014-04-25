@@ -5,6 +5,7 @@ v0.2.5 - Unstable development revision
 - Ability to browse a plugin from the management dialog
 - Improved method of managing additional properties
 - Method to list menu and submenus in a single include
+- Lock GUI when loading management dialog
 
 v0.2.4
 - Fix listing individual groups with <include> method
@@ -25,7 +26,6 @@ v0.2.0
 - Removed check for settings shortcut (skins are now recommended to always provide alternative settings access)
 - Video library shortcuts are loaded from video library node files (test)
 - Video and music playlists are now grouped together
-- Option to use edit control for label and action in management dialog
 - Live TV renamed to PVR
 - Support for managing widgets, backgrounds, custom properties
 - Shortcuts with overriden images and override files are kept in memory to speed up listings

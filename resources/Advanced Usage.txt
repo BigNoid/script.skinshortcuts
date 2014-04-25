@@ -72,6 +72,14 @@ In the list where you want these controls to appear, put the following in the <c
 You MUST provide a string for the settings list. See 'overrides.xml' (section 4) for details.
 
 
+Alternative Listing Methods
+---------------------------
+
+As a test of alternative methods of listing shortcuts, skin shortcuts can now generate a single list containing all main and sub-menu items (includes method only) by calling buildxml with the optional paramater mode set to buildsingle.
+
+This is intended only to demonstrate the possibility of including build methods that would be specific to a skin.
+
+
 Overrides.xml
 -------------
 

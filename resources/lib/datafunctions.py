@@ -101,6 +101,7 @@ class DataFunctions():
     def _process_shortcuts( self, listitems, group, isUserShortcuts = False ):
         # This function will process any overrides, and return a set of listitems ready to be stored
         #  - We will process graphics overrides, action overrides and any visibility conditions set
+        log( "### Processing shortcuts..." )
         
         tree = self._get_overrides_skin()
         usertree = self._get_overrides_user()
@@ -154,6 +155,12 @@ class DataFunctions():
                                 
             # Get action
             action = urllib.unquote( item[4] )
+            
+            # If the action uses the special://skin protocol, translate it
+            if "special://skin/" in action:
+                translate = xbmc.translatePath( "special://skin/" ).decode( 'utf-8' )
+                action = action.replace( "special://skin/", translate )
+                log( "### Translated action to " + action )
             
             # Check visibility
             visibilityCondition = self.checkVisibility( action )

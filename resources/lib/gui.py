@@ -67,6 +67,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if self.group == '':
             self._close()
         else:
+            xbmcgui.lock()
             self.window_id = xbmcgui.getCurrentWindowDialogId()
             xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
             
@@ -214,6 +215,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self._display_shortcuts()
             except:
                 log( "No list of shortcuts to choose from on GUI" )
+                
+            xbmcgui.unlock()
                 
         
     def _load_xbmccommon( self ):
@@ -714,41 +717,38 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self._display_shortcuts()
             
         if controlID == 111:
-            # ---=== LOOK AT REWRITING ===---
             # User has selected an available shortcut they want in their menu
             log( "Select shortcut (111)" )
-            self.changeMade = True
+            listControl = self.getControl( 211 )
+            itemIndex = listControl.getSelectedPosition()
             
+            # If this is a plugin, call our plugin browser
             path = urllib.unquote( self.getControl( 111 ).getSelectedItem().getProperty( "Path" ) )
-            
-            # If this is a plugin, call our library browser
             if path.startswith( "||BROWSE||" ):
                 self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
                 return
+                
+            self.changeMade = True
             
-            # Create a copy of the listitem
-            listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
-            labelID = listitemCopy.getProperty( "labelID" )
+            # Copy the new shortcut
+            listitem = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
+            labelID = listitem.getProperty( "labelID" )
             
-            # Loop through the original list, and replace the currently selected listitem with our new listitem
+            # Update the list
             listitems = []
-            num = self.getControl( 211 ).getSelectedPosition()
-            for x in range(0, self.getControl( 211 ).size()):
-                if x == num:
-                    listitems.append(listitemCopy)
+            for x in range( 0, listControl.size() ):
+                if x == itemIndex:
+                    # Where the new shortcut should go
+                    listitems.append( listitem )
                 else:
-                    # Duplicate the item and add it to the listitems array
-                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                    listitems.append(listitemShortcutCopy)
-                    
-            self.getControl( 211 ).reset()
-            self.getControl( 211 ).addItems(listitems)
+                    listitems.append( self._duplicate_listitem( listControl.getListItem( x ) ) )
             
-            self.getControl( 211 ).selectItem( num )
+            listControl.reset()
+            listControl.addItems( listitems )
+            listControl.selectItem( itemIndex )
             
             if self.group == "mainmenu":
                 self._remove_labelid_changes( labelID )
-        
         
         if controlID == 301:
             # Add a new item
@@ -1060,10 +1060,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.changeMade = True
         
         if controlID == 401:
-            # ---=== LOOK AT REWRITING ===---
             # Choose shortcut (SELECT DIALOG)
             log( "Choose shortcut (401)" )
-            self.changeMade = True
             labelID = None
             
             # Check for a window property designating category
@@ -1136,6 +1134,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if path.startswith( "||BROWSE||" ):
                     self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
                     return  
+                    
+                self.changeMade = True
                 
                 # Loop through the original list, and replace the currently selected listitem with our new listitem
                 listitems = []
@@ -1328,6 +1328,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if selectedItem != -1:
             if displayListActions[ selectedItem ] == "||CREATE||":
                 # User has chosen the shortcut they want
+                self.changeMade = True
                 
                 # Build the action
                 if itemType == "::SCRIPT::32010":
@@ -1496,13 +1497,26 @@ class GUI( xbmcgui.WindowXMLDialog ):
         else:
             # An item without a localized string
             listitem = xbmcgui.ListItem(label=item[0], label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
+           
+        # Load the action (the "path" property)
+        action = item[4]
+        displayAction = urllib.unquote( item[4] )
+        
+        # If the displayAction uses the special://skin protocol, translate the path
+        if "special://skin/" in displayAction:
+            translate = xbmc.translatePath( "special://skin/" ).decode( "utf-8" )
+            displayAction = displayAction.replace( "special://skin/", translate )
+            action = urllib.quote( displayAction )
             
+        # Set the action
+        listitem.setProperty( "path", action )
+        listitem.setProperty( "displaypath", displayAction )
+        
         # Load the rest of the properties
-        listitem.setProperty( "path", item[4] )
-        listitem.setProperty( "displaypath", urllib.unquote( item[4] ) )
         listitem.setProperty( "icon", item[2] )
         listitem.setProperty( "thumbnail", item[3] )
         listitem.setProperty( "shortcutType", loadLabel2 )
+        
             
         if len(item) == 6:
             listitem.setProperty( "customThumbnail", item[5] )

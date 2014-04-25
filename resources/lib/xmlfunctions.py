@@ -25,7 +25,7 @@ class XMLFunctions():
     def __init__(self):
         pass
         
-    def buildMenu( self, mainmenuID, groups, numLevels, buildSingle ):
+    def buildMenu( self, mainmenuID, groups, numLevels, buildMode ):
         # Entry point for building includes.xml files
         if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
             return
@@ -46,7 +46,7 @@ class XMLFunctions():
             
         # Write the menus
         try:
-            self.writexml( mainmenuID, groups, numLevels, buildSingle, progress )
+            self.writexml( mainmenuID, groups, numLevels, buildMode, progress )
             complete = True
         except:
             log( "Failed to write menu" )
@@ -130,7 +130,7 @@ class XMLFunctions():
         return False
 
 
-    def writexml( self, mainmenuID, groups, numLevels, buildSingle, progress ):        
+    def writexml( self, mainmenuID, groups, numLevels, buildMode, progress ):        
         # Clear the hashlist
         hashlist.list = []
         
@@ -151,7 +151,7 @@ class XMLFunctions():
                 subtree.set( "name", "skinshortcuts-submenu-" + str( level ) )
             submenuTrees.append( subtree )
         
-        if buildSingle:
+        if buildMode == "single":
             allmenuTree = xmltree.SubElement( root, "include" )
             allmenuTree.set( "name", "skinshortcuts-allmenus" )
         
@@ -175,7 +175,7 @@ class XMLFunctions():
             # Build the main menu item
             if groups == "":
                 mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None )
-                if buildSingle:
+                if buildMode == "single":
                     mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None )
                 submenu = item[5]
             else:
@@ -201,7 +201,7 @@ class XMLFunctions():
                             hasSubMenu = xmltree.SubElement( mainmenuItemA, "property" )
                             hasSubMenu.set( "name", "hasSubmenu" )
                             hasSubMenu.text = "True"
-                            if buildSingle:
+                            if buildMode == "single":
                                 hasSubMenu = xmltree.SubElement( mainmenuItemB, "property" )
                                 hasSubMenu.set( "name", "hasSubmenu" )
                                 hasSubMenu.text = "True"
@@ -216,7 +216,7 @@ class XMLFunctions():
                 
                 # If there is a submenu, and we're building a single menu list, replace the onclick of mainmenuItemB AND recreate it as the first
                 # submenu item
-                if buildSingle and not len( submenuitems ) == 0:
+                if buildMode == "single" and not len( submenuitems ) == 0:
                     onClickElement = mainmenuItemB.find( "onclick" )
                     altOnClick = xmltree.SubElement( mainmenuItemB, "onclick" )
                     altOnClick.text = onClickElement.text
@@ -231,7 +231,7 @@ class XMLFunctions():
                     self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")" )
                     self.buildElement( subitem, justmenuTreeA, submenu, None )
                     self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
-                    if buildSingle:
+                    if buildMode == "single":
                         self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
             
                 # Increase the counter

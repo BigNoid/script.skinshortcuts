@@ -59,11 +59,7 @@ class Main:
             xbmcgui.Dialog().ok(__addonname__, line1)
             
         if self.TYPE=="buildxml":
-            #if not xbmcvfs.exists( os.path.join( __datapath__, "test.txt" ) ):
-            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, False )
-            
-        if self.TYPE=="buildsingle":
-            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, True )
+            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, self.MODE )
             
         if self.TYPE=="launch":
             # Tell XBMC not to try playing any media
@@ -107,6 +103,7 @@ class Main:
         self.LEVEL = params.get( "level", "" )
         self.LEVELS = params.get( "levels", "0" )
         self.CUSTOMID = params.get( "customid", "" )
+        self.MODE = params.get( "mode", None )
         
         
     def _check_Window_Properties( self ):
