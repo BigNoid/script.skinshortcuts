@@ -1,11 +1,12 @@
 v0.2.5 - Unstable development revision
-- Fix escaping of main menu items for includes method
+- Fix escaping of main menu items (includes method)
 - Fix for custom nodes when using profiles
 - Load skin-provided playlists and playlists from sub-folders
 - Ability to browse a plugin from the management dialog
 - Improved method of managing additional properties
 - Method to list menu and submenus in a single include
-- Lock GUI when loading management dialog
+- Library/playlists/addon/favourites loading code moved to separate module, loaded threaded
+- Menu will now be rebuilt on skin or script version changes (includes method)
 
 v0.2.4
 - Fix listing individual groups with <include> method
