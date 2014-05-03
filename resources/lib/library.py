@@ -41,123 +41,159 @@ class LibraryFunctions():
         self.arrayAddOns = None
         self.arrayMoreCommands = None
         
-    def loadCommon( self ):
-        # List XBMC common shortcuts (likely to be used on a main menu)
-        try:
-            self._load_xbmccommon()
-        except:
-            log( "Failed to load common XBMC shortcuts" )
-            print_exc()
-            self.arrayXBMCCommon = []
-            
-        try:
-            self._load_moreCommands()
-        except:
-            log( "Failed to load more XBMC commands" )
-            print_exc()
-            self.arrayMoreCommands = []
-
-
     def loadLibrary( self ):
-        # Load Library, favourites, addons, etc
-
-        try:
-            if self._load_videolibrary( "custom" ) == False:
-                self._load_videolibrary( "default" )
-        except:
-            log( "Failed to load custom video nodes" )
-            print_exc()
-            try:
-                self._load_videolibrary( "default" )
-            except:
-                log( "Failed to load default video nodes" )
-                print_exc()
-                self.arrayVideoLibrary = []
-                
-        try:
-            self._load_musiclibrary()
-        except:
-            log( "Failed to load music library" )
-            print_exc()
-            self.arrayMusicLibrary = []
+        # Load all library data, for use with threading
+        self.common()
+        self.more()
+        self.videolibrary()
+        self.musiclibrary()
+        self.playlists()
+        self.favourites()
+        self.addons()                
         
-        # Load favourites, playlists, add-ons
-        try:
-            self._fetch_playlists()
-        except:
-            log( "Failed to load playlists" )
-            print_exc()
-            self.arrayPlaylists = []
+    def common( self ):
+        if isinstance( self.arrayXBMCCommon, list):
+            # The List has already been populated, return it
+            return self.arrayXBMCCommon
+        elif self.arrayXBMCCommon == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayXBMCCommon, list):
+                    return self.arrayXBMCCommon
+        else:
+            # We're going to populate the list
+            self.arrayXBMCCommon = "Loading"
         
-        try:
-            self._fetch_favourites()
-        except:
-            log( "Failed to load favourites" )
-            print_exc()
-            self.arrayFavourites = []
-            
-        try:
-            self._fetch_addons()
-        except:
-            log( "Failed to load add-ons" )
-            print_exc()
-            self.arrayAddOns = []
-                
-        
-    def _load_xbmccommon( self ):
         listitems = []
         log('Listing xbmc common items...')
         
         # Videos, Movies, TV Shows, Live TV, Music, Music Videos, Pictures, Weather, Programs,
         # Play dvd, eject tray
         # Settings, File Manager, Profiles, System Info
-        listitems.append( self._create(["ActivateWindow(Videos)", "::LOCAL::10006", "::SCRIPT::32034", "DefaultVideo.png"]) )
-        listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "::LOCAL::342", "::SCRIPT::32034", "DefaultMovies.png"]) )
-        listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "::LOCAL::20343", "::SCRIPT::32034", "DefaultTVShows.png"]) )
-        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::SCRIPT::32022", "::SCRIPT::32034", "DefaultTVShows.png"]) )
-        listitems.append( self._create(["ActivateWindow(Music)", "::LOCAL::10005", "::SCRIPT::32034", "DefaultMusicAlbums.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32034", "DefaultMusicVideos.png"]) )
-        listitems.append( self._create(["ActivateWindow(Pictures)", "::LOCAL::10002", "::SCRIPT::32034", "DefaultPicture.png"]) )
-        listitems.append( self._create(["ActivateWindow(Weather)", "::LOCAL::12600", "::SCRIPT::32034", ""]) )
-        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::LOCAL::10001", "::SCRIPT::32034", "DefaultProgram.png"]) )
+        try:
+            listitems.append( self._create(["ActivateWindow(Videos)", "::LOCAL::10006", "::SCRIPT::32034", "DefaultVideo.png"]) )
+            listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "::LOCAL::342", "::SCRIPT::32034", "DefaultMovies.png"]) )
+            listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "::LOCAL::20343", "::SCRIPT::32034", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::SCRIPT::32022", "::SCRIPT::32034", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["ActivateWindow(Music)", "::LOCAL::10005", "::SCRIPT::32034", "DefaultMusicAlbums.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32034", "DefaultMusicVideos.png"]) )
+            listitems.append( self._create(["ActivateWindow(Pictures)", "::LOCAL::10002", "::SCRIPT::32034", "DefaultPicture.png"]) )
+            listitems.append( self._create(["ActivateWindow(Weather)", "::LOCAL::12600", "::SCRIPT::32034", ""]) )
+            listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::LOCAL::10001", "::SCRIPT::32034", "DefaultProgram.png"]) )
 
-        listitems.append( self._create(["XBMC.PlayDVD()", "::SCRIPT::32032", "::SCRIPT::32034", "DefaultDVDFull.png"]) )
-        listitems.append( self._create(["EjectTray()", "::SCRIPT::32033", "::SCRIPT::32034", "DefaultDVDFull.png"]) )
+            listitems.append( self._create(["XBMC.PlayDVD()", "::SCRIPT::32032", "::SCRIPT::32034", "DefaultDVDFull.png"]) )
+            listitems.append( self._create(["EjectTray()", "::SCRIPT::32033", "::SCRIPT::32034", "DefaultDVDFull.png"]) )
+                    
+            listitems.append( self._create(["ActivateWindow(Settings)", "::LOCAL::10004", "::SCRIPT::32034", ""]) )
+            listitems.append( self._create(["ActivateWindow(FileManager)", "::LOCAL::7", "::SCRIPT::32034", "DefaultFolder.png"]) )
+            listitems.append( self._create(["ActivateWindow(Profiles)", "::LOCAL::13200", "::SCRIPT::32034", "UnknownUser.png"]) )
+            listitems.append( self._create(["ActivateWindow(SystemInfo)", "::LOCAL::10007", "::SCRIPT::32034", ""]) )
+            
+            listitems.append( self._create(["ActivateWindow(Favourites)", "::LOCAL::1036", "::SCRIPT::32034", ""]) )
+            
+            self.arrayXBMCCommon = listitems
+        except:
+            log( "Failed to load common XBMC shortcuts" )
+            print_exc()
+            self.arrayXBMCCommon = []
+        
+        return self.arrayXBMCCommon
+        
+    def more( self ):
+        if isinstance( self.arrayMoreCommands, list):
+            # The List has already been populated, return it
+            return self.arrayMoreCommands
+        elif self.arrayMoreCommands == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayMoreCommands, list):
+                    return self.arrayMoreCommands
+        else:
+            # We're going to populate the list
+            self.arrayMoreCommands = "Loading"
+
+        try:
+            listitems = []
+            log( 'Listing more XBMC commands...' )
+            
+            listitems.append( self._create(["Reboot", "::LOCAL::13013", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["ShutDown", "::LOCAL::13005", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["PowerDown", "::LOCAL::13016", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["Quit", "::LOCAL::13009", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["Hibernate", "::LOCAL::13010", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["Suspend", "::LOCAL::13011", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["ActivateScreensaver", "::LOCAL::360", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["Minimize", "::LOCAL::13014", "::SCRIPT::32054", ""]) )
+
+            listitems.append( self._create(["Mastermode", "::LOCAL::20045", "::SCRIPT::32054", ""]) )
+            
+            listitems.append( self._create(["RipCD", "::LOCAL::600", "::SCRIPT::32054", ""]) )
+            
+            listitems.append( self._create(["UpdateLibrary(video)", "::SCRIPT::32046", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["UpdateLibrary(audio)", "::SCRIPT::32047", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["CleanLibrary(video)", "::SCRIPT::32055", "::SCRIPT::32054", ""]) )
+            listitems.append( self._create(["CleanLibrary(audio)", "::SCRIPT::32056", "::SCRIPT::32054", ""]) )
+            
+            self.arrayMoreCommands = listitems
+        except:
+            log( "Failed to load more XBMC commands" )
+            print_exc()
+            self.arrayMoreCommands = []
+            
+        return self.arrayMoreCommands
+        
+    def videolibrary( self ):
+        if isinstance( self.arrayVideoLibrary, list):
+            # The List has already been populated, return it
+            return self.arrayVideoLibrary
+        elif self.arrayVideoLibrary == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayVideoLibrary, list):
+                    return self.arrayVideoLibrary
+        else:
+            # We're going to populate the list
+            self.arrayVideoLibrary = "Loading"
+            
+        # Try loading custom nodes first
+        try:
+            if self._parse_videolibrary( "custom" ) == False:
+                self._parse_videolibrary( "default" )
+        except:
+            log( "Failed to load custom video nodes" )
+            print_exc()
+            try:
+                # Try loading default nodes
+                self._parse_videolibrary( "default" )
+            except:
+                # Return empty library
+                log( "Failed to load default video nodes" )
+                print_exc()
+                self.arrayVideoLibrary = []
+
+                listitems = []
                 
-        listitems.append( self._create(["ActivateWindow(Settings)", "::LOCAL::10004", "::SCRIPT::32034", ""]) )
-        listitems.append( self._create(["ActivateWindow(FileManager)", "::LOCAL::7", "::SCRIPT::32034", "DefaultFolder.png"]) )
-        listitems.append( self._create(["ActivateWindow(Profiles)", "::LOCAL::13200", "::SCRIPT::32034", "UnknownUser.png"]) )
-        listitems.append( self._create(["ActivateWindow(SystemInfo)", "::LOCAL::10007", "::SCRIPT::32034", ""]) )
+        return self.arrayVideoLibrary
         
-        listitems.append( self._create(["ActivateWindow(Favourites)", "::LOCAL::1036", "::SCRIPT::32034", ""]) )
-        
-        self.arrayXBMCCommon = listitems
-        
-    def _load_moreCommands( self ):
-        listitems = []
-        log( 'Listing more XBMC commands...' )
-        
-        listitems.append( self._create(["Reboot", "::LOCAL::13013", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["ShutDown", "::LOCAL::13005", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["PowerDown", "::LOCAL::13016", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["Quit", "::LOCAL::13009", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["Hibernate", "::LOCAL::13010", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["Suspend", "::LOCAL::13011", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["ActivateScreensaver", "::LOCAL::360", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["Minimize", "::LOCAL::13014", "::SCRIPT::32054", ""]) )
-
-        listitems.append( self._create(["Mastermode", "::LOCAL::20045", "::SCRIPT::32054", ""]) )
-        
-        listitems.append( self._create(["RipCD", "::LOCAL::600", "::SCRIPT::32054", ""]) )
-        
-        listitems.append( self._create(["UpdateLibrary(video)", "::SCRIPT::32046", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["UpdateLibrary(audio)", "::SCRIPT::32047", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["CleanLibrary(video)", "::SCRIPT::32055", "::SCRIPT::32054", ""]) )
-        listitems.append( self._create(["CleanLibrary(audio)", "::SCRIPT::32056", "::SCRIPT::32054", ""]) )
-        
-        self.arrayMoreCommands = listitems
-        
-    def _load_videolibrary( self, type ):
+    def _parse_videolibrary( self, type ):
         listitems = []
         rootdir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" )
         if type == "custom":
@@ -335,27 +371,52 @@ class LibraryFunctions():
         except:
             return "Custom Node"
                 
-    def _load_musiclibrary( self ):
-        listitems = []
-        log('Listing music library...')
-        
-        # Music
-        listitems.append( self._create(["ActivateWindow(MusicFiles)", "::LOCAL::744", "::SCRIPT::32019", "DefaultFolder.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "::LOCAL::15100", "::SCRIPT::32019", "DefaultFolder.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32019", "DefaultMusicVideos.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Genres,return)", "::LOCAL::135", "::SCRIPT::32019", "DefaultMusicGenres.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Artists,return)", "::LOCAL::133", "::SCRIPT::32019", "DefaultMusicArtists.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Albums,return)", "::LOCAL::132", "::SCRIPT::32019", "DefaultMusicAlbums.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Songs,return)", "::LOCAL::134", "::SCRIPT::32019", "DefaultMusicSongs.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Years,return)", "::LOCAL::652", "::SCRIPT::32019", "DefaultMusicYears.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100,return)", "::LOCAL::271", "::SCRIPT::32019", "DefaultMusicTop100.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Songs,return)", "::LOCAL::10504", "::SCRIPT::32019", "DefaultMusicTop100Songs.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Albums,return)", "::LOCAL::10505", "::SCRIPT::32019", "DefaultMusicTop100Albums.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "::LOCAL::359", "::SCRIPT::32019", "DefaultMusicRecentlyAdded.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "::LOCAL::517", "::SCRIPT::32019", "DefaultMusicRecentlyPlayed.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "::LOCAL::136", "::SCRIPT::32019", "DefaultMusicPlaylists.png"]) )
-        
-        self.arrayMusicLibrary = listitems
+    def musiclibrary( self ):
+        if isinstance( self.arrayMusicLibrary, list):
+            # The List has already been populated, return it
+            return self.arrayMusicLibrary
+        elif self.arrayMusicLibrary == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayMusicLibrary, list):
+                    return self.arrayMusicLibrary
+        else:
+            # We're going to populate the list
+            self.arrayMusicLibrary = "Loading"
+
+        try:
+            listitems = []
+            log('Listing music library...')
+            
+            # Music
+            listitems.append( self._create(["ActivateWindow(MusicFiles)", "::LOCAL::744", "::SCRIPT::32019", "DefaultFolder.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "::LOCAL::15100", "::SCRIPT::32019", "DefaultFolder.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32019", "DefaultMusicVideos.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Genres,return)", "::LOCAL::135", "::SCRIPT::32019", "DefaultMusicGenres.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Artists,return)", "::LOCAL::133", "::SCRIPT::32019", "DefaultMusicArtists.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Albums,return)", "::LOCAL::132", "::SCRIPT::32019", "DefaultMusicAlbums.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Songs,return)", "::LOCAL::134", "::SCRIPT::32019", "DefaultMusicSongs.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Years,return)", "::LOCAL::652", "::SCRIPT::32019", "DefaultMusicYears.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100,return)", "::LOCAL::271", "::SCRIPT::32019", "DefaultMusicTop100.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Songs,return)", "::LOCAL::10504", "::SCRIPT::32019", "DefaultMusicTop100Songs.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Albums,return)", "::LOCAL::10505", "::SCRIPT::32019", "DefaultMusicTop100Albums.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "::LOCAL::359", "::SCRIPT::32019", "DefaultMusicRecentlyAdded.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "::LOCAL::517", "::SCRIPT::32019", "DefaultMusicRecentlyPlayed.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "::LOCAL::136", "::SCRIPT::32019", "DefaultMusicPlaylists.png"]) )
+            
+            self.arrayMusicLibrary = listitems
+        except:
+            log( "Failed to load music library" )
+            print_exc()
+            self.arrayMusicLibrary = []
+            
+        return self.arrayMusicLibrary
         
     def _create ( self, item ):
         # Create localised label
@@ -388,198 +449,277 @@ class LibraryFunctions():
         
         return( listitem )
         
-    def _fetch_playlists( self ):
-        listitems = []
-        # Music Playlists
-        log('Loading playlists...')
-        paths = [['special://profile/playlists/video/','32004','VideoLibrary'], ['special://profile/playlists/music/','32005','MusicLibrary'], ['special://profile/playlists/mixed/','32008','MusicLibrary'], [xbmc.translatePath( "special://skin/playlists/" ).decode('utf-8'),'32059',None], [xbmc.translatePath( "special://skin/extras/" ).decode('utf-8'),'32059',None]]
-        for path in paths:
+    def playlists( self ):
+        if isinstance( self.arrayPlaylists, list):
+            # The List has already been populated, return it
+            return self.arrayPlaylists
+        elif self.arrayPlaylists == "Loading":
+            # The list is currently being populated, wait and then return it
             count = 0
-            rootpath = xbmc.translatePath( path[0] ).decode('utf-8')
-            for root, subdirs, files in os.walk( rootpath ):
-                for file in files:
-                    playlist = root.replace( rootpath, path[0] )
-                    if not playlist.endswith( '/' ):
-                        playlist = playlist + "/"
-                    playlist = playlist + file
-                    playlistfile = os.path.join( root, file ).decode( 'utf-8' )
-                    mediaLibrary = path[2]
-                    
-                    if file.endswith( '.xsp' ):
-                        contents = xbmcvfs.File(playlistfile, 'r')
-                        contents_data = contents.read().decode('utf-8')
-                        xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
-                        for line in xmldata.getiterator():
-                            if line.tag == "smartplaylist":
-                                mediaType = line.attrib['type']
-                                if mediaType == "movies" or mediaType == "tvshows" or mediaType == "seasons" or mediaType == "episodes" or mediaType == "musicvideos" or mediaType == "sets":
-                                    mediaLibrary = "VideoLibrary"
-                                elif mediaType == "albums" or mediaType == "artists" or mediaType == "songs":
-                                    mediaLibrary = "MusicLibrary"                                
-                                
-                            if line.tag == "name" and mediaLibrary is not None:
-                                name = line.text
-                                if not name:
-                                    name = file[:-4]
-                                # Create a list item
-                                listitem = xbmcgui.ListItem(label=name, label2= __language__(int(path[1])), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                                listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist + ", return)" ).encode( 'utf-8' ) )
-                                listitem.setProperty( "icon", "DefaultShortcut.png" )
-                                listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                                listitem.setProperty( "shortcutType", "::SCRIPT::" + path[1] )
-                                listitems.append(listitem)
-                                
-                                # Save it for the widgets list
-                                self.widgetPlaylistsList.append( [playlist.decode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name] )
-                                
-                                count += 1
-                                break
-                    elif file.endswith( '.m3u' ):
-                        name = file[:-4]
-                        listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                        listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
-                        listitem.setProperty( "icon", "DefaultShortcut.png" )
-                        listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
-                        listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
-                        listitems.append(listitem)
-                        
-                        count += 1
-                        
-            log( " - [" + path[0] + "] " + str( count ) + " playlists found" )
-            
-        self.arrayPlaylists = listitems
-                
-    def _fetch_favourites( self ):
-        log('Loading favourites...')
-        
-        listitems = []
-        listing = None
-        
-        fav_file = xbmc.translatePath( 'special://profile/favourites.xml' ).decode("utf-8")
-        if xbmcvfs.exists( fav_file ):
-            doc = parse( fav_file )
-            listing = doc.documentElement.getElementsByTagName( 'favourite' )
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayPlaylists, list):
+                    return self.arrayPlaylists
         else:
-            self.arrayFavourites = listitems
-            return
+            # We're going to populate the list
+            self.arrayPlaylists = "Loading"
             
-        for count, favourite in enumerate(listing):
-            name = favourite.attributes[ 'name' ].nodeValue
-            path = favourite.childNodes [ 0 ].nodeValue
-            if ('RunScript' not in path) and ('StartAndroidActivity' not in path) and not (path.endswith(',return)') ):
-                path = path.rstrip(')')
-                path = path + ',return)'
-            if 'playlists/music' in path or 'playlists/video' in path:
-                thumb = "DefaultPlaylist.png"
-                if self.PLAY:
-                    if 'playlists/music' in path:
-                        path = path.replace( 'ActivateWindow(10502,', 'PlayMedia(' )
-                    else:
-                        path = path.replace( 'ActivateWindow(10025,', 'PlayMedia(' )
-            else:
-                try:
-                    thumb = favourite.attributes[ 'thumb' ].nodeValue
-                except:
-                    thumb = "DefaultFolder.png"
-                    
-            listitem = xbmcgui.ListItem(label=name, label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=thumb)
-            listitem.setProperty( "path", urllib.quote( path.encode( 'utf-8' ) ) )
-            listitem.setProperty( "thumbnail", thumb )
-            listitem.setProperty( "shortcutType", "::SCRIPT::32006" )
-            listitems.append(listitem)
-        
-        log( " - " + str( len( listitems ) ) + " favourites found" )
-        
-        self.arrayFavourites = listitems
-        
-    def _fetch_addons( self ):
-        listitems = []
-        log( 'Loading add-ons' )
-        
-        # Add links to each add-on type in library
-        listitems.append( self._create(["ActivateWindow(Videos,Addons,return)", "::LOCAL::1037", "::SCRIPT::32014", "DefaultAddonVideo.png"]) )
-        listitems.append( self._create(["ActivateWindow(MusicLibrary,Addons,return)", "::LOCAL::1038", "::SCRIPT::32019", "DefaultAddonMusic.png"]) )
-        listitems.append( self._create(["ActivateWindow(Pictures,Addons,return)", "::LOCAL::1039", "::SCRIPT::32020", "DefaultAddonPicture.png"]) )
-        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::LOCAL::10001", "::SCRIPT::32021", "DefaultAddonProgram.png"]) )
-        
-        contenttypes = ["executable", "video", "audio", "image"]
-        for contenttype in contenttypes:
-            if contenttype == "executable":
-                contentlabel = __language__(32009)
-                shortcutType = "32009"
-            elif contenttype == "video":
-                contentlabel = __language__(32010)
-                shortcutType = "32010"
-            elif contenttype == "audio":
-                contentlabel = __language__(32011)
-                shortcutType = "32011"
-            elif contenttype == "image":
-                contentlabel = __language__(32012)
-                shortcutType = "32012"
+        try:
+            listitems = []
+            # Music Playlists
+            log('Loading playlists...')
+            paths = [['special://profile/playlists/video/','32004','VideoLibrary'], ['special://profile/playlists/music/','32005','MusicLibrary'], ['special://profile/playlists/mixed/','32008','MusicLibrary'], [xbmc.translatePath( "special://skin/playlists/" ).decode('utf-8'),'32059',None], [xbmc.translatePath( "special://skin/extras/" ).decode('utf-8'),'32059',None]]
+            for path in paths:
+                count = 0
+                rootpath = xbmc.translatePath( path[0] ).decode('utf-8')
+                for root, subdirs, files in os.walk( rootpath ):
+                    for file in files:
+                        playlist = root.replace( rootpath, path[0] )
+                        if not playlist.endswith( '/' ):
+                            playlist = playlist + "/"
+                        playlist = playlist + file
+                        playlistfile = os.path.join( root, file ).decode( 'utf-8' )
+                        mediaLibrary = path[2]
+                        
+                        if file.endswith( '.xsp' ):
+                            contents = xbmcvfs.File(playlistfile, 'r')
+                            contents_data = contents.read().decode('utf-8')
+                            xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
+                            for line in xmldata.getiterator():
+                                if line.tag == "smartplaylist":
+                                    mediaType = line.attrib['type']
+                                    if mediaType == "movies" or mediaType == "tvshows" or mediaType == "seasons" or mediaType == "episodes" or mediaType == "musicvideos" or mediaType == "sets":
+                                        mediaLibrary = "VideoLibrary"
+                                    elif mediaType == "albums" or mediaType == "artists" or mediaType == "songs":
+                                        mediaLibrary = "MusicLibrary"                                
+                                    
+                                if line.tag == "name" and mediaLibrary is not None:
+                                    name = line.text
+                                    if not name:
+                                        name = file[:-4]
+                                    # Create a list item
+                                    listitem = xbmcgui.ListItem(label=name, label2= __language__(int(path[1])), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
+                                    listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist + ", return)" ).encode( 'utf-8' ) )
+                                    listitem.setProperty( "icon", "DefaultShortcut.png" )
+                                    listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                                    listitem.setProperty( "shortcutType", "::SCRIPT::" + path[1] )
+                                    listitems.append(listitem)
+                                    
+                                    # Save it for the widgets list
+                                    self.widgetPlaylistsList.append( [playlist.decode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name] )
+                                    
+                                    count += 1
+                                    break
+                        elif file.endswith( '.m3u' ):
+                            name = file[:-4]
+                            listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
+                            listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                            listitem.setProperty( "icon", "DefaultShortcut.png" )
+                            listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
+                            listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
+                            listitems.append(listitem)
+                            
+                            count += 1
+                            
+                log( " - [" + path[0] + "] " + str( count ) + " playlists found" )
+            
+            self.arrayPlaylists = listitems
+            
+        except:
+            log( "Failed to load playlists" )
+            print_exc()
+            self.arrayPlaylists = []
+            
+        return self.arrayPlaylists
                 
-            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
-            json_query = unicode(json_query, 'utf-8', errors='ignore')
-            json_response = simplejson.loads(json_query)
+    def favourites( self ):
+        if isinstance( self.arrayFavourites, list):
+            # The List has already been populated, return it
+            return self.arrayFavourites
+        elif self.arrayFavourites == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayFavourites, list):
+                    return self.arrayFavourites
+        else:
+            # We're going to populate the list
+            self.arrayFavourites = "Loading"
             
-            if json_response.has_key('result') and json_response['result'].has_key('addons') and json_response['result']['addons'] is not None:
-                for item in json_response['result']['addons']:
-                    if item['enabled'] == True:
-                        listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
-                        
-                        # If this is a plugin, mark that we can browse it
-                        if item['addonid'].startswith( "plugin." ):
-                            listitem.setProperty( "path", urllib.quote( "||BROWSE||" + item['addonid'].encode('utf-8') ) )
-                            listitem.setProperty( "action", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
+        try:
+            log('Loading favourites...')
+            
+            listitems = []
+            listing = None
+            
+            fav_file = xbmc.translatePath( 'special://profile/favourites.xml' ).decode("utf-8")
+            if xbmcvfs.exists( fav_file ):
+                doc = parse( fav_file )
+                listing = doc.documentElement.getElementsByTagName( 'favourite' )
+            else:
+                self.arrayFavourites = listitems
+                return
+                
+            for count, favourite in enumerate(listing):
+                name = favourite.attributes[ 'name' ].nodeValue
+                path = favourite.childNodes [ 0 ].nodeValue
+                if ('RunScript' not in path) and ('StartAndroidActivity' not in path) and not (path.endswith(',return)') ):
+                    path = path.rstrip(')')
+                    path = path + ',return)'
+                if 'playlists/music' in path or 'playlists/video' in path:
+                    thumb = "DefaultPlaylist.png"
+                    if self.PLAY:
+                        if 'playlists/music' in path:
+                            path = path.replace( 'ActivateWindow(10502,', 'PlayMedia(' )
                         else:
-                            listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
+                            path = path.replace( 'ActivateWindow(10025,', 'PlayMedia(' )
+                else:
+                    try:
+                        thumb = favourite.attributes[ 'thumb' ].nodeValue
+                    except:
+                        thumb = "DefaultFolder.png"
+                        
+                listitem = xbmcgui.ListItem(label=name, label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=thumb)
+                listitem.setProperty( "path", urllib.quote( path.encode( 'utf-8' ) ) )
+                listitem.setProperty( "thumbnail", thumb )
+                listitem.setProperty( "shortcutType", "::SCRIPT::32006" )
+                listitems.append(listitem)
+            
+            log( " - " + str( len( listitems ) ) + " favourites found" )
+            
+            self.arrayFavourites = listitems
+            
+        except:
+            log( "Failed to load favourites" )
+            print_exc()
+            self.arrayFavourites = []
+            
+        return self.arrayFavourites
+        
+    def addons( self ):
+        if isinstance( self.arrayAddOns, list):
+            # The List has already been populated, return it
+            return self.arrayAddOns
+        elif self.arrayAddOns == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayAddOns, list):
+                    return self.arrayAddOns
+        else:
+            # We're going to populate the list
+            self.arrayAddOns = "Loading"
+            
+        try:
+            listitems = []
+            log( 'Loading add-ons' )
+            
+            # Add links to each add-on type in library
+            listitems.append( self._create(["ActivateWindow(Videos,Addons,return)", "::LOCAL::1037", "::SCRIPT::32014", "DefaultAddonVideo.png"]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Addons,return)", "::LOCAL::1038", "::SCRIPT::32019", "DefaultAddonMusic.png"]) )
+            listitems.append( self._create(["ActivateWindow(Pictures,Addons,return)", "::LOCAL::1039", "::SCRIPT::32020", "DefaultAddonPicture.png"]) )
+            listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::LOCAL::10001", "::SCRIPT::32021", "DefaultAddonProgram.png"]) )
+            
+            contenttypes = ["executable", "video", "audio", "image"]
+            for contenttype in contenttypes:
+                if contenttype == "executable":
+                    contentlabel = __language__(32009)
+                    shortcutType = "32009"
+                elif contenttype == "video":
+                    contentlabel = __language__(32010)
+                    shortcutType = "32010"
+                elif contenttype == "audio":
+                    contentlabel = __language__(32011)
+                    shortcutType = "32011"
+                elif contenttype == "image":
+                    contentlabel = __language__(32012)
+                    shortcutType = "32012"
+                    
+                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
+                json_query = unicode(json_query, 'utf-8', errors='ignore')
+                json_response = simplejson.loads(json_query)
+                
+                if json_response.has_key('result') and json_response['result'].has_key('addons') and json_response['result']['addons'] is not None:
+                    for item in json_response['result']['addons']:
+                        if item['enabled'] == True:
+                            listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
+                            
+                            # If this is a plugin, mark that we can browse it
+                            if item['addonid'].startswith( "plugin." ):
+                                listitem.setProperty( "path", urllib.quote( "||BROWSE||" + item['addonid'].encode('utf-8') ) )
+                                listitem.setProperty( "action", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
+                            else:
+                                listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
 
-                        if item['thumbnail'] != "":
-                            listitem.setProperty( "thumbnail", item['thumbnail'] )
-                        else:
-                            listitem.setProperty( "thumbnail", "DefaultAddon.png" )
-                        
-                        listitem.setProperty( "icon", "DefaultAddon.png" )
-                        listitem.setProperty( "shortcutType", "::SCRIPT::" + shortcutType )
-                        listitems.append(listitem)
+                            if item['thumbnail'] != "":
+                                listitem.setProperty( "thumbnail", item['thumbnail'] )
+                            else:
+                                listitem.setProperty( "thumbnail", "DefaultAddon.png" )
+                            
+                            listitem.setProperty( "icon", "DefaultAddon.png" )
+                            listitem.setProperty( "shortcutType", "::SCRIPT::" + shortcutType )
+                            listitems.append(listitem)
+            
+            log( " - " + str( len( listitems ) ) + " add-ons found" )
+            
+            self.arrayAddOns = listitems
+            
+        except:
+            log( "Failed to load addons" )
+            print_exc()
+            self.arrayAddOns = []
         
-        log( " - " + str( len( listitems ) ) + " add-ons found" )
-        
-        self.arrayAddOns = listitems
+        return self.arrayAddOns
     
     def _load_widgetsbackgrounds( self ):
+        return
         # Change this to load any skin-provided shortcuts :)
-        self.widgets = []
-        self.widgetsPretty = {}
-        self.backgrounds = []
-        self.backgroundsPretty = {}
-        
-        # Load skin overrides
-        path = os.path.join( __skinpath__ , "overrides.xml" )
-        tree = None
-        if xbmcvfs.exists( path ):
-            try:
-                tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
-            except:
-                print_exc()
-        
-        # Get widgets
-        if tree is not None:
-            elems = tree.findall('widget')
-            for elem in elems:
-                if elem.attrib.get( 'label' ).isdigit():
-                    self.widgets.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) ] )
-                    self.widgetsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
-                else:
-                    self.widgets.append( [elem.text, elem.attrib.get( 'label' ) ] )
-                    self.widgetsPretty[elem.text] = elem.attrib.get( 'label' )
-                    
-        # Get backgrounds
-        if tree is not None:
-            elems = tree.findall('background')
-            for elem in elems:
-                if elem.attrib.get( 'label' ).isdigit():
-                    self.backgrounds.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )] )
-                    self.backgroundsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
-                else:
-                    self.backgrounds.append( [elem.text, elem.attrib.get( 'label' ) ] )
-                    self.backgroundsPretty[elem.text] = elem.attrib.get( 'label' )
+        #self.widgets = []
+        #self.widgetsPretty = {}
+        #self.backgrounds = []
+        #self.backgroundsPretty = {}
+        #
+        ## Load skin overrides
+        #path = os.path.join( __skinpath__ , "overrides.xml" )
+        #tree = None
+        #if xbmcvfs.exists( path ):
+        #    try:
+        #        tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
+        #    except:
+        #        print_exc()
+        #
+        ## Get widgets
+        #if tree is not None:
+        #    elems = tree.findall('widget')
+        #    for elem in elems:
+        #        if elem.attrib.get( 'label' ).isdigit():
+        #            self.widgets.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) ] )
+        #            self.widgetsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+        #        else:
+        #            self.widgets.append( [elem.text, elem.attrib.get( 'label' ) ] )
+        #            self.widgetsPretty[elem.text] = elem.attrib.get( 'label' )
+        #            
+        ## Get backgrounds
+        #if tree is not None:
+        #    elems = tree.findall('background')
+        #    for elem in elems:
+        #        if elem.attrib.get( 'label' ).isdigit():
+        #            self.backgrounds.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )] )
+        #            self.backgroundsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+        #        else:
+        #            self.backgrounds.append( [elem.text, elem.attrib.get( 'label' ) ] )
+        #            self.backgroundsPretty[elem.text] = elem.attrib.get( 'label' )

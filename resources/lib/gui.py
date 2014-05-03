@@ -137,10 +137,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             except:
                 log( "No widget button on GUI (id 401)" )
             
-            # Load common shortcuts
-            LIBRARY.loadCommon()
-            
-            # Load all other library shortcuts in thread
+            # Load library shortcuts in thread
             t = Thread(target=LIBRARY.loadLibrary() )
             t.start()
             
@@ -585,39 +582,24 @@ class GUI( xbmcgui.WindowXMLDialog ):
             log( repr( shortcutCategory ) )
             
             if shortcutCategory == 0: # Common
-                availableShortcuts = LIBRARY.arrayXBMCCommon
+                availableShortcuts = LIBRARY.common()
             elif shortcutCategory == 1: # Video Library
-                while not isinstance( LIBRARY.arrayVideoLibrary, list ):
-                    log( "Video library not loaded yet!" )
-                    xbmc.sleep( 100 )
-                availableShortcuts = LIBRARY.arrayVideoLibrary
+                availableShortcuts = LIBRARY.videolibrary()
                 displayLabel2 = True
             elif shortcutCategory == 2: # Music Library
-                while not isinstance( LIBRARY.arrayMusicLibrary, list ):
-                    log( "Music library not loaded yet!" )
-                    xbmc.sleep( 100 )
-                availableShortcuts = LIBRARY.arrayMusicLibrary
+                availableShortcuts = LIBRARY.musiclibrary()
                 displayLabel2 = True
             elif shortcutCategory == 3: # Playlists
-                while not isinstance( LIBRARY.arrayPlaylists, list ):
-                    log( "Playlists not loaded yet!" )
-                    xbmc.sleep( 100 )
-                availableShortcuts = LIBRARY.arrayPlaylists
+                #    xbmc.sleep( 100 )
+                availableShortcuts = LIBRARY.playlists()
                 displayLabel2 = True
             elif shortcutCategory == 4: # Favourites
-                while not isinstance( LIBRARY.arrayFavourites, list ):
-                    log( "Favourites not loaded yet!" )
-                    xbmc.sleep( 100 )
-                availableShortcuts = LIBRARY.arrayFavourites
+                availableShortcuts = LIBRARY.favourites()
             elif shortcutCategory == 5: # Add-ons
-                while not isinstance( LIBRARY.arrayAddOns, list ):
-                    log( "Addons not loaded yet!" )
-                    xbmc.sleep( 100 )
-                availableShortcuts = LIBRARY.arrayAddOns
+                availableShortcuts = LIBRARY.addons()
                 displayLabel2 = True
             elif shortcutCategory == 6: # XBMC Commands
-                availableShortcuts = LIBRARY.arrayMoreCommands
-                
+                availableShortcuts = LIBRARY.more()
                 
             else: # No category selected
                 log( "No shortcut category selected" )
@@ -1316,54 +1298,39 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _display_shortcuts( self ):
         # Load the currently selected shortcut group
         if self.shortcutgroup == 1:
-            # XBMC Common - This will always be already loaded
+            # XBMC Common
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(LIBRARY.arrayXBMCCommon)
+            self.getControl( 111 ).addItems(LIBRARY.common())
             self.getControl( 101 ).setLabel( __language__(32029) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 2:
             # Video library
-            while not isinstance( LIBRARY.arrayVideoLibrary, list ):
-                log( "Video library not loaded yet!" )
-                xbmc.sleep( 100 )
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(LIBRARY.arrayVideoLibrary)
+            self.getControl( 111 ).addItems(LIBRARY.videolibrary())
             self.getControl( 101 ).setLabel( __language__(32030) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 3:
             # Music library
-            while not isinstance( LIBRARY.arrayMusicLibrary, list ):
-                log( "Music library not loaded yet!" )
-                xbmc.sleep( 100 )
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(LIBRARY.arrayMusicLibrary)
+            self.getControl( 111 ).addItems(LIBRARY.musiclibrary())
             self.getControl( 101 ).setLabel( __language__(32031) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 4:
             # Playlists
-            while not isinstance( LIBRARY.arrayPlaylists, list ):
-                log( "Playlists not loaded yet!" )
-                xbmc.sleep( 100 )
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(LIBRARY.arrayPlaylists)
+            self.getControl( 111 ).addItems(LIBRARY.playlists())
             self.getControl( 101 ).setLabel( __language__(32040) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 5:
             # Favourites
-            while not isinstance( LIBRARY.arrayFavourites, list ):
-                log( "Favourites not loaded yet!" )
-                xbmc.sleep( 100 )
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(LIBRARY.arrayFavourites)
+            self.getControl( 111 ).addItems(LIBRARY.favourites())
             self.getControl( 101 ).setLabel( __language__(32006) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 6:
             # Add-ons
-            while not isinstance( LIBRARY.arrayAddOns, list ):
-                log( "Addons not loaded yet!" )
-                xbmc.sleep( 100 )
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(LIBRARY.arrayAddOns)
+            self.getControl( 111 ).addItems(LIBRARY.addons())
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 7:
-            # More XBMC commands - This will always be already loaded
+            # More XBMC commands
             self.getControl( 111 ).reset()
-            self.getControl( 111 ).addItems(LIBRARY.arrayMoreCommands)
+            self.getControl( 111 ).addItems(LIBRARY.more())
             self.getControl( 101 ).setLabel( __language__(32057) + " (%s)" %self.getControl( 111 ).size() )
                 
     def onAction( self, action ):
