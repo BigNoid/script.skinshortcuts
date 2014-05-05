@@ -4,7 +4,7 @@ import xbmc, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
 from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
-from threading import Thread
+import thread
 from traceback import print_exc
 from unidecode import unidecode
 
@@ -64,6 +64,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         else:
             self.window_id = xbmcgui.getCurrentWindowDialogId()
             xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
+            
+            # Load library shortcuts in thread
+            thread.start_new_thread( LIBRARY.loadLibrary, () )
             
             # Load widget and background names
             self._load_widgetsbackgrounds()
@@ -136,10 +139,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self.getControl( 401 ).setLabel( __language__(32048) )
             except:
                 log( "No widget button on GUI (id 401)" )
-            
-            # Load library shortcuts in thread
-            t = Thread(target=LIBRARY.loadLibrary() )
-            t.start()
             
             try:
                 self._display_shortcuts()
