@@ -22,8 +22,9 @@ __addonversion__ = __addon__.getAddonInfo('version')
 __language__     = __addon__.getLocalizedString
 __cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
 __addonname__    = __addon__.getAddonInfo('name').decode("utf-8")
-__resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) ).decode("utf-8")
-__datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode( 'utf-8' ), __addonid__ )
+__resource__     = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ) ).decode("utf-8")
+__datapath__     = os.path.join( xbmc.translatePath( "special://profile/" ).decode( 'utf-8' ), "addon_data", __addonid__ )
+__masterpath__   = os.path.join( xbmc.translatePath( "special://masterprofile/" ).decode( 'utf-8' ), "addon_data", __addonid__ )
 __profilepath__  = xbmc.translatePath( "special://profile/" ).decode('utf-8')
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
@@ -49,9 +50,11 @@ class Main:
         self._parse_argv()
         self.WINDOW = xbmcgui.Window(10000)         
         
-        # Create datapath if not exists
+        # Create data and master paths if not exists
         if not xbmcvfs.exists(__datapath__):
             xbmcvfs.mkdir(__datapath__)
+        if not xbmcvfs.exists(__masterpath__):
+            xbmcvfs.mkdir(__masterpath__)
         
         # Perform action specified by user
         if not self.TYPE:

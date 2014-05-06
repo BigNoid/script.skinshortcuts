@@ -44,7 +44,7 @@ class DataFunctions():
     def __init__(self):
         pass
 
-    def _get_shortcuts( self, group, isXML = False ):
+    def _get_shortcuts( self, group, isXML = False, profileDir = None ):
         # This will load the shortcut file, and save it as a window property
         # Additionally, if the override files haven't been loaded, we'll load them too
         log( "### Loading shortcuts for group " + group )
@@ -54,11 +54,19 @@ class DataFunctions():
                 returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + group )
                 return pickle.loads( returnVal )
             except:
-                i = 1
+                pass
                 
-        userShortcuts = os.path.join( __datapath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
+        if profileDir is None:
+            try:
+                profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
+            except:
+                print_exc()
+                
+        #userShortcuts = os.path.join( __datapath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
+        userShortcuts = os.path.join( profileDir.decode( "utf-8" ), "addon_data", __addonid__, self.slugify( group ) + ".shortcuts" ).encode('utf-8')
         skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".shortcuts").encode('utf-8')
         defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
+        
 
         paths = [userShortcuts, skinShortcuts, defaultShortcuts ]
         
@@ -72,14 +80,14 @@ class DataFunctions():
                 # If this is a user-selected list of shortcuts...
                 if path == userShortcuts:
                     # Process shortcuts, marked as user-selected
-                    processedList = self._process_shortcuts( unprocessedList, group, True )
+                    processedList = self._process_shortcuts( unprocessedList, group, profileDir, True )
                     
                     # Update any localised strings
                     self._process_localised( path, unprocessedList )
                     
                 else:
                     # Otherwise, just process them normally
-                    processedList = self._process_shortcuts( unprocessedList, group )
+                    processedList = self._process_shortcuts( unprocessedList, group, profileDir )
                     
                     
                 if isXML == False:
@@ -98,13 +106,13 @@ class DataFunctions():
         return [] 
                 
             
-    def _process_shortcuts( self, listitems, group, isUserShortcuts = False ):
+    def _process_shortcuts( self, listitems, group, profileDir = "special:\\profile", isUserShortcuts = False ):
         # This function will process any overrides, and return a set of listitems ready to be stored
         #  - We will process graphics overrides, action overrides and any visibility conditions set
         log( "### Processing shortcuts..." )
         
         tree = self._get_overrides_skin()
-        usertree = self._get_overrides_user()
+        usertree = self._get_overrides_user( profileDir )
         returnitems = []
         
         for item in listitems:
@@ -289,23 +297,23 @@ class DataFunctions():
             return pickle.loads( returnData )
 
 
-    def _get_overrides_user( self ):
+    def _get_overrides_user( self, profileDir = "special://profile" ):
         # If we haven't already loaded user overrides
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" ) == __profilepath__:
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user", __profilepath__ )
-            overridepath = os.path.join( __profilepath__ , "overrides.xml" )
+        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" + profileDir ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" + profileDir ) == __profilepath__:
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user" + profileDir, profileDir )
+            overridepath = os.path.join( profileDir , "overrides.xml" )
             try:
                 tree = xmltree.parse( overridepath )
                 self._save_hash( overridepath, xbmcvfs.File( overridepath ).read() )
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", pickle.dumps( tree ) )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data" + profileDir, pickle.dumps( tree ) )
                 return tree
             except:
                 self._save_hash( overridepath, None )
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data", "No overrides" )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data" + profileDir, "No overrides" )
                 return None
                 
         # Return the overrides
-        returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" )
+        returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" + profileDir )
         if returnData == "No overrides":
             return None
         else:
