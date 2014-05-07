@@ -57,16 +57,11 @@ class DataFunctions():
                 pass
                 
         if profileDir is None:
-            try:
-                profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
-            except:
-                print_exc()
+            profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
                 
-        #userShortcuts = os.path.join( __datapath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
         userShortcuts = os.path.join( profileDir.decode( "utf-8" ), "addon_data", __addonid__, self.slugify( group ) + ".shortcuts" ).encode('utf-8')
         skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".shortcuts").encode('utf-8')
         defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
-        
 
         paths = [userShortcuts, skinShortcuts, defaultShortcuts ]
         

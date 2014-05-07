@@ -204,6 +204,17 @@ So, for example:
 You can then choose which widget to display based on the 'widget' property of the selected listitem.
 
 
+5. Skin-Recommended Shortcuts
+
+If there are particular shortcuts to skin-specific features you would like to give the user the option of choosing from, you can specify these in the overrides.xml.
+
+<shortcut label="[label]" type="[type]">[action]</shortcut>
+
+[label] - The display name of the shortcut (can be a localised string)
+[type] - The type of shortcut, e.g. "Movie" if this leads to an area of the movie library (can be a localised string)
+[action] - The action associated with this shortcut
+
+
 5. Custom shortcut properties
 
 If you are using Skin Shortcuts to set custom properties for shortcuts, you can set defaults for these items:

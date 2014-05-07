@@ -96,14 +96,43 @@ class LibraryFunctions():
             listitems.append( self._create(["ActivateWindow(SystemInfo)", "::LOCAL::10007", "::SCRIPT::32034", ""]) )
             
             listitems.append( self._create(["ActivateWindow(Favourites)", "::LOCAL::1036", "::SCRIPT::32034", ""]) )
-            
-            self.arrayXBMCCommon = listitems
         except:
             log( "Failed to load common XBMC shortcuts" )
             print_exc()
-            self.arrayXBMCCommon = []
+            listitems = []
+            
+        log( "Listing skin-provided shortcuts" )
+        self._load_skinProvidedShortcuts( listitems )
+        
+        self.arrayXBMCCommon = listitems
         
         return self.arrayXBMCCommon
+
+    def _load_skinProvidedShortcuts( self, listitems ):
+        path = os.path.join( __skinpath__ , "overrides.xml" )
+        tree = None
+        if xbmcvfs.exists( path ):
+            try:
+                tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
+            except:
+                log( "No skin overrides.xml file" )
+        
+        if tree is not None:
+            elems = tree.findall('shortcut')
+            for elem in elems:
+                label = elem.attrib.get( "label" )
+                type = elem.attrib.get( "type" )
+                action = elem.text
+                
+                if label.isdigit():
+                    label = "::LOCAL::" + label
+                    
+                if type.isdigit():
+                    type = "::LOCAL::" + type
+                
+                listitems.append( self._create([action, label, type, ""]) )
+                    
+        return listitems
         
     def more( self ):
         if isinstance( self.arrayMoreCommands, list):
@@ -684,42 +713,3 @@ class LibraryFunctions():
             self.arrayAddOns = []
         
         return self.arrayAddOns
-    
-    def _load_widgetsbackgrounds( self ):
-        return
-        # Change this to load any skin-provided shortcuts :)
-        #self.widgets = []
-        #self.widgetsPretty = {}
-        #self.backgrounds = []
-        #self.backgroundsPretty = {}
-        #
-        ## Load skin overrides
-        #path = os.path.join( __skinpath__ , "overrides.xml" )
-        #tree = None
-        #if xbmcvfs.exists( path ):
-        #    try:
-        #        tree = xmltree.fromstring( xbmcvfs.File( path ).read().encode( 'utf-8' ) )
-        #    except:
-        #        print_exc()
-        #
-        ## Get widgets
-        #if tree is not None:
-        #    elems = tree.findall('widget')
-        #    for elem in elems:
-        #        if elem.attrib.get( 'label' ).isdigit():
-        #            self.widgets.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) ] )
-        #            self.widgetsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
-        #        else:
-        #            self.widgets.append( [elem.text, elem.attrib.get( 'label' ) ] )
-        #            self.widgetsPretty[elem.text] = elem.attrib.get( 'label' )
-        #            
-        ## Get backgrounds
-        #if tree is not None:
-        #    elems = tree.findall('background')
-        #    for elem in elems:
-        #        if elem.attrib.get( 'label' ).isdigit():
-        #            self.backgrounds.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )] )
-        #            self.backgroundsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
-        #        else:
-        #            self.backgrounds.append( [elem.text, elem.attrib.get( 'label' ) ] )
-        #            self.backgroundsPretty[elem.text] = elem.attrib.get( 'label' )

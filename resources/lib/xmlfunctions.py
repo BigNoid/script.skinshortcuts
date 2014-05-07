@@ -35,10 +35,9 @@ class XMLFunctions():
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-isrunning", "True" )
  
         # Get a list of profiles
-        fav_file = xbmc.translatePath( 'special://masterprofile/profiles.xml' ).decode("utf-8")
+        fav_file = xbmc.translatePath( 'special://userdata/profiles.xml' ).decode("utf-8")
         if xbmcvfs.exists( fav_file ):
             tree = xmltree.parse( fav_file )
-            log( repr( tree ) )
         
         profilelist = []
         if tree is not None:
@@ -46,21 +45,17 @@ class XMLFunctions():
             for profile in profiles:
                 name = profile.find( "name" ).text.encode( "utf-8" )
                 dir = profile.find( "directory" ).text.encode( "utf-8" )
-                log( name + ": " + dir )
+                log( "Profile found: " + name + " (" + dir + ")" )
                 # Localise the directory
                 if "://" in dir:
                     dir = xbmc.translatePath( dir ).decode( "utf-8" )
-                    log( dir )
                 else:
                     # Base if off of the master profile
                     dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir ) ).decode( "utf-8" )
-                    log( dir )
                 profilelist.append( [dir, "StringCompare(System.ProfileName," + name.decode( "utf-8" ) + ")"] )
                 
         else:
             profileList = [["special://masterprofile", None]]
-            
-        log( repr( profilelist ) )
  
         if self.shouldwerun( profilelist ) == False:
             log( "Menu is up to date" )
@@ -227,8 +222,6 @@ class XMLFunctions():
             # Load profile details
             profileDir = profile[0]
             profileVis = profile[1]
-            log( "Profile Directory: " + profileDir )
-            log( "Profile Visibility: " + profileVis )
             
             # Get groups OR main menu shortcuts
             if not groups == "":
@@ -300,9 +293,6 @@ class XMLFunctions():
                         onClickElement.text = "SetProperty(submenuVisibility," + DATA.slugify( submenu ) + ",10000)"
                         onClickElement.set( "condition", "!StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
                         
-                        #self.buildElement( item, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")" )
-                        #xmltree.SubElement( mainmenuItemB, "onclick" ).text = "Replaced :)"
-                        
                     for subitem in submenuitems:
                         self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")", profile[1] )
                         self.buildElement( subitem, justmenuTreeA, submenu, None, profile[1] )
@@ -334,7 +324,6 @@ class XMLFunctions():
         # Save the tree
         for path in paths:
             tree.write( path, encoding="UTF-8" )
-            #tree.write( "C://temp//temp.xml", encoding="UTF-8" )
         
         # Save the hashes
         file = xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ), "w" )
