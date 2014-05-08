@@ -217,11 +217,15 @@ class XMLFunctions():
             allmenuTree = xmltree.SubElement( root, "include" )
             allmenuTree.set( "name", "skinshortcuts-allmenus" )
         
-            
+        profilePercent = 100 / len( profilelist )
+        profileCount = -1
+        
+        
         for profile in profilelist:
             # Load profile details
             profileDir = profile[0]
             profileVis = profile[1]
+            profileCount += 1
             
             # Get groups OR main menu shortcuts
             if not groups == "":
@@ -234,12 +238,13 @@ class XMLFunctions():
             
         
             # Work out percentages for dialog
-            percent = 100 / len( menuitems )
+            percent = profilePercent / len( menuitems )
                 
             i = 0
             for item in menuitems:
                 i += 1
-                progress.update( percent * i )
+                progress.update( ( profilePercent * profileCount) + percent * i )
+                log( str( ( profilePercent * profileCount) + percent * i ) + "%" )
                 
                 # Build the main menu item
                 if groups == "":
