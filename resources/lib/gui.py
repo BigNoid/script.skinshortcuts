@@ -855,7 +855,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitems = []
                 for x in range(0, self.getControl( 211 ).size()):
                     if x == itemToReplace:
-                        listitems.append( self._create([action, label[ len( label ) - 1 ], itemType, thumbnail[ len( thumbnail ) - 1 ]]) )
+                        listitems.append( LIBRARY._create([action, label[ len( label ) - 1 ], itemType, thumbnail[ len( thumbnail ) - 1 ]]) )
                     else:
                         # Duplicate the item and add it to the listitems array
                         listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
