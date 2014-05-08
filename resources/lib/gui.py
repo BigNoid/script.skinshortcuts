@@ -1067,6 +1067,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             
     def _update_labelid_changes( self, oldlabelID, newlabelID ):
+        if oldlabelID == "":
+            return
         self.labelIDChanges[oldlabelID] = newlabelID
         
     def _remove_labelid_changes( self, labelID ):
