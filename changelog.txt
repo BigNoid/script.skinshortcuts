@@ -5,6 +5,7 @@ v0.3.0 [Release Test]
 - Load skin-provided playlists and playlists from sub-folders
 - Ability to browse a plugin from the management dialog
 - Ability to provide recommended shortcuts in management dialog
+- Ability to choose to play or display a playlist
 - Improved method of managing additional properties
 - Method to list menu and submenus in a single include
 - Library/playlists/addon/favourites loading code moved to separate module, loaded threaded

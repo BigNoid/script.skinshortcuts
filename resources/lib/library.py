@@ -532,7 +532,10 @@ class LibraryFunctions():
                                         name = file[:-4]
                                     # Create a list item
                                     listitem = xbmcgui.ListItem(label=name, label2= __language__(int(path[1])), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                                    listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist + ", return)" ).encode( 'utf-8' ) )
+                                    #listitem.setProperty( "path", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist + ", return)" ).encode( 'utf-8' ) )
+                                    listitem.setProperty( "path", urllib.quote( "||PLAYLIST||" ) )
+                                    listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist + ")" ) )
+                                    listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist + ", return)" ).encode( 'utf-8' ) )
                                     listitem.setProperty( "icon", "DefaultShortcut.png" )
                                     listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                                     listitem.setProperty( "shortcutType", "::SCRIPT::" + path[1] )
@@ -546,7 +549,10 @@ class LibraryFunctions():
                         elif file.endswith( '.m3u' ):
                             name = file[:-4]
                             listitem = xbmcgui.ListItem(label=name, label2= __language__(32005), iconImage='DefaultShortcut.png', thumbnailImage='DefaultPlaylist.png')
-                            listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                            #listitem.setProperty( "path", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ) )
+                            listitem.setProperty( "path", urllib.quote( "||PLAYLIST||" ) )
+                            listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist + ")" ) )
+                            listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ).encode( 'utf-8' ) )
                             listitem.setProperty( "icon", "DefaultShortcut.png" )
                             listitem.setProperty( "thumbnail", "DefaultPlaylist.png" )
                             listitem.setProperty( "shortcutType", "::SCRIPT::" +  "32005" )
@@ -604,12 +610,6 @@ class LibraryFunctions():
                 if ('RunScript' not in path) and ('StartAndroidActivity' not in path) and not (path.endswith(',return)') ):
                     path = path.rstrip(')')
                     path = path + ',return)'
-                if 'playlists/music' in path or 'playlists/video' in path:
-                    thumb = "DefaultPlaylist.png"
-                    if 'playlists/music' in path:
-                        path = path.replace( 'ActivateWindow(10502,', 'PlayMedia(' )
-                    else:
-                        path = path.replace( 'ActivateWindow(10025,', 'PlayMedia(' )
                 else:
                     try:
                         thumb = favourite.attributes[ 'thumb' ].nodeValue

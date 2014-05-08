@@ -205,18 +205,33 @@ class GUI( xbmcgui.WindowXMLDialog ):
             log( "Select shortcut (111)" )
             listControl = self.getControl( 211 )
             itemIndex = listControl.getSelectedPosition()
+            altAction = None
             
-            # If this is a plugin, call our plugin browser
             path = urllib.unquote( self.getControl( 111 ).getSelectedItem().getProperty( "Path" ) )
             if path.startswith( "||BROWSE||" ):
+                # If this is a plugin, call our plugin browser
                 self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
                 return
+            elif path == "||PLAYLIST||":
+                # Give the user the choice of playing or displaying the playlist
+                dialog = xbmcgui.Dialog()
+                userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
+                # False: Display
+                # True: Play
+                if userchoice == False:
+                    altAction = self.getControl( 111 ).getSelectedItem().getProperty( "action-show" )
+                else:
+                    altAction = self.getControl( 111 ).getSelectedItem().getProperty( "action-play" )
                 
             self.changeMade = True
             
             # Copy the new shortcut
             listitem = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
             labelID = listitem.getProperty( "labelID" )
+            
+            # If altAction is set, change the path property
+            if altAction is not None:
+                listitem.setProperty( "Path", altAction )
             
             # Update the list
             listitems = []
@@ -577,9 +592,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Get the shortcuts for the group the user has selected
             displayLabel2 = False
-            
-            log( repr( shortcutCategory ) )
-            
+                        
             if shortcutCategory == 0: # Common
                 availableShortcuts = LIBRARY.common()
             elif shortcutCategory == 1: # Video Library
@@ -621,7 +634,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 path = urllib.unquote( listitemCopy.getProperty( "Path" ) )
                 if path.startswith( "||BROWSE||" ):
                     self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
-                    return  
+                    return
+                elif path == "||PLAYLIST||" :
+                    # Give the user the choice of playing or displaying the playlist
+                    dialog = xbmcgui.Dialog()
+                    userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
+                    # False: Display
+                    # True: Play
+                    if userchoice == False:
+                        listitemCopy.setProperty( "Path", availableShortcuts[selectedShortcut].getProperty( "action-show" ) )
+                    else:
+                        listitemCopy.setProperty( "Path", availableShortcuts[selectedShortcut].getProperty( "action-play" ) )
                     
                 self.changeMade = True
                 
@@ -792,7 +815,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             dialogLabel = label[0] + " - " + label[ len( label ) - 1 ]
             
         dialog = xbmcgui.DialogProgress()
-        dialog.create( dialogLabel, "Getting plugin directory listing..." )
+        dialog.create( dialogLabel, __language__( 32063) )
     
         # JSON query
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + location + '", "media": "files" } }')
