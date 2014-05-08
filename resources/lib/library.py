@@ -606,11 +606,10 @@ class LibraryFunctions():
                     path = path + ',return)'
                 if 'playlists/music' in path or 'playlists/video' in path:
                     thumb = "DefaultPlaylist.png"
-                    if self.PLAY:
-                        if 'playlists/music' in path:
-                            path = path.replace( 'ActivateWindow(10502,', 'PlayMedia(' )
-                        else:
-                            path = path.replace( 'ActivateWindow(10025,', 'PlayMedia(' )
+                    if 'playlists/music' in path:
+                        path = path.replace( 'ActivateWindow(10502,', 'PlayMedia(' )
+                    else:
+                        path = path.replace( 'ActivateWindow(10025,', 'PlayMedia(' )
                 else:
                     try:
                         thumb = favourite.attributes[ 'thumb' ].nodeValue
