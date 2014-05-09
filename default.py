@@ -35,6 +35,8 @@ import xmlfunctions
 XML = xmlfunctions.XMLFunctions()
 import datafunctions
 DATA = datafunctions.DataFunctions()
+import library
+LIBRARY = library.LibraryFunctions()
 
 hashlist = []
 
@@ -79,6 +81,8 @@ class Main:
         if self.TYPE=="settings":
             self._check_Window_Properties()
             self._manage_shortcut_links() 
+        if self.TYPE=="shortcuts":
+            LIBRARY._displayShortcuts( self.LABEL, self.ACTION, self.SHORTCUTTYPE, self.THUMBNAIL, self.GROUPING, self.CUSTOM )
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
             try:
@@ -107,6 +111,14 @@ class Main:
         self.LEVELS = params.get( "levels", "0" )
         self.CUSTOMID = params.get( "customid", "" )
         self.MODE = params.get( "mode", None )
+        
+        # Properties when using LIBRARY._displayShortcuts
+        self.LABEL = params.get( "skinLabel", None )
+        self.ACTION = params.get( "skinAction", None )
+        self.SHORTCUTTYPE = params.get( "skinType", None )
+        self.THUMBNAIL = params.get( "skinThumnbail", None )
+        self.GROUPING = params.get( "grouping", None )
+        self.CUSTOM = params.get( "custom", "False" )
         
         
     def _check_Window_Properties( self ):
