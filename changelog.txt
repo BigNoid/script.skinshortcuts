@@ -10,6 +10,7 @@ v0.3.0 [Release Test]
 - Method to list menu and submenus in a single include
 - Library/playlists/addon/favourites loading code moved to separate module, loaded threaded
 - Menu now be rebuilt on skin or script version and profile changes (includes method)
+- Updated language files from Transifex
 
 v0.2.4
 - Fix listing individual groups with <include> method
