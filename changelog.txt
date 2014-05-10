@@ -1,4 +1,4 @@
-v0.3.0 [Release Test]
+v0.3.0
 - Fix escaping of main menu items (includes method)
 - Fix for custom nodes when using profiles
 - Fix for includes method when using multiple profiles
@@ -8,6 +8,7 @@ v0.3.0 [Release Test]
 - Ability to choose to play or display a playlist
 - Improved method of managing additional properties
 - Method to list menu and submenus in a single include
+- Ability to allow a user to select a shortcut, then pass this to the skin to manage
 - Library/playlists/addon/favourites loading code moved to separate module, loaded threaded
 - Menu now be rebuilt on skin or script version and profile changes (includes method)
 - Updated language files from Transifex
