@@ -58,8 +58,8 @@ class DataFunctions():
                 
         if profileDir is None:
             profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
-                
-        userShortcuts = os.path.join( profileDir.decode( "utf-8" ), "addon_data", __addonid__, self.slugify( group ) + ".shortcuts" ).encode('utf-8')
+            
+        userShortcuts = os.path.join( profileDir, "addon_data", __addonid__, self.slugify( group ) + ".shortcuts" ).encode('utf-8')
         skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".shortcuts").encode('utf-8')
         defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
 
@@ -294,6 +294,7 @@ class DataFunctions():
 
     def _get_overrides_user( self, profileDir = "special://profile" ):
         # If we haven't already loaded user overrides
+        profileDir = profileDir.encode( "utf-8" )
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" + profileDir ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" + profileDir ) == __profilepath__:
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user" + profileDir, profileDir )
             overridepath = os.path.join( profileDir , "overrides.xml" )
