@@ -1,5 +1,6 @@
 v0.3.1 (Unstable development revision)
 - Test UPnP explorer in management dialog
+- Test upgrading to future .xml storage of user shortcuts
 
 v0.3.0
 - Fix escaping of main menu items (includes method)

@@ -4,7 +4,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 What's New for Skinners (version 0.3.1 - Unstable development revision)
 -----------------------
 
- This revision does not currently include any new features for skinners
+ - ADVANCED NOTICE - It is currently my intention to remove the ability for skinners to override an action in this revision. This is due to a user complaint that the action they have chosen was not respected. 0.3.0 introduced the ability for skinners to provide additional shortcuts to choose from - it is now recommended that this feature is used to, for example, provide Cinema Experience links, rather than overriding the action.
  
  
 Where To Get Help
