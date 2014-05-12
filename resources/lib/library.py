@@ -220,6 +220,8 @@ class LibraryFunctions():
 
                 listitems = []
                 
+        # Add upnp browser
+        self.arrayVideoLibrary.insert( 0, self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32014", ""]) )
         return self.arrayVideoLibrary
         
     def _parse_videolibrary( self, type ):
@@ -422,6 +424,8 @@ class LibraryFunctions():
         try:
             listitems = []
             log('Listing music library...')
+            
+            listitems.append( self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32019", ""]) )
             
             # Music
             listitems.append( self._create(["ActivateWindow(MusicFiles)", "::LOCAL::744", "::SCRIPT::32019", "DefaultFolder.png"]) )
@@ -798,6 +802,9 @@ class LibraryFunctions():
             if path.startswith( "||BROWSE||" ):
                 self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
                 return
+            elif path == "||UPNP||":
+                self._browseLibrary( ["upnp://"], "upnp://", [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
+                return
             elif path == "||PLAYLIST||" :
                 # Give the user the choice of playing or displaying the playlist
                 dialog = xbmcgui.Dialog()
@@ -866,9 +873,9 @@ class LibraryFunctions():
                 self.changeMade = True
                 
                 # Build the action
-                if itemType == "::SCRIPT::32010":
+                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014":
                     action = "ActivateWindow(10025," + location + ",Return)"
-                elif itemType == "::SCRIPT::32011":
+                elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019":
                     action = 'ActivateWindow(10501,&quot;' + location + '&quot;,Return)'
                 elif itemType == "::SCRIPT::32012":
                     action = 'ActivateWindow(10002,&quot;' + location + '&quot;,Return)'

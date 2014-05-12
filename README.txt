@@ -1,19 +1,10 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.3.0)
+What's New for Skinners (version 0.3.1 - Unstable development revision)
 -----------------------
 
- - (Includes method) Menu items now only have the "hasSubmenu" property if there is a submenu
- - Test of an alternative includes method for including whole menu in a single list, see "Alternative Listings Method" in Advanced Usage.txt
- - Numerous management dialog changes - see resources/Management Dialog.txt for full details - including
-	> Advice change - skins should now provide labels for all controls
-	> Labels 311 and 312 (background and widget name) replaced with listitem properties
- - Management dialog will now list skin-provided playlists - this affects defaults, see "Providing Default Shortcuts" below
- - Management dialog can now list skin-recommended shortcuts - see "Skin-Recommended Shortcuts" in Advanced Usage.txt
- - If you prefer to manage menus yourself, the script can now be used to select a shortcut, then pass this to the skin to manage - see "Just select shortcuts" in Advanced Usage.txt
- 
-Note: The code to manage additional properties including backgrounds and widgets has been re-written in this revision. The new method is not backwards compatible, so any backgrounds/widgets/additional properties will need to be re-set.
+ This revision does not currently include any new features for skinners
  
  
 Where To Get Help

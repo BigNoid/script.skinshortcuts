@@ -212,6 +212,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # If this is a plugin, call our plugin browser
                 self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
                 return
+            elif path == "||UPNP||":
+                self._browseLibrary( ["upnp://"], "upnp://", [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                return
             elif path == "||PLAYLIST||":
                 # Give the user the choice of playing or displaying the playlist
                 dialog = xbmcgui.Dialog()
@@ -635,6 +638,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if path.startswith( "||BROWSE||" ):
                     self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
                     return
+                elif path == "||UPNP||":
+                    self._browseLibrary( ["upnp://"], "upnp://", [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
+                    return
                 elif path == "||PLAYLIST||" :
                     # Give the user the choice of playing or displaying the playlist
                     dialog = xbmcgui.Dialog()
@@ -827,6 +833,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Add all directories returned by the json query
         if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
             for item in json_response['result']['files']:
+                log( repr( item ) )
                 if item["filetype"] == "directory":
                     displayList.append( item['label'] )
                     displayListActions.append( item['file'] )
@@ -842,9 +849,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.changeMade = True
                 
                 # Build the action
-                if itemType == "::SCRIPT::32010":
+                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014":
                     action = "ActivateWindow(10025," + location + ",Return)"
-                elif itemType == "::SCRIPT::32011":
+                elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019":
                     action = 'ActivateWindow(10501,&quot;' + location + '&quot;,Return)'
                 elif itemType == "::SCRIPT::32012":
                     action = 'ActivateWindow(10002,&quot;' + location + '&quot;,Return)'
