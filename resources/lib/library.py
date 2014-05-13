@@ -611,14 +611,13 @@ class LibraryFunctions():
             for count, favourite in enumerate(listing):
                 name = favourite.attributes[ 'name' ].nodeValue
                 path = favourite.childNodes [ 0 ].nodeValue
+                thumb = "DefaultFolder.png"
                 if ('RunScript' not in path) and ('StartAndroidActivity' not in path) and not (path.endswith(',return)') ):
                     path = path.rstrip(')')
                     path = path + ',return)'
                 else:
                     try:
                         thumb = favourite.attributes[ 'thumb' ].nodeValue
-                    except:
-                        thumb = "DefaultFolder.png"
                         
                 listitem = xbmcgui.ListItem(label=name, label2=__language__(32006), iconImage="DefaultShortcut.png", thumbnailImage=thumb)
                 listitem.setProperty( "path", urllib.quote( path.encode( 'utf-8' ) ) )
