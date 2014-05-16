@@ -251,6 +251,9 @@ class LibraryFunctions():
                     label2 = "::LOCAL::" + label.text
                 else:
                     label2 = label.text
+            
+            filesIndex = None
+            filesItem = None
             for file in files:
                 if not file == "index.xml":
                     # Load the file
@@ -259,45 +262,73 @@ class LibraryFunctions():
                     # Check for a pretty library link
                     prettyLink = self._pretty_videonode( tree, file )
                     
-                    # Create the action for this file
-                    if prettyLink == False:
-                        path = "ActivateWindow(Videos,library://video/" + os.path.relpath( os.path.join( root, file), rootdir ) + ",return)"
-                        path.replace("\\", "/")
-                    else:
-                        path = "ActivateWindow(Videos," + prettyLink + ",return)"
-                        
-                    listitem = [path]
-                    
-                    # Get the label
-                    label = tree.find( 'label' )
-                    if label is not None:
-                        if label.text.isdigit():
-                            listitem.append( "::LOCAL::" + label.text )
+                    if prettyLink == "Files":
+                        label = tree.find( 'label' )
+                        if label is not None:
+                            if label.text.isdigit():
+                                displayLabel = "::LOCAL::" + label.text
+                            else:
+                                displayLabel = label.text + "..."
                         else:
-                            listitem.append( label.text )
-                    else:
-                        listitem.append( "::SCRIPT::32042" )
+                            listitem.append( "::SCRIPT::32042" )
+                        icon = tree.find( 'icon' )
+                            
+                        filesItem = self._create(["||SOURCES||", displayLabel, "::SCRIPT::32014", icon.text])
+                        filesItem.setLabel( filesItem.getLabel() + "..." )
                         
-                    # Add the label2
-                    listitem.append( label2 )
-                    
-                    # Get the icon
-                    icon = tree.find( 'icon' )
-                    if icon is not None:
-                        listitem.append( icon.text )
+                        # Get the node 'order' value
+                        order = tree.getroot()
+                        try:
+                            filesIndex = order.attrib.get( 'order' )
+                        except:
+                            filesIndex = unnumberedNode
+                            
                     else:
-                        listitem.append( "defaultshortcut.png" )
+                        # Create the action for this file
+                        if prettyLink == False:
+                            path = "ActivateWindow(Videos,library://video/" + os.path.relpath( os.path.join( root, file), rootdir ) + ",return)"
+                            path.replace("\\", "/")
+                        else:
+                            path = "ActivateWindow(Videos," + prettyLink + ",return)"
+                            
+                        listitem = [path]
                         
-                    # Get the node 'order' value
-                    order = tree.getroot()
-                    try:
-                        videonodes[ order.attrib.get( 'order' ) ] = listitem
-                    except:
-                        videonodes[ str( unnumberedNode ) ] = listitem
-                        unnumberedNode = unnumberedNode + 1
+                        # Get the label
+                        label = tree.find( 'label' )
+                        if label is not None:
+                            if label.text.isdigit():
+                                listitem.append( "::LOCAL::" + label.text )
+                            else:
+                                listitem.append( label.text )
+                        else:
+                            listitem.append( "::SCRIPT::32042" )
+                            
+                        # Add the label2
+                        listitem.append( label2 )
+                        
+                        # Get the icon
+                        icon = tree.find( 'icon' )
+                        if icon is not None:
+                            listitem.append( icon.text )
+                        else:
+                            listitem.append( "defaultshortcut.png" )
+                            
+                        # Get the node 'order' value
+                        order = tree.getroot()
+                        try:
+                            videonodes[ order.attrib.get( 'order' ) ] = listitem
+                        except:
+                            videonodes[ str( unnumberedNode ) ] = listitem
+                            unnumberedNode = unnumberedNode + 1
                         
             for key in sorted(videonodes.iterkeys()):
+                if filesIndex is not None and int( key ) > int( filesIndex ):
+                    listitems.append( filesItem )
+                    filesIndex = None
                 listitems.append( self._create( videonodes[ key ] ) )
+            if filesIndex is not None:
+                listitems.append( filesItem )
+                filesIndex = None
 
         # PVR
         listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "::LOCAL::19023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
@@ -804,6 +835,9 @@ class LibraryFunctions():
                 return
             elif path == "||UPNP||":
                 self._browseLibrary( ["upnp://"], "upnp://", [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
+                return
+            elif path == "||SOURCE||":
+                self._browseLibrary( ["sources://videos/"], "sources://videos/", [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
                 return
             elif path == "||PLAYLIST||" :
                 # Give the user the choice of playing or displaying the playlist

@@ -215,6 +215,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             elif path == "||UPNP||":
                 self._browseLibrary( ["upnp://"], "upnp://", [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
                 return
+            elif path == "||SOURCES||":
+                self._browseLibrary( ["sources://video/"], "sources://video/", [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                return
             elif path == "||PLAYLIST||":
                 # Give the user the choice of playing or displaying the playlist
                 dialog = xbmcgui.Dialog()
@@ -640,6 +643,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     return
                 elif path == "||UPNP||":
                     self._browseLibrary( ["upnp://"], "upnp://", [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
+                    return
+                elif path == "||SOURCES||":
+                    self._browseLibrary( ["sources://video/"], "sources://video/", [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
                     return
                 elif path == "||PLAYLIST||" :
                     # Give the user the choice of playing or displaying the playlist
