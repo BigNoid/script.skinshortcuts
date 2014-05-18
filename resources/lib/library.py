@@ -637,7 +637,7 @@ class LibraryFunctions():
                 listing = doc.documentElement.getElementsByTagName( 'favourite' )
             else:
                 self.arrayFavourites = listitems
-                return
+                return self.arrayFavourites
                 
             for count, favourite in enumerate(listing):
                 name = favourite.attributes[ 'name' ].nodeValue
@@ -815,6 +815,12 @@ class LibraryFunctions():
             
         else: # No category selected
             log( "No shortcut category selected" )
+            return
+            
+        # Check a shortcut is available
+        if len( availableShortcuts ) == 0:
+            log( "No available shortcuts found" )
+            xbmcgui.Dialog().ok( __language__(32064), __language__(32065) )
             return
                         
         # Now build an array of items to show to the user

@@ -275,3 +275,11 @@ msgstr ""
 msgctxt "#32063"
 msgid "Getting plugin directory listing..."
 msgstr ""
+
+msgctxt "#32064"
+msgid "No Shortcuts"
+msgstr ""
+
+msgctxt "#32065"
+msgid "There are no shortcuts available for the category that you choose."
+msgstr ""
