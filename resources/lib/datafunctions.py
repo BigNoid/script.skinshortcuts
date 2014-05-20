@@ -44,6 +44,34 @@ class DataFunctions():
     def __init__(self):
         pass
         
+    
+    def _get_labelID( self, labelID ):
+        # This gets the unique labelID for the item we've been passed. We'll also store it, to make sure
+        # we don't give it to any other item.
+        
+        # Check if the labelID exists in the list
+        if labelID in self.labelIDList:
+            # We're going to add an -x to the end of this
+            count = 0
+            while labelID + "-" + str( count ) not in self.labelIDList:
+                count += 1
+                log( " ... increasing labelID suffix by one" )
+            
+            # We can now use this one
+            self.labelIDList.append( labelID + "-" + str( count ) )
+            log( "labelID - " + labelID + "-" + str( count ) )
+            return labelID + "-" + str( count )
+        else:
+            # We can use this one
+            self.labelIDList.append( labelID )
+            log( "labelID - " + labelID )
+            return labelID
+        
+    
+    def _clear_labelID( self ):
+        # This clears our stored list of labelID's
+        self.labelIDList = []
+        
                 
     def _get_shortcuts( self, group, isXML = False, profileDir = None ):
         # This will load the shortcut file, and save it as a window property

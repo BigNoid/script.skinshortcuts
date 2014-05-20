@@ -183,6 +183,8 @@ class Main:
         
         i = 0
         
+        DATA._clear_labelID()
+        
         for item in listitems:
             i += 1
             # Generate a listitem
@@ -191,7 +193,8 @@ class Main:
             
             listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
             listitem.setProperty( 'IsPlayable', 'True')
-            listitem.setProperty( "labelID", item[5].encode('utf-8') )
+            if group == "mainmenu":
+                listitem.setProperty( "labelID", DATA._get_labelID( item[5] ).encode('utf-8') )
             listitem.setProperty( "action", urllib.unquote( item[4] ) )
             listitem.setProperty( "group", group )
             listitem.setProperty( "path", path )

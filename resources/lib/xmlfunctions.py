@@ -227,6 +227,9 @@ class XMLFunctions():
             profileVis = profile[1]
             profileCount += 1
             
+            # Clear any previous labelID's
+            DATA._clear_labelID()
+            
             # Get groups OR main menu shortcuts
             if not groups == "":
                 menuitems = groups.split( "|" )
@@ -244,7 +247,6 @@ class XMLFunctions():
             for item in menuitems:
                 i += 1
                 progress.update( ( profilePercent * profileCount) + percent * i )
-                log( str( ( profilePercent * profileCount) + percent * i ) + "%" )
                 
                 # Build the main menu item
                 if groups == "":
@@ -254,6 +256,9 @@ class XMLFunctions():
                     submenu = item[5]
                 else:
                     submenu = item
+                    
+                # Ensure the submenu labelID is unique
+                submenu = DATA._get_labelID( submenu )
                 
                 # Build the sub-menu items
                 count = 0
@@ -281,12 +286,10 @@ class XMLFunctions():
                                     hasSubMenu.text = "True"
                                 
                     else:
+                        # This is an additional sub-menu, not the primary one
                         justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) ) + "-" + str( count )
                         justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) ) + "-" + str( count )
                         submenuitems = DATA._get_shortcuts( submenu + "." + str( count ), True, profile[0] )
-                        
-                    log( "Number of submenu items: " + str( len( submenuitems ) ) )
-                    log( repr( submenuitems ) )
                     
                     # If there is a submenu, and we're building a single menu list, replace the onclick of mainmenuItemB AND recreate it as the first
                     # submenu item
