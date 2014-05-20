@@ -44,106 +44,6 @@ class DataFunctions():
     def __init__(self):
         pass
         
-    # --VERSION 0.3.2 ONLY--
-    def upgrade( self, profileDir = None ):
-        log( "### UPGRADING!" )
-        # This function will upgrade any .shortcuts files in the user data directory to the new .xml file
-        if profileDir is None:
-            profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
-            
-        # Create a new tree
-        tree = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
-        rootET = tree.getroot()
-            
-        # Walk the addon's data directory for .shortcuts files
-        path = xbmc.translatePath( os.path.join( profileDir, "addon_data", __addonid__ ).encode( "utf-8" ) ).decode( "utf-8" )
-        for root, subdirs, files in os.walk( path ):
-            for file in files:
-                log( repr( file ) )
-                if file.endswith( ".shortcuts" ):
-                    # Create a new subelement for this file - we'll use the filename as the labelID
-                    newTree = xmltree.SubElement( rootET, "group" )
-                    newTree.set( "labelID", file.replace( ".shortcuts", "" ) )
-                    
-                    # Generate the full path
-                    filepath = xbmc.translatePath( os.path.join( profileDir, "addon_data", __addonid__, file ).encode( "utf-8" ) ).decode( "utf-8" )
-                    log( filepath )
-                    
-                    self.upgradeFile( file.replace( ".shortcuts", "" ), eval( xbmcvfs.File( filepath ).read() ), newTree, profileDir )
-            break
-            
-        # Save the final file
-        tree.write( xbmc.translatePath( os.path.join( profileDir, "addon_data", __addonid__, "shortcuts.xml" ).encode( "utf-8" ) ).decode( "utf-8" ), encoding="UTF-8" )
-        
-            
-    # --VERSION 0.3.2 ONLY--
-    def upgradeFile( self, filename, items, groupET, profileDir ):
-        # Similar to the _process_shortcuts function, but we will re-save the data
-        # to our new tree
-        
-        # Retrieve overrides
-        tree = self._get_overrides_skin()
-        usertree = self._get_overrides_user( profileDir )
-        
-        for item in items:
-            # Generate the labelID
-            label = item[0]
-            labelID = item[0].replace( " ", "").lower()
-            skinLabel = None
-            
-            if len( item ) == 6:
-                skinName = item[6]
-                skinLabel = item[7]
-            
-            # Localise labelID, update label format
-            if not label.find( "::SCRIPT::" ) == -1:
-                labelID = self.createNiceName( label[10:] )
-                label = "$ADDON[script.skinshortcuts " + label[10:] + "]"
-                skinLabel = None
-            elif not label.find( "::LOCAL::" ) == -1:
-                labelID = self.createNiceName( label[9:] )
-                label = label[9:]
-                # Update the skin-provided label, if we're still on that skin
-                if skinLabel is not None and skinName == xbmc.getSkinDir():
-                    skinLabel = xbmc.getLocalizedString( int( label[9:] ) )
-                    
-            log( "Label: " + label )
-            log( "LabelID: " + labelID )
-                
-            # Update label2 format
-            label2 = item[1]
-            if not label2.find( "::SCRIPT::" ) == -1:
-                label2 = "$ADDON[script.skinshortcuts " + label2[10:] + "]"
-            elif not label2.find( "::LOCAL::" ) == -1:
-                label2 = label2[9:]
-                        
-            # Check visibility
-            visibilityCondition = self.checkVisibility( urllib.unquote( item[4] ) )
-            
-            # Create the item in the ET
-            itemET = xmltree.SubElement( groupET, "item" )
-            
-            # Save primary properties
-            xmltree.SubElement( itemET, "label").text = label
-            xmltree.SubElement( itemET, "label2").text = label2
-            xmltree.SubElement( itemET, "labelID" ).text = labelID
-            xmltree.SubElement( itemET, "action" ).text = urllib.unquote( item[4] )
-            xmltree.SubElement( itemET, "icon" ).text = item[2]
-            xmltree.SubElement( itemET, "thumbnail" ).text = item[3]
-            
-            # Save skin-specific labels
-            if skinLabel is not None:
-                xmltree.SubElement( itemET, "skinLabel").text = skinLabel
-                xmltree.SubElement( itemET, "skinName").text = skinName
-                
-            # Save additional properties
-            log( "### ADDITIONAL" )
-            # Get any additional properties, including widget and background
-            additionalProperties = self.checkAdditionalProperties( filename, labelID, True )
-            log( repr( additionalProperties ) )
-            for properties in additionalProperties:
-                xmltree.SubElement( itemET, properties[0] ).text = properties[1]
-
                 
     def _get_shortcuts( self, group, isXML = False, profileDir = None ):
         # This will load the shortcut file, and save it as a window property
@@ -159,13 +59,6 @@ class DataFunctions():
                 
         if profileDir is None:
             profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
-            
-        # --VERSION 0.3.2 ONLY--
-        # If the old .shortcuts file exists, we need to upgrade to the new .xml file
-        userShortcuts = os.path.join( profileDir, "addon_data", __addonid__, self.slugify( group ) + ".shortcuts" ).encode('utf-8')
-        if xbmcvfs.exists( userShortcuts ):
-            self.upgrade( profileDir )
-        # --END--
         
         skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".shortcuts").encode('utf-8')
         defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".shortcuts" ).encode('utf-8')
