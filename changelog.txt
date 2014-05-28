@@ -1,5 +1,8 @@
-v0.3.1 (Unstable development revision)
+v0.3.2 (Unstable development revision)
 - Test UPnP and source explorer in management dialog
+- Fix for crash when no profiles.xml file
+
+v0.3.1
 - Fixes: No favourites showing in management dialog
          Script crash on choosing empty group in skin-managed selection dialog
 		 Remove visibility condition for Eject Tray shortcut
