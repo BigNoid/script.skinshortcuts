@@ -1,10 +1,12 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.3.1 - Unstable development revision)
+What's New for Skinners (version 0.3.2 - Unstable development revision)
 -----------------------
 
- - ADVANCED NOTICE - It is currently my intention to remove the ability for skinners to override an action in this revision. This is due to a user complaint that the action they have chosen was not respected. 0.3.0 introduced the ability for skinners to provide additional shortcuts to choose from - it is now recommended that this feature is used to, for example, provide Cinema Experience links, rather than overriding the action.
+ - LabelID changes - in some very rare cases, the labelID for an item may have changed. This has the potential for users to loose one or more groups of their submenu shortcuts if they have 2 or more main menu items with the same label.
+ - ADVANCED NOTICE - Advice for skins usage of overriding actions will change. In short, overrides must ensure they offer user choice by, e.g., linking the override to a skin setting.
+ - Clarification: The maximum number of additional sub-menu's is 5
  
  
 Where To Get Help

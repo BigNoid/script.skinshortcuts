@@ -56,7 +56,7 @@ class XMLFunctions():
                 profilelist.append( [dir, "StringCompare(System.ProfileName," + name.decode( "utf-8" ) + ")"] )
                 
         else:
-            profileList = [["special://masterprofile", None]]
+            profilelist = [["special://masterprofile", None]]
  
         if self.shouldwerun( profilelist ) == False:
             log( "Menu is up to date" )

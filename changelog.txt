@@ -1,5 +1,6 @@
 v0.3.2 (Unstable development revision)
 - Test UPnP and source explorer in management dialog
+- Improved labelID generation (submenu's will stick better to main menu's)
 - Fix for crash when no profiles.xml file
 
 v0.3.1

@@ -7,6 +7,7 @@ from xml.sax.saxutils import escape as escapeXML
 import thread
 from traceback import print_exc
 from unidecode import unidecode
+import random
 
 import datafunctions
 DATA = datafunctions.DataFunctions()
@@ -53,8 +54,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.defaultProperties = []
         
         self.changeMade = False
-        #self.labelIDChanges = []
-        self.labelIDChanges = {}
         
         log( 'Management module loaded' )
 
@@ -233,7 +232,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Copy the new shortcut
             listitem = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
-            labelID = listitem.getProperty( "labelID" )
+            listitem.setProperty( "labelID", listControl.getListItem( itemIndex ).getProperty( "labelID" ) )
+            #labelID = listitem.getProperty( "labelID" )
             
             # If altAction is set, change the path property
             if altAction is not None:
@@ -252,8 +252,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listControl.addItems( listitems )
             listControl.selectItem( itemIndex )
             
-            if self.group == "mainmenu":
-                self._remove_labelid_changes( labelID )
         
         if controlID == 301:
             # Add a new item
@@ -384,10 +382,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if not listitem.getLabel2():
                 listitem.setLabel2( __language__(32024) )
                 listitem.setProperty( "shortcutType", "::SCRIPT::32024" )
-                
-            # If this is the mainmenu group, update the labelIDChanges list
-            if self.group == "mainmenu":
-                self._update_labelid_changes( oldlabelID, listitem.getProperty( "labelID" ) )
 
         if controlID == 306:
             # Change thumbnail
@@ -666,6 +660,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for x in range(0, self.getControl( 211 ).size()):
                     if x == num:
                         labelID = self.getControl( 211 ).getListItem(x).getProperty( "labelID" )
+                        listitemCopy.setProperty( "labelID", labelID )
                         listitems.append(listitemCopy)
                     else:
                         # Duplicate the item and add it to the listitems array
@@ -676,9 +671,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).addItems(listitems)
                 
                 self.getControl( 211 ).selectItem( num )
-                
-            if self.group == "mainmenu":
-                self._remove_labelid_changes( labelID )
         
         #if controlID == 402:
         #    # NOTE: Even if edit controls are now fixed, this code is out of date
@@ -793,13 +785,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Get the group we're about to edit
             launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
             
-            # Check if this labelID has been updated - if so, we want to edit the original
-            # labelID
-            if self.group == "mainmenu" and len( self.labelIDChanges) != 0:
-                for labelIDChange in self.labelIDChanges:
-                    if launchGroup == labelIDChange[1]:
-                        launchGroup = labelIDChange[0]
-                
+            # If the labelID property is empty, we need to generate one
+            if launchGroup is None or launchGroup == "":
+                DATA._clear_labelID()
+                num = self.getControl( 211 ).getSelectedPosition()
+                for x in range(0, self.getControl( 211 ).size()):
+                    if x == num:
+                        labelID = self.getControl( 211 ).getListItem( x ).getProperty( "localizedString" )
+                        if labelID is None or labelID == "":
+                            launchGroup = self._get_labelID( self.getControl( 211 ).getListItem( x ).getLabel() )
+                        else:
+                            launchGroup = self._get_labelID( labelID )
+                        self.getControl( 211 ).getListItem( x ).setProperty( "labelID", launchGroup )
+                    else:
+                        DATA._get_labelID( self.getControl( 211 ).getListItem( x ).getProperty( "labelID" ) )
+                                        
             
             # Check if 'level' property has been set
             if currentWindow.getProperty("level"):
@@ -896,6 +896,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
     def load_shortcuts( self, includeUserShortcuts = True ):
         log( "Loading shortcuts" )
+        DATA._clear_labelID()
         
         # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
         loadGroup = DATA.slugify( self.group )
@@ -1053,40 +1054,33 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Translate certain localized strings into non-localized form for labelID
         item = item.replace("::SCRIPT::", "")
         item = item.replace("::LOCAL::", "")
+        returnVal = None
         if item == "10006":
-            return "videos"
-        if item == "342":
-            return "movies"
-        if item == "20343":
-            return "tvshows"
-        if item == "32022":
-            return "livetv"
-        if item == "10005":
-            return "music"
-        if item == "20389":
-            return "musicvideos"
-        if item == "10002":
-            return "pictures"
-        if item == "12600":
-            return "weather"
-        if item == "10001":
-            return "programs"
-        if item == "32032":
-            return "dvd"
-        if item == "10004":
-            return "settings"
+            returnVal = "videos"
+        elif item == "342":
+            returnVal = "movies"
+        elif item == "20343":
+            returnVal = "tvshows"
+        elif item == "32022":
+            returnVal = "livetv"
+        elif item == "10005":
+            returnVal = "music"
+        elif item == "20389":
+            returnVal = "musicvideos"
+        elif item == "10002":
+            returnVal = "pictures"
+        elif item == "12600":
+            returnVal = "weather"
+        elif item == "10001":
+            returnVal = "programs"
+        elif item == "32032":
+            returnVal = "dvd"
+        elif item == "10004":
+            returnVal = "settings"
         else:
-            return item.replace(" ", "").lower()
-            
-            
-    def _update_labelid_changes( self, oldlabelID, newlabelID ):
-        if oldlabelID == "":
-            return
-        self.labelIDChanges[oldlabelID] = newlabelID
+            returnVal = item.replace(" ", "").lower()
         
-    def _remove_labelid_changes( self, labelID ):
-        if labelID in self.labelIDChanges.keys():
-            del self.labelIDChanges[labelID]
+        return DATA._get_labelID( returnVal )
         
         
     def _check_properties( self, listitems, usingUserShortcuts ):
@@ -1229,6 +1223,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitems = []
             properties = []
             
+            labelIDChanges = []
+            labelIDChangesDict = {}
+            
+            DATA._clear_labelID()
+            
             for x in range(0, self.getControl( 211 ).size()):
                 # If the item has a label, push it to an array
                 listitem = self.getControl( 211 ).getListItem(x)
@@ -1237,6 +1236,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     saveLabel = listitem.getLabel().decode('utf-8')
                     saveLabel2 = listitem.getLabel2().decode('utf-8')
                     
+                    # Generate labelID, and mark if it has changes
+                    labelID = listitem.getProperty( "labelID" )
+                    newlabelID = labelID
+                    localizedString = listitem.getProperty( "localizedString" )
+                    if localizedString is None or localizedString == "":
+                        newlabelID = self._get_labelID( listitem.getLabel() )
+                    else:
+                        newlabelID = self._get_labelID( localizedString )                        
+                        
+                    if not labelID == newlabelID:
+                        labelIDChanges.append( [labelID, newlabelID] )
+                        labelIDChangesDict[ labelID ] = newlabelID
+                        
+                    labelID = newlabelID
+                    
+                    # Save specific properties
                     if listitem.getProperty( "localizedString" ):
                         saveLabel = listitem.getProperty( "localizedString" ).decode('utf-8')
                         
@@ -1246,7 +1261,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), listitem.getProperty("icon").decode('utf-8'), listitem.getProperty("thumbnail").decode('utf-8'), listitem.getProperty("path").decode('utf-8')]
                         
                     if listitem.getProperty( "additionalListItemProperties" ):
-                        properties.append( [ listitem.getProperty( "labelID" ), eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
+                        properties.append( [ labelID, eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
                         
                     listitems.append(savedata)
                             
@@ -1261,38 +1276,53 @@ class GUI( xbmcgui.WindowXMLDialog ):
             except:
                 print_exc()
                 log( "### ERROR could not save file %s" % __datapath__ )
-                
-            # Save widgets, backgrounds and custom properties
-            self._save_properties( properties )
             
-            # If this the the mainmenu and there are any labelID changes, make the changes to the submenus
-            if self.group == "mainmenu" and len( self.labelIDChanges ) != 0:
+                        
+            # Now make any labelID changes
+            while not len( labelIDChanges ) == 0:
+                # Get the first labelID change, and check that we're not changing anything from that
+                labelIDFrom = labelIDChanges[0][0]
+                labelIDTo = labelIDChanges[0][1]
+                
+                # Check that there isn't another item in the list whose 'From' is the same as our 'To'
+                # - if so, we're going to move our items elsewhere, and move 'em to the correct place later
+                # (This ensures we don't overwrite anything incorrectly)
+                if not len( labelIDChanges ) == 1:
+                    for x in range( 1, len( labelIDChanges ) ):
+                        if labelIDChanges[x][0] == labelIDTo:
+                            tempLocation = str( random.randrange(0,9999999999999999) )
+                            labelIDChanges[0][1] = tempLocation
+                            labelIDChanges.append( [tempLocation, labelIDTo] )
+                            labelIDTo = tempLocation
+                            break
+                            
+                # Make the change (0 - the main sub-menu, 1-5 - additional submenus )
                 for i in range( 0, 6 ):
-                    for labelIDChange in self.labelIDChanges:
-                        if i == 0:
-                            paths = [os.path.join( __datapath__ , DATA.slugify( labelIDChange[0] ) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , DATA.slugify( labelIDChange[0] ) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , DATA.slugify( labelIDChange[0] ) + ".shortcuts" ).encode('utf-8') ]
-                            target = os.path.join( __datapath__ , DATA.slugify( labelIDChange[1] ) + ".shortcuts" ).encode('utf-8')
-                        else:
-                            paths = [os.path.join( __datapath__ , DATA.slugify( labelIDChange[0] ) + "." + str(i) + ".shortcuts" ).encode('utf-8'), os.path.join( __skinpath__ , DATA.slugify( labelIDChange[0] ) + "." + str(i) + ".shortcuts").encode('utf-8'), os.path.join( __defaultpath__ , DATA.slugify( labelIDChange[0] ) + "." + str(i) + ".shortcuts" ).encode('utf-8') ]
-                            target = os.path.join( __datapath__ , DATA.slugify( labelIDChange[1] ) + "." + str(i) + ".shortcuts" ).encode('utf-8')
-                        count = 0
-                        for path in paths:
-                            count += 1
-                            if xbmcvfs.exists( path ):
-                                if count == 1:
-                                    # We're going to move the file
-                                    xbmcvfs.rename( path, target )
-                                else:
-                                    # We're going to copy the file
-                                    xbmcvfs.copy( path, target )
-                                break
+                    if i == 0:
+                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Copy"]]
+                        target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + ".shortcuts" ).encode( "utf-8" )
+                    else:
+                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".shortcuts" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".shortcuts" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".shortcuts" ).encode( "utf-8" ), "Copy"]]
+                        target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + "." + str( i ) + ".shortcuts" ).encode( "utf-8" )
                     
+                    for path in paths:
+                        if xbmcvfs.exists( path[0] ):
+                            if path[1] == "Move":
+                                xbmcvfs.rename( path[0], target )
+                            else:
+                                xbmcvfs.copy( path[0], target )
+                            break
+                        
+                labelIDChanges.pop( 0 )
+                    
+            # Save widgets, backgrounds and custom properties
+            log( repr( properties ) )
+            self._save_properties( properties, labelIDChangesDict )
             
             # Note that we've saved stuff
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-reloadmainmenu", "True" )
-            
-        
-    def _save_properties( self, properties ):
+                    
+    def _save_properties( self, properties, labelIDChanges ):
         # Save all additional properties (widgets, backgrounds, custom)
         log( "Saving properties" )
         
@@ -1303,13 +1333,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # make any labelID changes whilst we're at it
         saveData = []
         for property in currentProperties:
-            log( "Comparing " + self.group + " to " + property[0] )
+            #[ groupname, itemLabelID, property, value ]
             if not property[0] == self.group:
-                if property[0] in self.labelIDChanges.keys():
+                if property[0] in labelIDChanges.keys():
                     property[0] = self.labelIDChanges[property[0]]
                 saveData.append( property )
-
-        log( "(" + str( len( saveData ) ) + " remaining)" )
         
         # Add all the properties we've been passed
         for property in properties:
@@ -1319,8 +1347,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # toSave[1] = property value
                 
                 saveData.append( [ self.group, property[0], toSave[0], toSave[1] ] )
-        
-        log( repr( saveData ) )
         
         # Try to save the file
         try:

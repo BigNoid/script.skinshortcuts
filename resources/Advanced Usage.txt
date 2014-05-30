@@ -69,7 +69,7 @@ In the list where you want these controls to appear, put the following in the <c
   
 	plugin://script.skinshortcuts?type=settings&amp;level=1&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
 	
-You MUST provide a string for the settings list. See 'overrides.xml' (section 4) for details.
+You MUST provide a string for the settings list. See 'overrides.xml' (section 4) for details. Skin Shortcuts supports a maximum of 5 additional sub-menus, numbered 1 through 5.
 
 
 Alternative Listing Methods
