@@ -231,9 +231,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.changeMade = True
             
             # Copy the new shortcut
-            listitem = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem() )
-            listitem.setProperty( "labelID", listControl.getListItem( itemIndex ).getProperty( "labelID" ) )
-            #labelID = listitem.getProperty( "labelID" )
+            listitem = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem(), listControl.getListItem( itemIndex ) )
             
             # If altAction is set, change the path property
             if altAction is not None:
@@ -559,6 +557,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Choose shortcut (SELECT DIALOG)
             log( "Choose shortcut (401)" )
             labelID = None
+            num = self.getControl( 211 ).getSelectedPosition()
             
             # Check for a window property designating category
             currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
@@ -626,7 +625,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             if selectedShortcut != -1:
                 # Create a copy of the listitem
-                listitemCopy = self._duplicate_listitem( availableShortcuts[selectedShortcut] )
+                listitemCopy = self._duplicate_listitem( availableShortcuts[selectedShortcut], self.getControl( 211 ).getListItem( num ) )
                 
                 path = urllib.unquote( listitemCopy.getProperty( "Path" ) )
                 if path.startswith( "||BROWSE||" ):
@@ -653,11 +652,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 # Loop through the original list, and replace the currently selected listitem with our new listitem
                 listitems = []
-                num = self.getControl( 211 ).getSelectedPosition()
                 for x in range(0, self.getControl( 211 ).size()):
                     if x == num:
-                        labelID = self.getControl( 211 ).getListItem(x).getProperty( "labelID" )
-                        listitemCopy.setProperty( "labelID", labelID )
                         listitems.append(listitemCopy)
                     else:
                         # Duplicate the item and add it to the listitems array
@@ -1192,7 +1188,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 pass
                         
         
-    def _duplicate_listitem( self, listitem ):
+    def _duplicate_listitem( self, listitem, originallistitem = None ):
         # Create a copy of an existing listitem
         listitemCopy = xbmcgui.ListItem(label=listitem.getLabel(), label2=listitem.getLabel2(), iconImage=listitem.getProperty("icon"), thumbnailImage=listitem.getProperty("thumbnail"))
         listitemCopy.setProperty( "path", listitem.getProperty("path") )
@@ -1201,15 +1197,28 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
         listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
-        listitemCopy.setProperty( "labelID", listitem.getProperty("labelID") )
         if listitem.getProperty( "customThumbnail" ):
             listitemCopy.setProperty( "customThumbnail", listitem.getProperty( "customThumbnail" ) )
-        if listitem.getProperty( "additionalListItemProperties" ):
-            listitemCopy.setProperty( "additionalListItemProperties", listitem.getProperty( "additionalListItemProperties" ) )
-            listitemProperties = eval( listitem.getProperty( "additionalListItemProperties" ) )
-            
-            for listitemProperty in listitemProperties:
-                listitemCopy.setProperty( listitemProperty[0], listitemProperty[1] )
+        
+        # If we've haven't been passed an originallistitem, set the following from the listitem we were passed
+        if originallistitem is None:
+            listitemCopy.setProperty( "labelID", listitem.getProperty("labelID") )
+            if listitem.getProperty( "additionalListItemProperties" ):
+                listitemCopy.setProperty( "additionalListItemProperties", listitem.getProperty( "additionalListItemProperties" ) )
+                listitemProperties = eval( listitem.getProperty( "additionalListItemProperties" ) )
+                
+                for listitemProperty in listitemProperties:
+                    listitemCopy.setProperty( listitemProperty[0], listitemProperty[1] )
+        else:
+            # Set these from the original item we were passed (this will keep original labelID and additional properties
+            # in tact)
+            listitemCopy.setProperty( "labelID", originallistitem.getProperty( "labelID" ) )
+            if originallistitem.getProperty( "additionalListItemProperties" ):
+                listitemCopy.setProperty( "additionalListItemProperties", originallistitem.getProperty( "additionalListItemProperties" ) )
+                listitemProperties = eval( originallistitem.getProperty( "additionalListItemProperties" ) )
+                
+                for listitemProperty in listitemProperties:
+                    listitemCopy.setProperty( listitemProperty[0], listitemProperty[1] )        
                 
         return listitemCopy
         
