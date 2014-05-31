@@ -274,8 +274,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listControl = self.getControl( 211 )
             
             itemIndex = listControl.getSelectedPosition()
-            if self.group == "mainmenu":
-                self._remove_labelid_changes( listControl.getListItem(itemIndex).getProperty( "labelID" ) )
             listControl.removeItem( itemIndex )
             listControl.selectItem( itemIndex )
             
@@ -789,17 +787,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if launchGroup is None or launchGroup == "":
                 DATA._clear_labelID()
                 num = self.getControl( 211 ).getSelectedPosition()
+                # Get the labelID's of all other menu items
                 for x in range(0, self.getControl( 211 ).size()):
-                    if x == num:
-                        labelID = self.getControl( 211 ).getListItem( x ).getProperty( "localizedString" )
-                        if labelID is None or labelID == "":
-                            launchGroup = self._get_labelID( self.getControl( 211 ).getListItem( x ).getLabel() )
-                        else:
-                            launchGroup = self._get_labelID( labelID )
-                        self.getControl( 211 ).getListItem( x ).setProperty( "labelID", launchGroup )
-                    else:
+                    if not x == num:
                         DATA._get_labelID( self.getControl( 211 ).getListItem( x ).getProperty( "labelID" ) )
-                                        
+                        
+                # Now generate labelID for this menu item
+                labelID = self.getControl( 211 ).getListItem( num ).getProperty( "localizedString" )
+                if labelID is None or labelID == "":
+                    launchGroup = self._get_labelID( self.getControl( 211 ).getListItem( num ).getLabel() )
+                else:
+                    launchGroup = self._get_labelID( labelID )
+                self.getControl( 211 ).getListItem( num ).setProperty( "labelID", launchGroup )                                        
             
             # Check if 'level' property has been set
             if currentWindow.getProperty("level"):
@@ -1229,9 +1228,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             DATA._clear_labelID()
             
             for x in range(0, self.getControl( 211 ).size()):
-                # If the item has a label, push it to an array
                 listitem = self.getControl( 211 ).getListItem(x)
                 
+                # If the item has a label...
                 if listitem.getLabel().decode("utf-8") != __language__(32013):
                     saveLabel = listitem.getLabel().decode('utf-8')
                     saveLabel2 = listitem.getLabel2().decode('utf-8')
@@ -1244,8 +1243,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         newlabelID = self._get_labelID( listitem.getLabel() )
                     else:
                         newlabelID = self._get_labelID( localizedString )                        
-                        
-                    if not labelID == newlabelID:
+                    
+                    if self.group == "mainmenu":
                         labelIDChanges.append( [labelID, newlabelID] )
                         labelIDChangesDict[ labelID ] = newlabelID
                         
@@ -1284,6 +1283,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 labelIDFrom = labelIDChanges[0][0]
                 labelIDTo = labelIDChanges[0][1]
                 
+                # If labelIDFrom is empty. this is a new item so we want to set the From the same as the To
+                # (this will ensure any default .shortcuts file is copied across)
+                if labelIDFrom == "" or labelIDFrom is None:
+                    labelIDFrom = labelIDTo
+                    log( "### Had to set From to the same to To (" + labelIDFrom + ")" )
+                
                 # Check that there isn't another item in the list whose 'From' is the same as our 'To'
                 # - if so, we're going to move our items elsewhere, and move 'em to the correct place later
                 # (This ensures we don't overwrite anything incorrectly)
@@ -1299,17 +1304,25 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Make the change (0 - the main sub-menu, 1-5 - additional submenus )
                 for i in range( 0, 6 ):
                     if i == 0:
-                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Copy"]]
+                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( labelIDFrom ) + ".shortcuts" ).encode( "utf-8" ), "Copy"], [None, "New"]]
                         target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + ".shortcuts" ).encode( "utf-8" )
                     else:
                         paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".shortcuts" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".shortcuts" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".shortcuts" ).encode( "utf-8" ), "Copy"]]
                         target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + "." + str( i ) + ".shortcuts" ).encode( "utf-8" )
                     
                     for path in paths:
-                        if xbmcvfs.exists( path[0] ):
+                        if path[1] == "New":
+                            # Create a new (empty) file at the target path
+                            f = xbmcvfs.File( target, 'w' )
+                            f.write( repr( [] ) )
+                            f.close()
+                            break
+                        elif xbmcvfs.exists( path[0] ):
                             if path[1] == "Move":
+                                # Move the original to the target path
                                 xbmcvfs.rename( path[0], target )
                             else:
+                                # Copy a default shortcuts file to the target path
                                 xbmcvfs.copy( path[0], target )
                             break
                         
