@@ -374,7 +374,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Update the label, local string and labelID
             listitem.setLabel( label )
             listitem.setProperty( "localizedString", "" )
-            listitem.setProperty( "labelID", self._get_labelID( label ) )
             
             # If there's no label2, set it to custom shortcut
             if not listitem.getLabel2():
