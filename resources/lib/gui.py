@@ -427,6 +427,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Update the action
             listitem.setProperty( "path", urllib.quote( action ) )
+            listitem.setProperty( "displaypath", action )
             listitem.setLabel2( __language__(32024) )
             listitem.setProperty( "shortcutType", "::SCRIPT::32024" )
             
