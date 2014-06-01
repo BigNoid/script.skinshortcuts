@@ -51,6 +51,7 @@ You can also use the button to go straight to the list of shortcuts for a catego
 
 	common		(Items commonly found on a main menu)
 	video		(Video library)
+	pvr			(PVR options)
 	music		(Music library)
 	playlists	(Users playlists)
 	favourites	(Users favourites)

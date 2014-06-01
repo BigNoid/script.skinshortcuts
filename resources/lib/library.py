@@ -34,6 +34,7 @@ class LibraryFunctions():
         # Empty arrays for different shortcut types
         self.arrayXBMCCommon = None
         self.arrayVideoLibrary = None
+        self.arrayPVRLibrary = None
         self.arrayMusicLibrary = None
         self.arrayPlaylists = None
         self.widgetPlaylistsList = []
@@ -46,6 +47,7 @@ class LibraryFunctions():
         self.common()
         self.more()
         self.videolibrary()
+        self.pvrlibrary()
         self.musiclibrary()
         self.playlists()
         self.favourites()
@@ -330,12 +332,6 @@ class LibraryFunctions():
                 listitems.append( filesItem )
                 filesIndex = None
 
-        # PVR
-        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "::LOCAL::19023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
-        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "::LOCAL::19024", "::SCRIPT::32017", "DefaultTVShows.png"]) )
-        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "::LOCAL::19069", "::SCRIPT::32017", "DefaultTVShows.png"]) )
-        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::LOCAL::19163", "::SCRIPT::32017", "DefaultTVShows.png"]) )
-        listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::SCRIPT::32023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
         
         self.arrayVideoLibrary = listitems
         
@@ -433,6 +429,49 @@ class LibraryFunctions():
         except:
             return "Custom Node"
                 
+    def pvrlibrary( self ):
+        if isinstance( self.arrayPVRLibrary, list):
+            # The List has already been populated, return it
+            return self.arrayPVRLibrary
+        elif self.arrayPVRLibrary == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayPVRLibrary, list):
+                    return self.arrayPVRLibrary
+        else:
+            # We're going to populate the list
+            self.arrayPVRLibrary = "Loading"
+
+        try:
+            listitems = []
+            log('Listing pvr library...')
+            
+            # PVR
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "::LOCAL::19023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "::LOCAL::19024", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "::LOCAL::19069", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::LOCAL::19163", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::SCRIPT::32023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+
+            # Test options
+            listitems.append( self._create(["PlayPvrTV", "Last TV channel", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["PlayPvrRadio", "Last radio channel", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["PlayPvr", "Last channel", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            
+            self.arrayPVRLibrary = listitems
+        except:
+            log( "Failed to load pvr library" )
+            print_exc()
+            self.arrayPVRLibrary = []
+            
+        return self.arrayPVRLibrary
+        
     def musiclibrary( self ):
         if isinstance( self.arrayMusicLibrary, list):
             # The List has already been populated, return it
@@ -756,21 +795,23 @@ class LibraryFunctions():
                 category = 0
             elif category == "video":
                 category = 1
-            elif category == "music":
+            elif category == "pvr":
                 category = 2
-            elif category == "playlists":
+            elif category == "music":
                 category = 3
-            elif category == "favourites":
+            elif category == "playlists":
                 category = 4
-            elif category == "addons":
+            elif category == "favourites":
                 category = 5
-            elif category == "commands":
+            elif category == "addons":
                 category = 6
-            elif category == "custom":
+            elif category == "commands":
                 category = 7
+            elif category == "custom":
+                category = 8
         else:
             # No window property passed, ask the user what category they want
-            shortcutCategories = [__language__(32029), __language__(32030), __language__(32031), __language__(32040), __language__(32006), __language__(32007), __language__(32057)]
+            shortcutCategories = [__language__(32029), __language__(32030), __language__(32017), __language__(32031), __language__(32040), __language__(32006), __language__(32007), __language__(32057)]
             if custom == "True" or custom == "true":
                 shortcutCategories.append( __language__(32027) )
             category = xbmcgui.Dialog().select( __language__(32043), shortcutCategories )
@@ -783,22 +824,24 @@ class LibraryFunctions():
         elif category == 1: # Video Library
             availableShortcuts = self.videolibrary()
             displayLabel2 = True
-        elif category == 2: # Music Library
+        elif category == 2: # Video Library
+            availableShortcuts = self.pvrlibrary()
+        elif category == 3: # Music Library
             availableShortcuts = self.musiclibrary()
             displayLabel2 = True
-        elif category == 3: # Playlists
+        elif category == 4: # Playlists
             #    xbmc.sleep( 100 )
             availableShortcuts = self.playlists()
             displayLabel2 = True
-        elif category == 4: # Favourites
+        elif category == 5: # Favourites
             availableShortcuts = self.favourites()
-        elif category == 5: # Add-ons
+        elif category == 6: # Add-ons
             availableShortcuts = self.addons()
             displayLabel2 = True
-        elif category == 6: # XBMC Commands
+        elif category == 7: # XBMC Commands
             availableShortcuts = self.more()
             
-        elif category == 7: # Custom action
+        elif category == 8: # Custom action
             keyboard = xbmc.Keyboard( "", xbmc.getLocalizedString(528), False )
             keyboard.doModal()
             

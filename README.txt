@@ -7,6 +7,7 @@ What's New for Skinners (version 0.3.2 - Unstable development revision)
  - LabelID changes - in some very rare cases, the labelID for an item may have changed. This has the potential for users to loose one or more groups of their submenu shortcuts if they have 2 or more main menu items with the same label.
  - ADVANCED NOTICE - Advice for skins usage of overriding actions will change. In short, overrides must ensure they offer user choice by, e.g., linking the override to a skin setting.
  - Clarification: The maximum number of additional sub-menu's is 5
+ - When directly opening a shortcut group to choose from via management dialog button 401, you can now specify the new "pvr" group
  
  
 Where To Get Help

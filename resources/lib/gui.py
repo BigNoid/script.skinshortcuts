@@ -187,14 +187,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Move to previous type of shortcuts
             self.shortcutgroup = self.shortcutgroup - 1
             if self.shortcutgroup == 0:
-                self.shortcutgroup = 7
+                self.shortcutgroup = 8
                 
             self._display_shortcuts()
 
         if controlID == 103:
             # Move to next type of shortcuts
             self.shortcutgroup = self.shortcutgroup + 1
-            if self.shortcutgroup == 8:
+            if self.shortcutgroup == 9:
                 self.shortcutgroup = 1
                 
             self._display_shortcuts()
@@ -568,19 +568,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     shortcutCategory = 0
                 elif skinCategory == "video":
                     shortcutCategory = 1
-                elif skinCategory == "music":
+                elif skinCategory == "pvr":
                     shortcutCategory = 2
-                elif skinCategory == "playlists":
+                elif skinCategory == "music":
                     shortcutCategory = 3
-                elif skinCategory == "favourites":
+                elif skinCategory == "playlists":
                     shortcutCategory = 4
-                elif skinCategory == "addons":
+                elif skinCategory == "favourites":
                     shortcutCategory = 5
-                elif skinCategory == "commands":
+                elif skinCategory == "addons":
                     shortcutCategory = 6
+                elif skinCategory == "commands":
+                    shortcutCategory = 7
             else:
                 # No window property passed, ask the user what category they want
-                shortcutCategories = [__language__(32029), __language__(32030), __language__(32031), __language__(32040), __language__(32006), __language__(32007), __language__(32057)]
+                shortcutCategories = [__language__(32029), __language__(32030), __language__(32017), __language__(32031), __language__(32040), __language__(32006), __language__(32007), __language__(32057)]
                 shortcutCategory = xbmcgui.Dialog().select( __language__(32043), shortcutCategories )
                 
             # Clear the window property
@@ -594,19 +596,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
             elif shortcutCategory == 1: # Video Library
                 availableShortcuts = LIBRARY.videolibrary()
                 displayLabel2 = True
-            elif shortcutCategory == 2: # Music Library
+            elif shortcutCategory == 2: # PVR
+                availableShortcuts = LIBRARY.pvrlibrary()
+            elif shortcutCategory == 3: # Music Library
                 availableShortcuts = LIBRARY.musiclibrary()
                 displayLabel2 = True
-            elif shortcutCategory == 3: # Playlists
+            elif shortcutCategory == 4: # Playlists
                 #    xbmc.sleep( 100 )
                 availableShortcuts = LIBRARY.playlists()
                 displayLabel2 = True
-            elif shortcutCategory == 4: # Favourites
+            elif shortcutCategory == 5: # Favourites
                 availableShortcuts = LIBRARY.favourites()
-            elif shortcutCategory == 5: # Add-ons
+            elif shortcutCategory == 6: # Add-ons
                 availableShortcuts = LIBRARY.addons()
                 displayLabel2 = True
-            elif shortcutCategory == 6: # XBMC Commands
+            elif shortcutCategory == 7: # XBMC Commands
                 availableShortcuts = LIBRARY.more()
                 
             else: # No category selected
@@ -1392,26 +1396,31 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 111 ).addItems(LIBRARY.videolibrary())
             self.getControl( 101 ).setLabel( __language__(32030) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 3:
+            # PVR
+            self.getControl( 111 ).reset()
+            self.getControl( 111 ).addItems(LIBRARY.pvrlibrary())
+            self.getControl( 101 ).setLabel( __language__(32017) + " (%s)" %self.getControl( 111 ).size() )
+        if self.shortcutgroup == 4:
             # Music library
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(LIBRARY.musiclibrary())
             self.getControl( 101 ).setLabel( __language__(32031) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 4:
+        if self.shortcutgroup == 5:
             # Playlists
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(LIBRARY.playlists())
             self.getControl( 101 ).setLabel( __language__(32040) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 5:
+        if self.shortcutgroup == 6:
             # Favourites
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(LIBRARY.favourites())
             self.getControl( 101 ).setLabel( __language__(32006) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 6:
+        if self.shortcutgroup == 7:
             # Add-ons
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(LIBRARY.addons())
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 7:
+        if self.shortcutgroup == 8:
             # More XBMC commands
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(LIBRARY.more())

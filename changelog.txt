@@ -1,5 +1,6 @@
 v0.3.2 (Unstable development revision)
 - Test UPnP and source explorer in management dialog
+- Moved PVR to separate shortcuts grouping in management dialog, additional options
 - Improved labelID generation (submenu's will stick better to main menu's)
 - Fix for crash when no profiles.xml file
 
