@@ -853,7 +853,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.changeMade = True
                 
                 # Build the action
-                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014":
+                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
                     action = "ActivateWindow(10025," + location + ",Return)"
                 elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019":
                     action = 'ActivateWindow(10501,&quot;' + location + '&quot;,Return)'

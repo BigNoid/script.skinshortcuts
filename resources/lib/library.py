@@ -225,7 +225,7 @@ class LibraryFunctions():
                 listitems = []
                 
         # Add upnp browser
-        self.arrayVideoLibrary.append( self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32014", ""]) )
+        self.arrayVideoLibrary.append( self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32014", ""]) )
         
         # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
         if self.loadedUPNP == False:
@@ -241,10 +241,7 @@ class LibraryFunctions():
         if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
             for item in json_response['result']['files']:
                 if item["filetype"] == "directory":
-                    self.arrayVideoLibrary.append( self._create(["||SOURCE||" + item['file'], item['label'], "Source", item['thumbnail']]) )
-                    #displayList.append( item['label'] )
-                    #displayListActions.append( item['file'] )
-                    #displayListThumbs.append( item['thumbnail'] )
+                    self.arrayVideoLibrary.append( self._create(["||SOURCE||" + item['file'], item['label'], "::SCRIPT::32069", item['thumbnail']]) )
         
         return self.arrayVideoLibrary
         
@@ -460,9 +457,9 @@ class LibraryFunctions():
             listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::SCRIPT::32023", "::SCRIPT::32017", "DefaultTVShows.png"]) )
 
             # Test options
-            listitems.append( self._create(["PlayPvrTV", "Last TV channel", "::SCRIPT::32017", "DefaultTVShows.png"]) )
-            listitems.append( self._create(["PlayPvrRadio", "Last radio channel", "::SCRIPT::32017", "DefaultTVShows.png"]) )
-            listitems.append( self._create(["PlayPvr", "Last channel", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["PlayPvrTV", "::SCRIPT::32066", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["PlayPvrRadio", "::SCRIPT::32067", "::SCRIPT::32017", "DefaultTVShows.png"]) )
+            listitems.append( self._create(["PlayPvr", "::SCRIPT::32068", "::SCRIPT::32017", "DefaultTVShows.png"]) )
             
             self.arrayPVRLibrary = listitems
         except:
@@ -512,7 +509,7 @@ class LibraryFunctions():
             listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "::LOCAL::136", "::SCRIPT::32019", "DefaultMusicPlaylists.png"]) )
             
             # Add UPNP explorer
-            listitems.append( self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32019", ""]) )
+            listitems.append( self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32019", ""]) )
             
             # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
             if self.loadedUPNP == False:
@@ -962,7 +959,7 @@ class LibraryFunctions():
                 self.changeMade = True
                 
                 # Build the action
-                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014":
+                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
                     action = "ActivateWindow(10025," + location + ",Return)"
                 elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019":
                     action = 'ActivateWindow(10501,&quot;' + location + '&quot;,Return)'
