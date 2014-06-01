@@ -42,6 +42,8 @@ class LibraryFunctions():
         self.arrayAddOns = None
         self.arrayMoreCommands = None
         
+        self.loadedUPNP = False
+        
     def loadLibrary( self ):
         # Load all library data, for use with threading
         self.common()
@@ -223,7 +225,12 @@ class LibraryFunctions():
                 listitems = []
                 
         # Add upnp browser
-        self.arrayVideoLibrary.insert( 0, self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32014", ""]) )
+        self.arrayVideoLibrary.append( self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32014", ""]) )
+        
+        # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
+        if self.loadedUPNP == False:
+            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
+            self.loadedUPNP = True
         
         # Add sources
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "sources://video/", "media": "files" } }')
@@ -487,9 +494,7 @@ class LibraryFunctions():
         try:
             listitems = []
             log('Listing music library...')
-            
-            listitems.append( self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32019", ""]) )
-            
+                        
             # Music
             listitems.append( self._create(["ActivateWindow(MusicFiles)", "::LOCAL::744", "::SCRIPT::32019", "DefaultFolder.png"]) )
             listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "::LOCAL::15100", "::SCRIPT::32019", "DefaultFolder.png"]) )
@@ -505,6 +510,14 @@ class LibraryFunctions():
             listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "::LOCAL::359", "::SCRIPT::32019", "DefaultMusicRecentlyAdded.png"]) )
             listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "::LOCAL::517", "::SCRIPT::32019", "DefaultMusicRecentlyPlayed.png"]) )
             listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "::LOCAL::136", "::SCRIPT::32019", "DefaultMusicPlaylists.png"]) )
+            
+            # Add UPNP explorer
+            listitems.append( self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32019", ""]) )
+            
+            # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
+            if self.loadedUPNP == False:
+                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
+                self.loadedUPNP = True
             
             self.arrayMusicLibrary = listitems
         except:
