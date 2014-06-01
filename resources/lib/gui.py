@@ -809,20 +809,20 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             
     def _browseLibrary( self, history, location, label, thumbnail, itemToReplace, itemType ):
-        dialogLabel = label[0]
+        dialogLabel = label[0].replace( " (>)", "" )
 
         # Default action - create shortcut
-        displayList = [ " > " + __language__(32058) ]
+        displayList = [ __language__(32058) ]
         displayListActions = [ "||CREATE||" ]
         displayListThumbs = [ "NONE" ]
         
         # If this isn't the root, create a link to go up the heirachy
         if len( label ) is not 1:
-            displayList.append( " > .." )
+            displayList.append( ".." )
             displayListActions.append( "||BACK||" )
             displayListThumbs.append( "NONE" )
             
-            dialogLabel = label[0] + " - " + label[ len( label ) - 1 ]
+            dialogLabel = label[0].replace( " (>)", "" ) + " - " + label[ len( label ) - 1 ].replace( " (>)", "" )
             
         dialog = xbmcgui.DialogProgress()
         dialog.create( dialogLabel, __language__( 32063) )
@@ -837,9 +837,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Add all directories returned by the json query
         if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
             for item in json_response['result']['files']:
-                log( repr( item ) )
                 if item["filetype"] == "directory":
-                    displayList.append( item['label'] )
+                    displayList.append( item['label'] + " (>)" )
                     displayListActions.append( item['file'] )
                     displayListThumbs.append( item['thumbnail'] )
             
@@ -866,7 +865,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitems = []
                 for x in range(0, self.getControl( 211 ).size()):
                     if x == itemToReplace:
-                        listitems.append( LIBRARY._create([action, label[ len( label ) - 1 ], itemType, thumbnail[ len( thumbnail ) - 1 ]]) )
+                        listitems.append( LIBRARY._create([action, label[ len( label ) - 1 ].replace( " (>)", "" ), itemType, thumbnail[ len( thumbnail ) - 1 ]]) )
                     else:
                         # Duplicate the item and add it to the listitems array
                         listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )

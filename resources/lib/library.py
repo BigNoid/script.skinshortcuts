@@ -545,6 +545,10 @@ class LibraryFunctions():
         except:
             print_exc()
             
+        # If this launches our explorer, append a notation to the displayLabel
+        if item[0].startswith( "||" ):
+            displayLabel = displayLabel + " (>)"
+            
         # Build listitem
         listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage="DefaultShortcut.png", thumbnailImage=item[3])
         listitem.setProperty( "path", urllib.quote( item[0] ) )
@@ -767,6 +771,7 @@ class LibraryFunctions():
                             if item['addonid'].startswith( "plugin." ):
                                 listitem.setProperty( "path", urllib.quote( "||BROWSE||" + item['addonid'].encode('utf-8') ) )
                                 listitem.setProperty( "action", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
+                                listitem.setLabel( listitem.getLabel() + " (>)" )
                             else:
                                 listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
 
@@ -916,20 +921,20 @@ class LibraryFunctions():
 
                 
     def _browseLibrary( self, history, location, label, thumbnail, skinStrings, itemType ):
-        dialogLabel = label[0]
+        dialogLabel = label[0].replace( " (>)", "" )
 
         # Default action - create shortcut
-        displayList = [ " > " + __language__(32058) ]
+        displayList = [ __language__(32058) ]
         displayListActions = [ "||CREATE||" ]
         displayListThumbs = [ "NONE" ]
         
         # If this isn't the root, create a link to go up the heirachy
         if len( label ) is not 1:
-            displayList.append( " > .." )
+            displayList.append( ".." )
             displayListActions.append( "||BACK||" )
             displayListThumbs.append( "NONE" )
             
-            dialogLabel = label[0] + " - " + label[ len( label ) - 1 ]
+            dialogLabel = label[0].replace( " (>)", "" ) + " - " + label[ len( label ) - 1 ].replace( " (>)", "" )
             
         dialog = xbmcgui.DialogProgress()
         dialog.create( dialogLabel, __language__( 32063) )
@@ -945,7 +950,7 @@ class LibraryFunctions():
         if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
             for item in json_response['result']['files']:
                 if item["filetype"] == "directory":
-                    displayList.append( item['label'] )
+                    displayList.append( item['label'] + " (>)" )
                     displayListActions.append( item['file'] )
                     displayListThumbs.append( item['thumbnail'] )
             
@@ -975,29 +980,13 @@ class LibraryFunctions():
                 skinThumbnail = skinStrings[3]
                 
                 if skinLabel is not None:
-                    log( "Setting label (" + skinLabel + ") : " + label[ len( label ) - 1 ] )
-                    xbmc.executebuiltin( "Skin.SetString(" + skinLabel + "," + label[ len( label ) - 1 ] + ")" )
+                    xbmc.executebuiltin( "Skin.SetString(" + skinLabel + "," + label[ len( label ) - 1 ].replace( " (>)", "" ) + ")" )
                 if skinAction is not None:
-                    log( "Setting action (" + skinAction + ") : " + action )
                     xbmc.executebuiltin( "Skin.SetString(" + skinAction + "," + action + " )" )
                 if skinType is not None:
                     xbmc.executebuiltin( "Skin.SetString(" + skinType + "," + itemType + ")" )
                 if skinThumbnail is not None:
                     xbmc.executebuiltin( "Skin.SetString(" + skinThumbnail + "," + thumbnail[ len( thumbnail ) - 1 ] + ")" )
-                    
-                #listitems = []
-                #for x in range(0, self.getControl( 211 ).size()):
-                #    if x == itemToReplace:
-                #        listitems.append( LIBRARY._create([action, label[ len( label ) - 1 ], itemType, thumbnail[ len( thumbnail ) - 1 ]]) )
-                #    else:
-                #        # Duplicate the item and add it to the listitems array
-                #        listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                #        listitems.append(listitemShortcutCopy)
-                #
-                #self.getControl( 211 ).reset()
-                #self.getControl( 211 ).addItems(listitems)
-                #
-                #self.getControl( 211 ).selectItem( itemToReplace )
                 
             elif displayListActions[ selectedItem ] == "||BACK||":
                 # User is going up the heirarchy, remove current level and re-call this function
