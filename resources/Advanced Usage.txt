@@ -233,7 +233,6 @@ If there are particular shortcuts to skin-specific features you would like to gi
 [action] - The action associated with this shortcut
 
 
-5. Custom shortcut properties
 6. Custom shortcut properties
 
 If you are using Skin Shortcuts to set custom properties for shortcuts, you can set defaults for these items:
@@ -251,7 +250,6 @@ If you are using Skin Shortcuts to set custom properties for shortcuts, you can 
 </overrides>
 
 
-6. Overriding settings labels
 7. Overriding settings labels
 
 When using Skin Shortcuts to provide the whole main menu, it can provide a list of controls for your skinsettings.xml to launch the management dialog. You can override the default labels for these controls.

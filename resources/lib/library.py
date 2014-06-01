@@ -215,7 +215,7 @@ class LibraryFunctions():
                 # Try loading default nodes
                 self._parse_videolibrary( "default" )
             except:
-                # Return empty library
+                # Empty library
                 log( "Failed to load default video nodes" )
                 print_exc()
                 self.arrayVideoLibrary = []
@@ -224,6 +224,21 @@ class LibraryFunctions():
                 
         # Add upnp browser
         self.arrayVideoLibrary.insert( 0, self._create(["||UPNP||", "UPNP Source...", "::SCRIPT::32014", ""]) )
+        
+        # Add sources
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "sources://video/", "media": "files" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+            
+        # Add all directories returned by the json query
+        if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
+            for item in json_response['result']['files']:
+                if item["filetype"] == "directory":
+                    self.arrayVideoLibrary.append( self._create(["||SOURCE||" + item['file'], item['label'], "Source", item['thumbnail']]) )
+                    #displayList.append( item['label'] )
+                    #displayListActions.append( item['file'] )
+                    #displayListThumbs.append( item['thumbnail'] )
+        
         return self.arrayVideoLibrary
         
     def _parse_videolibrary( self, type ):
@@ -264,64 +279,42 @@ class LibraryFunctions():
                     # Check for a pretty library link
                     prettyLink = self._pretty_videonode( tree, file )
                     
-                    if prettyLink == "Files":
-                        label = tree.find( 'label' )
-                        if label is not None:
-                            if label.text.isdigit():
-                                displayLabel = "::LOCAL::" + label.text
-                            else:
-                                displayLabel = label.text + "..."
-                        else:
-                            listitem.append( "::SCRIPT::32042" )
-                        icon = tree.find( 'icon' )
-                            
-                        filesItem = self._create(["||SOURCES||", displayLabel, "::SCRIPT::32014", icon.text])
-                        filesItem.setLabel( filesItem.getLabel() + "..." )
-                        
-                        # Get the node 'order' value
-                        order = tree.getroot()
-                        try:
-                            filesIndex = order.attrib.get( 'order' )
-                        except:
-                            filesIndex = unnumberedNode
-                            
+                    # Create the action for this file
+                    if prettyLink == False:
+                        path = "ActivateWindow(Videos,library://video/" + os.path.relpath( os.path.join( root, file), rootdir ) + ",return)"
+                        path.replace("\\", "/")
                     else:
-                        # Create the action for this file
-                        if prettyLink == False:
-                            path = "ActivateWindow(Videos,library://video/" + os.path.relpath( os.path.join( root, file), rootdir ) + ",return)"
-                            path.replace("\\", "/")
-                        else:
-                            path = "ActivateWindow(Videos," + prettyLink + ",return)"
-                            
-                        listitem = [path]
+                        path = "ActivateWindow(Videos," + prettyLink + ",return)"
                         
-                        # Get the label
-                        label = tree.find( 'label' )
-                        if label is not None:
-                            if label.text.isdigit():
-                                listitem.append( "::LOCAL::" + label.text )
-                            else:
-                                listitem.append( label.text )
+                    listitem = [path]
+                    
+                    # Get the label
+                    label = tree.find( 'label' )
+                    if label is not None:
+                        if label.text.isdigit():
+                            listitem.append( "::LOCAL::" + label.text )
                         else:
-                            listitem.append( "::SCRIPT::32042" )
-                            
-                        # Add the label2
-                        listitem.append( label2 )
+                            listitem.append( label.text )
+                    else:
+                        listitem.append( "::SCRIPT::32042" )
                         
-                        # Get the icon
-                        icon = tree.find( 'icon' )
-                        if icon is not None:
-                            listitem.append( icon.text )
-                        else:
-                            listitem.append( "defaultshortcut.png" )
-                            
-                        # Get the node 'order' value
-                        order = tree.getroot()
-                        try:
-                            videonodes[ order.attrib.get( 'order' ) ] = listitem
-                        except:
-                            videonodes[ str( unnumberedNode ) ] = listitem
-                            unnumberedNode = unnumberedNode + 1
+                    # Add the label2
+                    listitem.append( label2 )
+                    
+                    # Get the icon
+                    icon = tree.find( 'icon' )
+                    if icon is not None:
+                        listitem.append( icon.text )
+                    else:
+                        listitem.append( "defaultshortcut.png" )
+                        
+                    # Get the node 'order' value
+                    order = tree.getroot()
+                    try:
+                        videonodes[ order.attrib.get( 'order' ) ] = listitem
+                    except:
+                        videonodes[ str( unnumberedNode ) ] = listitem
+                        unnumberedNode = unnumberedNode + 1
                         
             for key in sorted(videonodes.iterkeys()):
                 if filesIndex is not None and int( key ) > int( filesIndex ):
@@ -885,8 +878,8 @@ class LibraryFunctions():
             elif path == "||UPNP||":
                 self._browseLibrary( ["upnp://"], "upnp://", [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
                 return
-            elif path == "||SOURCE||":
-                self._browseLibrary( ["sources://videos/"], "sources://videos/", [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
+            elif path.startswith == "||SOURCE||":
+                self._browseLibrary( [path.replace( "||BROWSE||", "" )], path.replace( "||BROWSE||", "" ), [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
                 return
             elif path == "||PLAYLIST||" :
                 # Give the user the choice of playing or displaying the playlist

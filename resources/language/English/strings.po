@@ -273,7 +273,7 @@ msgid "Play"
 msgstr ""
 
 msgctxt "#32063"
-msgid "Getting plugin directory listing..."
+msgid "Getting directory listing..."
 msgstr ""
 
 msgctxt "#32064"
