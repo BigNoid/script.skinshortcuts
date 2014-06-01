@@ -71,7 +71,7 @@ class Main:
             xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
             self._launch_shortcut( self.PATH )
         if self.TYPE=="manage":
-            self._manage_shortcuts( self.GROUP )
+            self._manage_shortcuts( self.GROUP, self.NOLABELS )
         if self.TYPE=="list":
             self._check_Window_Properties()
             self._list_shortcuts( self.GROUP )
@@ -120,6 +120,8 @@ class Main:
         self.GROUPING = params.get( "grouping", None )
         self.CUSTOM = params.get( "custom", "False" )
         
+        self.NOLABELS = params.get( "nolabels", "false" ).lower()
+        
         
     def _check_Window_Properties( self ):
         # Check if the user has changed skin or profile
@@ -153,9 +155,9 @@ class Main:
                     xbmc.executebuiltin( singleAction )
         
     
-    def _manage_shortcuts( self, group ):
+    def _manage_shortcuts( self, group, nolabels ):
         import gui
-        ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group )
+        ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group, nolabels=nolabels )
         ui.doModal()
         del ui
         
@@ -327,7 +329,7 @@ class Main:
         
         # Create link to manage main menu
         if self.LEVEL == "":
-            path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=mainmenu)" )
+            path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=mainmenu&nolabels=" + self.NOLABELS + ")" )
             displayLabel = self._get_customised_settings_string("main")
             listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
             listitem.setProperty('isPlayable', 'False')
@@ -360,15 +362,15 @@ class Main:
                 
                 for item in loaditems:
                     itemEncoded = item[0].encode( 'utf-8' )
-                    path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + itemEncoded + pathAddition + ")" )
+                    path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + itemEncoded + pathAddition + "&nolabels=" + self.NOLABELS + ")" )
                     
                     # Get localised label
                     if not item[0].find( "::SCRIPT::" ) == -1:
                         localLabel = __language__(int( item[0][10:] ) )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][10:] ).encode("ascii", "xmlcharrefreplace") + pathAddition + ")" )
+                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][10:] ).encode("ascii", "xmlcharrefreplace") + pathAddition + "&nolabels=" + self.NOLABELS + ")" )
                     elif not item[0].find( "::LOCAL::" ) == -1:
                         localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ).encode("ascii", "xmlcharrefreplace") + pathAddition + ")" )
+                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ).encode("ascii", "xmlcharrefreplace") + pathAddition + "&nolabels=" + self.NOLABELS + ")" )
                     else:
                         localLabel = item[0]
                         

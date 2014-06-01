@@ -44,6 +44,7 @@ def log(txt):
 class GUI( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
         self.group = kwargs[ "group" ]
+        self.nolabels = kwargs[ "nolabels" ]
         self.shortcutgroup = 1
         
         # Empty arrays for different shortcut types
@@ -77,67 +78,68 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.load_shortcuts()
             
             # Set button labels
-            try:
-                if self.getControl( 301 ).getLabel() == "":
-                    self.getControl( 301 ).setLabel( __language__(32000) )
-            except:
-                log( "No add shortcut button on GUI (id 301)" )
-            try:
-                if self.getControl( 302 ).getLabel() == "":
-                    self.getControl( 302 ).setLabel( __language__(32001) )
-            except:
-                log( "No delete shortcut button on GUI (id 302)" )
-            try:
-                if self.getControl( 303 ).getLabel() == "":
-                    self.getControl( 303 ).setLabel( __language__(32002) )
-            except:
-                log( "No move shortcut up button on GUI (id 303)" )
-            try:
-                if self.getControl( 304 ).getLabel() == "":
-                    self.getControl( 304 ).setLabel( __language__(32003) )
-            except:
-                log( "No move shortcut down button on GUI (id 304)" )
-            
-            try:
-                if self.getControl( 305 ).getLabel() == "":
-                    self.getControl( 305 ).setLabel( __language__(32025) )
-            except:
-                log( "Not set label button on GUI (id 305)" )
+            if self.nolabels == "false":
+                try:
+                    if self.getControl( 301 ).getLabel() == "":
+                        self.getControl( 301 ).setLabel( __language__(32000) )
+                except:
+                    log( "No add shortcut button on GUI (id 301)" )
+                try:
+                    if self.getControl( 302 ).getLabel() == "":
+                        self.getControl( 302 ).setLabel( __language__(32001) )
+                except:
+                    log( "No delete shortcut button on GUI (id 302)" )
+                try:
+                    if self.getControl( 303 ).getLabel() == "":
+                        self.getControl( 303 ).setLabel( __language__(32002) )
+                except:
+                    log( "No move shortcut up button on GUI (id 303)" )
+                try:
+                    if self.getControl( 304 ).getLabel() == "":
+                        self.getControl( 304 ).setLabel( __language__(32003) )
+                except:
+                    log( "No move shortcut down button on GUI (id 304)" )
                 
-            try:
-                if self.getControl( 306 ).getLabel() == "":
-                    self.getControl( 306 ).setLabel( __language__(32026) )
-            except:
-                log( "No edit thumbnail button on GUI (id 306)" )
-                
-            try:
-                if self.getControl( 307 ).getLabel() == "":
-                    self.getControl( 307 ).setLabel( __language__(32027) )
-            except:
-                log( "Not adit action button on GUI (id 307)" )
-                
-            try:
-                if self.getControl( 308 ).getLabel() == "":
-                    self.getControl( 308 ).setLabel( __language__(32028) )
-            except:
-                log( "No reset shortcuts button on GUI (id 308)" )
-                
-            try:
-                if self.getControl( 309 ).getLabel() == "":
-                    self.getControl( 309 ).setLabel( __language__(32044) )
-            except:
-                log( "No widget button on GUI (id 309)" )
-            try:
-                if self.getControl( 310 ).getLabel() == "":
-                    self.getControl( 310 ).setLabel( __language__(32045) )
-            except:
-                log( "No background button on GUI (id 310)" )
-                
-            try:
-                if self.getControl( 401 ).getLabel() == "":
-                    self.getControl( 401 ).setLabel( __language__(32048) )
-            except:
-                log( "No widget button on GUI (id 401)" )
+                try:
+                    if self.getControl( 305 ).getLabel() == "":
+                        self.getControl( 305 ).setLabel( __language__(32025) )
+                except:
+                    log( "Not set label button on GUI (id 305)" )
+                    
+                try:
+                    if self.getControl( 306 ).getLabel() == "":
+                        self.getControl( 306 ).setLabel( __language__(32026) )
+                except:
+                    log( "No edit thumbnail button on GUI (id 306)" )
+                    
+                try:
+                    if self.getControl( 307 ).getLabel() == "":
+                        self.getControl( 307 ).setLabel( __language__(32027) )
+                except:
+                    log( "Not adit action button on GUI (id 307)" )
+                    
+                try:
+                    if self.getControl( 308 ).getLabel() == "":
+                        self.getControl( 308 ).setLabel( __language__(32028) )
+                except:
+                    log( "No reset shortcuts button on GUI (id 308)" )
+                    
+                try:
+                    if self.getControl( 309 ).getLabel() == "":
+                        self.getControl( 309 ).setLabel( __language__(32044) )
+                except:
+                    log( "No widget button on GUI (id 309)" )
+                try:
+                    if self.getControl( 310 ).getLabel() == "":
+                        self.getControl( 310 ).setLabel( __language__(32045) )
+                except:
+                    log( "No background button on GUI (id 310)" )
+                    
+                try:
+                    if self.getControl( 401 ).getLabel() == "":
+                        self.getControl( 401 ).setLabel( __language__(32048) )
+                except:
+                    log( "No widget button on GUI (id 401)" )
             
             try:
                 self._display_shortcuts()
@@ -805,7 +807,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 currentWindow.clearProperty("level")
                 
             # Execute the script
-            xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + ")" )
+            xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&nolabels=" + self.nolabels + ")" )
 
             
     def _browseLibrary( self, history, location, label, thumbnail, itemToReplace, itemType ):

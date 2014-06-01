@@ -3,6 +3,7 @@ v0.3.2 (Unstable development revision)
 - Moved PVR to separate shortcuts grouping in management dialog, additional options
 - Improved labelID generation (submenu's will stick better to main menu's)
 - Fix for crash when no profiles.xml file
+- Add option to tell management dialog not to fill label's on management dialog controls
 
 v0.3.1
 - Fixes: No favourites showing in management dialog
