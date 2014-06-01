@@ -893,8 +893,8 @@ class LibraryFunctions():
             elif path == "||UPNP||":
                 self._browseLibrary( ["upnp://"], "upnp://", [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
                 return
-            elif path.startswith == "||SOURCE||":
-                self._browseLibrary( [path.replace( "||BROWSE||", "" )], path.replace( "||BROWSE||", "" ), [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
+            elif path.startswith( "||SOURCE||" ):
+                self._browseLibrary( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
                 return
             elif path == "||PLAYLIST||" :
                 # Give the user the choice of playing or displaying the playlist
