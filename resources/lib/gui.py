@@ -77,6 +77,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Load current shortcuts
             self.load_shortcuts()
             
+            # Set window title label
+            try:
+                if self.getControl( 500 ).getLabel() == "":
+                    if self.group == "mainmenu":
+                        self.getControl( 500 ).setLabel( __language__(32071) )
+                    else:
+                        self.getControl( 500 ).setLabel( __language__(32072) )
+            except:
+                pass
+            
             # Set button labels
             if self.nolabels == "false":
                 try:

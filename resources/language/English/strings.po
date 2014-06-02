@@ -303,3 +303,11 @@ msgstr ""
 msgctxt "#32070"
 msgid "UPnP Source"
 msgstr ""
+
+msgctxt "#32071"
+msgid "Customize Main Menu"
+msgstr ""
+
+msgctxt "#32072"
+msgid "Customize Submenu"
+msgstr ""
