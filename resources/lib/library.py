@@ -7,6 +7,9 @@ from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
 from unidecode import unidecode
 
+import datafunctions
+DATA = datafunctions.DataFunctions()
+
 if sys.version_info < (2, 7):
     import simplejson
 else:
@@ -324,7 +327,10 @@ class LibraryFunctions():
                 if filesIndex is not None and int( key ) > int( filesIndex ):
                     listitems.append( filesItem )
                     filesIndex = None
-                listitems.append( self._create( videonodes[ key ] ) )
+                if type == "custom":
+                    listitems.append( self._create( videonodes[ key ], False ) )
+                else:
+                    listitems.append( self._create( videonodes[ key ] ) )
             if filesIndex is not None:
                 listitems.append( filesItem )
                 filesIndex = None
@@ -524,14 +530,27 @@ class LibraryFunctions():
             
         return self.arrayMusicLibrary
         
-    def _create ( self, item ):
-        # Create localised label
+    def _create ( self, item, allowOverrideLabel = True ):
+        # Retrieve label
         displayLabel = item[1]
+        
+        if allowOverrideLabel:
+            # Check for a replaced label
+            replacementLabel = DATA.checkShortcutLabelOverride( item[0] )
+            if replacementLabel is not None:
+                # Check if it's an integer
+                if replacementLabel.isdigit():
+                    displayLabel = "::LOCAL::" + replacementLabel
+                    log( displayLabel )
+                else:
+                    displayLabel = replacementLabel
+        
+        # Try localising it
         try:
-            if not item[1].find( "::SCRIPT::" ) == -1:
-                displayLabel = __language__(int( item[1][10:] ) )
-            elif not item[1].find( "::LOCAL::" ) == -1:
-                displayLabel = xbmc.getLocalizedString(int( item[1][9:] ) )
+            if not displayLabel.find( "::SCRIPT::" ) == -1:
+                displayLabel = __language__(int( displayLabel[10:] ) )
+            elif not displayLabel.find( "::LOCAL::" ) == -1:
+                displayLabel = xbmc.getLocalizedString(int( displayLabel[9:] ) )
         except:
             print_exc()
         

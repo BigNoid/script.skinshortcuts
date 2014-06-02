@@ -477,6 +477,17 @@ class DataFunctions():
         return returnProperties
             
         
+    def checkShortcutLabelOverride( self, action ):
+        tree = self._get_overrides_skin()
+        if tree is not None:
+            elemSearch = tree.findall( "availableshortcutlabel" )
+            for elem in elemSearch:
+                if elem.attrib.get( "action" ).lower() == action.lower():
+                    log( elem.text )
+                    return elem.text         
+
+        return None
+        
         
     def _save_hash( self, filename, file ):
         
@@ -562,3 +573,4 @@ class DataFunctions():
             text = text.replace('-', separator)
 
         return text
+        
