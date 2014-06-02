@@ -8,7 +8,9 @@ What's New for Skinners (version 0.3.2 - Unstable development revision)
  - ADVANCED NOTICE - Advice for skins usage of overriding actions will change. In short, overrides must ensure they offer user choice by, e.g., linking the override to a skin setting.
  - Clarification: The maximum number of additional sub-menu's is 5
  - When directly opening a shortcut group to choose from via management dialog button 401, you can now specify the new "pvr" group
- - When launching the management dialog, or listing shortcuts to launch the management dialog, you can now specify the script doesn't attempt to set labels for any controls via "&nolabels=True". To be fully documented.
+ - Changes to automatic setting of controls in management dialog, including new option and window title label - see "resources/Management Dialog.txt" for details.
+ - Changes to skin methods when using alternative listing method. This method is yet to be fully documented.
+ - Ability to override label of available shortcuts in management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 6
  
  
 Where To Get Help

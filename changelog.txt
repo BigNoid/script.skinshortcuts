@@ -2,8 +2,9 @@ v0.3.2 (Unstable development revision)
 - Test UPnP and source explorer in management dialog (updated source explorer 1/Jun)
 - Moved PVR to separate shortcuts grouping in management dialog, additional options
 - Improved labelID generation (submenu's will stick better to main menu's)
+- Add option to tell management dialog not to fill label's on management dialog controls, additional label 500 for window title
 - Fix for crash when no profiles.xml file
-- Add option to tell management dialog not to fill label's on management dialog controls
+- Fix for single-list xml method to return to main menu item when hiding submenu
 
 v0.3.1
 - Fixes: No favourites showing in management dialog

@@ -29,10 +29,15 @@ ID	Type	Label	Description
 404 Button			Set a custom property
 405 Button			Launch management dialog for submenu / additional menus
 
-It is recommended you set the label for all of these controls, however if no label is provided the script will fill the label (except 404/405). A button's label2 will NOT work if the script fills the label.
+500 Label   32071 / 32072	Window Title
+
+It is recommended you set the label for all of these controls with the exception of 500, however if no label is provided the script will fill the label (except 404/405). A button's label2 will NOT work if the script fills the label.
+
+If you do not want the script to fill the labels for these controls, you can specify &nolabels=true when invoking the management dialog.
+
+In the case of label 500, if this control is present the script will always fill its label with either "Customize Main Menu" or "Customize Submenu" (or localised equivalents).
 
 Most of these controls are optional (though it is recommended to include them), but you MUST include control 211. Controls 101, 102, 103 and 111 all rely on the others being present.
-
 
 2. Using label2 on buttons to provide more information
 
