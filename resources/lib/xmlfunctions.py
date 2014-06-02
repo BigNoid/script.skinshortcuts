@@ -363,7 +363,10 @@ class XMLFunctions():
         
         # Label
         label = xmltree.SubElement( newelement, "label" )
-        label.text = item[0]
+        if item[0].isdigit():
+            label.text="$NUMBER[" + item[0] + "]"
+        else:
+            label.text = item[0]
         
         # Label 2
         label2 = xmltree.SubElement( newelement, "label2" )
