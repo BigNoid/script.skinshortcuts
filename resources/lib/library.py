@@ -825,24 +825,24 @@ class LibraryFunctions():
                 
                 if json_response.has_key('result') and json_response['result'].has_key('addons') and json_response['result']['addons'] is not None:
                     for item in json_response['result']['addons']:
-                        if item['enabled'] == True:
-                            listitem = xbmcgui.ListItem(label=item['name'], label2=contentlabel, iconImage="DefaultAddon.png", thumbnailImage=item['thumbnail'])
+                        if item['enabled'] == True:                            
+                            path = "RunAddOn(" + item['addonid'].encode('utf-8') + ")"
+                            action = None
                             
                             # If this is a plugin, mark that we can browse it
                             if item['addonid'].startswith( "plugin." ):
-                                listitem.setProperty( "path", urllib.quote( "||BROWSE||" + item['addonid'].encode('utf-8') ) )
-                                listitem.setProperty( "action", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
-                                listitem.setLabel( listitem.getLabel() + " (>)" )
-                            else:
-                                listitem.setProperty( "path", urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" ) )
+                                path = "||BROWSE||" + item['addonid'].encode('utf-8')
+                                action = urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" )
 
+                            thumbnail = "DefaultAddon.png"
                             if item['thumbnail'] != "":
-                                listitem.setProperty( "thumbnail", item['thumbnail'] )
-                            else:
-                                listitem.setProperty( "thumbnail", "DefaultAddon.png" )
-                            
-                            listitem.setProperty( "icon", "DefaultAddon.png" )
-                            listitem.setProperty( "shortcutType", "::SCRIPT::" + shortcutType )
+                                thumbnail = item[ 'thumbnail' ]
+                                
+                            listitem = self._create([path, item['name'], contentlabel, thumbnail])
+                            if action is not None:
+                                listitem.setProperty( "path", urllib.quote( path ) )
+                                listitem.setProperty( "action", action )
+
                             listitems.append(listitem)
             
             log( " - " + str( len( listitems ) ) + " add-ons found" )
@@ -1040,7 +1040,7 @@ class LibraryFunctions():
                     localItemType = __language__(int( itemType[10:] ) )
                 elif not itemType.find( "::LOCAL::" ) == -1:
                     localItemType = xbmc.getLocalizedString(int( itemType[9:] ) )
-                elif itemType.isDigit():
+                elif itemType.isdigit():
                     localItemType = xbmc.getLocalizedString( int( itemType ) )
                 else:
                     localItemType = itemType
