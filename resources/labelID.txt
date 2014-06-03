@@ -1,5 +1,3 @@
-* THIS FILE IS OUT OF DATE*
-
 The following is a list of all labelID's, their default thumbnail image and their corresponding English translation.
 
 labelID		Thumbnail					English translation	

@@ -857,7 +857,6 @@ class LibraryFunctions():
             availableShortcuts = self.musiclibrary()
             displayLabel2 = True
         elif category == 4: # Playlists
-            #    xbmc.sleep( 100 )
             availableShortcuts = self.playlists()
             displayLabel2 = True
         elif category == 5: # Favourites
@@ -892,29 +891,21 @@ class LibraryFunctions():
             log( "No available shortcuts found" )
             xbmcgui.Dialog().ok( __language__(32064), __language__(32065) )
             return
-                        
-        # Now build an array of items to show to the user
-        displayShortcuts = []
-        for shortcut in availableShortcuts:
-            if displayLabel2:
-                displayShortcuts.append( "(" + shortcut.getLabel2() + ") " + shortcut.getLabel() )
-            else:
-                displayShortcuts.append( shortcut.getLabel() )
-        
-        selectedShortcut = xbmcgui.Dialog().select( shortcutCategories[category], displayShortcuts )
+                                
+        w = ShowDialog( "DialogSelect.xml", __cwd__, listing=availableShortcuts, windowtitle=shortcutCategories[category] )
+        w.doModal()
+        selectedShortcut = w.result
+        del w
         
         if selectedShortcut != -1:
-            # Create a copy of the listitem
-            path = urllib.unquote( availableShortcuts[selectedShortcut].getProperty( "Path" ) )
+            selectedShortcut = availableShortcuts[ selectedShortcut ]
+            path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
             if path.startswith( "||BROWSE||" ):
-                self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
-                return
+                selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], selectedShortcut.getProperty("shortcutType") )
             elif path == "||UPNP||":
-                self._browseLibrary( ["upnp://"], "upnp://", [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
-                return
+                selectedShortcut = self.explorer( ["upnp://"], "upnp://", [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], selectedShortcut.getProperty("shortcutType")  )
             elif path.startswith( "||SOURCE||" ):
-                self._browseLibrary( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [availableShortcuts[selectedShortcut].getLabel()], [availableShortcuts[selectedShortcut].getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], availableShortcuts[selectedShortcut].getProperty("shortcutType")  )
-                return
+                selectedShortcut = self.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], selectedShortcut.getProperty("shortcutType")  )
             elif path == "||PLAYLIST||" :
                 # Give the user the choice of playing or displaying the playlist
                 dialog = xbmcgui.Dialog()
@@ -922,43 +913,47 @@ class LibraryFunctions():
                 # False: Display
                 # True: Play
                 if userchoice == False:
-                    path = urllib.unquote( availableShortcuts[selectedShortcut].getProperty( "action-show" ) )
+                    path = urllib.unquote( selectedShortcut.getProperty( "action-show" ) )
                 else:
-                    path = urllib.unquote( availableShortcuts[selectedShortcut].getProperty( "action-play" ) )
+                    path = urllib.unquote( selectedShortcut.getProperty( "action-play" ) )
+                    
+            if selectedShortcut is None:
+                # Nothing was selected in the explorer
+                return
                 
             # Set the skin.string properties we've been passed
             if skinLabel is not None:
-                log( "Setting label (" + skinLabel + ") : " + availableShortcuts[selectedShortcut].getLabel() )
-                xbmc.executebuiltin( "Skin.SetString(" + skinLabel + "," + availableShortcuts[selectedShortcut].getLabel() + ")" )
+                xbmc.executebuiltin( "Skin.SetString(" + skinLabel + "," + selectedShortcut.getLabel() + ")" )
             if skinAction is not None:
-                log( "Setting action (" + skinAction + ") : " + path )
-                xbmc.executebuiltin( "Skin.SetString(" + skinAction + "," + path + " )" )
+                xbmc.executebuiltin( "Skin.SetString(" + skinAction + "," + urllib.unquote( selectedShortcut.getProperty( "Path" ) ) + " )" )
             if skinType is not None:
-                xbmc.executebuiltin( "Skin.SetString(" + skinType + "," + availableShortcuts[selectedShortcut].getLabel2() + ")" )
+                xbmc.executebuiltin( "Skin.SetString(" + skinType + "," + selectedShortcut.getLabel2() + ")" )
             if skinThumbnail is not None:
-                xbmc.executebuiltin( "Skin.SetString(" + skinThumbnail + "," + availableShortcuts[selectedShortcut].getProperty( "thumbnail" ) + ")" )
-
-                
-    def _browseLibrary( self, history, location, label, thumbnail, skinStrings, itemType ):
+                xbmc.executebuiltin( "Skin.SetString(" + skinThumbnail + "," + selectedShortcut.getProperty( "thumbnail" ) + ")" )
+    
+    
+    def explorer( self, history, location, label, thumbnail, skinStrings, itemType ):
         dialogLabel = label[0].replace( " (>)", "" )
 
         # Default action - create shortcut
-        displayList = [ __language__(32058) ]
-        displayListActions = [ "||CREATE||" ]
-        displayListThumbs = [ "NONE" ]
+        listings = []
         
+        listitem = xbmcgui.ListItem( label=__language__(32058) )
+        listitem.setProperty( "path", "||CREATE||" )
+        listings.append( listitem )
+                
         # If this isn't the root, create a link to go up the heirachy
         if len( label ) is not 1:
-            displayList.append( ".." )
-            displayListActions.append( "||BACK||" )
-            displayListThumbs.append( "NONE" )
+            listitem = xbmcgui.ListItem( label=".." )
+            listitem.setProperty( "path", "||BACK||" )
+            listings.append( listitem )
             
             dialogLabel = label[0].replace( " (>)", "" ) + " - " + label[ len( label ) - 1 ].replace( " (>)", "" )
             
+        # Show a waiting dialog, then get the listings for the directory
         dialog = xbmcgui.DialogProgress()
         dialog.create( dialogLabel, __language__( 32063) )
     
-        # JSON query
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + location + '", "media": "files" } }')
         json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = simplejson.loads(json_query)
@@ -969,18 +964,25 @@ class LibraryFunctions():
         if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
             for item in json_response['result']['files']:
                 if item["filetype"] == "directory":
-                    displayList.append( item['label'] + " (>)" )
-                    displayListActions.append( item['file'] )
-                    displayListThumbs.append( item['thumbnail'] )
+                    if item[ "thumbnail" ] is not "":
+                        listitem = xbmcgui.ListItem( label=item['label'] + " (>)", iconImage="DefaultFolder.png", thumbnailImage=item[ 'thumbnail' ] )
+                        log( repr( item[ 'thumbnail' ] ) )
+                        listitem.setProperty( "thumbnail", item[ 'thumbnail' ] )
+                    else:
+                        listitem = xbmcgui.ListItem( label=item['label'] + " (>)", iconImage="DefaultFolder.png" )
+                    listitem.setProperty( "path", item[ 'file' ] )
+                    listitem.setProperty( "icon", "DefaultFolder.png" )
+                    listings.append( listitem )
             
         # Show dialog
-        dialog = xbmcgui.Dialog()
-        selectedItem = dialog.select( dialogLabel, displayList )
+        w = ShowDialog( "DialogSelect.xml", __cwd__, listing=listings, windowtitle=dialogLabel )
+        w.doModal()
+        selectedItem = w.result
+        del w
         
         if selectedItem != -1:
-            if displayListActions[ selectedItem ] == "||CREATE||":
+            if listings[ selectedItem ].getProperty( "path" ) == "||CREATE||":
                 # User has chosen the shortcut they want
-                self.changeMade = True
                 
                 # Build the action
                 if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
@@ -991,33 +993,78 @@ class LibraryFunctions():
                     action = 'ActivateWindow(10002,&quot;' + location + '&quot;,Return)'
                 else:
                     action = "RunAddon(" + location + ")"
+                    
+                if not itemType.find( "::SCRIPT::" ) == -1:
+                    localItemType = __language__(int( itemType[10:] ) )
+                elif not itemType.find( "::LOCAL::" ) == -1:
+                    localItemType = xbmc.getLocalizedString(int( itemType[9:] ) )
+                elif itemType.isDigit():
+                    localItemType = xbmc.getLocalizedString( int( itemType ) )
+                else:
+                    localItemType = itemType
+
+                listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( " (>)", "" ), label2=localItemType, iconImage="DefaultShortcut.png", thumbnailImage=thumbnail[ len( thumbnail ) - 1 ])
+                listitem.setProperty( "path", urllib.quote( action ) )
+                listitem.setProperty( "displayPath", action )
+                listitem.setProperty( "shortcutType", itemType )
+                listitem.setProperty( "icon", "DefaultShortcut.png" )
+                listitem.setProperty( "thumbnail", thumbnail[ len( thumbnail ) - 1 ] )
                 
-                # Loop through existing list items, and replace the selected with our new item
-                skinLabel = skinStrings[0]
-                skinAction = skinStrings[1]
-                skinType = skinStrings[2]
-                skinThumbnail = skinStrings[3]
+                return listitem
                 
-                if skinLabel is not None:
-                    xbmc.executebuiltin( "Skin.SetString(" + skinLabel + "," + label[ len( label ) - 1 ].replace( " (>)", "" ) + ")" )
-                if skinAction is not None:
-                    xbmc.executebuiltin( "Skin.SetString(" + skinAction + "," + action + " )" )
-                if skinType is not None:
-                    xbmc.executebuiltin( "Skin.SetString(" + skinType + "," + itemType + ")" )
-                if skinThumbnail is not None:
-                    xbmc.executebuiltin( "Skin.SetString(" + skinThumbnail + "," + thumbnail[ len( thumbnail ) - 1 ] + ")" )
-                
-            elif displayListActions[ selectedItem ] == "||BACK||":
+            elif listings[ selectedItem ].getProperty( "path" ) == "||BACK||":
                 # User is going up the heirarchy, remove current level and re-call this function
                 history.pop()
                 label.pop()
                 thumbnail.pop()
-                self._browseLibrary( history, history[ len( history ) -1 ], label, thumbnail, skinStrings, itemType )
+                return self.explorer( history, history[ len( history ) -1 ], label, thumbnail, skinStrings, itemType )
                 
             else:
                 # User has chosen a sub-level to display, add details and re-call this function
-                history.append( displayListActions[ selectedItem ] )
-                label.append( displayList[ selectedItem ] )
-                thumbnail.append( displayListThumbs[ selectedItem ] )
-                self._browseLibrary( history, displayListActions[ selectedItem ], label, thumbnail, skinStrings, itemType )
+                history.append( listings[ selectedItem ].getProperty( "path" ) )
+                label.append( listings[ selectedItem ].getLabel() )
+                thumbnail.append( listings[ selectedItem ].getProperty( "thumbnail" ) )
+                return self.explorer( history, listings[ selectedItem ].getProperty( "path" ), label, thumbnail, skinStrings, itemType )
                 
+
+class ShowDialog( xbmcgui.WindowXMLDialog ):
+    def __init__( self, *args, **kwargs ):
+        xbmcgui.WindowXMLDialog.__init__( self )
+        self.listing = kwargs.get( "listing" )
+        self.windowtitle = kwargs.get( "windowtitle" )
+        self.result = -1
+
+    def onInit(self):
+        try:
+            self.fav_list = self.getControl(6)
+            self.getControl(3).setVisible(False)
+        except:
+            print_exc()
+            self.fav_list = self.getControl(3)
+
+        self.getControl(5).setVisible(False)
+        self.getControl(1).setLabel(self.windowtitle)
+
+        for item in self.listing :
+            listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2(), iconImage=item.getProperty( "icon" ), thumbnailImage=item.getProperty( "thumbnail" ))
+            listitem.setProperty( "Addon.Summary", item.getLabel2() )
+            self.fav_list.addItem( listitem )
+
+        self.setFocus(self.fav_list)
+
+    def onAction(self, action):
+        if action.getId() in ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, ):
+            self.result = -1
+            self.close()
+
+    def onClick(self, controlID):
+        if controlID == 6 or controlID == 3:
+            num = self.fav_list.getSelectedPosition()
+            self.result = num
+        else:
+            self.result = -1
+
+        self.close()
+
+    def onFocus(self, controlID):
+        pass

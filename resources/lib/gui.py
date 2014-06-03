@@ -218,17 +218,29 @@ class GUI( xbmcgui.WindowXMLDialog ):
             itemIndex = listControl.getSelectedPosition()
             altAction = None
             
-            path = urllib.unquote( self.getControl( 111 ).getSelectedItem().getProperty( "Path" ) )
+            # Copy the new shortcut
+            listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem(), listControl.getListItem( itemIndex ) )
+            
+            path = urllib.unquote( listitemCopy.getProperty( "Path" ) )
             if path.startswith( "||BROWSE||" ):
                 # If this is a plugin, call our plugin browser
-                self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
-                return
+                returnVal = LIBRARY.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                if returnVal is not None:
+                    listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
+                else:
+                    listitemCopy = None
             elif path == "||UPNP||":
-                self._browseLibrary( ["upnp://"], "upnp://", [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
-                return
+                returnVal = LIBRARY.explorer( ["upnp://"], "upnp://", [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                if returnVal is not None:
+                    listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
+                else:
+                    listitemCopy = None
             elif path.startswith( "||SOURCE||" ):
-                self._browseLibrary( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
-                return
+                returnVal = LIBRARY.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                if returnVal is not None:
+                    listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
+                else:
+                    listitemCopy = None
             elif path == "||PLAYLIST||":
                 # Give the user the choice of playing or displaying the playlist
                 dialog = xbmcgui.Dialog()
@@ -236,25 +248,24 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # False: Display
                 # True: Play
                 if userchoice == False:
-                    altAction = self.getControl( 111 ).getSelectedItem().getProperty( "action-show" )
+                   listitemCopy.setProperty( "Path", self.getControl( 111 ).getSelectedItem().getProperty( "action-show" ) )
+                   listitemCopy.setProperty( "displayPath", urllib.unquote( self.getControl( 111 ).getSelectedItem().getProperty( "action-show" ) ) )
                 else:
-                    altAction = self.getControl( 111 ).getSelectedItem().getProperty( "action-play" )
+                   listitemCopy.setProperty( "Path", self.getControl( 111 ).getSelectedItem().getProperty( "action-show" ) )
+                   listitemCopy.setProperty( "displayPath", urllib.unquote( self.getControl( 111 ).getSelectedItem().getProperty( "action-show" ) ) )
+             
+            if listitemCopy is None:
+                # Nothing was selected in the explorer
+                return
                 
             self.changeMade = True
-            
-            # Copy the new shortcut
-            listitem = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem(), listControl.getListItem( itemIndex ) )
-            
-            # If altAction is set, change the path property
-            if altAction is not None:
-                listitem.setProperty( "Path", altAction )
             
             # Update the list
             listitems = []
             for x in range( 0, listControl.size() ):
                 if x == itemIndex:
                     # Where the new shortcut should go
-                    listitems.append( listitem )
+                    listitems.append( listitemCopy )
                 else:
                     listitems.append( self._duplicate_listitem( listControl.getListItem( x ) ) )
             
@@ -629,16 +640,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             else: # No category selected
                 log( "No shortcut category selected" )
                 return
-                            
-            # Now build an array of items to show to the user
-            displayShortcuts = []
-            for shortcut in availableShortcuts:
-                if displayLabel2:
-                    displayShortcuts.append( "(" + shortcut.getLabel2() + ") " + shortcut.getLabel() )
-                else:
-                    displayShortcuts.append( shortcut.getLabel() )
-            
-            selectedShortcut = xbmcgui.Dialog().select( shortcutCategories[shortcutCategory], displayShortcuts )
+                                        
+            w = library.ShowDialog( "DialogSelect.xml", __cwd__, listing=availableShortcuts, windowtitle=shortcutCategories[shortcutCategory] )
+            w.doModal()
+            selectedShortcut = w.result
+            del w
             
             if selectedShortcut != -1:
                 # Create a copy of the listitem
@@ -646,14 +652,23 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 path = urllib.unquote( listitemCopy.getProperty( "Path" ) )
                 if path.startswith( "||BROWSE||" ):
-                    self._browseLibrary( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
-                    return
+                    returnVal = LIBRARY.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType") )
+                    if returnVal is not None:
+                        listitemCopy = self._duplicate_listitem( returnVal, self.getControl( 211 ).getListItem( num ) )
+                    else:
+                        listitemCopy = None
                 elif path == "||UPNP||":
-                    self._browseLibrary( ["upnp://"], "upnp://", [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
-                    return
+                    returnVal = LIBRARY.explorer( ["upnp://"], "upnp://", [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
+                    if returnVal is not None:
+                        listitemCopy = self._duplicate_listitem( returnVal, self.getControl( 211 ).getListItem( num ) )
+                    else:
+                        listitemCopy = None
                 elif path.startswith( "||SOURCE||" ):
-                    self._browseLibrary( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
-                    return
+                    returnVal = LIBRARY.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [listitemCopy.getLabel()], [listitemCopy.getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), listitemCopy.getProperty("shortcutType")  )
+                    if returnVal is not None:
+                        listitemCopy = self._duplicate_listitem( returnVal, self.getControl( 211 ).getListItem( num ) )
+                    else:
+                        listitemCopy = None
                 elif path == "||PLAYLIST||" :
                     # Give the user the choice of playing or displaying the playlist
                     dialog = xbmcgui.Dialog()
@@ -662,8 +677,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # True: Play
                     if userchoice == False:
                         listitemCopy.setProperty( "Path", availableShortcuts[selectedShortcut].getProperty( "action-show" ) )
+                        listitemCopy.setProperty( "displayPath", urllib.unquote( availableShortcuts[selectedShortcut].getProperty( "action-show" ) ) )
                     else:
                         listitemCopy.setProperty( "Path", availableShortcuts[selectedShortcut].getProperty( "action-play" ) )
+                        listitemCopy.setProperty( "displayPath", urllib.unquote( availableShortcuts[selectedShortcut].getProperty( "action-play" ) ) )
+                    
+                if listitemCopy is None:
+                    # Nothing was selected in the explorer
+                    return
                     
                 self.changeMade = True
                 
@@ -819,90 +840,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             # Execute the script
             xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&nolabels=" + self.nolabels + ")" )
-
             
-    def _browseLibrary( self, history, location, label, thumbnail, itemToReplace, itemType ):
-        dialogLabel = label[0].replace( " (>)", "" )
-
-        # Default action - create shortcut
-        displayList = [ __language__(32058) ]
-        displayListActions = [ "||CREATE||" ]
-        displayListThumbs = [ "NONE" ]
-        
-        # If this isn't the root, create a link to go up the heirachy
-        if len( label ) is not 1:
-            displayList.append( ".." )
-            displayListActions.append( "||BACK||" )
-            displayListThumbs.append( "NONE" )
-            
-            dialogLabel = label[0].replace( " (>)", "" ) + " - " + label[ len( label ) - 1 ].replace( " (>)", "" )
-            
-        dialog = xbmcgui.DialogProgress()
-        dialog.create( dialogLabel, __language__( 32063) )
-    
-        # JSON query
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + location + '", "media": "files" } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-        
-        dialog.close()
-            
-        # Add all directories returned by the json query
-        if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
-            for item in json_response['result']['files']:
-                if item["filetype"] == "directory":
-                    displayList.append( item['label'] + " (>)" )
-                    displayListActions.append( item['file'] )
-                    displayListThumbs.append( item['thumbnail'] )
-            
-        # Show dialog
-        dialog = xbmcgui.Dialog()
-        selectedItem = dialog.select( dialogLabel, displayList )
-        
-        if selectedItem != -1:
-            if displayListActions[ selectedItem ] == "||CREATE||":
-                # User has chosen the shortcut they want
-                self.changeMade = True
-                
-                # Build the action
-                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
-                    action = "ActivateWindow(10025," + location + ",Return)"
-                elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019":
-                    action = 'ActivateWindow(10501,&quot;' + location + '&quot;,Return)'
-                elif itemType == "::SCRIPT::32012":
-                    action = 'ActivateWindow(10002,&quot;' + location + '&quot;,Return)'
-                else:
-                    action = "RunAddon(" + location + ")"
-                
-                # Loop through existing list items, and replace the selected with our new item
-                listitems = []
-                for x in range(0, self.getControl( 211 ).size()):
-                    if x == itemToReplace:
-                        listitems.append( LIBRARY._create([action, label[ len( label ) - 1 ].replace( " (>)", "" ), itemType, thumbnail[ len( thumbnail ) - 1 ]]) )
-                    else:
-                        # Duplicate the item and add it to the listitems array
-                        listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                        listitems.append(listitemShortcutCopy)
-                
-                self.getControl( 211 ).reset()
-                self.getControl( 211 ).addItems(listitems)
-                
-                self.getControl( 211 ).selectItem( itemToReplace )
-                
-            elif displayListActions[ selectedItem ] == "||BACK||":
-                # User is going up the heirarchy, remove current level and re-call this function
-                history.pop()
-                label.pop()
-                thumbnail.pop()
-                self._browseLibrary( history, history[ len( history ) -1 ], label, thumbnail, itemToReplace, itemType )
-                
-            else:
-                # User has chosen a sub-level to display, add details and re-call this function
-                history.append( displayListActions[ selectedItem ] )
-                label.append( displayList[ selectedItem ] )
-                thumbnail.append( displayListThumbs[ selectedItem ] )
-                self._browseLibrary( history, displayListActions[ selectedItem ], label, thumbnail, itemToReplace, itemType )
-                
 
     def load_shortcuts( self, includeUserShortcuts = True ):
         log( "Loading shortcuts" )
