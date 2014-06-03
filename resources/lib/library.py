@@ -36,14 +36,14 @@ class LibraryFunctions():
         
         # Empty arrays for different shortcut types
         self.arrayXBMCCommon = None
+        self.arrayMoreCommands = None
         self.arrayVideoLibrary = None
-        self.arrayPVRLibrary = None
         self.arrayMusicLibrary = None
+        self.arrayPVRLibrary = None
         self.arrayPlaylists = None
         self.widgetPlaylistsList = []
-        self.arrayFavourites = None
         self.arrayAddOns = None
-        self.arrayMoreCommands = None
+        self.arrayFavourites = None
         
         self.loadedUPNP = False
         
@@ -52,11 +52,11 @@ class LibraryFunctions():
         self.common()
         self.more()
         self.videolibrary()
-        self.pvrlibrary()
         self.musiclibrary()
+        self.pvrlibrary()
         self.playlists()
-        self.favourites()
         self.addons()                
+        self.favourites()
         
     def common( self ):
         if isinstance( self.arrayXBMCCommon, list):
@@ -826,25 +826,25 @@ class LibraryFunctions():
         if category is not None:
             if category == "common":
                 category = 0
-            elif category == "video":
+            elif category == "commands":
                 category = 1
-            elif category == "pvr":
+            elif category == "video":
                 category = 2
             elif category == "music":
                 category = 3
-            elif category == "playlists":
+            elif category == "pvr":
                 category = 4
-            elif category == "favourites":
+            elif category == "playlists":
                 category = 5
             elif category == "addons":
                 category = 6
-            elif category == "commands":
+            elif category == "favourites":
                 category = 7
             elif category == "custom":
                 category = 8
         else:
             # No window property passed, ask the user what category they want
-            shortcutCategories = [__language__(32029), __language__(32030), __language__(32017), __language__(32031), __language__(32040), __language__(32006), __language__(32007), __language__(32057)]
+            shortcutCategories = [__language__(32029), __language__(32057), __language__(32030), __language__(32031), __language__(32017), __language__(32040), __language__(32007), __language__(32006)]
             if custom == "True" or custom == "true":
                 shortcutCategories.append( __language__(32027) )
             category = xbmcgui.Dialog().select( __language__(32043), shortcutCategories )
@@ -854,24 +854,20 @@ class LibraryFunctions():
                     
         if category == 0: # Common
             availableShortcuts = self.common()
-        elif category == 1: # Video Library
-            availableShortcuts = self.videolibrary()
-            displayLabel2 = True
+        elif category == 1: # XBMC Commands
+            availableShortcuts = self.more()
         elif category == 2: # Video Library
-            availableShortcuts = self.pvrlibrary()
+            availableShortcuts = self.videolibrary()
         elif category == 3: # Music Library
             availableShortcuts = self.musiclibrary()
-            displayLabel2 = True
-        elif category == 4: # Playlists
+        elif category == 4: # PVR
+            availableShortcuts = self.pvrlibrary()
+        elif category == 5: # Playlists
             availableShortcuts = self.playlists()
-            displayLabel2 = True
-        elif category == 5: # Favourites
-            availableShortcuts = self.favourites()
         elif category == 6: # Add-ons
             availableShortcuts = self.addons()
-            displayLabel2 = True
-        elif category == 7: # XBMC Commands
-            availableShortcuts = self.more()
+        elif category == 7: # Favourites
+            availableShortcuts = self.favourites()
             
         elif category == 8: # Custom action
             keyboard = xbmc.Keyboard( "", xbmc.getLocalizedString(528), False )
