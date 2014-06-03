@@ -910,7 +910,7 @@ class LibraryFunctions():
             availableShortcuts = self.favourites()
             
         elif category == 9: # Custom action
-            keyboard = xbmc.Keyboard( "", xbmc.getLocalizedString(528), False )
+            keyboard = xbmc.Keyboard( "", __language__(32027), False )
             keyboard.doModal()
             
             if ( keyboard.isConfirmed() ):

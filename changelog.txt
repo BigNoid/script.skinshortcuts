@@ -8,6 +8,7 @@ v0.3.2 (Unstable development revision)
 - Re-order shortcut groups in management dialog
 - Fix for crash when no profiles.xml file
 - Fix for single-list xml method to return to main menu item when hiding submenu
+- Fix for action sometimes not showing in label2 in management dialog
 
 v0.3.1
 - Fixes: No favourites showing in management dialog
