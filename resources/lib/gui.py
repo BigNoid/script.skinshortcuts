@@ -199,14 +199,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Move to previous type of shortcuts
             self.shortcutgroup = self.shortcutgroup - 1
             if self.shortcutgroup == 0:
-                self.shortcutgroup = 8
+                self.shortcutgroup = 9
                 
             self._display_shortcuts()
 
         if controlID == 103:
             # Move to next type of shortcuts
             self.shortcutgroup = self.shortcutgroup + 1
-            if self.shortcutgroup == 9:
+            if self.shortcutgroup == 10:
                 self.shortcutgroup = 1
                 
             self._display_shortcuts()
@@ -598,6 +598,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     shortcutCategory = 3
                 elif skinCategory == "pvr":
                     shortcutCategory = 4
+                elif skinCategory == "sources":
+                    shortcutCategory = 5
                 elif skinCategory == "playlists":
                     shortcutCategory = 5
                 elif skinCategory == "addons":
@@ -606,7 +608,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     shortcutCategory = 7
             else:
                 # No window property passed, ask the user what category they want
-                shortcutCategories = [__language__(32029), __language__(32057), __language__(32030), __language__(32031), __language__(32017), __language__(32040), __language__(32007), __language__(32006)]
+                shortcutCategories = [__language__(32029), __language__(32057), __language__(32030), __language__(32031), __language__(32017), __language__(32074), __language__(32040), __language__(32007), __language__(32006)]
                 shortcutCategory = xbmcgui.Dialog().select( __language__(32043), shortcutCategories )
                 log( repr( shortcutCategory ) )
                 
@@ -623,11 +625,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 availableShortcuts = LIBRARY.musiclibrary()
             elif shortcutCategory == 4: # PVR
                 availableShortcuts = LIBRARY.pvrlibrary()
-            elif shortcutCategory == 5: # Playlists
+            elif shortcutCategory == 5: # Library sources
+                availableShortcuts = LIBRARY.librarysources()
+            elif shortcutCategory == 6: # Playlists
                 availableShortcuts = LIBRARY.playlists()
-            elif shortcutCategory == 6: # Add-ons
+            elif shortcutCategory == 7: # Add-ons
                 availableShortcuts = LIBRARY.addons()
-            elif shortcutCategory == 7: # Favourites
+            elif shortcutCategory == 8: # Favourites
                 availableShortcuts = LIBRARY.favourites()
                 
             else: # No category selected
@@ -1354,16 +1358,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.getControl( 111 ).addItems(LIBRARY.pvrlibrary())
             self.getControl( 101 ).setLabel( __language__(32017) + " (%s)" %self.getControl( 111 ).size() )
         if self.shortcutgroup == 6:
+            # Library Sources
+            self.getControl( 111 ).reset()
+            self.getControl( 111 ).addItems(LIBRARY.librarysources())
+            self.getControl( 101 ).setLabel( __language__(32074) + " (%s)" %self.getControl( 111 ).size() )
+        if self.shortcutgroup == 7:
             # Playlists
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(LIBRARY.playlists())
             self.getControl( 101 ).setLabel( __language__(32040) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 7:
+        if self.shortcutgroup == 8:
             # Add-ons
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(LIBRARY.addons())
             self.getControl( 101 ).setLabel( __language__(32007) + " (%s)" %self.getControl( 111 ).size() )
-        if self.shortcutgroup == 8:
+        if self.shortcutgroup == 9:
             # Favourites
             self.getControl( 111 ).reset()
             self.getControl( 111 ).addItems(LIBRARY.favourites())

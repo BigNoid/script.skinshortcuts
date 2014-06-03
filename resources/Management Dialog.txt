@@ -55,12 +55,14 @@ Rather than using list 111 to let the user select a shortcut, you can include bu
 You can also use the button to go straight to the list of shortcuts for a category by first setting the window property "category", then sending a click to the button. The available categories are:
 
 	common		(Items commonly found on a main menu)
+	commands	(Common XBMC commands)
 	video		(Video library)
-	pvr			(PVR options)
 	music		(Music library)
+	pvr			(PVR options)
+	sources		(Sources for video and music librarys)
 	playlists	(Users playlists)
-	favourites	(Users favourites)
 	addons		(Programs, video add-ons, music add-ons, picture add-ons)
+	favourites	(Users favourites)
 	
 After a click to 401 has been registered, the window property "category" will be cleared.
 

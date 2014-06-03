@@ -39,6 +39,7 @@ class LibraryFunctions():
         self.arrayMoreCommands = None
         self.arrayVideoLibrary = None
         self.arrayMusicLibrary = None
+        self.arrayLibrarySources = None
         self.arrayPVRLibrary = None
         self.arrayPlaylists = None
         self.widgetPlaylistsList = []
@@ -54,6 +55,7 @@ class LibraryFunctions():
         self.videolibrary()
         self.musiclibrary()
         self.pvrlibrary()
+        self.librarysources()
         self.playlists()
         self.addons()                
         self.favourites()
@@ -240,18 +242,7 @@ class LibraryFunctions():
         if self.loadedUPNP == False:
             json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
             self.loadedUPNP = True
-        
-        # Add sources
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "sources://video/", "media": "files" } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-            
-        # Add all directories returned by the json query
-        if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
-            for item in json_response['result']['files']:
-                if item["filetype"] == "directory":
-                    self.arrayVideoLibrary.append( self._create(["||SOURCE||" + item['file'], item['label'], "::SCRIPT::32069", item['thumbnail']]) )
-        
+                
         return self.arrayVideoLibrary
         
     def _parse_videolibrary( self, type ):
@@ -584,6 +575,51 @@ class LibraryFunctions():
         
         return( listitem )
         
+    def librarysources( self ):
+        if isinstance( self.arrayLibrarySources, list):
+            # The List has already been populated, return it
+            return self.arrayLibrarySources
+        elif self.arrayLibrarySources == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while False:
+                xbmc.sleep( 100 )
+                count += 1
+                if count > 10:
+                    # We've waited long enough, return an empty list
+                    return []
+                if isinstance( self.arrayLibrarySources, list):
+                    return self.arrayLibrarySources
+        else:
+            # We're going to populate the list
+            self.arrayLibrarySources = "Loading"
+            
+        listitems = []
+        # Add video sources
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "video" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+            
+        # Add all directories returned by the json query
+        if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
+            for item in json_response['result']['sources']:
+                log( "Added video source: " + item[ 'label' ] )
+                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "::SCRIPT::32069", "DefaultFolder.png" ]) )
+        
+        # Add audio sources
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "music" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+            
+        # Add all directories returned by the json query
+        if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
+            for item in json_response['result']['sources']:
+                log( "Added audio source: " + item[ 'label' ] )
+                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "::SCRIPT::32073", "DefaultFolder.png" ]) )
+                
+        self.arrayLibrarySources = listitems
+        return self.arrayLibrarySources
+            
     def playlists( self ):
         if isinstance( self.arrayPlaylists, list):
             # The List has already been populated, return it
@@ -834,17 +870,19 @@ class LibraryFunctions():
                 category = 3
             elif category == "pvr":
                 category = 4
-            elif category == "playlists":
+            elif category == "sources":
                 category = 5
-            elif category == "addons":
+            elif category == "playlists":
                 category = 6
-            elif category == "favourites":
+            elif category == "addons":
                 category = 7
-            elif category == "custom":
+            elif category == "favourites":
                 category = 8
+            elif category == "custom":
+                category = 9
         else:
             # No window property passed, ask the user what category they want
-            shortcutCategories = [__language__(32029), __language__(32057), __language__(32030), __language__(32031), __language__(32017), __language__(32040), __language__(32007), __language__(32006)]
+            shortcutCategories = [__language__(32029), __language__(32057), __language__(32030), __language__(32031), __language__(32017), __language__(32074), __language__(32040), __language__(32007), __language__(32006)]
             if custom == "True" or custom == "true":
                 shortcutCategories.append( __language__(32027) )
             category = xbmcgui.Dialog().select( __language__(32043), shortcutCategories )
@@ -862,14 +900,16 @@ class LibraryFunctions():
             availableShortcuts = self.musiclibrary()
         elif category == 4: # PVR
             availableShortcuts = self.pvrlibrary()
-        elif category == 5: # Playlists
+        elif category == 5:
+            availableShortcuts = self.librarysources()
+        elif category == 6: # Playlists
             availableShortcuts = self.playlists()
-        elif category == 6: # Add-ons
+        elif category == 7: # Add-ons
             availableShortcuts = self.addons()
-        elif category == 7: # Favourites
+        elif category == 8: # Favourites
             availableShortcuts = self.favourites()
             
-        elif category == 8: # Custom action
+        elif category == 9: # Custom action
             keyboard = xbmc.Keyboard( "", xbmc.getLocalizedString(528), False )
             keyboard.doModal()
             
@@ -989,7 +1029,7 @@ class LibraryFunctions():
                 # Build the action
                 if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
                     action = "ActivateWindow(10025," + location + ",Return)"
-                elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019":
+                elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019" or itemType == "::SCRIPT::32073":
                     action = 'ActivateWindow(10501,&quot;' + location + '&quot;,Return)'
                 elif itemType == "::SCRIPT::32012":
                     action = 'ActivateWindow(10002,&quot;' + location + '&quot;,Return)'
