@@ -136,8 +136,14 @@ class LibraryFunctions():
                     
                 if type.isdigit():
                     type = "::LOCAL::" + type
+                    
+                listitem = self._create( [action, label, type, ""] )
                 
-                listitems.append( self._create([action, label, type, ""]) )
+                if "condition" in elem.attrib:
+                    if xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                        listitems.append( listitem )
+                else:
+                    listitems.append( listitem )
                     
         return listitems
         

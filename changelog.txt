@@ -1,8 +1,10 @@
 v0.3.2 (Unstable development revision)
-- Test UPnP and source explorer in management dialog (updated source explorer 1/Jun)
+- UPnP and video sources explorer in management dialog
 - Moved PVR to separate shortcuts grouping in management dialog, additional options
 - Improved labelID generation (submenu's will stick better to main menu's)
 - Add option to tell management dialog not to fill label's on management dialog controls, additional label 500 for window title
+- Management dialog now uses select dialog with label2 and thumbnails visible
+- Ability to set visibility condition for skin-provided shortcuts
 - Fix for crash when no profiles.xml file
 - Fix for single-list xml method to return to main menu item when hiding submenu
 
