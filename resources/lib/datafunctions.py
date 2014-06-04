@@ -247,8 +247,21 @@ class DataFunctions():
             
                             # Add item
                             returnitems.append( [label, item[1], item[2], item[3], newAction, labelID, overrideProperties] )
-                        else:
-                            i = 1
+                            
+                    if hasOverriden == False:
+                        # Now check for a visibility condition in a skin-provided shortcut
+                        elems = overridetree.findall( "shortcut" )
+                        for elem in elems:
+                            if elem.text == action and "condition" in elem.attrib:
+                                log( "Found visibility condition " + elem.text )
+                                log( "Current visibility condition: " + visibilityCondition )
+                                newCondition = visibilityCondition
+                                if visibilityCondition == "":
+                                    visibilityCondition = elem.attrib.get( "condition" )
+                                else:
+                                    visibilityCondition = "[" + visibilityCondition + "] + [" + elem.attrib.get( "Condition" ) + "]"
+                                log( "New visibility condition: " + visibilityCondition )
+                            break
                             
             # If we haven't added any overrides, add the item
             if hasOverriden == False:

@@ -551,6 +551,7 @@ class LibraryFunctions():
             else:
                 displayLabel = localLabel
         except:
+            displayLabel = localLabel
             print_exc()
         
         # Create localised label2

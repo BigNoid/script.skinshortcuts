@@ -131,6 +131,8 @@ Note, any override will replace the original menu item with one which is only vi
 	</override>
 </overrides>
 
+IMPORTANT: User choice MUST be respected when overriding actions. That is to say, unless the user specifically gives permission for a shortcut they have chosen to do something else, it should be left alone. If you are overriding the action, it is expected that in most cases you will use a visibility condition - possibly linked to a skin settings - to ensure the user has consented.
+
 Users can also provide an overrides.xml file to override actions in special://profile/
 
 
@@ -230,8 +232,10 @@ If there are particular shortcuts to skin-specific features you would like to gi
 
 [label] - The display name of the shortcut (can be a localised string)
 [type] - The type of shortcut, e.g. "Movie" if this leads to an area of the movie library (can be a localised string)
-[Boolean condition] - [Optional] Replace with a string that must evaluate to True for the shortcut to appear in the management dialog
+[Boolean condition] - [Optional] Replace with a string that must evaluate to True for the shortcut to appear
 [action] - The action associated with this shortcut
+
+Note - If the action is overridden (see section 1), this will take precedence over any boolean conditions specified here.
 
 
 6. Override label of available shortcuts
