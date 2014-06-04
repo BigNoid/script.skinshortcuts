@@ -944,10 +944,13 @@ class LibraryFunctions():
             path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
             if path.startswith( "||BROWSE||" ):
                 selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], selectedShortcut.getProperty("shortcutType") )
+                path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
             elif path == "||UPNP||":
                 selectedShortcut = self.explorer( ["upnp://"], "upnp://", [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], selectedShortcut.getProperty("shortcutType")  )
+                path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
             elif path.startswith( "||SOURCE||" ):
                 selectedShortcut = self.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], [skinLabel, skinAction, skinType, skinThumbnail], selectedShortcut.getProperty("shortcutType")  )
+                path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
             elif path == "||PLAYLIST||" :
                 # Give the user the choice of playing or displaying the playlist
                 dialog = xbmcgui.Dialog()
@@ -967,7 +970,7 @@ class LibraryFunctions():
             if skinLabel is not None:
                 xbmc.executebuiltin( "Skin.SetString(" + skinLabel + "," + selectedShortcut.getLabel() + ")" )
             if skinAction is not None:
-                xbmc.executebuiltin( "Skin.SetString(" + skinAction + "," + urllib.unquote( selectedShortcut.getProperty( "Path" ) ) + " )" )
+                xbmc.executebuiltin( "Skin.SetString(" + skinAction + "," + path + " )" )
             if skinType is not None:
                 xbmc.executebuiltin( "Skin.SetString(" + skinType + "," + selectedShortcut.getLabel2() + ")" )
             if skinThumbnail is not None:
