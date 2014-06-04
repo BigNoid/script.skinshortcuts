@@ -529,25 +529,27 @@ class LibraryFunctions():
         
     def _create ( self, item, allowOverrideLabel = True ):
         # Retrieve label
-        displayLabel = item[1]
+        localLabel = item[1]
         
         if allowOverrideLabel:
             # Check for a replaced label
             replacementLabel = DATA.checkShortcutLabelOverride( item[0] )
             if replacementLabel is not None:
                 # Check if it's an integer
+                log( replacementLabel )
                 if replacementLabel.isdigit():
-                    displayLabel = "::LOCAL::" + replacementLabel
-                    log( displayLabel )
+                    localLabel = "::LOCAL::" + replacementLabel
                 else:
-                    displayLabel = replacementLabel
+                    localLabel = replacementLabel
         
         # Try localising it
         try:
-            if not displayLabel.find( "::SCRIPT::" ) == -1:
-                displayLabel = __language__(int( displayLabel[10:] ) )
-            elif not displayLabel.find( "::LOCAL::" ) == -1:
-                displayLabel = xbmc.getLocalizedString(int( displayLabel[9:] ) )
+            if not localLabel.find( "::SCRIPT::" ) == -1:
+                displayLabel = __language__(int( localLabel[10:] ) )
+            elif not localLabel.find( "::LOCAL::" ) == -1:
+                displayLabel = xbmc.getLocalizedString(int( localLabel[9:] ) )
+            else:
+                displayLabel = localLabel
         except:
             print_exc()
         
@@ -568,7 +570,7 @@ class LibraryFunctions():
         # Build listitem
         listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage="DefaultShortcut.png", thumbnailImage=item[3])
         listitem.setProperty( "path", urllib.quote( item[0] ) )
-        listitem.setProperty( "localizedString", item[1] )
+        listitem.setProperty( "localizedString", localLabel )
         listitem.setProperty( "shortcutType", item[2] )
         listitem.setProperty( "icon", "DefaultShortcut.png" )
         listitem.setProperty( "thumbnail", item[3] )
