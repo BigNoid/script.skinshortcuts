@@ -9,6 +9,7 @@ from traceback import print_exc
 __addon__        = xbmcaddon.Addon()
 __addonid__      = sys.modules[ "__main__" ].__addonid__
 __addonversion__ = __addon__.getAddonInfo('version')
+__xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ ).encode('utf-8')
 __masterpath__     = os.path.join( xbmc.translatePath( "special://masterprofile/addon_data/" ).decode('utf-8'), __addonid__ ).encode('utf-8')
 __language__     = __addon__.getLocalizedString
@@ -146,13 +147,20 @@ class XMLFunctions():
             return True
         
         log( "Checking hashes..." )
+        checkedXBMCVer = False
         checkedSkinVer = False
         checkedScriptVer = False
         checkedProfileList = False
             
         for hash in hashes:
             if hash[1] is not None:
-                if hash[0] == "::SKINVER::":
+                if hash[0] == "::XBMCVER::":
+                    # Check the skin version is still the same as hash[1]
+                    checkedXBMCVer = True
+                    if __xbmcversion__ != hash[1]:
+                        log( "  - XBMC version does not match" )
+                        return True
+                elif hash[0] == "::SKINVER::":
                     # Check the skin version is still the same as hash[1]
                     checkedSkinVer = True
                     if skinVersion != hash[1]:
@@ -183,7 +191,7 @@ class XMLFunctions():
                 
         # If the skin or script version, or profile list, haven't been checked, we need to rebuild the menu 
         # (most likely we're running an old version of the script)
-        if checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False:
+        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False:
             return True
         
             
@@ -196,6 +204,7 @@ class XMLFunctions():
         hashlist.list = []
         hashlist.list.append( ["::PROFILELIST::", profilelist] )
         hashlist.list.append( ["::SCRIPTVER::", __addonversion__] )
+        hashlist.list.append( ["::XBMCVER::", __xbmcversion__] )
         
         # Create a new tree and includes for the various groups
         tree = xmltree.ElementTree( xmltree.Element( "includes" ) )

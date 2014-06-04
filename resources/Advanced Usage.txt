@@ -110,13 +110,14 @@ You may wish to override an action in order to provide additional functionality.
 
 Note, any override will replace the original menu item with one which is only visible when any conditions are met. This means you will also need an override for when the conditions are not met.
 
-<override action="[command]" group="[GroupName]>
+<override action="[command]" group="[GroupName]" version="[XBMC Major Version]">
 	<condition>[Boolean condition]</condition>
 	<action>[XBMC function]</action>
 <override>
 	
 [command] - Replace with the action you are overriding
 [GroupName] - [Optional] The group that the override applies to, for example "movies". If omitted, the property will be apply to all items which match the action.
+[XBMC Major Version] - [Optional] The major XBMC version on which this override will occur, for example "13" for XBMC Gotham
 [Boolean condition] - [Optional] Replace with a string that must evaluate to True for the custom action to be run
 [XBMC function] - Replace with the action that should be run instead. You may include multiple <action> tags. Omit to run the original command.
 

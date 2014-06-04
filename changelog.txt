@@ -5,6 +5,7 @@ v0.3.2 (Unstable development revision)
 - Add option to tell management dialog not to fill label's on management dialog controls, additional label 500 for window title
 - Management dialog now uses select dialog with label2 and thumbnails visible
 - Ability to set visibility condition for skin-provided shortcuts
+- Ability to override shortcut actions based on XBMC version
 - Re-order shortcut groups in management dialog
 - Fix for crash when no profiles.xml file
 - Fix for single-list xml method to return to main menu item when hiding submenu

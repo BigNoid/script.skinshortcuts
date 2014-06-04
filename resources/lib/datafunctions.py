@@ -12,6 +12,7 @@ from unidecode import unidecode
 __addon__        = xbmcaddon.Addon()
 __addonid__      = __addon__.getAddonInfo('id').decode( 'utf-8' )
 __addonversion__ = __addon__.getAddonInfo('version')
+__xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 __language__     = __addon__.getLocalizedString
 __cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
 __addonname__    = __addon__.getAddonInfo('name').decode("utf-8")
@@ -214,39 +215,46 @@ class DataFunctions():
                             checkGroup = None
                         
                         if elem.attrib.get( 'action' ) == action and (checkGroup == None or checkGroup == group):
-                            overridecount = overridecount + 1
-                            hasOverriden = True
-                            overrideVisibility = visibilityCondition
-                    
-                            # Check for visibility conditions
-                            condition = elem.find( "condition" )
-                            if condition is not None:
-                                if overrideVisibility == "":
-                                    # New visibility condition
-                                    overrideVisibility = condition.text
-                                else:
-                                    # Add this to existing visibility condition
-                                    overrideVisibility = overrideVisibility + " + [" + condition.text + "]"                        
+                            version = __xbmcversion__
+                            if "version" in elem.attrib:
+                                version = elem.attrib.get( "version" )
+                                
+                            if version == __xbmcversion__:
+                                overridecount = overridecount + 1
+                                hasOverriden = True
+                                overrideVisibility = visibilityCondition
+                                
+                                
+                        
+                                # Check for visibility conditions
+                                condition = elem.find( "condition" )
+                                if condition is not None:
+                                    if overrideVisibility == "":
+                                        # New visibility condition
+                                        overrideVisibility = condition.text
+                                    else:
+                                        # Add this to existing visibility condition
+                                        overrideVisibility = overrideVisibility + " + [" + condition.text + "]"                        
+                                        
+                                # Check for overriden action
+                                newAction = action
+                                multiAction = "::MULTIPLE::"
+                                actions = elem.findall( "action" )
+                                count = 0
+                                for singleAction in actions:
+                                    count = count + 1
+                                    if count == 1:
+                                        newAction = urllib.quote( singleAction.text )
+                                    multiAction = multiAction + "|" + singleAction.text
                                     
-                            # Check for overriden action
-                            newAction = action
-                            multiAction = "::MULTIPLE::"
-                            actions = elem.findall( "action" )
-                            count = 0
-                            for singleAction in actions:
-                                count = count + 1
-                                if count == 1:
-                                    newAction = urllib.quote( singleAction.text )
-                                multiAction = multiAction + "|" + singleAction.text
-                                
-                            if count != 1 and count != 0:
-                                newAction = urllib.quote( multiAction )
-                                
-                            overrideProperties = list( additionalProperties )
-                            overrideProperties.append( [ "node.visible", overrideVisibility ] )
-            
-                            # Add item
-                            returnitems.append( [label, item[1], item[2], item[3], newAction, labelID, overrideProperties] )
+                                if count != 1 and count != 0:
+                                    newAction = urllib.quote( multiAction )
+                                    
+                                overrideProperties = list( additionalProperties )
+                                overrideProperties.append( [ "node.visible", overrideVisibility ] )
+                
+                                # Add item
+                                returnitems.append( [label, item[1], item[2], item[3], newAction, labelID, overrideProperties] )
                             
                     if hasOverriden == False:
                         # Now check for a visibility condition in a skin-provided shortcut

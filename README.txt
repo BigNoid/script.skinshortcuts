@@ -10,6 +10,7 @@ What's New for Skinners (version 0.3.2 - Unstable development revision)
  - When directly opening a shortcut group to choose from via management dialog button 401, you can now specify the new "pvr" or "sources" groups
  - Changes to automatic setting of controls in management dialog, including new option and window title label - see "resources/Management Dialog.txt" for details.
  - Changes to skin methods when using alternative listing method (undocumented)
+ - Ability to override shortcut action only on selected XBMC major version - see "resources/Advanced Usage.txt", section "Overrides.xml", part 1
  - Ability to override label of available shortcuts in management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 6
  
  
