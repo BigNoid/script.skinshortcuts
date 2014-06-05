@@ -318,6 +318,29 @@ class DataFunctions():
                 log( "### ERROR could not save file %s" % path )                          
                     
 
+    def _get_overrides_script( self ):
+        # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
+        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-script-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-script" ) == __defaultpath__:
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-script", __defaultpath__ )
+            overridepath = os.path.join( __defaultpath__ , "overrides.xml" )
+            try:
+                tree = xmltree.parse( overridepath )
+                self._save_hash( overridepath, xbmcvfs.File( overridepath ).read() )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-script-data", pickle.dumps( tree ) )
+                return tree
+            except:
+                self._save_hash( overridepath, None )
+                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-script-data", "No overrides" )
+                return None
+   
+        # Return the overrides
+        returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-script-data" )
+        if returnData == "No overrides":
+            return None
+        else:
+            return pickle.loads( returnData )
+
+
     def _get_overrides_skin( self ):
         # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:

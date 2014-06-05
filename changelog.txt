@@ -6,6 +6,8 @@ v0.3.2 (Unstable development revision)
 - Management dialog now uses select dialog with label2 and thumbnails visible
 - Ability to set visibility condition for skin-provided shortcuts
 - Ability to override shortcut actions based on XBMC version
+- Ability to customize the groups available shortcuts appear in in the management dialog
+- Control over placement of skin-provided shortcuts in the management dialog
 - Re-order shortcut groups in management dialog
 - Fix for crash when no profiles.xml file
 - Fix for single-list xml method to return to main menu item when hiding submenu

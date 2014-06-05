@@ -81,6 +81,8 @@ class XMLFunctions():
             
         
         # Clear window properties for overrides, widgets, backgrounds, properties
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script" )
+        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script-data" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin-data" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user" )

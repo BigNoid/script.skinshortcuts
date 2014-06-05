@@ -82,7 +82,7 @@ class Main:
             self._check_Window_Properties()
             self._manage_shortcut_links() 
         if self.TYPE=="shortcuts":
-            LIBRARY._displayShortcuts( self.LABEL, self.ACTION, self.SHORTCUTTYPE, self.THUMBNAIL, self.GROUPING, self.CUSTOM )
+            LIBRARY.selectShortcut( "", self.LABEL, self.ACTION, self.SHORTCUTTYPE, self.THUMBNAIL, self.CUSTOM )
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
             try:

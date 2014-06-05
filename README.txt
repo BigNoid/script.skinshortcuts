@@ -11,7 +11,9 @@ What's New for Skinners (version 0.3.2 - Unstable development revision)
  - Changes to automatic setting of controls in management dialog, including new option and window title label - see "resources/Management Dialog.txt" for details.
  - Changes to skin methods when using alternative listing method (undocumented)
  - Ability to override shortcut action only on selected XBMC major version - see "resources/Advanced Usage.txt", section "Overrides.xml", part 1
+ - More control over the placement of skin-provided shortcuts within the groupings of available shortcuts in the management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 5
  - Ability to override label of available shortcuts in management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 6
+ - Ability to customize the groupings of available shortcuts within the management dialog - see "resources/Management Dialog.txt" for details
  
  
 Where To Get Help

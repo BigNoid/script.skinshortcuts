@@ -52,20 +52,6 @@ NOTE: You MUST provide a label (even one set to a script-provided string) for la
 
 Rather than using list 111 to let the user select a shortcut, you can include button 401. When clicked it will show the user, via the standard Select dialog, first a list of the available categories of shortcuts, then the shortcuts within that category.
 
-You can also use the button to go straight to the list of shortcuts for a category by first setting the window property "category", then sending a click to the button. The available categories are:
-
-	common		(Items commonly found on a main menu)
-	commands	(Common XBMC commands)
-	video		(Video library)
-	music		(Music library)
-	pvr			(PVR options)
-	sources		(Sources for video and music librarys)
-	playlists	(Users playlists)
-	addons		(Programs, video add-ons, music add-ons, picture add-ons)
-	favourites	(Users favourites)
-	
-After a click to 401 has been registered, the window property "category" will be cleared.
-
 
 4. Set a custom property
 
@@ -95,3 +81,8 @@ You will likely only want to include this when editing the main menu. You can ch
 6. Limit controls to main menu only
 
 You may wish to only show some of these controls when the user is editing the main menu only, not a submenu. To do this, check the window property "groupname" for the value "mainmenu".
+
+
+7. Shortcut Categories
+
+The available shortcuts are grouped into several categories within the management dialog. If you wish to customise these categories, copy the format in %script.skinshortcuts%/resources/overrides.xml
