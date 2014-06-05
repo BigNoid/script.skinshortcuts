@@ -73,6 +73,7 @@ class LibraryFunctions():
 
         
     def retrieveGroup( self, group, flat = True ):
+        log( "Retrieve group" )
         trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
         nodes = None
         for tree in trees:
@@ -91,8 +92,6 @@ class LibraryFunctions():
         
         if flat:
             # Flat groupings
-            #groupings = tree.find( "flatgroupings" )
-            #nodes = groupings.findall( "node" )
             count = 0
             # Cycle through nodes till we find the one specified
             for node in nodes:
@@ -113,7 +112,6 @@ class LibraryFunctions():
             
         else:
             # Heirachical groupings
-            #nodes = tree.find( "groupings" )
             if group == "":
                 # We're going to get the root nodes
                 return [ __language__(32048), self.buildNodeListing( nodes, False ) ]
@@ -132,7 +130,18 @@ class LibraryFunctions():
         for subnode in tree:
             count += 1
             if count == number:
-                return [subnode.attrib.get( "label" ), subnode]
+                label = subnode.attrib.get( "label" )
+                try:
+                    if not label.find( "::SCRIPT::" ) == -1:
+                        label = __language__(int( label[10:] ) )
+                    elif not label.find( "::LOCAL::" ) == -1:
+                        label = xbmc.getLocalizedString( int( label[9:] ) )
+                except:
+                    print_exc()
+                    
+                log( "label: " + label )
+
+                return [ label, subnode ]
                 
     def buildNodeListing( self, nodes, flat ):
         returnList = []
@@ -892,7 +901,7 @@ class LibraryFunctions():
             
         # If this launches our explorer, append a notation to the displayLabel
         if item[0].startswith( "||" ):
-            displayLabel = displayLabel + "  [B]>[/B]"
+            displayLabel = displayLabel + "  >"
             
         thumbnail = item[3]
         oldthumbnail = None
@@ -1214,7 +1223,7 @@ class LibraryFunctions():
             
     
     def explorer( self, history, location, label, thumbnail, skinStrings, itemType ):
-        dialogLabel = label[0].replace( "  [B]>[/B]", "" )
+        dialogLabel = label[0].replace( "  >", "" )
 
         # Default action - create shortcut
         listings = []
@@ -1229,7 +1238,7 @@ class LibraryFunctions():
         #    listitem.setProperty( "path", "||BACK||" )
         #    listings.append( listitem )
         #    
-            dialogLabel = label[0].replace( "  [B]>[/B]", "" ) + " - " + label[ len( label ) - 1 ].replace( "  [B]>[/B]", "" )
+            dialogLabel = label[0].replace( "  >", "" ) + " - " + label[ len( label ) - 1 ].replace( "  >", "" )
             
         # Show a waiting dialog, then get the listings for the directory
         dialog = xbmcgui.DialogProgress()
@@ -1246,11 +1255,11 @@ class LibraryFunctions():
             for item in json_response['result']['files']:
                 if item["filetype"] == "directory":
                     if item[ "thumbnail" ] is not "":
-                        listitem = xbmcgui.ListItem( label=item['label'] + "  [B]>[/B]", iconImage="DefaultFolder.png", thumbnailImage=item[ 'thumbnail' ] )
+                        listitem = xbmcgui.ListItem( label=item['label'] + "  >", iconImage="DefaultFolder.png", thumbnailImage=item[ 'thumbnail' ] )
                         log( repr( item[ 'thumbnail' ] ) )
                         listitem.setProperty( "thumbnail", item[ 'thumbnail' ] )
                     else:
-                        listitem = xbmcgui.ListItem( label=item['label'] + "  [B]>[/B]", iconImage="DefaultFolder.png" )
+                        listitem = xbmcgui.ListItem( label=item['label'] + "  >", iconImage="DefaultFolder.png" )
                     listitem.setProperty( "path", item[ 'file' ] )
                     listitem.setProperty( "icon", "DefaultFolder.png" )
                     listings.append( listitem )
@@ -1284,7 +1293,7 @@ class LibraryFunctions():
                 else:
                     localItemType = itemType
 
-                listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  [B]>[/B]", "" ), label2=localItemType, iconImage="DefaultShortcut.png", thumbnailImage=thumbnail[ len( thumbnail ) - 1 ])
+                listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  >", "" ), label2=localItemType, iconImage="DefaultShortcut.png", thumbnailImage=thumbnail[ len( thumbnail ) - 1 ])
                 listitem.setProperty( "path", urllib.quote( action ) )
                 listitem.setProperty( "displayPath", action )
                 listitem.setProperty( "shortcutType", itemType )

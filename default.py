@@ -82,6 +82,13 @@ class Main:
             self._check_Window_Properties()
             self._manage_shortcut_links() 
         if self.TYPE=="shortcuts":
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script" )
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script-data" )
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin-data" )
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user" )
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user-data" )
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
             LIBRARY.selectShortcut( "", self.LABEL, self.ACTION, self.SHORTCUTTYPE, self.THUMBNAIL, self.CUSTOM )
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media

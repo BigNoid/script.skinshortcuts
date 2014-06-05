@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
 	<flatgroupings>
-		<node label="Common">
+		<node label="::SCRIPT::32029">
 			<content>common</content>
 		</node>
-		<node label="Video Library">
+		<node label="::SCRIPT::32030">
 			<content>video</content>
 			<content>movie</content>
 			<content>tvshow</content>
 			<content>musicvideo</content>
 			<content>customvideonode</content>
 		</node>
-		<node label="Music Library">
+		<node label="::SCRIPT::32019">
 			<content>music</content>
 		</node>
-		<node label="PVR">
+		<node label="::SCRIPT::32017">
 			<content>pvr</content>
 		</node>
-		<node label="Library sources">
+		<node label="::SCRIPT::32074">
 			<content>videosources</content>
 			<content>upnp-video</content>
 			<content>musicsources</content>
 			<content>upnp-music</content>
 		</node>
-		<node label="Playlists">
+		<node label="::SCRIPT::32040">
 			<content>playlist-video</content>
 			<content>playlist-audio</content>
 		</node>
-		<node label="Add-ons">
+		<node label="::SCRIPT::32007">
 			<shortcut label="::LOCAL::1037" type="::SCRIPT::32014" thumb="DefaultAddonVideo.png">ActivateWindow(Videos,Addons,return)</shortcut>
 			<shortcut label="::LOCAL::1038" type="::SCRIPT::32019" thumb="DefaultAddonMusic.png">ActivateWindow(MusicLibrary,Addons,return)</shortcut>
 			<shortcut label="::LOCAL::1039" type="::SCRIPT::32020" thumb="DefaultAddonPicture.png">ActivateWindow(Pictures,Addons,return)</shortcut>
@@ -37,83 +37,83 @@
 			<content>addon-audio</content>
 			<content>addon-image</content>
 		</node>
-		<node label="Favourites">
+		<node label="::SCRIPT::32006">
 			<content>favourite</content>
 		</node>
-		<node label="XBMC Commands">
+		<node label="::SCRIPT::32054">
 			<content>commands</content>
 		</node>
 	</flatgroupings>
 	
 	<groupings>
-		<node label="Common">
+		<node label="::SCRIPT::32029">
 			<content>common</content>
 		</node>
 		<node label="Library">
-			<node label="Video Library">
+			<node label="::SCRIPT::32030">
 				<content>video</content>
 				<content>customvideonode</content>
-				<node label="Movies">
+				<node label="::SCRIPT::32015">
 					<content>movie</content>
 				</node>
-				<node label="TV Shows">
+				<node label="::SCRIPT::32016">
 					<content>tvshow</content>
 				</node>
-				<node label="Music Videos">
+				<node label="::SCRIPT::32018">
 					<content>musicvideo</content>
 				</node>
-				<node label="Video Playlists">
+				<node label="::SCRIPT::32040">
 					<content>playlist-video</content>
 				</node>
-				<node label="Video Add-Ons">
+				<node label="::SCRIPT::32010">
 					<shortcut label="::LOCAL::1037" type="::SCRIPT::32014" icon="DefaultAddonVideo.png">ActivateWindow(Videos,Addons,return)</shortcut>
 					<content>addon-video</content>
 				</node>
-				<node label="Sources">
+				<node label="::SCRIPT::32075">
 					<content>videosources</content>
 					<content>upnp-video</content>
 				</node>
 			</node>
-			<node label="Music Library">
+			<node label="::SCRIPT::32019">
 				<content>music</content>
-				<node label="Playlists">
+				<node label="::SCRIPT::32040">
 					<content>playlist-audio</content>
 				</node>
-				<node label="Add-ons">
+				<node label="::SCRIPT::32007">
 					<shortcut label="::LOCAL::1038" type="::SCRIPT::32019" icon="DefaultAddonMusic.png">ActivateWindow(MusicLibrary,Addons,return)</shortcut>
 					<content>addon-audio</content>
 				</node>
-				<node label="Sources">
+				<node label="::SCRIPT::32075">
 					<content>musicsources</content>
 					<content>upnp-music</content>
 				</node>
 			</node>
 		</node>
-		<node label="PVR">
+		<node label="::SCRIPT::32017">
 			<content>pvr</content>
 		</node>
-		<node label="Add-ons">
-			<node label="Programs">
+		<node label="::SCRIPT::32007">
+			<node label="::SCRIPT::32009">
 				<shortcut label="::LOCAL::10001" type="::SCRIPT::32021" icon="DefaultAddonProgram.png">ActivateWindow(Programs,Addons,return)</shortcut>
 				<content>addon-program</content>
 			</node>
-			<node label="Video Add-ons">
+			<node label="::SCRIPT::32010">
 				<shortcut label="::LOCAL::1037" type="::SCRIPT::32014" icon="DefaultAddonVideo.png">ActivateWindow(Videos,Addons,return)</shortcut>
 				<content>addon-video</content>
 			</node>
-			<node label="Audio Add-ons">
+			<node label="::SCRIPT::32011">
 				<shortcut label="::LOCAL::1038" type="::SCRIPT::32019" icon="DefaultAddonMusic.png">ActivateWindow(MusicLibrary,Addons,return)</shortcut>
 				<content>addon-audio</content>
 			</node>
-			<node label="Image Add-ons">
+			<node label="::SCRIPT::32012">
 				<shortcut label="::LOCAL::1039" type="::SCRIPT::32020" icon="DefaultAddonPicture.png">ActivateWindow(Pictures,Addons,return)</shortcut>
 				<content>addon-image</content>
 			</node>
 		</node>
-		<node label="Favourites">
+		<node label="::SCRIPT::32006">
 			<content>favourite</content>
 		</node>
-		<node label="XBMC Commands">
+		<node label="::SCRIPT::32054">
 			<content>commands</content>
 		</node>
 	</groupings>

@@ -1387,9 +1387,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load the currently selected shortcut group
         newGroup = LIBRARY.retrieveGroup( self.shortcutgroup )
         
+        label = newGroup[0]
+        if not newGroup[0].find( "::SCRIPT::" ) == -1:
+            label = __language__(int( newGroup[0][10:] ) )
+        elif not newGroup[0].find( "::LOCAL::" ) == -1:
+            label = xbmc.getLocalizedString(int( newGroup[0][9:] ) )
+
+        
         self.getControl( 111 ).reset()
         self.getControl( 111 ).addItems( newGroup[1] )
-        self.getControl( 101 ).setLabel( newGroup[0] + " (%s)" %self.getControl( 111 ).size() )
+        self.getControl( 101 ).setLabel( label + " (%s)" %self.getControl( 111 ).size() )
         
     def onAction( self, action ):
         if action.getId() in ACTION_CANCEL_DIALOG:
