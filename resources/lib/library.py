@@ -79,7 +79,9 @@ class LibraryFunctions():
         for tree in trees:
             if tree is not None:
                 if flat:
-                    nodes = tree.find( "flatgroupings" ).findall( "node" )
+                    nodes = tree.find( "flatgroupings" )
+                    if nodes is not None:
+                        nodes = nodes.findall( "node" )
                 else:
                     nodes = tree.find( "groupings" )
             if nodes is not None:
