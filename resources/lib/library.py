@@ -881,12 +881,16 @@ class LibraryFunctions():
         try:
             if not localLabel.find( "::SCRIPT::" ) == -1:
                 displayLabel = __language__(int( localLabel[10:] ) )
+                labelID = DATA.createNiceName( localLabel[10:] )
             elif not localLabel.find( "::LOCAL::" ) == -1:
                 displayLabel = xbmc.getLocalizedString(int( localLabel[9:] ) )
+                labelID = DATA.createNiceName( localLabel[9:] )
             else:
                 displayLabel = localLabel
+                labelID = DATA.createNiceName( localLabel )
         except:
             displayLabel = localLabel
+            labelID = DATA.createNiceName( localLabel )
             print_exc()
         
         # Create localised label2
@@ -911,28 +915,37 @@ class LibraryFunctions():
         icon = "DefaultShortcut.png"
         oldicon = None
         
+        # Get a temporary labelID
+        DATA._clear_labelID()
+        labelID = DATA._get_labelID( labelID )
+        
         # Check for any skin-provided thumbnail overrides
         tree = DATA._get_overrides_skin()
         if tree is not None:
             for elem in tree.findall( "thumbnail" ):
-                if elem.attrib.get( "image" ) is not None:
-                    if oldthumbnail is None:
-                        if elem.attrib.get( "image" ) == thumbnail:
-                            oldthumbnail = thumbnail
-                            thumbnail = elem.text
-                    if oldicon is None:
-                        if elem.attrib.get( "image" ) == icon:
-                            oldicon = icon
-                            icon = elem.text
+                if "labelID" in elem.attrib and "group" not in elem.attrib and oldthumbnail is None:
+                    if elem.attrib.get( "labelID" ) == labelID:
+                        oldthumbnail = thumbnail
+                        thumbnail = elem.text
+                elif "image" in elem.attrib and "group" not in elem.attrib:
+                    if oldthumbnail is None and elem.attrib.get( "image" ) == thumbnail:
+                        oldthumbnail = thumbnail
+                        thumbnail = elem.text
+                    if oldicon is None and elem.attrib.get( "image" ) == icon:
+                        oldicon = icon
+                        icon = elem.text
                     
             
         # Build listitem
-        listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon, thumbnailImage=thumbnail)
+        if thumbnail is not None:
+            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon, thumbnailImage=thumbnail)
+            listitem.setProperty( "thumbnail", thumbnail)
+        else:
+            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon)
         listitem.setProperty( "path", urllib.quote( item[0] ) )
         listitem.setProperty( "localizedString", localLabel )
         listitem.setProperty( "shortcutType", item[2] )
         listitem.setProperty( "icon", icon )
-        listitem.setProperty( "thumbnail", thumbnail)
         
         if oldthumbnail is not None:
             listitem.setProperty( "original-thumbnail", oldthumbnail )

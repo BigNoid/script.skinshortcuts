@@ -468,7 +468,7 @@ class DataFunctions():
         if item == "10004":
             return "settings"
         else:
-            return item
+            return item.lower( ).replace( " ", "" )
             
     def checkVisibility ( self, action ):
         # Return whether mainmenu items should be displayed
