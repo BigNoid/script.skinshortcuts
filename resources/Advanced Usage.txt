@@ -137,29 +137,31 @@ IMPORTANT: User choice MUST be respected when overriding actions. That is to say
 Users can also provide an overrides.xml file to override actions in special://profile/
 
 
-2. Overriding thumbnails
+2. Overriding icons
 
 The script tries to provide reasonable default images for all shortcuts, with a fallback on "DefaultShortcut.png", however you may wish to override images to specific ones provided by your skin.
 
 This can be done by providing an optional file called 'overrides.xml' in a sub-directory of your skin called 'shortcuts'. It provides two ways to override images - either overriding the image for a specific labelID, or overriding all instances of a particular image - as follows:
 
-<thumbnail labelID="[labelID]" group="[GroupName]">[New image]</thumbnail>
-<thumbnail image="[Old image]" group="[GroupName]">[New image]</thumbnail>
+<icon labelID="[labelID]" group="[GroupName]">[New image]</icon>
+<icon image="[Old image]" group="[GroupName]">[New image]</icon>
 
-[labelID] - The labelID whose thumbnail you want to override
+[labelID] - The labelID whose icon you want to override
 [GroupName] - [Optional] The group that the labelID must be in, for example "movies". If omitted, the property will be apply to all items which match the labelID.
 [Old image] - The image you are overriding
 [New image] - The replacement image
 
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
-	<thumbnail labelID="movies">MyMovieImage.png</thumbnail>
-	<thumbnail image="DefaultShortcut.png">MyShortcutImage.png</thumbnail>
+	<icon labelID="movies">MyMovieImage.png</icon>
+	<icon image="DefaultShortcut.png">MyShortcutImage.png</icon>
 </overrides>
 
-Note, any thumbnail image the user has set will take precedence over skin-provided overrides.
+Note, any thumbnail image provided by the shortcut or set by the user has set will take precedence over skin-provided overrides.
 
-A full list of labelID's and default thumbnail images can be found in the Resources folder.
+A full list of labelID's and default icon images can be found in the Resources folder.
+
+IMPORTANT: In previous versions this element was called <thumbnail> - please update any old elements.
 
 
 3. Custom background images

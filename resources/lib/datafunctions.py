@@ -160,27 +160,25 @@ class DataFunctions():
                 except:
                     hasChanged = False
             
-            # If the user hasn't overridden the thumbnail, check for skin override
-            if not len(item) == 6 or (len(item) == 6 and item[5] == "True"):
-                if tree is not None:
-                    elems = tree.findall('thumbnail')
-                    for elem in elems:
-                        if elem is not None:
-                            if "group" in elem.attrib:
-                                if elem.attrib.get( "group" ) == group:
-                                    if elem.attrib.get( 'labelID' ) == labelID:
-                                        item[3] = elem.text
-                                    if elem.attrib.get( 'image' ) == item[3]:
-                                        item[3] = elem.text
-                                    if elem.attrib.get( 'image' ) == item[2]:
-                                        item[2] = elem.text
-                            else:
-                                if elem.attrib.get( 'labelID' ) == labelID:
-                                    item[3] = elem.text
-                                if elem.attrib.get( 'image' ) == item[3]:
-                                    item[3] = elem.text
-                                if elem.attrib.get( 'image' ) == item[2]:
-                                    item[2] = elem.text
+            # Check for a skin-override on the icon
+            elems = tree.findall('icon')
+            for elem in elems:
+                if elem is not None:
+                    if "group" in elem.attrib:
+                        if elem.attrib.get( "group" ) == group:
+                            if elem.attrib.get( 'labelID' ) == labelID:
+                                item[2] = elem.text
+                                break
+                            if elem.attrib.get( 'image' ) == item[2]:
+                                item[2] = elem.text
+                                break
+                    else:
+                        if elem.attrib.get( 'labelID' ) == labelID:
+                            item[2] = elem.text
+                            break
+                        if elem.attrib.get( 'image' ) == item[2]:
+                            item[2] = elem.text
+                            break
 
             # Get any additional properties, including widget and background
             additionalProperties = self.checkAdditionalProperties( group, labelID, isUserShortcuts )

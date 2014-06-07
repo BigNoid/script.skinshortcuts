@@ -273,11 +273,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for x in range( 0, listControl.size() ):
                 if x == itemIndex:
                     # Where the new shortcut should go
-                    self._get_thumbnail_overrides( listitemCopy )
+                    self._get_icon_overrides( listitemCopy )
                     listitems.append( listitemCopy )
                 else:
                     listitemOriginal = self._duplicate_listitem( listControl.getListItem( x ) )
-                    self._get_thumbnail_overrides( listitemOriginal )
+                    self._get_icon_overrides( listitemOriginal )
                     listitems.append( listitemOriginal )
             
             listControl.reset()
@@ -319,7 +319,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for x in range(0, self.getControl( 211 ).size()):
                     # Duplicate the item and add it to the listitems array
                     listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                    self._get_thumbnail_overrides( listitemShortcutCopy )
+                    self._get_icon_overrides( listitemShortcutCopy )
                     listitems.append(listitemShortcutCopy)
                         
                 self.getControl( 211 ).reset()
@@ -355,15 +355,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for x in range( 0 , listControl.size() ):
                 if x == itemIndex:
                     # Where the original item was
-                    self._get_thumbnail_overrides( swapitem )
+                    self._get_icon_overrides( swapitem )
                     listitems.append( swapitem )
                 elif x == itemIndex - 1:
                     # Where we want the item
-                    self._get_thumbnail_overrides( listitem )
+                    self._get_icon_overrides( listitem )
                     listitems.append( listitem )
                 else:
                     listitemCopy = self._duplicate_listitem( listControl.getListItem(x) )
-                    self._get_thumbnail_overrides( listitemCopy )
+                    self._get_icon_overrides( listitemCopy )
                     listitems.append( listitemCopy )
                     
             listControl.reset()
@@ -389,15 +389,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for x in range( 0, listControl.size() ):
                 if x == itemIndex:
                     # Where the original item was
-                    self._get_thumbnail_overrides( swapitem )
+                    self._get_icon_overrides( swapitem )
                     listitems.append( swapitem )
                 elif x == itemIndex + 1:
                     # Where we want the item
-                    self._get_thumbnail_overrides( listitem )
+                    self._get_icon_overrides( listitem )
                     listitems.append( listitem )
                 else:
                     listitemCopy = self._duplicate_listitem( listControl.getListItem(x) )
-                    self._get_thumbnail_overrides( listitemCopy )
+                    self._get_icon_overrides( listitemCopy )
                     listitems.append( listitemCopy )
                     
             listControl.reset()
@@ -453,8 +453,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Update the thumbnail
                 self.changeMade = True
                 listitem.setThumbnailImage( custom_thumbnail )
-                listitem.setProperty( "Thumbnail", custom_thumbnail )
-                listitem.setProperty( "customThumbnail", "False" )
+                listitem.setProperty( "thumbnail", custom_thumbnail )
             
         if controlID == 307:
             # Change Action
@@ -628,12 +627,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 DATA._clear_labelID()
                 for x in range(0, self.getControl( 211 ).size()):
                     if x == num:
-                        self._get_thumbnail_overrides( listitemCopy )
+                        self._get_icon_overrides( listitemCopy )
                         listitems.append(listitemCopy)
                     else:
                         # Duplicate the item and add it to the listitems array
                         listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                        self._get_thumbnail_overrides( listitemShortcutCopy )
+                        self._get_icon_overrides( listitemShortcutCopy )
                         listitems.append(listitemShortcutCopy)
                         
                 self.getControl( 211 ).reset()
@@ -929,9 +928,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitem.setProperty( "thumbnail", item[3] )
         listitem.setProperty( "shortcutType", loadLabel2 )
         
-            
-        if len(item) == 6:
-            listitem.setProperty( "customThumbnail", item[5] )
+        listitem.setProperty( "shortcutType", loadLabel2 )
             
         listitem.setProperty( "labelID", self._get_labelID( loadLabel ) )
         return listitem
@@ -981,12 +978,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Check if we've loaded anything
         if len( allProperties ) == 0:
             for listitem in listitems:
-                self._get_thumbnail_overrides( listitem )
+                self._get_icon_overrides( listitem )
             return listitems
             
         # Process the files we've loaded, and match any properties to listitems
         for listitem in listitems:
-            self._get_thumbnail_overrides( listitem )
+            self._get_icon_overrides( listitem )
             backgroundName = None
             widgetName = None
             backgroundPlaylistName = None
@@ -1134,45 +1131,32 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         return listitemCopy
         
-    def _get_thumbnail_overrides( self, listitem ):
+    def _get_icon_overrides( self, listitem ):
         # Start by getting the labelID
         labelID = listitem.getProperty( "localizedString" )
         if labelID == None or labelID == "":
             labelID = listitem.getLabel()
         labelID = self._get_labelID( labelID )
         
-        log( labelID )
-        
-        # Retrieve thumbnail and icon
-        thumbnail = listitem.getProperty( "thumbnail" )
-        oldthumbnail = None
+        # Retrieve icon
         icon = listitem.getProperty( "icon" )
         oldicon = None
         
         # Check for overrides
         tree = DATA._get_overrides_skin()
         if tree is not None:
-            for elem in tree.findall( "thumbnail" ):
-                if "labelID" in elem.attrib and oldthumbnail is None:
+            for elem in tree.findall( "icon" ):
+                if "labelID" in elem.attrib and oldicon is None:
                     if elem.attrib.get( "labelID" ) == labelID:
                         if "group" in elem.attrib:
                             if elem.attrib.get( "group" ) == self.GROUP:
-                                oldthumbnail = thumbnail
-                                thumbnail = elem.text
+                                oldicon = icon
+                                icon = elem.text
                         else:
-                            oldthumbnail = thumbnail
-                            thumbnail = elem.text
+                            oldicon = icon
+                            icon = elem.text
                         
                 elif "image" in elem.attrib:
-                    if oldthumbnail is None and elem.attrib.get( "image" ) == thumbnail:
-                        if "group" in elem.attrib:
-                            if elem.attrib.get( "group" ) == self.GROUP:
-                                oldthumbnail = thumbnail
-                                thumbnail = elem.text
-                        else:
-                            oldthumbnail = thumbnail
-                            thumbnail = elem.text
-
                     if oldicon is None and elem.attrib.get( "image" ) == icon:
                         if "group" in elem.attrib:
                             if elem.attrib.get( "group" ) == self.GROUP:
@@ -1181,13 +1165,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         else:
                             oldicon = icon
                             icon = elem.text
-
-                        
-        # If we changed the thumbnail or icon, update the listitem
-        if oldthumbnail is not None:
-            listitem.setThumbnailImage( thumbnail )
-            listitem.setProperty( "thumbnail", thumbnail )
-            listitem.setProperty( "original-thumbnail", oldthumbnail )
+                            
+        # If the skin doesn't have the icon, replace it with DefaultShortcut.png
+        if not xbmc.skinHasImage( icon ):
+            if oldicon == None:
+                oldicon = icon
+            icon = "DefaultShortcut.png"
+        
+        # If we changed the icon, update the listitem
         if oldicon is not None:
             listitem.setIconImage( icon )
             listitem.setProperty( "icon", icon )
@@ -1233,24 +1218,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if listitem.getProperty( "localizedString" ):
                         saveLabel = listitem.getProperty( "localizedString" ).decode('utf-8')
                         
-                    # If we're seeing an overriden thumbnail or icon, switch to the original
-                    if listitem.getProperty( "original-thumbnail" ):
-                        log( "Using original thumbnail" )
-                        thumbnail = listitem.getProperty( "original-thumbnail" )
-                    else:
-                        log( "Using current thumbnail" )
-                        thumbnail = listitem.getProperty( "thumbnail" )
-                        
+                    # If we're seeing an overriden icon, switch to the original
                     if listitem.getProperty( "original-icon" ):
                         icon = listitem.getProperty( "original-icon" )
                     else:
                         icon = listitem.getProperty( "icon" )
                     
                         
-                    if listitem.getProperty( "customThumbnail" ):
-                        savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), icon.decode('utf-8'), thumbnail.decode('utf-8'), listitem.getProperty("path").decode('utf-8'), listitem.getProperty("customThumbnail").decode('utf-8')]
-                    else:
-                        savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), icon.decode('utf-8'), thumbnail.decode('utf-8'), listitem.getProperty("path").decode('utf-8')]
+                    thumbnail = listitem.getProperty( "thumbnail" )
+                    
+                    savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), icon.decode('utf-8'), thumbnail.decode('utf-8'), listitem.getProperty("path").decode('utf-8')]
                         
                     if listitem.getProperty( "additionalListItemProperties" ):
                         properties.append( [ labelID, eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )

@@ -911,15 +911,12 @@ class LibraryFunctions():
             
         
         # Retrieve icon and thumbnail
-        log( repr( item[3] ) )
         if item[3]:
             if "icon" in item[3].keys():
-                #log( "ICON: " + repr( item[3]["icon"] ) )
                 icon = item[3]["icon"]
             else:
                 icon = "DefaultShortcut.png"
             if "thumb" in item[3].keys():
-                #log( "THUMB: " + repr( item[3]["thumb"] ) )
                 thumbnail = item[3]["thumb"]
             else:
                 thumbnail = None
@@ -927,7 +924,6 @@ class LibraryFunctions():
             icon = "DefaultShortcut.png"
             thumbnail = None
             
-        oldthumbnail = None
         oldicon = None
         
         # Get a temporary labelID
@@ -937,21 +933,20 @@ class LibraryFunctions():
         # Check for any skin-provided thumbnail overrides
         tree = DATA._get_overrides_skin()
         if tree is not None:
-            for elem in tree.findall( "thumbnail" ):
-                if "labelID" in elem.attrib and "group" not in elem.attrib and oldthumbnail is None:
+            for elem in tree.findall( "icon" ):
+                if "labelID" in elem.attrib and "group" not in elem.attrib and oldicon is None:
                     if elem.attrib.get( "labelID" ) == labelID:
-                        oldthumbnail = thumbnail
-                        thumbnail = elem.text
+                        oldicon = icon
+                        icon = elem.text
                 elif "image" in elem.attrib and "group" not in elem.attrib:
-                    if oldthumbnail is None and elem.attrib.get( "image" ) == thumbnail:
-                        oldthumbnail = thumbnail
-                        thumbnail = elem.text
                     if oldicon is None and elem.attrib.get( "image" ) == icon:
                         oldicon = icon
                         icon = elem.text
                         
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
         if not xbmc.skinHasImage( icon ):
+            if oldicon == None:
+                oldicon = icon
             icon = "DefaultShortcut.png"
                     
             
@@ -966,8 +961,6 @@ class LibraryFunctions():
         listitem.setProperty( "shortcutType", item[2] )
         listitem.setProperty( "icon", icon )
         
-        if oldthumbnail is not None:
-            listitem.setProperty( "original-thumbnail", oldthumbnail )
         if oldicon is not None:
             listitem.setProperty( "original-icon", oldicon )
         

@@ -14,6 +14,7 @@ What's New for Skinners (version 0.3.2 - Unstable development revision)
  - More control over the placement of skin-provided shortcuts within the groupings of available shortcuts in the management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 5
  - Ability to override label of available shortcuts in management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 6
  - Ability to customize the groupings of available shortcuts within the management dialog - see "resources/Management Dialog.txt" for details
+ - Skinners can now only override icons not thumbnails - please update your image overrides - see "resources/Advanced Usage.txt", section "Overriding icons" for details
  
  
 Where To Get Help
