@@ -36,10 +36,13 @@ if not xbmcvfs.exists(__datapath__):
     xbmcvfs.mkdir(__datapath__)
 
 def log(txt):
-    if isinstance (txt,str):
-        txt = txt.decode("utf-8")
-    message = u'%s: %s' % (__addonid__, txt)
-    xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGDEBUG)
+    try:
+        if isinstance (txt,str):
+            txt = txt.decode("utf-8")
+        message = u'%s: %s' % (__addonid__, txt)
+        xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGDEBUG)
+    except:
+        pass
 
 class GUI( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
@@ -911,7 +914,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
            
         # Load the action (the "path" property)
         action = item[4]
-        displayAction = urllib.unquote( item[4] )
+        displayAction = urllib.unquote( action )
         
         # If the displayAction uses the special://skin protocol, translate the path
         if "special://skin/" in displayAction:
@@ -926,7 +929,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load the rest of the properties
         listitem.setProperty( "icon", item[2] )
         listitem.setProperty( "thumbnail", item[3] )
-        listitem.setProperty( "shortcutType", loadLabel2 )
         
         listitem.setProperty( "shortcutType", loadLabel2 )
             
@@ -1196,8 +1198,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 # If the item has a label...
                 if listitem.getLabel().decode("utf-8") != __language__(32013):
-                    saveLabel = listitem.getLabel().decode('utf-8')
-                    saveLabel2 = listitem.getLabel2().decode('utf-8')
+                    saveLabel = listitem.getLabel()
+                    saveLabel2 = listitem.getLabel2()
                     
                     # Generate labelID, and mark if it has changes
                     labelID = listitem.getProperty( "labelID" )
@@ -1223,11 +1225,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         icon = listitem.getProperty( "original-icon" )
                     else:
                         icon = listitem.getProperty( "icon" )
-                    
                         
                     thumbnail = listitem.getProperty( "thumbnail" )
                     
-                    savedata=[saveLabel, listitem.getProperty("shortcutType").decode('utf-8'), icon.decode('utf-8'), thumbnail.decode('utf-8'), listitem.getProperty("path").decode('utf-8')]
+                    savedata=[saveLabel, listitem.getProperty("shortcutType"), icon, thumbnail, listitem.getProperty("path")]
                         
                     if listitem.getProperty( "additionalListItemProperties" ):
                         properties.append( [ labelID, eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
@@ -1257,7 +1258,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # (this will ensure any default .shortcuts file is copied across)
                 if labelIDFrom == "" or labelIDFrom is None:
                     labelIDFrom = labelIDTo
-                    log( "### Had to set From to the same to To (" + labelIDFrom + ")" )
                 
                 # Check that there isn't another item in the list whose 'From' is the same as our 'To'
                 # - if so, we're going to move our items elsewhere, and move 'em to the correct place later
@@ -1350,10 +1350,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             label = __language__(int( newGroup[0][10:] ) )
         elif not newGroup[0].find( "::LOCAL::" ) == -1:
             label = xbmc.getLocalizedString(int( newGroup[0][9:] ) )
-
         
         self.getControl( 111 ).reset()
-        self.getControl( 111 ).addItems( newGroup[1] )
+        for item in newGroup[1]:
+            self.getControl( 111 ).addItem( self._duplicate_listitem( item ) )
         self.getControl( 101 ).setLabel( label + " (%s)" %self.getControl( 111 ).size() )
         
     def onAction( self, action ):

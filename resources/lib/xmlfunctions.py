@@ -359,7 +359,7 @@ class XMLFunctions():
         newelement = xmltree.SubElement( Tree, "item" )
         
         # Onclick
-        action = urllib.unquote( item[4] )
+        action = urllib.unquote( item[4] ).decode( "utf-8" )
         if action.find("::MULTIPLE::") == -1:
             # Single action, run it
             onclick = xmltree.SubElement( newelement, "onclick" )
@@ -377,7 +377,7 @@ class XMLFunctions():
         if item[0].isdigit():
             label.text="$NUMBER[" + item[0] + "]"
         else:
-            label.text = item[0]
+            label.text = item[0].decode( "utf-8" )
         
         # Label 2
         label2 = xmltree.SubElement( newelement, "label2" )

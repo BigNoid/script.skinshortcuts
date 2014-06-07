@@ -36,10 +36,13 @@ REPLACE2_REXP = re.compile(r'[^-a-z0-9]+')
 REMOVE_REXP = re.compile('-{2,}')
 
 def log(txt):
-    if isinstance (txt,str):
-        txt = txt.decode("utf-8")
-    message = u'%s: %s' % (__addonid__, txt)
-    xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGDEBUG)
+    try:
+        if isinstance (txt,str):
+            txt = txt.decode("utf-8")
+        message = u'%s: %s' % (__addonid__, txt)
+        xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGDEBUG)
+    except:
+        pass
     
 class DataFunctions():
     def __init__(self):
@@ -95,33 +98,36 @@ class DataFunctions():
         paths = [userShortcuts, skinShortcuts, defaultShortcuts ]
         
         for path in paths:
-            try:
-                # Try loading shortcuts
-                list = xbmcvfs.File( path ).read()
-                unprocessedList = eval( list )
-                self._save_hash( path, list )
-                
-                # If this is a user-selected list of shortcuts...
-                if path == userShortcuts:
-                    # Process shortcuts, marked as user-selected
-                    processedList = self._process_shortcuts( unprocessedList, group, profileDir, True )
+            if xbmcvfs.exists( path ):
+                try:
+                    # Try loading shortcuts
+                    list = xbmcvfs.File( path ).read()
+                    unprocessedList = eval( list )
+                    self._save_hash( path, list )
                     
-                    # Update any localised strings
-                    self._process_localised( path, unprocessedList )
+                    # If this is a user-selected list of shortcuts...
+                    if path == userShortcuts:
+                        # Process shortcuts, marked as user-selected
+                        processedList = self._process_shortcuts( unprocessedList, group, profileDir, True )
+                        
+                        # Update any localised strings
+                        self._process_localised( path, unprocessedList )
+                        
+                    else:
+                        # Otherwise, just process them normally
+                        processedList = self._process_shortcuts( unprocessedList, group, profileDir )
+                        
+                        
+                    if isXML == False:
+                        xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
                     
-                else:
-                    # Otherwise, just process them normally
-                    processedList = self._process_shortcuts( unprocessedList, group, profileDir )
+                    log( " - Loaded file " + path ) 
                     
-                    
-                if isXML == False:
-                    xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-" + group, pickle.dumps( processedList ) )
-                
-                log( " - Loaded file " + path ) 
-                
-                return processedList
-            except:
-                self._save_hash( path, None )
+                    return processedList
+                except:
+                    print_exc()
+                    return False
+                    self._save_hash( path, None )
                 
         # No file loaded
         log( " - No shortcuts" )
@@ -161,24 +167,24 @@ class DataFunctions():
                     hasChanged = False
             
             # Check for a skin-override on the icon
-            elems = tree.findall('icon')
-            for elem in elems:
-                if elem is not None:
-                    if "group" in elem.attrib:
-                        if elem.attrib.get( "group" ) == group:
+            if tree is not None:
+                for elem in tree.findall( "icon" ):
+                    if elem is not None:
+                        if "group" in elem.attrib:
+                            if elem.attrib.get( "group" ) == group:
+                                if elem.attrib.get( 'labelID' ) == labelID:
+                                    item[2] = elem.text
+                                    break
+                                if elem.attrib.get( 'image' ) == item[2]:
+                                    item[2] = elem.text
+                                    break
+                        else:
                             if elem.attrib.get( 'labelID' ) == labelID:
                                 item[2] = elem.text
                                 break
                             if elem.attrib.get( 'image' ) == item[2]:
                                 item[2] = elem.text
                                 break
-                    else:
-                        if elem.attrib.get( 'labelID' ) == labelID:
-                            item[2] = elem.text
-                            break
-                        if elem.attrib.get( 'image' ) == item[2]:
-                            item[2] = elem.text
-                            break
 
             # Get any additional properties, including widget and background
             additionalProperties = self.checkAdditionalProperties( group, labelID, isUserShortcuts )
@@ -495,7 +501,7 @@ class DataFunctions():
     def checkAdditionalProperties( self, group, labelID, isUserShortcuts ):
         # Return any additional properties, including widgets and backgrounds
         allProperties = self._get_additionalproperties()
-        log( "Getting additional properties for " + labelID + " in group " + group )
+        #log( "Getting additional properties for " + labelID + " in group " + group )
         currentProperties = allProperties[1]
         
         returnProperties = []
@@ -525,7 +531,6 @@ class DataFunctions():
             elemSearch = tree.findall( "availableshortcutlabel" )
             for elem in elemSearch:
                 if elem.attrib.get( "action" ).lower() == action.lower():
-                    log( elem.text )
                     return elem.text         
 
         return None

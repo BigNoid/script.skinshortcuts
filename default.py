@@ -93,10 +93,10 @@ class Main:
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user-data" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
             
-            shortcut = LIBRARY.selectShortcut( "", self.CUSTOM )
+            selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM )
             
             # Now set the skin strings
-            if shortcut is not None:
+            if selectedShortcut is not None:
                 if self.LABEL is not None and selectedShortcut.getLabel() != "":
                     xbmc.executebuiltin( "Skin.SetString(" + self.LABEL + "," + selectedShortcut.getLabel() + ")" )
                 if self.ACTION is not None:
