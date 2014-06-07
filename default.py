@@ -81,7 +81,10 @@ class Main:
         if self.TYPE=="settings":
             self._check_Window_Properties()
             self._manage_shortcut_links() 
+            
         if self.TYPE=="shortcuts":
+            # We're just going to choose a shortcut, and save its details to the given
+            # skin labels
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script-data" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
@@ -89,7 +92,21 @@ class Main:
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user-data" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
-            LIBRARY.selectShortcut( "", self.LABEL, self.ACTION, self.SHORTCUTTYPE, self.THUMBNAIL, self.CUSTOM )
+            
+            shortcut = LIBRARY.selectShortcut( "", self.CUSTOM )
+            
+            # Now set the skin strings
+            if shortcut is not None:
+                if self.LABEL is not None and selectedShortcut.getLabel() != "":
+                    xbmc.executebuiltin( "Skin.SetString(" + self.LABEL + "," + selectedShortcut.getLabel() + ")" )
+                if self.ACTION is not None:
+                    xbmc.executebuiltin( "Skin.SetString(" + self.ACTION + "," + urllib.unquote( selectedShortcut.getProperty( "Path" ) ) + " )" )
+                if self.SHORTCUTTYPE is not None:
+                    xbmc.executebuiltin( "Skin.SetString(" + self.SHORTCUTTYPE + "," + selectedShortcut.getLabel2() + ")" )
+                if self.THUMBNAIL is not None and selectedShortcut.getProperty( "thumbnail" ):
+                    # REWRITE, to better return thumb or icon
+                    xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "thumbnail" ) + ")" )
+                
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
             try:
