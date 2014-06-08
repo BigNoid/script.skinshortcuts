@@ -75,7 +75,7 @@ class LibraryFunctions():
 
         
     def retrieveGroup( self, group, flat = True ):
-        log( "Retrieve group" )
+        log( "Retrieve group " + str( group ) )
         trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
         nodes = None
         for tree in trees:
@@ -100,6 +100,10 @@ class LibraryFunctions():
             # Cycle through nodes till we find the one specified
             for node in nodes:
                 count += 1
+                if "condition" in node.attrib:
+                    if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
+                        group += 1
+                        continue
                 if count == group:
                     # We found it :)
                     return( node.attrib.get( "label" ), self.buildNodeListing( node, True ) )
@@ -132,6 +136,12 @@ class LibraryFunctions():
         count = 0
         for subnode in tree:
             count += 1
+            # If not visible, skip it
+            if "condition" in subnode.attrib:
+                if not xbmc.getCondVisibility( subnode.attrib.get( "condition" ) ):
+                    number += 1
+                    continue
+
             if count == number:
                 label = subnode.attrib.get( "label" )
                 try:
@@ -148,6 +158,9 @@ class LibraryFunctions():
         returnList = []
         count = 0
         for node in nodes:
+            if "condition" in node.attrib:
+                if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
+                    continue
             count += 1
             if node.tag == "content":
                 returnList = returnList + self.retrieveContent( node.text )
@@ -300,7 +313,12 @@ class LibraryFunctions():
         nodes = groupings.findall( "node" )
         count = 0
         for node in nodes:
-            count += 1
+            if "condition" in node.attrib:
+                if xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
+                    # Node is visibile
+                    count += 1
+            else:
+                count += 1
         return count
         
         

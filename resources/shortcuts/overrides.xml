@@ -14,7 +14,7 @@
 		<node label="::SCRIPT::32031">
 			<content>music</content>
 		</node>
-		<node label="::SCRIPT::32017">
+		<node label="::SCRIPT::32017" condition="System.GetBool(pvrmanager.enabled)">
 			<content>pvr</content>
 		</node>
 		<node label="::SCRIPT::32074">
@@ -81,7 +81,7 @@
 				<content>upnp-music</content>
 			</node>
 		</node>
-		<node label="::SCRIPT::32017">
+		<node label="::SCRIPT::32017" condition="System.GetBool(pvrmanager.enabled)">
 			<content>pvr</content>
 		</node>
 		<node label="::SCRIPT::32007">
