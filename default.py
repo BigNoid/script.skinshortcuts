@@ -67,9 +67,10 @@ class Main:
             XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, self.MODE )
             
         if self.TYPE=="launch":
-            # Tell XBMC not to try playing any media
             xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
             self._launch_shortcut( self.PATH )
+        if self.TYPE=="launchpvr":
+            xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Player.Open", "params": { "item": {"channelid": ' + self.CHANNEL + '} } }')
         if self.TYPE=="manage":
             self._manage_shortcuts( self.GROUP, self.NOLABELS )
         if self.TYPE=="list":
@@ -135,6 +136,7 @@ class Main:
         self.LEVELS = params.get( "levels", "0" )
         self.CUSTOMID = params.get( "customid", "" )
         self.MODE = params.get( "mode", None )
+        self.CHANNEL = params.get( "channel", None )
         
         # Properties when using LIBRARY._displayShortcuts
         self.LABEL = params.get( "skinLabel", None )
@@ -214,14 +216,20 @@ class Main:
         for item in listitems:
             i += 1
             # Generate a listitem
-            log( " - " + item[0] )
-            path = sys.argv[0].decode( 'utf-8' ) + "?type=launch&path=" + item[4] + "&group=" + self.GROUP
+            action = item[4].encode( "utf-8" )
+            if urllib.unquote( action ).startswith( "pvr-channel://" ):
+                log( " Changed action" )
+                action = urllib.quote( "RunScript(script.skinshortcuts,type=launchpvr&channel=" + urllib.unquote( action ).replace( "pvr-channel://", "" ) + ")" )
+            
+            log( " - " + item[0] + " (" + action + ")" )
+            
+            path = sys.argv[0].decode( 'utf-8' ) + "?type=launch&path=" + action + "&group=" + self.GROUP
             
             listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
             listitem.setProperty( 'IsPlayable', 'True')
             if group == "mainmenu":
                 listitem.setProperty( "labelID", DATA._get_labelID( item[5] ).encode('utf-8') )
-            listitem.setProperty( "action", urllib.unquote( item[4] ) )
+            listitem.setProperty( "action", urllib.unquote( action ) )
             listitem.setProperty( "group", group )
             listitem.setProperty( "path", path )
             
@@ -282,14 +290,20 @@ class Main:
             else:
                 listitems = DATA._get_shortcuts( mainmenuLabelID + "." + levelInt )
             for item in listitems:
-                log( " - " + item[0] )
-                path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + item[4].encode('utf-8') + "&group=" + mainmenuLabelID.decode('utf-8')
+                action = item[4].encode( "utf-8" )
+                if urllib.unquote( action ).startswith( "pvr-channel://" ):
+                    log( " Changed action" )
+                    action = urllib.quote( "RunScript(script.skinshortcuts,type=launchpvr&channel=" + urllib.unquote( action ).replace( "pvr-channel://", "" ) + ")" )
+                
+                log( " - " + item[0] + " (" + action + ")" )
+                
+                path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + action + "&group=" + mainmenuLabelID.decode('utf-8')
                 
                 listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
                 
                 listitem.setProperty('IsPlayable', 'True')
                 listitem.setProperty( "labelID", item[5].encode('utf-8') )
-                listitem.setProperty( "action", urllib.unquote( item[4] ) )
+                listitem.setProperty( "action", urllib.unquote( action ) )
                 listitem.setProperty( "group", mainmenuLabelID.decode('utf-8') )
                 listitem.setProperty( "path", path )
                 

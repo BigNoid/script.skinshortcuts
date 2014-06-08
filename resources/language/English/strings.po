@@ -323,3 +323,11 @@ msgstr ""
 msgctxt "#32075"
 msgid "Sources"
 msgstr ""
+
+msgctxt "#32076"
+msgid "TV Channel"
+msgstr ""
+
+msgctxt "#32077"
+msgid "Radio Channel"
+msgstr ""

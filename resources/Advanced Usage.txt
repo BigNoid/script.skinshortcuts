@@ -257,6 +257,8 @@ Shortcut groupings within the management dialog are made up of several smaller g
  - musicsources
  
  - pvr
+ - pvr-tv
+ - pvr-radio
  
  - playlist-video
  - playlist-audio

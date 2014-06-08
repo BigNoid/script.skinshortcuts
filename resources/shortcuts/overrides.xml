@@ -16,6 +16,8 @@
 		</node>
 		<node label="::SCRIPT::32017" condition="System.GetBool(pvrmanager.enabled)">
 			<content>pvr</content>
+			<content>pvr-tv</content>
+			<content>pvr-radio</content>
 		</node>
 		<node label="::SCRIPT::32074">
 			<content>videosources</content>
@@ -83,6 +85,12 @@
 		</node>
 		<node label="::SCRIPT::32017" condition="System.GetBool(pvrmanager.enabled)">
 			<content>pvr</content>
+			<node label="::LOCAL::19023">
+				<content>pvr-tv</content>
+			</node>
+			<node label="::LOCAL::19024">
+				<content>pvr-radio</content>
+			</node>
 		</node>
 		<node label="::SCRIPT::32007">
 			<node label="::SCRIPT::32009">

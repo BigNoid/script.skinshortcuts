@@ -361,9 +361,14 @@ class XMLFunctions():
         # Onclick
         action = urllib.unquote( item[4] ).decode( "utf-8" )
         if action.find("::MULTIPLE::") == -1:
-            # Single action, run it
             onclick = xmltree.SubElement( newelement, "onclick" )
-            onclick.text = action
+            if action.startswith( "pvr-channel://" ):
+                # PVR action
+                onclick.text = "RunScript(script.skinshortcuts,type=launchpvr&channel=" + action.replace( "pvr-channel://", "" ) + ")"
+                log( "PVR: " + "RunScript(script.skinshortcuts,type=launchpvr&channel=" + action.replace( "pvr-channel://", "" )  + ")" )
+            else:
+                # Single action, place in as-is
+                onclick.text = action
         else:
             # Multiple actions, separated by |
             actions = action.split( "|" )

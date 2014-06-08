@@ -50,7 +50,7 @@ class LibraryFunctions():
         self.widgetPlaylistsList = []
         
         # Empty dictionary for different shortcut types
-        self.dictionaryGroupings = {"common":None, "commands":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None }
+        self.dictionaryGroupings = {"common":None, "commands":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None }
         self.folders = {}
         self.foldersCount = 0
         
@@ -292,7 +292,7 @@ class LibraryFunctions():
             self.librarysources()
         if content == "music":
             self.musiclibrary()
-        if content == "pvr":
+        if content == "pvr" or content == "pvr-tv" or content == "pvr-radio":
             self.pvrlibrary()
         if content == "playlist-video" or content == "playlist-audio":
             self.playlists()
@@ -970,12 +970,40 @@ class LibraryFunctions():
             listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::LOCAL::19163", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
             listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::SCRIPT::32023", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
 
-            # Test options
             listitems.append( self._create(["PlayPvrTV", "::SCRIPT::32066", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
             listitems.append( self._create(["PlayPvrRadio", "::SCRIPT::32067", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
             listitems.append( self._create(["PlayPvr", "::SCRIPT::32068", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
+
+            self.addToDictionary( "pvr", listitems )            
             
-            self.addToDictionary( "pvr", listitems )
+            # Add tv channels
+            listitems = []
+            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "PVR.GetChannels", "params": { "channelgroupid": "alltv", "properties": ["thumbnail", "channeltype", "hidden", "locked", "channel", "lastplayed"] } }')
+            json_query = unicode(json_query, 'utf-8', errors='ignore')
+            json_response = simplejson.loads(json_query)
+            
+            # Add all directories returned by the json query
+            if json_response.has_key('result') and json_response['result'].has_key('channels') and json_response['result']['channels'] is not None:
+                for item in json_response['result']['channels']:
+                    log( "Found channel" )
+                    listitems.append( self._create(["pvr-channel://" + str( item['channelid'] ), item['label'], "::SCRIPT::32076", {"icon": "DefaultTVShows.png", "thumb": item[ "thumbnail"]}]) )
+            
+            self.addToDictionary( "pvr-tv", listitems )
+            
+            # Add radio channels
+            listitems = []
+            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "PVR.GetChannels", "params": { "channelgroupid": "allradio", "properties": ["thumbnail", "channeltype", "hidden", "locked", "channel", "lastplayed"] } }')
+            json_query = unicode(json_query, 'utf-8', errors='ignore')
+            json_response = simplejson.loads(json_query)
+            
+            # Add all directories returned by the json query
+            if json_response.has_key('result') and json_response['result'].has_key('channels') and json_response['result']['channels'] is not None:
+                for item in json_response['result']['channels']:
+                    log( "Found channel" )
+                    listitems.append( self._create(["pvr-channel://" + str( item['channelid'] ), item['label'], "::SCRIPT::32077", {"icon": "DefaultTVShows.png", "thumb": item[ "thumbnail"]}]) )
+            
+            self.addToDictionary( "pvr-radio", listitems )
+
         except:
             log( "Failed to load pvr library" )
             print_exc()
