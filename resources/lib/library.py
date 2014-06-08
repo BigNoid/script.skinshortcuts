@@ -21,6 +21,7 @@ __addonid__      = sys.modules[ "__main__" ].__addonid__
 __addonversion__ = sys.modules[ "__main__" ].__addonversion__
 __cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
 __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
+__datapathalt__  = os.path.join( "special://profile/", "addon_data", __addonid__ )
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
 __language__     = sys.modules[ "__main__" ].__language__
@@ -173,9 +174,9 @@ class LibraryFunctions():
                 
     def retrieveContent( self, content ):
         if content == "upnp-video":
-            return [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32014", {"icon": "DefaultFolder.png"}]) ]
+            return [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32069", {"icon": "DefaultFolder.png"}]) ]
         elif content == "upnp-music":
-            return [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32019", {"icon": "DefaultFolder.png"}]) ]
+            return [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32073", {"icon": "DefaultFolder.png"}]) ]
             
         elif self.dictionaryGroupings[ content ] is None:
             # The data hasn't been loaded yet
@@ -371,7 +372,10 @@ class LibraryFunctions():
                 path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
             elif path.startswith( "||SOURCE||" ):
                 selectedShortcut = self.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType")  )
-                path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                if selectedShortcut is None or "upnp://" in urllib.unquote( selectedShortcut.getProperty( "Path" ) ):
+                    return selectedShortcut
+                selectedShortcut = self._sourcelink_choice( selectedShortcut )
+                #path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
             elif path == "::PLAYLIST::" :
                 # Give the user the choice of playing or displaying the playlist
                 dialog = xbmcgui.Dialog()
@@ -1504,17 +1508,8 @@ class LibraryFunctions():
         if selectedItem != -1:
             if listings[ selectedItem ].getProperty( "path" ) == "||CREATE||":
                 # User has chosen the shortcut they want
-                
-                # Build the action
-                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
-                    action = 'ActivateWindow(10025,"' + location + '",Return)'
-                elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019" or itemType == "::SCRIPT::32073":
-                    action = 'ActivateWindow(10501,"' + location + '",Return)'
-                elif itemType == "::SCRIPT::32012":
-                    action = 'ActivateWindow(10002,"' + location + '",Return)'
-                else:
-                    action = "RunAddon(" + location + ")"
-                    
+
+                # Localize strings
                 if not itemType.find( "::SCRIPT::" ) == -1:
                     localItemType = __language__(int( itemType[10:] ) )
                 elif not itemType.find( "::LOCAL::" ) == -1:
@@ -1523,13 +1518,28 @@ class LibraryFunctions():
                     localItemType = xbmc.getLocalizedString( int( itemType ) )
                 else:
                     localItemType = itemType
-
+                    
+                # Create a listitem
                 listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  >", "" ), label2=localItemType, iconImage="DefaultShortcut.png", thumbnailImage=thumbnail[ len( thumbnail ) - 1 ])
+                
+                # Build the action
+                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
+                    action = 'ActivateWindow(10025,"' + location + '",Return)'
+                    listitem.setProperty( "windowID", "10025" )
+                elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019" or itemType == "::SCRIPT::32073":
+                    action = 'ActivateWindow(10501,"' + location + '",Return)'
+                    listitem.setProperty( "windowID", "10501" )
+                elif itemType == "::SCRIPT::32012":
+                    action = 'ActivateWindow(10002,"' + location + '",Return)'
+                else:
+                    action = "RunAddon(" + location + ")"
+
                 listitem.setProperty( "path", urllib.quote( action ) )
                 listitem.setProperty( "displayPath", action )
                 listitem.setProperty( "shortcutType", itemType )
                 listitem.setProperty( "icon", "DefaultShortcut.png" )
                 listitem.setProperty( "thumbnail", thumbnail[ len( thumbnail ) - 1 ] )
+                listitem.setProperty( "location", location )
                 
                 return listitem
                 
@@ -1546,6 +1556,67 @@ class LibraryFunctions():
                 label.append( listings[ selectedItem ].getLabel() )
                 thumbnail.append( listings[ selectedItem ].getProperty( "thumbnail" ) )
                 return self.explorer( history, urllib.unquote( listings[ selectedItem ].getProperty( "path" ) ), label, thumbnail, itemType )
+    
+    
+    def _sourcelink_choice( self, selectedShortcut ):
+        # The user has selected a source. We're going to give them the choice of displaying it
+        # in the files view, or view library content from the source
+        dialog = xbmcgui.Dialog()
+        
+        mediaType = None
+        # Check if we're going to display this in the files view, or the library view
+        if selectedShortcut.getProperty( "windowID" ) == "10025":
+            # Video library                                    # Not in library     # Movies              # TV Shows           # Episodes                       # Music videos
+            userChoice = dialog.select( __language__(32078), [__language__(32079), __language__(32015), __language__(32016), xbmc.getLocalizedString(20360), __language__(32018) ] )            
+            if userChoice == -1:
+                return None
+            elif userChoice == 0:
+                return selectedShortcut
+            elif userChoice == 1:
+                mediaType = "movies"
+            elif userChoice == 2:
+                mediaType = "tvshows"
+            elif userChoice == 3:
+                mediaType = "episodes"
+            else:
+                mediaType = "musicvideo"
+        else:
+            # Music library                                    # Not in library      #Songs                        # Albums                       # Mixed
+            userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(134), xbmc.getLocalizedString(132), xbmc.getLocalizedString(20395) ] )            
+            if userChoice == -1:
+                return None
+            elif userChoice == 0:
+                return selectedShortcut
+            elif userChoice == 1:
+                mediaType = "songs"
+            elif userChoice == 2:
+                mediaType = "albums"
+            else:
+                mediaType = "mixed"
+            
+        # We're going to display it in the library
+        self._build_playlist( selectedShortcut.getProperty( "location" ), mediaType, selectedShortcut.getLabel() )
+        newAction = "ActivateWindow(" + selectedShortcut.getProperty( "windowID" ) + "," + os.path.join( __datapathalt__, selectedShortcut.getLabel() + ".xsp") + ",return)"
+        selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+        selectedShortcut.setProperty( "displayPath", newAction )
+        return selectedShortcut
+    
+    def _build_playlist( self, target, mediatype, name ):
+        # This function will build a playlist that displays the contents of a source in the library view
+        # (that is to say, "path" "contains")
+        tree = xmltree.ElementTree( xmltree.Element( "smartplaylist" ) )
+        root = tree.getroot()
+        root.set( "type", mediatype )
+        
+        xmltree.SubElement( root, "name").text = name
+        xmltree.SubElement( root, "match").text = "all"
+        
+        rule = xmltree.SubElement( root, "rule")
+        rule.set( "field", "path" )
+        rule.set( "operator", "contains" )
+        xmltree.SubElement( rule, "value" ).text = target
+        
+        tree.write( os.path.join( __datapath__, name + ".xsp"), encoding="UTF-8" )
                 
 
 class ShowDialog( xbmcgui.WindowXMLDialog ):

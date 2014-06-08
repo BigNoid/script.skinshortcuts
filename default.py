@@ -96,12 +96,11 @@ class Main:
             
             selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM )
             
-            path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
-            if path.startswith( "pvr-channel://" ):
-                path = "RunScript(script.skinshortcuts,type=launchpvr&channel=" + path.replace( "pvr-channel://", "" ) + ")"
-            
             # Now set the skin strings
             if selectedShortcut is not None:
+                path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                if path.startswith( "pvr-channel://" ):
+                    path = "RunScript(script.skinshortcuts,type=launchpvr&channel=" + path.replace( "pvr-channel://", "" ) + ")"
                 if self.LABEL is not None and selectedShortcut.getLabel() != "":
                     xbmc.executebuiltin( "Skin.SetString(" + self.LABEL + "," + selectedShortcut.getLabel() + ")" )
                 if self.ACTION is not None:

@@ -234,21 +234,28 @@ class GUI( xbmcgui.WindowXMLDialog ):
             path = urllib.unquote( listitemCopy.getProperty( "Path" ) )
             if path.startswith( "||BROWSE||" ):
                 # If this is a plugin, call our plugin browser
-                returnVal = LIBRARY.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                returnVal = LIBRARY.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
                 if returnVal is not None:
                     listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
                 else:
                     listitemCopy = None
             elif path == "||UPNP||":
-                returnVal = LIBRARY.explorer( ["upnp://"], "upnp://", [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                returnVal = LIBRARY.explorer( ["upnp://"], "upnp://", [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
                 if returnVal is not None:
                     listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
                 else:
                     listitemCopy = None
             elif path.startswith( "||SOURCE||" ):
-                returnVal = LIBRARY.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 211 ).getSelectedPosition(), self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
+                returnVal = LIBRARY.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
                 if returnVal is not None:
-                    listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
+                    if "upnp://" in urllib.unquote( returnVal.getProperty( "Path" ) ):
+                        listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
+                    else:
+                        returnVal = LIBRARY._sourcelink_choice( returnVal )
+                        if returnVal is not None:
+                            listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
+                        else:
+                            listitemCopy = None
                 else:
                     listitemCopy = None
             elif path == "||PLAYLIST||":

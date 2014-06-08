@@ -301,7 +301,7 @@ msgid "Video Source"
 msgstr ""
 
 msgctxt "#32070"
-msgid "UPnP Source"
+msgid "UPnP"
 msgstr ""
 
 msgctxt "#32071"
@@ -330,4 +330,12 @@ msgstr ""
 
 msgctxt "#32077"
 msgid "Radio Channel"
+msgstr ""
+
+msgctxt "#32078"
+msgid "This source contains..."
+msgstr ""
+
+msgctxt "#32079"
+msgid "Content not in library"
 msgstr ""
