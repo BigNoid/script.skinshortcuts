@@ -2,7 +2,7 @@ v0.3.2 (Unstable development revision)
 - Available shortcuts in management dialog improvements:
  > Improved and customisable groupings
  > Control over location and visibility of skin-provided shortcuts
- > UPnP and video sources explorer
+ > UPnP and video sources explorer, including linking to library limited-by-source
  > More PVR options including playing individual channels
  > When using select dialog, now displays label2's and thumbnails
  > Correct thumbnail/icon usage

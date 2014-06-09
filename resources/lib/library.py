@@ -1566,8 +1566,8 @@ class LibraryFunctions():
         mediaType = None
         # Check if we're going to display this in the files view, or the library view
         if selectedShortcut.getProperty( "windowID" ) == "10025":
-            # Video library                                    # Not in library     # Movies              # TV Shows           # Episodes                       # Music videos
-            userChoice = dialog.select( __language__(32078), [__language__(32079), __language__(32015), __language__(32016), xbmc.getLocalizedString(20360), __language__(32018) ] )            
+            # Video library                                    # Not in library     # Movies              # TV Shows           # Music videos
+            userChoice = dialog.select( __language__(32078), [__language__(32079), __language__(32015), __language__(32016), __language__(32018) ] )            
             if userChoice == -1:
                 return None
             elif userChoice == 0:
@@ -1576,8 +1576,6 @@ class LibraryFunctions():
                 mediaType = "movies"
             elif userChoice == 2:
                 mediaType = "tvshows"
-            elif userChoice == 3:
-                mediaType = "episodes"
             else:
                 mediaType = "musicvideo"
         else:
@@ -1595,8 +1593,8 @@ class LibraryFunctions():
                 mediaType = "mixed"
             
         # We're going to display it in the library
-        self._build_playlist( selectedShortcut.getProperty( "location" ), mediaType, selectedShortcut.getLabel() )
-        newAction = "ActivateWindow(" + selectedShortcut.getProperty( "windowID" ) + "," + os.path.join( __datapathalt__, selectedShortcut.getLabel() + ".xsp") + ",return)"
+        filename = self._build_playlist( selectedShortcut.getProperty( "location" ), mediaType, selectedShortcut.getLabel() )
+        newAction = "ActivateWindow(" + selectedShortcut.getProperty( "windowID" ) + "," + os.path.join( __datapathalt__, filename ) + ",return)"
         selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
         selectedShortcut.setProperty( "displayPath", newAction )
         return selectedShortcut
@@ -1616,7 +1614,12 @@ class LibraryFunctions():
         rule.set( "operator", "contains" )
         xmltree.SubElement( rule, "value" ).text = target
         
-        tree.write( os.path.join( __datapath__, name + ".xsp"), encoding="UTF-8" )
+        id = 1
+        while xbmcvfs.exists( os.path.join( __datapath__, str( id ) + ".xsp" ) ) :
+            id += 1
+                
+        tree.write( os.path.join( __datapath__, str( id ) + ".xsp" ), encoding="UTF-8" )
+        return str( id ) + ".xsp"
                 
 
 class ShowDialog( xbmcgui.WindowXMLDialog ):
