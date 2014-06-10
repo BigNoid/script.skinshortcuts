@@ -82,6 +82,8 @@ class Main:
         if self.TYPE=="settings":
             self._check_Window_Properties()
             self._manage_shortcut_links() 
+        if self.TYPE=="hidesubmenu":
+            self._hidesubmenu( self.MENUID )
             
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
@@ -499,7 +501,16 @@ class Main:
                     xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName + "." + str( i ) )
                 else:
                     finished = True
-
+                    
+    def _hidesubmenu( self, menuid ):
+        count = 0
+        while xbmc.getCondVisibility( "!IsEmpty(Container(" + menuid + ").ListItem(" + str( count ) + ").Property(isSubmenu))" ):
+            count -= 1
+            
+        if count != 0:
+            xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
+        
+        xbmc.executebuiltin( "ClearProperty(submenuVisibility, 10000)" )
                     
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)

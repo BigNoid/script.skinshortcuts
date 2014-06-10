@@ -74,7 +74,7 @@
 			<node label="::SCRIPT::32040">
 				<content>playlist-audio</content>
 			</node>
-			<node label="::SCRIPT::32007">
+			<node label="::SCRIPT::32011">
 				<shortcut label="::LOCAL::1038" type="::SCRIPT::32019" icon="DefaultAddonMusic.png">ActivateWindow(MusicLibrary,Addons,return)</shortcut>
 				<content>addon-audio</content>
 			</node>

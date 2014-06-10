@@ -307,13 +307,10 @@ class XMLFunctions():
                     # submenu item
                     if buildMode == "single" and not len( submenuitems ) == 0:
                         onClickElement = mainmenuItemB.find( "onclick" )
-                        onClickElementB = xmltree.SubElement( mainmenuItemB, "onclick" )
                         altOnClick = xmltree.SubElement( mainmenuItemB, "onclick" )
                         altOnClick.text = onClickElement.text
                         altOnClick.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
-                        onClickElementB.text = "SetProperty(submenuVisibility," + DATA.slugify( submenu ) + ",10000)"
-                        onClickElementB.set( "condition", "!StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
-                        onClickElement.text = "SetProperty(submenuHidden," + str( i - 1 ) + ",10000)"
+                        onClickElement.text = "SetProperty(submenuVisibility," + DATA.slugify( submenu ) + ",10000)"
                         onClickElement.set( "condition", "!StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
                         
                     for subitem in submenuitems:
