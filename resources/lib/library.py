@@ -698,6 +698,8 @@ class LibraryFunctions():
                                     returnDict[ unordered ] = listitem        
         unordered = 100
         
+        type = returnType
+        
         # Being walking the directory
         for root, subdirs, files in os.walk( directory ):
             if "index.xml" in files:
@@ -887,6 +889,8 @@ class LibraryFunctions():
             elif filename == "recentlyaddedmusicvideos.xml":
                 if self._check_videonode( tree, False ):
                     return "RecentlyAddedMusicVideos"
+            else:
+                return
               
         # For the rest, they should all specify a type, so get that first
         if type == "movies":
