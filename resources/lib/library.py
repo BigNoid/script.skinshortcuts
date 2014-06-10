@@ -227,6 +227,7 @@ class LibraryFunctions():
                         label = elem.attrib.get( "label" )
                         type = elem.attrib.get( "type" )
                         thumb = elem.attrib.get( "thumbnail" )
+                        icon = elem.attrib.get( "icon" )
                         
                         action = elem.text
                         
@@ -237,11 +238,13 @@ class LibraryFunctions():
                             type = "::SCRIPT::32024"
                         elif type.isdigit():
                             type = "::LOCAL::" + type
-                            
+                        
+                        if icon is None:
+                            icon = ""
                         if thumb is None:
                             thumb = ""
 
-                        listitem = self._create( [action, label, type, {"thumb": thumb}] )
+                        listitem = self._create( [action, label, type, {"icon": icon, "thumb": thumb}] )
                         
                         if "condition" in elem.attrib:
                             if xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
@@ -254,6 +257,7 @@ class LibraryFunctions():
                     label = elem.attrib.get( "label" )
                     type = elem.attrib.get( "type" )
                     thumb = elem.attrib.get( "thumbnail" )
+                    icon = elem.attrib.get( "icon" )
                     
                     action = elem.text
                     
@@ -268,10 +272,13 @@ class LibraryFunctions():
                     if type is None or type == "":
                         type = "Skin Provided"
                         
+                    if icon is None:
+                        icon = ""
+                        
                     if thumb is None:
                         thumb = ""
 
-                    listitem = self._create( [action, label, type, {"thumb":thumb}] )
+                    listitem = self._create( [action, label, type, {"icon": icon, "thumb":thumb}] )
                     
                     if "condition" in elem.attrib:
                         if xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
@@ -654,6 +661,7 @@ class LibraryFunctions():
                             label = elem.attrib.get( "label" )
                             type = elem.attrib.get( "type" )
                             thumb = elem.attrib.get( "thumbnail" )
+                            icon = elem.attrib.get( "icon" )
                             
                             action = elem.text
                             
@@ -664,6 +672,9 @@ class LibraryFunctions():
                                 type = "::SCRIPT::32024"
                             elif type.isdigit():
                                 type = "::LOCAL::" + type
+                                
+                            if icon is None:
+                                icon = ""
                                 
                             if thumb is None:
                                 thumb = ""
