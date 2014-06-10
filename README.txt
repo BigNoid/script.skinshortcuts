@@ -1,7 +1,7 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.3.2 - Unstable development revision)
+What's New for Skinners (version 0.3.3 Pre-Release)
 -----------------------
 
  - LabelID changes - in some very rare cases, the labelID for an item may have changed. This has the potential for users to loose one or more groups of their submenu shortcuts if they have 2 or more main menu items with the same label.
