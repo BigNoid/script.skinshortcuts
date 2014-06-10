@@ -860,6 +860,8 @@ class LibraryFunctions():
         
     def _pretty_videonode( self, filename, type, tree ):
         # We're going to do lots of matching, to try to figure out the pretty library link
+        log( "Searching for pretty video node" )
+        log( "  - " + filename + " (" + type + ")" )
         
         if type == "Custom":
             return False
@@ -893,6 +895,9 @@ class LibraryFunctions():
             shortcutType = "TvShow"
         elif type == "musicvideos":
             shortcutType = "MusicVideo"
+        else:
+            # No shortcut type specified
+            return False
 
         if filename == "actors.xml":    # Movies, TV Shows
             if self._check_videonode( tree, True ):
