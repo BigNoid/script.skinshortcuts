@@ -17,6 +17,16 @@ What's New for Skinners (version 0.3.3 Pre-Release)
  - Skinners can now only override icons not thumbnails - please update your image overrides - see "resources/Advanced Usage.txt", section "Overriding icons" for details
  
  
+With Thanks - Because their names don't deserve to be at the bottom :)
+-----------
+
+Huge thanks to Ronie, whose code for listing plugins is used in this script
+Equally huge thanks to Ronie and `Black, for their favourites code used in this script
+More huge thanks to BigNoid, for the ability to edit shortcuts, and Jeroen, for so many suggestions each of which just made the script better.
+The thanks remain absolutely huge to the translaters on Transifex for localising the script
+And the biggest thanks of all to Annie and my family, for feature suggestions, testing and shouting at me when I broke things
+
+ 
 Where To Get Help
 -----------------
 
@@ -361,12 +371,3 @@ The script includes a number of options and features to try to make a skinners l
 * Localisation
 
 For details, see "resources/Advanced Usage.txt".
-
-
-With Thanks
------------
-
-Huge thanks to Ronie, whose code for listing plugins is used in this script
-Equally huge thanks to Ronie and `Black, for their favourites code used in this script
-More huge thanks to BigNoid, for the ability to edit shortcuts
-And the biggest thanks of all to Annie and my family, for feature suggestions, testing and shouting at me when I broke things

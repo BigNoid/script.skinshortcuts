@@ -13,6 +13,7 @@ v0.3.3 (Pre-release)
 - Fix for crash when no profiles.xml file
 - Fix for single-list xml method to return to main menu item when hiding submenu
 - Fix for action sometimes not showing in label2 in management dialog
+- Updated language files from Transifex
 
 v0.3.2 - Unreleased development build
 
