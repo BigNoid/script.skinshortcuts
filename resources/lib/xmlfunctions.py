@@ -262,15 +262,12 @@ class XMLFunctions():
                 
                 # Build the main menu item
                 if groups == "":
-                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1] )
+                    submenu = DATA._get_labelID( item[5] )
+                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], submenu )
                     if buildMode == "single":
-                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1] )
-                    submenu = item[5]
+                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], submenu )
                 else:
-                    submenu = item
-                    
-                # Ensure the submenu labelID is unique
-                submenu = DATA._get_labelID( submenu )
+                    submenu = DATA._get_labelID( item )
                 
                 # Build the sub-menu items
                 count = 0
@@ -350,7 +347,7 @@ class XMLFunctions():
         file.write( repr( hashlist.list ) )
         file.close
         
-    def buildElement( self, item, Tree, groupName, visibilityCondition, profileVisibility ):
+    def buildElement( self, item, Tree, groupName, visibilityCondition, profileVisibility, submenuVisibility = None ):
         # This function will build an element for the passed Item in
         # the passed Tree
         newelement = xmltree.SubElement( Tree, "item" )
@@ -408,10 +405,10 @@ class XMLFunctions():
         group.text = groupName
         
         # Submenu visibility
-        if groupName == "mainmenu":
-            submenuVisibility = xmltree.SubElement( newelement, "property" )
-            submenuVisibility.set( "name", "submenuVisibility" )
-            submenuVisibility.text = DATA.slugify( item[5] )
+        if submenuVisibility is not None:
+            submenuVisibilityElement = xmltree.SubElement( newelement, "property" )
+            submenuVisibilityElement.set( "name", "submenuVisibility" )
+            submenuVisibilityElement.text = DATA.slugify( submenuVisibility )
             
         # Visibility
         if visibilityCondition is not None:
