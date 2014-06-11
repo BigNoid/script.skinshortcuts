@@ -1140,7 +1140,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         return listitemCopy
         
-    def _get_icon_overrides( self, listitem ):
+    def _get_icon_overrides( self, listitem, setToDefault = True ):
         # Start by getting the labelID
         labelID = listitem.getProperty( "localizedString" )
         if labelID == None or labelID == "":
@@ -1155,30 +1155,26 @@ class GUI( xbmcgui.WindowXMLDialog ):
         tree = DATA._get_overrides_skin()
         if tree is not None:
             for elem in tree.findall( "icon" ):
-                if "labelID" in elem.attrib and oldicon is None:
-                    if elem.attrib.get( "labelID" ) == labelID:
+                if oldicon is None:
+                    if ("labelID" in elem.attrib and elem.attrib.get( "labelID" ) == labelID) or ("image" in elem.attrib and elem.attrib.get( "image" ) == icon):
+                        # LabelID matched
                         if "group" in elem.attrib:
-                            if elem.attrib.get( "group" ) == self.GROUP:
+                            if elem.attrib.get( "group" ) == self.group:
+                                # Group also matches - change icon
                                 oldicon = icon
                                 icon = elem.text
-                        else:
-                            oldicon = icon
-                            icon = elem.text
-                        
-                elif "image" in elem.attrib:
-                    if oldicon is None and elem.attrib.get( "image" ) == icon:
-                        if "group" in elem.attrib:
-                            if elem.attrib.get( "group" ) == self.GROUP:
-                                oldicon = icon
-                                icon = elem.text
-                        else:
+                                
+                        elif "grouping" not in elem.attrib:
+                            # No group - change icon
                             oldicon = icon
                             icon = elem.text
                             
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
-        if not xbmc.skinHasImage( icon ):
+        setDefault = False
+        if not xbmc.skinHasImage( icon ) and setToDefault == True:
             if oldicon == None:
                 oldicon = icon
+            setDefault = True
             icon = "DefaultShortcut.png"
         
         # If we changed the icon, update the listitem
@@ -1186,6 +1182,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setIconImage( icon )
             listitem.setProperty( "icon", icon )
             listitem.setProperty( "original-icon", oldicon )
+            
+        if setDefault == True and setToDefault == True:
+            # We set this to the default icon, so we need to check if /that/ icon is overriden
+            self._get_icon_overrides( listitem, False )
         
         
     def _save_shortcuts( self ):

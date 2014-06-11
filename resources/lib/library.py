@@ -174,20 +174,64 @@ class LibraryFunctions():
                 
     def retrieveContent( self, content ):
         if content == "upnp-video":
-            return [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32069", {"icon": "DefaultFolder.png"}]) ]
+            items = [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32069", {"icon": "DefaultFolder.png"}]) ]
         elif content == "upnp-music":
-            return [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32073", {"icon": "DefaultFolder.png"}]) ]
+            items = [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32073", {"icon": "DefaultFolder.png"}]) ]
             
         elif self.dictionaryGroupings[ content ] is None:
             # The data hasn't been loaded yet
-            returnInfo = self.loadGrouping( content )
+            items = self.loadGrouping( content )
         else:
-            returnInfo = self.dictionaryGroupings[ content ]
+            items = self.dictionaryGroupings[ content ]
 
-        if returnInfo is not None:
-            return self.checkForFolder( returnInfo )
+        if items is not None:
+            items = self.checkForFolder( items )
         else:
-            return []
+            items = []
+            
+        # Check for any icon overrides for these items
+        tree = DATA._get_overrides_skin()
+        if tree is None:
+            return items
+            
+        for item in items:
+            item = self._get_icon_overrides( tree, item, content )
+            
+        return items
+        
+    def _get_icon_overrides( self, tree, item, content, setToDefault = True ):
+        oldicon = None
+        newicon = item.getProperty( "icon" )
+        for elem in tree.findall( "icon" ):
+            if oldicon is None:
+                if ("labelID" in elem.attrib and elem.attrib.get( "labelID" ) == item.getProperty( "tempLabelID" )) or ("image" in elem.attrib and elem.attrib.get( "image" ) == item.getProperty( "icon" )):
+                    # LabelID matched
+                    if "grouping" in elem.attrib:
+                        if elem.attrib.get( "grouping" ) == content:
+                            # Group also matches - change icon
+                            oldicon = item.getProperty( "icon" )
+                            newicon = elem.text
+                    elif "group" not in elem.attrib:
+                        # No group - change icon
+                        oldicon = item.getProperty( "icon" )
+                        newicon = elem.text
+                        
+        # If the icon doesn't exist, set icon to default
+        setDefault = False
+        if not xbmc.skinHasImage( newicon ) and setToDefault == True:
+            oldicon = item.getProperty( "icon" )
+            icon = "DefaultShortcut.png"
+            setDefault == True
+
+        if oldicon is not None:
+            # we found an icon override
+            item.setProperty( "icon", newicon )
+            item.setIconImage( newicon )
+            
+        if setDefault == True:
+            item = self._get_icon_overrides( tree, item, content, False )
+            
+        return item
             
     def checkForFolder( self, items ):
         # This function will check for any folders in the listings that are being returned
@@ -853,8 +897,6 @@ class LibraryFunctions():
         
     def _pretty_videonode( self, filename, type, tree ):
         # We're going to do lots of matching, to try to figure out the pretty library link
-        log( "Searching for pretty video node" )
-        log( "  - " + filename + " (" + type + ")" )
         
         if type == "Custom":
             return False
@@ -1142,24 +1184,9 @@ class LibraryFunctions():
         # Get a temporary labelID
         DATA._clear_labelID()
         labelID = DATA._get_labelID( labelID )
-        
-        # Check for any skin-provided thumbnail overrides
-        tree = DATA._get_overrides_skin()
-        if tree is not None:
-            for elem in tree.findall( "icon" ):
-                if "labelID" in elem.attrib and "group" not in elem.attrib and oldicon is None:
-                    if elem.attrib.get( "labelID" ) == labelID:
-                        oldicon = icon
-                        icon = elem.text
-                elif "image" in elem.attrib and "group" not in elem.attrib:
-                    if oldicon is None and elem.attrib.get( "image" ) == icon:
-                        oldicon = icon
-                        icon = elem.text
                         
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
         if not icon or not xbmc.skinHasImage( icon ):
-            if oldicon == None:
-                oldicon = icon
             icon = "DefaultShortcut.png"
             
         # Build listitem
@@ -1172,9 +1199,7 @@ class LibraryFunctions():
         listitem.setProperty( "localizedString", localLabel )
         listitem.setProperty( "shortcutType", shortcutType )
         listitem.setProperty( "icon", icon )
-        
-        if oldicon is not None:
-            listitem.setProperty( "original-icon", oldicon )
+        listitem.setProperty( "tempLabelID", labelID )
         
         return( listitem )
         

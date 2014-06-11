@@ -167,25 +167,8 @@ class DataFunctions():
                     hasChanged = False
             
             # Check for a skin-override on the icon
-            if tree is not None:
-                for elem in tree.findall( "icon" ):
-                    if elem is not None:
-                        if "group" in elem.attrib:
-                            if elem.attrib.get( "group" ) == group:
-                                if elem.attrib.get( 'labelID' ) == labelID:
-                                    item[2] = elem.text
-                                    break
-                                if elem.attrib.get( 'image' ) == item[2]:
-                                    item[2] = elem.text
-                                    break
-                        else:
-                            if elem.attrib.get( 'labelID' ) == labelID:
-                                item[2] = elem.text
-                                break
-                            if elem.attrib.get( 'image' ) == item[2]:
-                                item[2] = elem.text
-                                break
-
+            item[2] = self._get_icon_overrides( tree, item[2], group, labelID )
+            
             # Get any additional properties, including widget and background
             additionalProperties = self.checkAdditionalProperties( group, labelID, isUserShortcuts )
                                 
@@ -281,7 +264,33 @@ class DataFunctions():
                     additionalProperties.append( [ "node.visible", visibilityCondition ] )
                 returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
                 
-        return returnitems            
+        return returnitems
+
+    def _get_icon_overrides( self, tree, icon, group, labelID, setToDefault = True ):
+        # This function will get any icon overrides based on labelID or group
+        oldicon = None
+        newicon = icon
+        
+        # Check for overrides
+        if tree is not None:
+            for elem in tree.findall( "icon" ):
+                if oldicon is None:
+                    if ("labelID" in elem.attrib and elem.attrib.get( "labelID" ) == labelID) or ("image" in elem.attrib and elem.attrib.get( "image" ) == icon):
+                        # LabelID matched
+                        if "group" in elem.attrib:
+                            if elem.attrib.get( "group" ) == group:
+                                # Group also matches - change icon
+                                oldicon = icon
+                                newicon = elem.text
+                                
+                        elif "grouping" not in elem.attrib:
+                            # No group - change icon
+                            oldicon = icon
+                            newicon = elem.text
+        
+        if not xbmc.skinHasImage( newicon ) and setToDefault == True:
+            newicon = self._get_icon_overrides( tree, "DefaultShortcut.png", group, labelID, False )
+        return newicon
         
     def _process_localised( self, path, items ):
         # We will check a file to see if it uses strings localised by the skin and, if so, save their non-localised version in case the user
