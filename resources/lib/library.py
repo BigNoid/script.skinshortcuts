@@ -422,12 +422,9 @@ class LibraryFunctions():
         elif self.loadedCommon == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if self.loadedCommon == True:
                     return True
         else:
@@ -478,12 +475,9 @@ class LibraryFunctions():
         elif self.loadedMoreCommands == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if self.loadedMoreCommands == True:
                     return True
         else:
@@ -530,12 +524,9 @@ class LibraryFunctions():
         elif self.loadedVideoLibrary == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if self.loadedVideoLibrary == True:
                     return self.loadedVideoLibrary
         else:
@@ -971,12 +962,9 @@ class LibraryFunctions():
         elif self.loadedPVRLibrary == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if self.loadedPVRLibrary == True:
                     return self.loadedPVRLibrary
         else:
@@ -1042,12 +1030,9 @@ class LibraryFunctions():
         elif self.loadedMusicLibrary == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if loadedMusicLibrary == True:
                     return self.loadedMusicLibrary
         else:
@@ -1200,12 +1185,9 @@ class LibraryFunctions():
         elif self.loadedLibrarySources == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if self.loadedLibrarySources == True:
                     return self.loadedLibrarySources
         else:
@@ -1251,12 +1233,9 @@ class LibraryFunctions():
         elif self.loadedPlaylists == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if self.loadedPlaylists == True:
                     return self.loadedPlaylists
         else:
@@ -1340,12 +1319,9 @@ class LibraryFunctions():
         elif self.loadedFavourites == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if self.loadedFavourites == True:
                     return self.loadedFavourites
         else:
@@ -1401,12 +1377,9 @@ class LibraryFunctions():
         elif self.loadedAddOns == "Loading":
             # The list is currently being populated, wait and then return it
             count = 0
-            while False:
+            while count < 20:
                 xbmc.sleep( 100 )
                 count += 1
-                if count > 10:
-                    # We've waited long enough, return an empty list
-                    return []
                 if self.loadedAddOns == True:
                     return self.loadedAddOns
         else:
