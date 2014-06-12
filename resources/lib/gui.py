@@ -87,6 +87,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Load current shortcuts
             self.load_shortcuts()
             
+            # Load default shortcuts
+            LIBRARY.loadedMenuDefaults = "Loading"
+            LIBRARY.addToDictionary( "menudefault", self.load_shortcuts( False, False ) )
+            LIBRARY.loadedMenuDefaults = True
+            
             # Set window title label
             try:
                 if self.getControl( 500 ).getLabel() == "":
@@ -136,7 +141,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if self.getControl( 307 ).getLabel() == "":
                         self.getControl( 307 ).setLabel( __language__(32027) )
                 except:
-                    log( "Not adit action button on GUI (id 307)" )
+                    log( "Not edit action button on GUI (id 307)" )
                     
                 try:
                     if self.getControl( 308 ).getLabel() == "":
@@ -789,7 +794,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&nolabels=" + self.nolabels + ")" )
             
 
-    def load_shortcuts( self, includeUserShortcuts = True ):
+    def load_shortcuts( self, includeUserShortcuts = True, addShortcutsToWindow = True ):
         log( "Loading shortcuts" )
         DATA._clear_labelID()
         
@@ -827,37 +832,43 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Add to list
                     listitems.append( newItem )
                     
-                # If we've loaded anything...
-                if len(listitems) != 0:
-                    # Load widgets, backgrounds and any skin-specific properties
-                    returnItems = self._check_properties( listitems, usingUserShortcuts )
+                if addShortcutsToWindow:
+                    # If we've loaded anything...
+                    if len(listitems) != 0:
+                        # Load widgets, backgrounds and any skin-specific properties
+                        returnItems = self._check_properties( listitems, usingUserShortcuts )
+                        
+                        # Add them to the list of current shortcuts
+                        self.getControl( 211 ).addItems(returnItems)
                     
-                    # Add them to the list of current shortcuts
-                    self.getControl( 211 ).addItems(returnItems)
-                
-                # If there are no items in the list, add an empty one...
-                if self.getControl( 211 ).size() == 0:
-                    listitem = xbmcgui.ListItem( __language__(32013) )
-                    listitem.setProperty( "Path", 'noop' )
-                    
-                    self.getControl( 211 ).addItem( listitem )
-                    
-                    # Set focus
-                    self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+                    # If there are no items in the list, add an empty one...
+                    if self.getControl( 211 ).size() == 0:
+                        listitem = xbmcgui.ListItem( __language__(32013) )
+                        listitem.setProperty( "Path", 'noop' )
+                        
+                        self.getControl( 211 ).addItem( listitem )
+                        
+                        # Set focus
+                        self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+                else:
+                    return listitems
             except:
                 # We couldn't load the file
                 print_exc()
                 log( "### ERROR could not load file %s" % path )
                 return []
         else:
-            # Add an empty item
-            listitem = xbmcgui.ListItem( __language__(32013) )
-            listitem.setProperty( "Path", 'noop' )
-            
-            self.getControl( 211 ).addItem( listitem )
-            
-            # Set focus
-            self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+            if addShortcutsToWindow:
+                # Add an empty item
+                listitem = xbmcgui.ListItem( __language__(32013) )
+                listitem.setProperty( "Path", 'noop' )
+                
+                self.getControl( 211 ).addItem( listitem )
+                
+                # Set focus
+                self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+            else:
+                return []
         
                 
     def _add_additionalproperty( self, listitem, propertyName, propertyValue ):

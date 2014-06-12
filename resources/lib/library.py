@@ -39,6 +39,7 @@ class LibraryFunctions():
         # values to mark whether data from different areas of the library have been loaded
         self.loadedCommon = False
         self.loadedMoreCommands = False
+        self.loadedMenuDefaults = False
         self.loadedVideoLibrary = False
         self.loadedMusicLibrary = False
         self.loadedLibrarySources = False
@@ -51,7 +52,7 @@ class LibraryFunctions():
         self.widgetPlaylistsList = []
         
         # Empty dictionary for different shortcut types
-        self.dictionaryGroupings = {"common":None, "commands":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None }
+        self.dictionaryGroupings = {"common":None, "commands":None, "menudefault":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None }
         self.folders = {}
         self.foldersCount = 0
         
@@ -61,6 +62,7 @@ class LibraryFunctions():
         # Load all library data, for use with threading
         self.common()
         self.more()
+        self.menudefault()
         self.videolibrary()
         self.musiclibrary()
         self.pvrlibrary()
@@ -338,6 +340,8 @@ class LibraryFunctions():
             self.common()
         if content  == "commands":
             self.more()
+        if content == "menudefault":
+            self.menudefault()
         if content == "video" or content == "movie" or content == "tvshow" or content == "musicvideo" or content == "customvideonode" or content == "movie-flat" or content == "tvshow-flat" or content == "musicvideo-flat" or content == "customvideonode-flat":
             self.videolibrary()
         if content == "videosources" or content == "musicsources":
@@ -558,7 +562,16 @@ class LibraryFunctions():
         self.loadedMoreCommands = True
         return self.loadedMoreCommands
         
-        
+    def menudefault( self ):
+        # This is loaded slightly differently - by the main gui.py file as part of loading the window
+        if self.loadedMenuDefaults == True:
+            # The List has already been populated, return it
+            return True
+        else:
+            # We're going to wait until it has been loaded
+            while self.loadedMenuDefaults != True:
+                xbmc.sleep( 100 )
+            return True
         
         
     def videolibrary( self ):
@@ -1039,7 +1052,6 @@ class LibraryFunctions():
             # Add all directories returned by the json query
             if json_response.has_key('result') and json_response['result'].has_key('channels') and json_response['result']['channels'] is not None:
                 for item in json_response['result']['channels']:
-                    log( "Found channel" )
                     listitems.append( self._create(["pvr-channel://" + str( item['channelid'] ), item['label'], "::SCRIPT::32076", {"icon": "DefaultTVShows.png", "thumb": item[ "thumbnail"]}]) )
             
             self.addToDictionary( "pvr-tv", listitems )
@@ -1053,7 +1065,6 @@ class LibraryFunctions():
             # Add all directories returned by the json query
             if json_response.has_key('result') and json_response['result'].has_key('channels') and json_response['result']['channels'] is not None:
                 for item in json_response['result']['channels']:
-                    log( "Found channel" )
                     listitems.append( self._create(["pvr-channel://" + str( item['channelid'] ), item['label'], "::SCRIPT::32077", {"icon": "DefaultTVShows.png", "thumb": item[ "thumbnail"]}]) )
             
             self.addToDictionary( "pvr-radio", listitems )
