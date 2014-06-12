@@ -1253,7 +1253,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
                     listitems.append(savedata)
                             
-            path = os.path.join( __datapath__ , DATA.slugify( self.group.decode( 'utf-8' ) ) + ".shortcuts" ).encode('utf-8')
+            path = os.path.join( __datapath__ , DATA.slugify( self.group ) + ".shortcuts" ).encode('utf-8')
             
             # If there are any shortcuts, save them
             try:

@@ -340,7 +340,7 @@ class XMLFunctions():
         
         # Save the tree
         for path in paths:
-            tree.write( path, encoding="UTF-8" )
+            tree.write( path, encoding="utf-8" )
         
         # Save the hashes
         file = xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ), "w" )
@@ -374,35 +374,53 @@ class XMLFunctions():
         # Label
         label = xmltree.SubElement( newelement, "label" )
         if item[0].isdigit():
-            label.text="$NUMBER[" + item[0] + "]"
+            label.text="$NUMBER[" + item[0].decode( "utf-8" ) + "]"
         else:
-            label.text = item[0].decode( "utf-8" )
+            try:
+                label.text = item[0].decode( "utf-8" )
+            except:
+                label.text = item[0]
         
         # Label 2
         label2 = xmltree.SubElement( newelement, "label2" )
         if not item[1].find( "::SCRIPT::" ) == -1:
             label2.text = __language__( int( item[1][10:] ) )
         else:
-            label2.text = item[1]
+            try:
+                label2.text = item[1].decode( "utf-8" )
+            except:
+                label2.text = item[1]
 
 
         # Icon
         icon = xmltree.SubElement( newelement, "icon" )
-        icon.text = item[2]
+        try:
+            icon.text = item[2].decode( "utf-8" )
+        except:
+            icon.text = item[2]
         
         # Thumb
         thumb = xmltree.SubElement( newelement, "thumb" )
-        thumb.text = item[3]
+        try:
+            thumb.text = item[3].decode( "utf-8" )
+        except:
+            thumb.text = item[3]
         
         # LabelID
         labelID = xmltree.SubElement( newelement, "property" )
         labelID.set( "name", "labelID" )
-        labelID.text = item[5]
+        try:
+            labelID.text = item[5].decode( "utf-8" )
+        except:
+            labelID.text = item[5]
         
         # Group name
         group = xmltree.SubElement( newelement, "property" )
         group.set( "name", "group" )
-        group.text = groupName
+        try:
+            group.text = groupName.decode( "utf-8" )
+        except:
+            group.text = groupName
         
         # Submenu visibility
         if submenuVisibility is not None:
@@ -430,11 +448,17 @@ class XMLFunctions():
             for property in item[6]:
                 if property[0] == "node.visible":
                     visibleProperty = xmltree.SubElement( newelement, "visible" )
-                    visibleProperty.text = property[1]
+                    try:
+                        visibleProperty.text = property[1].decode( "utf-8" )
+                    except:
+                        visibleProperty.text = property[1]
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
-                    additionalproperty.set( "name", property[0] )
-                    additionalproperty.text = property[1]
+                    additionalproperty.set( "name", property[0].decode( "utf-8" ) )
+                    try:
+                        additionalproperty.text = property[1].decode( "utf-8" )
+                    except:
+                        additionalproperty.text = property[1]
                     
         return newelement
         
