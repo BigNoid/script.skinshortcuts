@@ -1612,7 +1612,7 @@ class LibraryFunctions():
             
         # We're going to display it in the library
         filename = self._build_playlist( selectedShortcut.getProperty( "location" ), mediaType, selectedShortcut.getLabel() )
-        newAction = "ActivateWindow(" + selectedShortcut.getProperty( "windowID" ) + "," + os.path.join( __datapathalt__, filename ) + ",return)"
+        newAction = "ActivateWindow(" + selectedShortcut.getProperty( "windowID" ) + "," +"special://profile/addon_data/" + __addonid__ + "/" + filename + ",return)"
         selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
         selectedShortcut.setProperty( "displayPath", newAction )
         return selectedShortcut
