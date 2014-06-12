@@ -1624,13 +1624,26 @@ class LibraryFunctions():
         root = tree.getroot()
         root.set( "type", mediatype )
         
-        xmltree.SubElement( root, "name").text = name
-        xmltree.SubElement( root, "match").text = "all"
+        if target.startswith ( "multipath://" ):
+            temp_path = target.replace( "multipath://", "" ).split( "%2f/" )
+            target = []
+            for item in temp_path:
+                if item is not "":
+                    target.append( urllib.url2pathname( item ) )
+        else:
+            target = [target]
+            
+        for item in target:
+            log( repr( item ) )
         
-        rule = xmltree.SubElement( root, "rule")
-        rule.set( "field", "path" )
-        rule.set( "operator", "contains" )
-        xmltree.SubElement( rule, "value" ).text = target
+        xmltree.SubElement( root, "name").text = name
+        xmltree.SubElement( root, "match").text = "one"
+        
+        for item in target:
+            rule = xmltree.SubElement( root, "rule")
+            rule.set( "field", "path" )
+            rule.set( "operator", "startswith" )
+            xmltree.SubElement( rule, "value" ).text = item
         
         id = 1
         while xbmcvfs.exists( os.path.join( __datapath__, str( id ) + ".xsp" ) ) :
