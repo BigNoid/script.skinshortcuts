@@ -74,7 +74,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         else:
             self.window_id = xbmcgui.getCurrentWindowDialogId()
             xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
-            
+
             # Load library shortcuts in thread
             thread.start_new_thread( LIBRARY.loadLibrary, () )
             
@@ -86,12 +86,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Load current shortcuts
             self.load_shortcuts()
-            
-            # Load default shortcuts
+
+            # Load default shortcuts for group in thread
             LIBRARY.loadedMenuDefaults = "Loading"
-            LIBRARY.addToDictionary( "menudefault", self.load_shortcuts( False, False ) )
-            LIBRARY.loadedMenuDefaults = True
-            
+            thread.start_new_thread( self._load_defaults, () )
+                        
             # Set window title label
             try:
                 if self.getControl( 500 ).getLabel() == "":
@@ -99,6 +98,24 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         self.getControl( 500 ).setLabel( __language__(32071) )
                     else:
                         self.getControl( 500 ).setLabel( __language__(32072) )
+            except:
+                pass
+                
+            # Set enabled condition for various controls
+            try:
+                self.getControl( 111 ).setEnableCondition( "IsEmpty(Container(211).ListItem.Property(LOCKED))" )
+            except:
+                pass
+            try:
+                self.getControl( 302 ).setEnableCondition( "IsEmpty(Container(211).ListItem.Property(LOCKED))" )
+            except:
+                pass
+            try:
+                self.getControl( 307 ).setEnableCondition( "IsEmpty(Container(211).ListItem.Property(LOCKED))" )
+            except:
+                pass
+            try:
+                self.getControl( 401 ).setEnableCondition( "IsEmpty(Container(211).ListItem.Property(LOCKED))" )
             except:
                 pass
             
@@ -170,7 +187,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self._display_shortcuts()
             except:
                 log( "No list of shortcuts to choose from on GUI" )
-                
+
+    def _load_defaults( self ):
+        # This function loads the default shortcuts for the selected menu
+        LIBRARY.loadedMenuDefaults = "Loading"
+        LIBRARY.addToDictionary( "menudefault", self.load_shortcuts( False, False ) )
+        LIBRARY.loadedMenuDefaults = True
+        
     def _load_widgetsbackgrounds( self ):
         self.widgets = []
         self.widgetsPretty = {}
@@ -814,6 +837,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         else:
             # No custom shortcuts or defaults available
             path = ""
+        tree = DATA._get_overrides_skin()
+        matchedSkinRequredActions = []
             
         if not path == "":
             # Try to load shortcuts
@@ -829,10 +854,30 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Parse any localised labels
                     newItem = self._parse_listitem( item )
                     
+                    if addShortcutsToWindow and tree is not None:
+                        # Check if the action for this newItem matches a skin-required action
+                        for elem in tree.findall( "requiredshortcut" ):
+                            if elem.text == newItem.getProperty( "displayPath" ):
+                                # It does, so save the action and lock the item
+                                newItem.setProperty( "LOCKED", "True" )
+                                matchedSkinRequredActions.append( newItem.getProperty( "displayPath" ) )
+                    
                     # Add to list
                     listitems.append( newItem )
                     
                 if addShortcutsToWindow:
+                    # Check for any skin-required actions not already in the list
+                    if tree is not None:
+                        for elem in tree.findall( "requiredshortcut" ):
+                            log( "Found a required shortcut" )
+                            if elem.text not in matchedSkinRequredActions:
+                                log( "And added it" )
+                                newItem = self._parse_listitem( [elem.attrib.get( "label" ), xbmc.getSkinDir(), elem.attrib.get( "icon"), elem.attrib.get( "thumb" ), elem.text] )
+                                newItem.setProperty( "LOCKED", "True" )
+                                self._add_additionalproperty( newItem, "Skin-Required-Shortcut", xbmc.getSkinDir() )
+                                listitems.append( newItem )
+                            else:
+                                log( "And didn't add it" )
                     # If we've loaded anything...
                     if len(listitems) != 0:
                         # Load widgets, backgrounds and any skin-specific properties
@@ -1111,6 +1156,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
         listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
+        if listitem.getProperty( "LOCKED" ):
+            listitemCopy.setProperty( "LOCKED", "True" )
         
         if listitem.getProperty( "customThumbnail" ):
             listitemCopy.setProperty( "customThumbnail", listitem.getProperty( "customThumbnail" ) )

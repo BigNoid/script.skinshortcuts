@@ -79,7 +79,7 @@ class DataFunctions():
     def _get_shortcuts( self, group, isXML = False, profileDir = None ):
         # This will load the shortcut file, and save it as a window property
         # Additionally, if the override files haven't been loaded, we'll load them too
-        log( "### Loading shortcuts for group " + group )
+        log( "Loading shortcuts for group " + group )
         
         if isXML == False:
             try:
@@ -123,6 +123,9 @@ class DataFunctions():
                     
                     log( " - Loaded file " + path ) 
                     
+                    if group == "mainmenu":
+                        processedList = self._get_skin_required( processedList, group, profileDir, True )
+                    
                     return processedList
                 except:
                     print_exc()
@@ -136,11 +139,9 @@ class DataFunctions():
         return [] 
                 
             
-    def _process_shortcuts( self, listitems, group, profileDir = "special:\\profile", isUserShortcuts = False ):
+    def _process_shortcuts( self, listitems, group, profileDir = "special:\\profile", isUserShortcuts = False, allowAdditionalRequired = True ):
         # This function will process any overrides, and return a set of listitems ready to be stored
         #  - We will process graphics overrides, action overrides and any visibility conditions set
-        log( "### Processing shortcuts..." )
-        
         tree = self._get_overrides_skin()
         usertree = self._get_overrides_user( profileDir )
         returnitems = []
@@ -162,7 +163,6 @@ class DataFunctions():
                     skinName = item[6]
                     if skinName != xbmc.getSkinDir():
                         label = item[7]
-                        log( "Using localised label from " + skinName )
                 except:
                     hasChanged = False
             
@@ -171,6 +171,15 @@ class DataFunctions():
             
             # Get any additional properties, including widget and background
             additionalProperties = self.checkAdditionalProperties( group, labelID, isUserShortcuts )
+            
+            # Loop through additional properties, looking for "Skin-Required-Shortcut"
+            shouldContinue = True
+            for additionalProperty in additionalProperties:
+                if additionalProperty[0] == "Skin-Required-Shortcut":
+                    if additionalProperty[1] != xbmc.getSkinDir():
+                        shouldContinue = False
+            if shouldContinue == False:
+                continue
                                 
             # Get action
             action = urllib.unquote( item[4] )
@@ -179,7 +188,6 @@ class DataFunctions():
             if "special://skin/" in action:
                 translate = xbmc.translatePath( "special://skin/" ).decode( 'utf-8' )
                 action = action.replace( "special://skin/", translate )
-                log( "### Translated action to " + action )
             
             # Check visibility
             visibilityCondition = self.checkVisibility( action )
@@ -211,8 +219,6 @@ class DataFunctions():
                                 hasOverriden = True
                                 overrideVisibility = visibilityCondition
                                 
-                                
-                        
                                 # Check for visibility conditions
                                 condition = elem.find( "condition" )
                                 if condition is not None:
@@ -248,14 +254,11 @@ class DataFunctions():
                         elems = overridetree.findall( "shortcut" )
                         for elem in elems:
                             if elem.text == action and "condition" in elem.attrib:
-                                log( "Found visibility condition " + elem.text )
-                                log( "Current visibility condition: " + visibilityCondition )
                                 newCondition = visibilityCondition
                                 if visibilityCondition == "":
                                     visibilityCondition = elem.attrib.get( "condition" )
                                 else:
                                     visibilityCondition = "[" + visibilityCondition + "] + [" + elem.attrib.get( "Condition" ) + "]"
-                                log( "New visibility condition: " + visibilityCondition )
                             break
                             
             # If we haven't added any overrides, add the item
@@ -265,7 +268,51 @@ class DataFunctions():
                 returnitems.append( [label, item[1], item[2], item[3], item[4], labelID, additionalProperties] )
                 
         return returnitems
-
+        
+    def _get_skin_required( self, listitems, group, profileDir, isUserShortcuts ):
+        log( "### Checking skin-required shortcuts" )
+        # This function checks for and adds any skin-required shortcuts
+        tree = self._get_overrides_skin()
+        if tree is None:
+            return listitems
+            
+        # Get a list of all skin-required shortcuts
+        requiredShortcuts = []
+        for elem in tree.findall( "requiredshortcut" ):
+            requiredShortcuts.append( [ False, elem.attrib.get( "label" ), xbmc.getSkinDir(), elem.attrib.get( "icon" ), elem.attrib.get( "thumbnail" ), elem.text ] )
+            if len( requiredShortcuts ) == 0:
+                return listitems
+        
+        # Now, we'll remove them if there's a shortcut already with the action
+        for item in listitems:
+            for requiredShortcut in requiredShortcuts:
+                if requiredShortcut[0] == False:
+                    if urllib.unquote( item[4] ) == requiredShortcut[5]:
+                        requiredShortcut[0] == True
+                        
+        # Finally, we'll pass these to _process_shortcuts, which will apply any overrides
+        # and then append what that returns to the listitems
+        additionalItems = []
+        for requiredShortcut in requiredShortcuts:
+            if requiredShortcut[0] == False:
+                icon = requiredShortcut[3]
+                thumb = requiredShortcut[4]
+                if icon is None:
+                    icon = ""
+                if thumb is None:
+                    thumb = ""
+                    
+                additionalItems.append( [ requiredShortcut[1], requiredShortcut[2], icon, thumb, requiredShortcut[5] ] )
+            
+        if len( additionalItems ) == 0:
+            return listitems
+        
+        additionalItems = self._process_shortcuts( additionalItems, group, profileDir, isUserShortcuts, False )        
+        for additionalItem in additionalItems:
+            listitems.append( additionalItem )
+            
+        return listitems
+        
     def _get_icon_overrides( self, tree, icon, group, labelID, setToDefault = True ):
         # This function will get any icon overrides based on labelID or group
         oldicon = None

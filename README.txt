@@ -12,8 +12,9 @@ What's New for Skinners (version 0.3.3 Pre-Release)
  - Changes to skin methods when using alternative listing method (undocumented)
  - Ability to override shortcut action only on selected XBMC major version - see "resources/Advanced Usage.txt", section "Overrides.xml", part 1
  - More control over the placement of skin-provided shortcuts within the groupings of available shortcuts in the management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 5
- - Ability to override label of available shortcuts in management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 6
+ - Ability to override label of available shortcuts in management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 7
  - Ability to customize the groupings of available shortcuts within the management dialog - see "resources/Management Dialog.txt" for details
+ - Ability to include required shortcuts, which the user can't delete or replace - see "resources/Advanced Usage.txt", section "Overrides.xml", part 6
  - Skinners can now only override icons not thumbnails - please update your image overrides - see "resources/Advanced Usage.txt", section "Overriding icons" for details
  
  

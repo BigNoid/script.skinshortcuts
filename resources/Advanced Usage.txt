@@ -233,7 +233,7 @@ You can then choose which widget to display based on the 'widget' property of th
 
 If there are particular shortcuts to skin-specific features you would like to give the user the option of choosing from, you can specify these in the overrides.xml.
 
-<shortcut label="[label]" type="[type]" grouping="[grouping]" thumbnail="[thumbnial]" icon="[icon]" condition="[Boolean condition]">[action]</shortcut>
+<shortcut label="[label]" type="[type]" grouping="[grouping]" thumbnail="[thumbnail]" icon="[icon]" condition="[Boolean condition]">[action]</shortcut>
 
 [label] - The display name of the shortcut (can be a localised string)
 [type] - Indicated the type of shortcut to the user, e.g. "Movie" if this leads to an area of the movie library (can be a localised string)
@@ -276,7 +276,24 @@ Shortcut groupings within the management dialog are made up of several smaller g
 If you do not specify a grouping, it will be added to the end of the common group.
 
 
-6. Override label of available shortcuts
+6. Skin-required shortcuts
+
+When using the script to provide the whole menu, you can specify shortcuts that are required for the skin to appear in the main menu. If there is no main menu item with the specified action, an additional shortcut will be created. Users will be unable to delete these shortcuts whilst using your skin.
+
+These shortcuts should only be used to ensure access to specific functionality of your skin. If the action is generic or not required, you should provide a skin-recommended shortcut instead.
+
+<requiredshortcut label="[label]" thumbnail="[thumbnail]" icon="[icon]">[action]</requiredshortcut>
+
+[label] - The display name of the shortcut (can be a localised string)
+[thumbnail] - [Optional] The thumbnail associated with the shortcut
+[icon] - [Optional] The icon associated with the shortcut
+[Boolean condition] - [Optional] Replace with a string that must evaluate to True for the shortcut to appear
+[action] - The action associated with this shortcut
+
+Note, the type will be set to the id of your skin (skin.name) to indicate that it is specific to the skin.
+
+
+7. Override label of available shortcuts
 
 If you want to provide a different label for the list of available shortcuts in the management dialog, you can specify this here.
 
@@ -297,7 +314,7 @@ Please note - you can ONLY override shortcuts in the following groups: Common, X
 You can NOT override the labels for user's own defined custom video nodes.
 
 
-7. Custom shortcut properties
+8. Custom shortcut properties
 
 If you are using Skin Shortcuts to set custom properties for shortcuts, you can set defaults for these items:
 
@@ -314,7 +331,7 @@ If you are using Skin Shortcuts to set custom properties for shortcuts, you can 
 </overrides>
 
 
-8. Overriding settings labels
+9. Overriding settings labels
 
 When using Skin Shortcuts to provide the whole main menu, it can provide a list of controls for your skinsettings.xml to launch the management dialog. You can override the default labels for these controls.
 
