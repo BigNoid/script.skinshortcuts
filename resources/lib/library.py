@@ -1496,7 +1496,7 @@ class LibraryFunctions():
         # Default action - create shortcut
         listings = []
         
-        listings.append( self._create( ["||CREATE||", "::SCRIPT::32058", "", {}] ) )
+        listings.append( self._create( ["::CREATE::", "::SCRIPT::32058", "", {}] ) )
                 
         # If this isn't the root, create a link to go up the heirachy
         if len( label ) is not 1:
@@ -1533,7 +1533,8 @@ class LibraryFunctions():
         del w
         
         if selectedItem != -1:
-            if listings[ selectedItem ].getProperty( "path" ) == "||CREATE||":
+            selectedAction = urllib.unquote( listings[ selectedItem ].getProperty( "path" ) )
+            if selectedAction == "::CREATE::":
                 # User has chosen the shortcut they want
 
                 # Localize strings
@@ -1570,7 +1571,7 @@ class LibraryFunctions():
                 
                 return listitem
                 
-            elif listings[ selectedItem ].getProperty( "path" ) == "||BACK||":
+            elif selectedAction == "||BACK||":
                 # User is going up the heirarchy, remove current level and re-call this function
                 history.pop()
                 label.pop()
@@ -1579,10 +1580,10 @@ class LibraryFunctions():
                 
             else:
                 # User has chosen a sub-level to display, add details and re-call this function
-                history.append( urllib.unquote( listings[ selectedItem ].getProperty( "path" ) ) )
+                history.append( selectedAction )
                 label.append( listings[ selectedItem ].getLabel() )
                 thumbnail.append( listings[ selectedItem ].getProperty( "thumbnail" ) )
-                return self.explorer( history, urllib.unquote( listings[ selectedItem ].getProperty( "path" ) ), label, thumbnail, itemType )
+                return self.explorer( history, selectedAction, label, thumbnail, itemType )
     
     
     def _sourcelink_choice( self, selectedShortcut ):
