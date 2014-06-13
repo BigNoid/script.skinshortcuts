@@ -824,6 +824,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Set path based on existance of user defined shortcuts, then skin-provided, then script-provided
         loadGroup = DATA.slugify( self.group )
         usingUserShortcuts = False
+        usingSkinShortcuts = False
         if xbmcvfs.exists( os.path.join( __datapath__ , loadGroup + ".shortcuts" ) ) and includeUserShortcuts:
             # User defined shortcuts
             path = os.path.join( __datapath__ , loadGroup + ".shortcuts" )
@@ -831,6 +832,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         elif xbmcvfs.exists( os.path.join( __skinpath__ , loadGroup + ".shortcuts" ) ):
             # Skin-provided defaults
             path = os.path.join( __skinpath__ , loadGroup + ".shortcuts" )
+            usingSkinShortcuts = True
         elif xbmcvfs.exists( os.path.join( __defaultpath__ , loadGroup + ".shortcuts" ) ):
             # Script-provided defaults
             path = os.path.join( __defaultpath__ , loadGroup + ".shortcuts" )
@@ -854,30 +856,30 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Parse any localised labels
                     newItem = self._parse_listitem( item )
                     
-                    if addShortcutsToWindow and tree is not None:
+                    if addShortcutsToWindow and tree is not None and self.group == "mainmenu":
                         # Check if the action for this newItem matches a skin-required action
                         for elem in tree.findall( "requiredshortcut" ):
                             if elem.text == newItem.getProperty( "displayPath" ):
                                 # It does, so save the action and lock the item
                                 newItem.setProperty( "LOCKED", "True" )
                                 matchedSkinRequredActions.append( newItem.getProperty( "displayPath" ) )
+                                # If we're using the skin-provided shortcuts, also change the label2 and add a property
+                                if usingSkinShortcuts:
+                                    newItem.setLabel2( xbmc.getSkinDir() )
+                                    self._add_additionalproperty( newItem, "Skin-Required-Shortcut", xbmc.getSkinDir() )
                     
                     # Add to list
                     listitems.append( newItem )
                     
                 if addShortcutsToWindow:
                     # Check for any skin-required actions not already in the list
-                    if tree is not None:
+                    if tree is not None and self.group == "mainmenu":
                         for elem in tree.findall( "requiredshortcut" ):
-                            log( "Found a required shortcut" )
                             if elem.text not in matchedSkinRequredActions:
-                                log( "And added it" )
                                 newItem = self._parse_listitem( [elem.attrib.get( "label" ), xbmc.getSkinDir(), elem.attrib.get( "icon"), elem.attrib.get( "thumb" ), elem.text] )
                                 newItem.setProperty( "LOCKED", "True" )
                                 self._add_additionalproperty( newItem, "Skin-Required-Shortcut", xbmc.getSkinDir() )
                                 listitems.append( newItem )
-                            else:
-                                log( "And didn't add it" )
                     # If we've loaded anything...
                     if len(listitems) != 0:
                         # Load widgets, backgrounds and any skin-specific properties
