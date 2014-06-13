@@ -1423,7 +1423,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
     def onAction( self, action ):
         if action.getId() in ACTION_CANCEL_DIALOG:
-            log( "### CLOSING WINDOW" )
             #if self.getFocusId() == 402 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog
             #    return
             #if self.getFocusId() == 403 and action.getId() == 61448: # Check we aren't backspacing on an edit dialog

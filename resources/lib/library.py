@@ -1496,9 +1496,7 @@ class LibraryFunctions():
         # Default action - create shortcut
         listings = []
         
-        listitem = xbmcgui.ListItem( label=__language__(32058) )
-        listitem.setProperty( "path", "||CREATE||" )
-        listings.append( listitem )
+        listings.append( self._create( ["||CREATE||", "::SCRIPT::32058", "", {}] ) )
                 
         # If this isn't the root, create a link to go up the heirachy
         if len( label ) is not 1:
