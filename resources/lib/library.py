@@ -1659,9 +1659,45 @@ class LibraryFunctions():
         while xbmcvfs.exists( os.path.join( __datapath__, str( id ) + ".xsp" ) ) :
             id += 1
                 
-        tree.write( os.path.join( __datapath__, str( id ) + ".xsp" ), encoding="UTF-8" )
+        tree.write( os.path.join( __datapath__, str( id ) + ".xsp" ), encoding="utf-8" )
         return str( id ) + ".xsp"
+        
+    def _delete_playlist( self, target ):
+        # This function will check if the target links to an auto-generated playlist and, if so, delete it
+        target = urllib.unquote( target )
+        if target.startswith( "ActivateWindow(" ):
+            try:
+                elements = target.split( "," )
+            except:
+                return
+            if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
+                xbmcvfs.delete( xbmc.translatePath( elements[1] ) )
+
+    def _rename_playlist( self, target, newLabel ):
+        # This function changes the label tag of an auto-generated playlist
+        
+        # First we will check that this is a playlist
+        target = urllib.unquote( target )
+        log( repr( target ) )
+        if target.startswith( "ActivateWindow(" ):
+            try:
+                elements = target.split( "," )
+            except:
+                return
+            if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
+                filename =  xbmc.translatePath( elements[1] )
+            else:
+                return
                 
+        # Load the tree and change the name
+        tree = xmltree.parse( filename )
+        name = tree.getroot().find( "name" )
+        name.text = newLabel
+        
+        log( name.text )
+        
+        # Write the tree
+        tree.write( filename, encoding="utf-8" )
 
 class ShowDialog( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):

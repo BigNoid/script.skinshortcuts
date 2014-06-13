@@ -311,6 +311,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for x in range( 0, listControl.size() ):
                 if x == itemIndex:
                     # Where the new shortcut should go
+                    LIBRARY._delete_playlist(listControl.getListItem( itemIndex ).getProperty( "path" ) )
                     self._get_icon_overrides( listitemCopy )
                     listitems.append( listitemCopy )
                 else:
@@ -343,6 +344,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.changeMade = True
             listControl = self.getControl( 211 )
             num = self.getControl( 211 ).getSelectedPosition()
+            
+            LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
             
             itemIndex = listControl.getSelectedPosition()
             listControl.removeItem( itemIndex )
@@ -472,6 +475,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setLabel( label )
             listitem.setProperty( "localizedString", "" )
             
+            LIBRARY._rename_playlist( listitem.getProperty( "path" ), label )
+            
             # If there's no label2, set it to custom shortcut
             if not listitem.getLabel2():
                 listitem.setLabel2( __language__(32024) )
@@ -520,6 +525,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return
                 
             self.changeMade = True
+            LIBRARY._delete_playlist( listitem.getProperty( "path" ) )
             
             # Update the action
             listitem.setProperty( "path", urllib.quote( action ) )
@@ -531,6 +537,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Reset shortcuts
             log( "Reset shortcuts (308)" )
             self.changeMade = True
+            
+            # Delete any auto-generated source playlists
+            for x in range(0, self.getControl( 211 ).size()):
+                LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
+
             self.getControl( 211 ).reset()
             
             # Call the load shortcuts function, but add that we don't want
@@ -657,6 +668,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             selectedShortcut = LIBRARY.selectShortcut()
             if selectedShortcut is not None:
                 listitemCopy = self._duplicate_listitem( selectedShortcut, self.getControl( 211 ).getListItem( num ) )
+                LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
             
                 self.changeMade = True
                 
