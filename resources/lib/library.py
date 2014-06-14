@@ -203,7 +203,7 @@ class LibraryFunctions():
         
     def _get_icon_overrides( self, tree, item, content, setToDefault = True ):
         if tree is None:
-            return Item
+            return item
             
         oldicon = None
         newicon = item.getProperty( "icon" )
@@ -420,7 +420,6 @@ class LibraryFunctions():
                 return self.selectShortcut( group = group )
             elif path.startswith( "||BROWSE||" ):
                 selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType") )
-                path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
             elif path == "||FOLDER||":
                 # The next set of shortcuts are within the listitem property folder-contents
                 shortcuts = self.folders[ selectedShortcut.getProperty( "folder" ) ]
