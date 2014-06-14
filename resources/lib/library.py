@@ -1603,6 +1603,11 @@ class LibraryFunctions():
             if userChoice == -1:
                 return None
             elif userChoice == 0:
+                # Escape any backslashes (Windows fix)
+                newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                newAction = newAction.replace( "\\", "\\\\" )
+                selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+                selectedShortcut.setProperty( "displayPath", newAction )
                 return selectedShortcut
             elif userChoice == 1:
                 mediaType = "movies"
@@ -1616,6 +1621,11 @@ class LibraryFunctions():
             if userChoice == -1:
                 return None
             elif userChoice == 0:
+                # Escape any backslashes (Windows fix)
+                newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                newAction = newAction.replace( "\\", "\\\\" )
+                selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+                selectedShortcut.setProperty( "displayPath", newAction )
                 return selectedShortcut
             elif userChoice == 1:
                 mediaType = "songs"
