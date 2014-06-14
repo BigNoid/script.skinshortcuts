@@ -1673,10 +1673,10 @@ class LibraryFunctions():
         if target.startswith( "ActivateWindow(" ):
             try:
                 elements = target.split( "," )
+                if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
+                    xbmcvfs.delete( xbmc.translatePath( elements[1] ) )
             except:
                 return
-            if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
-                xbmcvfs.delete( xbmc.translatePath( elements[1] ) )
 
     def _rename_playlist( self, target, newLabel ):
         # This function changes the label tag of an auto-generated playlist
