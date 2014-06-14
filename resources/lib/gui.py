@@ -843,14 +843,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def warnonremoval( self, item ):
         # This function will warn the user before they modify a settings link
         # (if the skin has enabled this function)
-            
+        log( "### Checking for warning message" )
+        
         tree = DATA._get_overrides_skin()
         if tree is None:
+            log( "### No overrides" )
             return
             
         for elem in tree.findall( "warn" ):
-            if elem.text == item.getProperty( "displaypath" ):
+            log( "### " + elem.text + " : " + item.getProperty( "displaypath" ) )
+            if elem.text.lower() == item.getProperty( "displaypath" ).lower():
                 # We want to show the message :)
+                log( "### Matched" )
                 message = elem.attrib.get( "message" )
                 if not message.find( "::SCRIPT::" ) == -1:
                     message = __language__(int( message[10:] ) )
