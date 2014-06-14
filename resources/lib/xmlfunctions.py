@@ -153,6 +153,7 @@ class XMLFunctions():
         checkedSkinVer = False
         checkedScriptVer = False
         checkedProfileList = False
+        checkedLanguage = False
             
         for hash in hashes:
             if hash[1] is not None:
@@ -180,6 +181,12 @@ class XMLFunctions():
                     if profilelist != hash[1]:
                         log( "  - Profile list does not match" )
                         return True
+                elif hash[0] == "::LANGUAGE::":
+                    # Check that the XBMC language is still the same as hash[1]
+                    checkedLanguage = True
+                    if xbmc.getLanguage() != hash[1]:
+                        log( "  - Language does not match" )
+                        return True
                 else:
                     hasher = hashlib.md5()
                     hasher.update( xbmcvfs.File( hash[0] ).read() )
@@ -193,7 +200,7 @@ class XMLFunctions():
                 
         # If the skin or script version, or profile list, haven't been checked, we need to rebuild the menu 
         # (most likely we're running an old version of the script)
-        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False:
+        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False or checkedLanguage == False:
             return True
         
             
@@ -207,6 +214,7 @@ class XMLFunctions():
         hashlist.list.append( ["::PROFILELIST::", profilelist] )
         hashlist.list.append( ["::SCRIPTVER::", __addonversion__] )
         hashlist.list.append( ["::XBMCVER::", __xbmcversion__] )
+        hashlist.list.append( ["::LANGUAGE::", xbmc.getLanguage()] )
         
         # Create a new tree and includes for the various groups
         tree = xmltree.ElementTree( xmltree.Element( "includes" ) )
