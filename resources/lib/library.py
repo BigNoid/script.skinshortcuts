@@ -202,6 +202,9 @@ class LibraryFunctions():
         return items
         
     def _get_icon_overrides( self, tree, item, content, setToDefault = True ):
+        if tree is None:
+            return Item
+            
         oldicon = None
         newicon = item.getProperty( "icon" )
         for elem in tree.findall( "icon" ):
@@ -1496,7 +1499,9 @@ class LibraryFunctions():
         # Default action - create shortcut
         listings = []
         
-        listings.append( self._create( ["::CREATE::", "::SCRIPT::32058", "", {}] ) )
+        tree = DATA._get_overrides_skin()
+        
+        listings.append( self._get_icon_overrides( tree, self._create( ["::CREATE::", "::SCRIPT::32058", "", {}] ), "" ) )
                 
         # If this isn't the root, create a link to go up the heirachy
         if len( label ) is not 1:
@@ -1524,7 +1529,7 @@ class LibraryFunctions():
                     if item[ "thumbnail" ] is not "":
                         thumb = item[ "thumbnail" ]
                     listitem = self._create( [item[ "file" ], item[ "label" ] + "  >", "", {"icon": "DefaultFolder.png", "thumb": thumb} ] )
-                    listings.append( listitem )
+                    listings.append( self._get_icon_overrides( tree, listitem, "" ) )
             
         # Show dialog
         w = ShowDialog( "DialogSelect.xml", __cwd__, listing=listings, windowtitle=dialogLabel )
