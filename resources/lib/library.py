@@ -1673,8 +1673,9 @@ class LibraryFunctions():
         if target.startswith( "ActivateWindow(" ):
             try:
                 elements = target.split( "," )
-                if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
-                    xbmcvfs.delete( xbmc.translatePath( elements[1] ) )
+                if len( elements ) > 1:
+                    if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
+                        xbmcvfs.delete( xbmc.translatePath( elements[1] ) )
             except:
                 return
 

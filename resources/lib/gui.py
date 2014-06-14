@@ -256,7 +256,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             itemIndex = listControl.getSelectedPosition()
             altAction = None
             
-            self.warnonremoval( listControl.getListItem( itemIndex ) )
+            if self.warnonremoval( listControl.getListItem( itemIndex ) ) == False:
+                return
             
             # Copy the new shortcut
             listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem(), listControl.getListItem( itemIndex ) )
@@ -348,7 +349,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listControl = self.getControl( 211 )
             num = self.getControl( 211 ).getSelectedPosition()
             
-            self.warnonremoval( listControl.getListItem( num ) )
+            if self.warnonremoval( listControl.getListItem( num ) ) == False:
+                return
             
             LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
             
@@ -510,7 +512,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
-            self.warnonremoval( listitem )
+            if self.warnonremoval( listitem ) == False:
+                return
             
             # Retrieve current action
             action = urllib.unquote( listitem.getProperty( "path" ) )
@@ -674,7 +677,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if controlID == 401:
             num = self.getControl( 211 ).getSelectedPosition()
             
-            self.warnonremoval( self.getControl( 211 ).getListItem( num ) )
+            if self.warnonremoval( self.getControl( 211 ).getListItem( num ) ) == False:
+                return
             
             selectedShortcut = LIBRARY.selectShortcut()
             if selectedShortcut is not None:
@@ -843,18 +847,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def warnonremoval( self, item ):
         # This function will warn the user before they modify a settings link
         # (if the skin has enabled this function)
-        log( "### Checking for warning message" )
-        
         tree = DATA._get_overrides_skin()
         if tree is None:
-            log( "### No overrides" )
-            return
+            return True
             
         for elem in tree.findall( "warn" ):
-            log( "### " + elem.text + " : " + item.getProperty( "displaypath" ) )
             if elem.text.lower() == item.getProperty( "displaypath" ).lower():
                 # We want to show the message :)
-                log( "### Matched" )
                 message = elem.attrib.get( "message" )
                 if not message.find( "::SCRIPT::" ) == -1:
                     message = __language__(int( message[10:] ) )
@@ -872,9 +871,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     xbmc.getLocalizedString(int( heading ) )
                 
                 dialog = xbmcgui.Dialog()
-                dialog.ok( heading, message )
+                return dialog.yesno( heading, message )
                 
-                return
+        return True
     
     def load_shortcuts( self, includeUserShortcuts = True, addShortcutsToWindow = True ):
         log( "Loading shortcuts" )
