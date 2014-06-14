@@ -552,9 +552,9 @@ class LibraryFunctions():
             listitems.append( self._create(["RipCD", "::LOCAL::600", "::SCRIPT::32054", {} ]) )
             
             listitems.append( self._create(["UpdateLibrary(video)", "::SCRIPT::32046", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["UpdateLibrary(audio)", "::SCRIPT::32047", "::SCRIPT::32054", {} ]) )
+            listitems.append( self._create(["UpdateLibrary(music)", "::SCRIPT::32047", "::SCRIPT::32054", {} ]) )
             listitems.append( self._create(["CleanLibrary(video)", "::SCRIPT::32055", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(audio)", "::SCRIPT::32056", "::SCRIPT::32054", {} ]) )
+            listitems.append( self._create(["CleanLibrary(music)", "::SCRIPT::32056", "::SCRIPT::32054", {} ]) )
             
             self.addToDictionary( "commands", listitems )
         except:
@@ -1556,13 +1556,13 @@ class LibraryFunctions():
                 
                 # Build the action
                 if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
-                    action = 'ActivateWindow(10025,"' + location + '",Return)'
+                    action = 'ActivateWindow(10025,"' + location + '",return)'
                     listitem.setProperty( "windowID", "10025" )
                 elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019" or itemType == "::SCRIPT::32073":
-                    action = 'ActivateWindow(10501,"' + location + '",Return)'
-                    listitem.setProperty( "windowID", "10501" )
+                    action = 'ActivateWindow(10501,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "10502" )
                 elif itemType == "::SCRIPT::32012":
-                    action = 'ActivateWindow(10002,"' + location + '",Return)'
+                    action = 'ActivateWindow(10002,"' + location + '",return)'
                 else:
                     action = "RunAddon(" + location + ")"
 
