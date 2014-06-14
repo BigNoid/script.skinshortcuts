@@ -348,6 +348,17 @@ When using Skin Shortcuts to provide the whole main menu, it can provide a list 
 </overrides>
 
 
+10. Warn user before removing shortcut
+
+You can use the overrides.xml to warn the user before they delete any particular shortcut, for example to settings.
+
+<warn heading="[heading]" message="[message]">[Action]</warn>
+
+[heading] - The heading of the OK dialog that will be shown to the user (can be a localised string)
+[message] - The message in the OK dialog that will be shown to the user (can be a localised string)
+[action] - The action of the existing shortcut that will trigger this message when the user tries to delete/replace it, or edit its action
+
+
 Localisation
 ------------
 

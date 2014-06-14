@@ -15,6 +15,7 @@ What's New for Skinners (version 0.3.3 Pre-Release)
  - Ability to override label of available shortcuts in management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 7
  - Ability to customize the groupings of available shortcuts within the management dialog - see "resources/Management Dialog.txt" for details
  - Ability to include required shortcuts, which the user can't delete or replace - see "resources/Advanced Usage.txt", section "Overrides.xml", part 6
+ - Ability to warn the user before they delete/replace a shortcut - see "Advanced Usage", section "Overrides.xml" part 10
  - Skinners can now only override icons not thumbnails - please update your image overrides - see "resources/Advanced Usage.txt", section "Overriding icons" for details
  
  
@@ -174,7 +175,7 @@ First the file must be imported - in your includes.xml add the line:
 	
 In home.xml, add the line:
 
-	<onload>RunScript(script.skinshortcuts,type=buildxml&amp;mainmenuID=9000&amp;group=[groupname],[groupname],[groupname])</onload>
+	<onload>RunScript(script.skinshortcuts,type=buildxml&amp;mainmenuID=9000&amp;group=[groupname]|[groupname]|[groupname])</onload>
 
 And in skinsettings.xml, the line:
 
@@ -194,7 +195,7 @@ In your skinsettings.xml file, you need to create a button for each [groupname] 
  
 In the list where you want the submenu to appear, put the following in the <content> tag:
  
-	<include>skinshortcuts-[groupname]</include>
+	<include>skinshortcuts-group-[groupname]</include>
 	
 	
 4. Display user shortcuts based on another list
@@ -353,6 +354,8 @@ Providing alternative access to settings
 One of the side effects of using skinshortcuts to provide the whole main menu is that users have the ability to delete any shortcut, including those that they will later turn out to actually want. Generally, this isn't a problem as they can add them back at any time. However if they delete all links to settings, they will have no way to add it back unless your skin offers an alternative access.
 
 Therefore, it is recommended to have an alternative link to settings. One possible location is in your shutdown menu.
+
+If you don't provide any alternative access, it's possible to warn the user before they remove a link to shortcuts - see "Advanced Usage", section "Overrides.xml" part 10
 
 
 Skinning the management dialog

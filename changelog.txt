@@ -7,6 +7,7 @@ v0.3.3 (Pre-release)
  > When using select dialog, now displays label2's and thumbnails
  > Correct thumbnail/icon usage
  > Addition of skin-required shortcuts which can't be deleted
+ > Ability to warn user before deleting shortcuts to select actions
 - Improved labelID generation
 - Add option to tell management dialog not to fill label's on management dialog controls, additional label 500 for window title
 - Ability to override shortcut actions based on XBMC version
