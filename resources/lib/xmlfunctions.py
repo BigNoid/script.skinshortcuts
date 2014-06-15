@@ -304,8 +304,8 @@ class XMLFunctions():
                                 
                     else:
                         # This is an additional sub-menu, not the primary one
-                        justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) ) + "-" + str( count )
-                        justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) ) + "-" + str( count )
+                        justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) + "-" + str( count ) )
+                        justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) + "-" + str( count ) )
                         submenuitems = DATA._get_shortcuts( submenu + "." + str( count ), True, profile[0] )
                     
                     # If there is a submenu, and we're building a single menu list, replace the onclick of mainmenuItemB AND recreate it as the first
