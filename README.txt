@@ -1,13 +1,12 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.3.3 Pre-Release)
+What's New for Skinners (version 0.3.3)
 -----------------------
 
  - LabelID changes - in some very rare cases, the labelID for an item may have changed. This has the potential for users to loose one or more groups of their submenu shortcuts if they have 2 or more main menu items with the same label.
  - Advice change - When overriding an action, user choice must be given and respected - see "resources/Management Dialog.txt", section "Overrides.xml", part 1
  - Clarification - The maximum number of additional sub-menu's is 5
- - When directly opening a shortcut group to choose from via management dialog button 401, you can now specify the new "pvr" or "sources" groups
  - Changes to automatic setting of controls in management dialog, including new option and window title label - see "resources/Management Dialog.txt" for details.
  - Changes to skin methods when using alternative listing method (undocumented)
  - Ability to override shortcut action only on selected XBMC major version - see "resources/Advanced Usage.txt", section "Overrides.xml", part 1

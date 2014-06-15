@@ -1,4 +1,4 @@
-v0.3.3 (Pre-release)
+v0.3.3
 - Available shortcuts in management dialog improvements:
  > Improved and customisable groupings
  > Control over location and visibility of skin-provided shortcuts
