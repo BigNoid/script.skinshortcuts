@@ -1,21 +1,26 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
+This is a DEVELOPMENT BUILD and may be UNSTABLE or even BROKEN.
+If you want a stable build from Git please use the repofixes branch.
 
-What's New for Skinners (version 0.3.3)
+What's New for Skinners (version 0.3.4 Development Build)
 -----------------------
 
- - LabelID changes - in some very rare cases, the labelID for an item may have changed. This has the potential for users to loose one or more groups of their submenu shortcuts if they have 2 or more main menu items with the same label.
- - Advice change - When overriding an action, user choice must be given and respected - see "resources/Management Dialog.txt", section "Overrides.xml", part 1
- - Clarification - The maximum number of additional sub-menu's is 5
- - Changes to automatic setting of controls in management dialog, including new option and window title label - see "resources/Management Dialog.txt" for details.
- - Changes to skin methods when using alternative listing method (undocumented)
- - Ability to override shortcut action only on selected XBMC major version - see "resources/Advanced Usage.txt", section "Overrides.xml", part 1
- - More control over the placement of skin-provided shortcuts within the groupings of available shortcuts in the management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 5
- - Ability to override label of available shortcuts in management dialog - see "resources/Advanced Usage.txt", section "Overrides.xml", part 7
- - Ability to customize the groupings of available shortcuts within the management dialog - see "resources/Management Dialog.txt" for details
- - Ability to include required shortcuts, which the user can't delete or replace - see "resources/Advanced Usage.txt", section "Overrides.xml", part 6
- - Ability to warn the user before they delete/replace a shortcut - see "Advanced Usage", section "Overrides.xml" part 10
- - Skinners can now only override icons not thumbnails - please update your image overrides - see "resources/Advanced Usage.txt", section "Overriding icons" for details
+ - No changes as yet
+
+
+What's (hopefully) Coming
+-------------------------
+
+Features intended for next stable release (0.3.5):
+- Improved localisation support equivalent to XBMC's native ($LOCALIZE, $ADDON, etc) in addition to ::SCRIPT:: ::LOCAL::
+- Replace .shortcuts files with .xml, including auto-upgrade of files
+- Improved behaviour of skin-required shortcuts
+- Easy skin option to force Settings in menu
+- Relegate Gotham list-filling method in favour of XML method (possible removal?)
+- Pretty-print xml
+- Large code cleanup - fix cases of multiple uses of same code, clearer separation of different groupings of functions
+- PVR option changes for Helix (dependant on XBMC PR 7453)
  
  
 With Thanks - Because their names don't deserve to be at the bottom :)
