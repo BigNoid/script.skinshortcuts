@@ -1673,7 +1673,8 @@ class LibraryFunctions():
         while xbmcvfs.exists( os.path.join( __datapath__, str( id ) + ".xsp" ) ) :
             id += 1
                 
-        tree.write( os.path.join( __datapath__, str( id ) + ".xsp" ), encoding="utf-8" )
+        DATA.indent( tree.getroot() )
+        tree.write( os.path.join( __datapath__, str( id ) + ".xsp" ), encoding="UTF-8" )
         return str( id ) + ".xsp"
         
     def _delete_playlist( self, target ):
@@ -1709,10 +1710,9 @@ class LibraryFunctions():
         name = tree.getroot().find( "name" )
         name.text = newLabel
         
-        log( name.text )
-        
         # Write the tree
-        tree.write( filename, encoding="utf-8" )
+        DATA.indent( tree.getroot() )
+        tree.write( filename, encoding="UTF-8" )
 
 class ShowDialog( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):

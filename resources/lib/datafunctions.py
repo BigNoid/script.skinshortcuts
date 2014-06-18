@@ -600,6 +600,24 @@ class DataFunctions():
             hashlist.list.append( [filename, hasher.hexdigest()] )
         else:
             hashlist.list.append( [filename, None] )
+            
+            
+    # in-place prettyprint formatter
+    def indent( self, elem, level=0 ):
+        i = "\n" + level*"\t"
+        if len(elem):
+            if not elem.text or not elem.text.strip():
+                elem.text = i + "\t"
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+            for elem in elem:
+                self.indent(elem, level+1)
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+        else:
+            if level and (not elem.tail or not elem.tail.strip()):
+                elem.tail = i
+            
 
     def smart_truncate(string, max_length=0, word_boundaries=False, separator=' '):
         string = string.strip(separator)

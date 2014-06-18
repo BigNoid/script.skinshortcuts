@@ -18,7 +18,6 @@ Features intended for next stable release (0.3.5):
 - Improved behaviour of skin-required shortcuts
 - Easy skin option to force Settings in menu
 - Relegate Gotham list-filling method in favour of XML method (possible removal?)
-- Pretty-print xml
 - Large code cleanup - fix cases of multiple uses of same code, clearer separation of different groupings of functions
 - PVR option changes for Helix (dependant on XBMC PR 7453)
  

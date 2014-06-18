@@ -1,5 +1,5 @@
 v0.3.4 - Unpublished development build
-- No changes as yet
+- XML files are formatted (includes.xml, auto-generated playlists)
 
 v0.3.3
 - Available shortcuts in management dialog improvements:

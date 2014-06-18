@@ -348,7 +348,8 @@ class XMLFunctions():
         
         # Save the tree
         for path in paths:
-            tree.write( path, encoding="utf-8" )
+            DATA.indent( tree.getroot() )
+            tree.write( path, encoding="UTF-8" )
         
         # Save the hashes
         file = xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ), "w" )
