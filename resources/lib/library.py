@@ -420,6 +420,11 @@ class LibraryFunctions():
                 return self.selectShortcut( group = group )
             elif path.startswith( "||BROWSE||" ):
                 selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType") )
+                # Convert backslashes to double-backslashes (windows fix)
+                newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                newAction = newAction.replace( "\\", "\\\\" )
+                selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+                selectedShortcut.setProperty( "displayPath", newAction )
             elif path == "||FOLDER||":
                 # The next set of shortcuts are within the listitem property folder-contents
                 shortcuts = self.folders[ selectedShortcut.getProperty( "folder" ) ]
@@ -1563,6 +1568,8 @@ class LibraryFunctions():
                     listitem.setProperty( "windowID", "10502" )
                 elif itemType == "::SCRIPT::32012":
                     action = 'ActivateWindow(10002,"' + location + '",return)'
+                elif itemType == "::SCRIPT::32009":
+                    action = 'ActivateWindow(10001,"' + location + '",return)'
                 else:
                     action = "RunAddon(" + location + ")"
 
@@ -1570,7 +1577,10 @@ class LibraryFunctions():
                 listitem.setProperty( "displayPath", action )
                 listitem.setProperty( "shortcutType", itemType )
                 listitem.setProperty( "icon", "DefaultShortcut.png" )
-                listitem.setProperty( "thumbnail", thumbnail[ len( thumbnail ) - 1 ] )
+                if thumbnail[ len( thumbnail ) -1 ] == "":
+                    listitem.setProperty( "thumbnail", thumbnail[ 0 ] )
+                else:
+                    listitem.setProperty( "thumbnail", thumbnail[ len( thumbnail ) - 1 ] )
                 listitem.setProperty( "location", location )
                 
                 return listitem
