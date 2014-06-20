@@ -48,11 +48,12 @@ class LibraryFunctions():
         self.loadedAddOns = False
         self.loadedFavourites = False
         self.loadedUPNP = False
+        self.loadedSettings = False
         
         self.widgetPlaylistsList = []
         
         # Empty dictionary for different shortcut types
-        self.dictionaryGroupings = {"common":None, "commands":None, "menudefault":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None }
+        self.dictionaryGroupings = {"common":None, "commands":None, "menudefault":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None, "settings":None }
         self.folders = {}
         self.foldersCount = 0
         
@@ -70,6 +71,7 @@ class LibraryFunctions():
         self.playlists()
         self.addons()                
         self.favourites()
+        self.settings()
         
         # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
         if self.loadedUPNP == False:
@@ -359,6 +361,8 @@ class LibraryFunctions():
             self.addons()
         if content == "favourite":
             self.favourites()
+        if content == "settings":
+            self.settings()
             
         # The data has now been loaded, return it
         return self.dictionaryGroupings[ content ]
@@ -568,6 +572,47 @@ class LibraryFunctions():
             
         self.loadedMoreCommands = True
         return self.loadedMoreCommands
+        
+    def settings( self ):
+        if self.loadedSettings == True:
+            # The List has already been populated, return it
+            return True
+        elif self.loadedSettings == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while count < 20:
+                xbmc.sleep( 100 )
+                count += 1
+                if self.loadedSettings == True:
+                    return True
+        else:
+            # We're going to populate the list
+            self.loadedSettings = "Loading"
+
+        try:
+            listitems = []
+            log( 'Listing more XBMC commands...' )
+            
+            listitems.append( self._create(["ActivateWindow(Settings)", "::LOCAL::10004", "::LOCAL::10004", {} ]) )
+            
+            listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "::LOCAL::480", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(VideosSettings)", "::LOCAL::3", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(PVRSettings)", "::LOCAL::19020", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(MusicSettings)", "::LOCAL::2", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(PicturesSettings)", "::LOCAL::1", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(WeatherSettings)", "::LOCAL::8", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(AddonBrowser)", "::LOCAL::24001", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(ServiceSettings)", "::LOCAL::14036", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(SystemSettings)", "::LOCAL::13000", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(SkinSettings)", "::LOCAL::20077", "::LOCAL::10004", {} ]) )
+            
+            self.addToDictionary( "settings", listitems )
+        except:
+            log( "Failed to load more XBMC settings" )
+            print_exc()
+            
+        self.loadedSettings = True
+        return self.loadedSettings
         
     def menudefault( self ):
         # This is loaded slightly differently - by the main gui.py file as part of loading the window
