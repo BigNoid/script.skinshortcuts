@@ -1181,15 +1181,25 @@ class LibraryFunctions():
         # Retrieve label
         localLabel = item[1]
         
+        # Create localised label2
+        displayLabel2 = item[2]
+        shortcutType = item[2]
+        
         if allowOverrideLabel:
             # Check for a replaced label
             replacementLabel = DATA.checkShortcutLabelOverride( item[0] )
             if replacementLabel is not None:
                 # Check if it's an integer
-                if replacementLabel.isdigit():
-                    localLabel = "::LOCAL::" + replacementLabel
+                if replacementLabel[0].isdigit():
+                    localLabel = "::LOCAL::" + replacementLabel[0]
                 else:
-                    localLabel = replacementLabel
+                    localLabel = replacementLabel[0]
+                    
+                if len( replacementLabel ) == 2:
+                    # We're also overriding the type
+                    displayLabel2 = replacementLabel[1]
+                    shortcutType = replacementLabel[1]
+                    
         
         # Try localising it
         try:
@@ -1208,13 +1218,13 @@ class LibraryFunctions():
             print_exc()
         
         # Create localised label2
-        displayLabel2 = item[2]
-        shortcutType = item[2]
         try:
-            if not item[2].find( "::SCRIPT::" ) == -1:
+            if not displayLabel2.find( "::SCRIPT::" ) == -1:
                 displayLabel2 = __language__(int( item[2][10:] ) )
-            elif not item[2].find( "::LOCAL::" ) == -1:
+            elif not displayLabel2.find( "::LOCAL::" ) == -1:
                 displayLabel2 = xbmc.getLocalizedString(int( item[2][9:] ) )
+            elif displayLabel2.isdigit():
+                displayLabel2 = xbmc.getLocalizedString( int( displayLabel2 ) )
                 
             if shortcutType.isdigit():
                 if int( shortcutTYpe ) > 32000:

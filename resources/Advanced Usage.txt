@@ -297,10 +297,11 @@ Note, the type will be set to the id of your skin (skin.name) to indicate that i
 
 If you want to provide a different label for the list of available shortcuts in the management dialog, you can specify this here.
 
-	<availableshortcutlabel action="[command]">[New Label]</availableshortcutlabel>
+	<availableshortcutlabel action="[command]" type="[type]">[New Label]</availableshortcutlabel>
 	
 [command] - The command of the available shortcut whose label you are overriding
 [New Label] - The label you want to replace the default label with (can be a localised string)
+[type] - [Optional] Indicated the type of shortcut to the user, e.g. "Movie" if this leads to an area of the movie library (can be a localised string)
 
 So, for example,
 

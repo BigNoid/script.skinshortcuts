@@ -587,7 +587,11 @@ class DataFunctions():
             elemSearch = tree.findall( "availableshortcutlabel" )
             for elem in elemSearch:
                 if elem.attrib.get( "action" ).lower() == action.lower():
-                    return elem.text         
+                    # This matches :) Check if we're also overriding the type
+                    if "type" in elem.attrib:
+                        return [ elem.text, elem.attrib.get( "type" ) ]
+                    else:
+                        return [ elem.text ]
 
         return None
         
