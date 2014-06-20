@@ -534,7 +534,7 @@ class DataFunctions():
         # Return whether mainmenu items should be displayed
         if action == "ActivateWindow(Weather)":
             return "!IsEmpty(Weather.Plugin)"
-        if action.startswith( "ActivateWindowAndFocus(MyPVR" ):
+        if action.startswith( "ActivateWindowAndFocus(MyPVR" ) or action.startswith( "PlayPvr" ):
             return "System.GetBool(pvrmanager.enabled)"
         if action.startswith( "ActivateWindow(Video,Movie" ):
             return "Library.HasContent(Movies)"
