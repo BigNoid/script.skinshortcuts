@@ -734,7 +734,7 @@ class LibraryFunctions():
                             if thumb is None:
                                 thumb = ""
 
-                            listitem = self._create( [action, label, type, {"thumb": thumb}] )
+                            listitem = self._create( [action, label, type, { "icon": icon, "thumb": thumb}] )
                             
                             shouldAdd = False
                             if "condition" in elem.attrib:
@@ -1684,7 +1684,7 @@ class LibraryFunctions():
             id += 1
                 
         DATA.indent( tree.getroot() )
-        tree.write( os.path.join( __datapath__, str( id ) + ".xsp" ), encoding="UTF-8" )
+        tree.write( os.path.join( __datapath__, str( id ) + ".xsp" ), encoding="utf-8" )
         return str( id ) + ".xsp"
         
     def _delete_playlist( self, target ):
@@ -1722,7 +1722,7 @@ class LibraryFunctions():
         
         # Write the tree
         DATA.indent( tree.getroot() )
-        tree.write( filename, encoding="UTF-8" )
+        tree.write( filename, encoding="utf-8" )
 
 class ShowDialog( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
