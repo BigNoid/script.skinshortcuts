@@ -267,6 +267,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # If this is a plugin, call our plugin browser
                 returnVal = LIBRARY.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
                 if returnVal is not None:
+                    # Convert backslashes to double-backslashes (windows fix)
+                    newAction = urllib.unquote( returnVal.getProperty( "Path" ) )
+                    newAction = newAction.replace( "\\", "\\\\" )
+                    returnVal.setProperty( "Path", urllib.quote( newAction ) )
+                    returnVal.setProperty( "displayPath", newAction )
                     listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
                 else:
                     listitemCopy = None
@@ -1366,7 +1371,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             try:
                 log( "Saving " + path )
                 f = xbmcvfs.File( path, 'w' )
-                f.write( repr( listitems ) )
+                f.write( repr( listitems ).replace( "],", "],\n" ) )
                 f.close()
             except:
                 print_exc()
@@ -1459,7 +1464,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Try to save the file
         try:
             f = xbmcvfs.File( os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".properties" ), 'w' )
-            f.write( repr( saveData ) )
+            f.write( repr( saveData ).replace( "],", "],\n" ) )
             f.close()
         except:
             print_exc()
