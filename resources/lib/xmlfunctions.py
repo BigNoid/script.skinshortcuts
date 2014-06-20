@@ -435,7 +435,10 @@ class XMLFunctions():
         if submenuVisibility is not None:
             submenuVisibilityElement = xmltree.SubElement( newelement, "property" )
             submenuVisibilityElement.set( "name", "submenuVisibility" )
-            submenuVisibilityElement.text = DATA.slugify( submenuVisibility )
+            if submenuVisibility.isdigit():
+                submenuVisibilityElement.text = "$NUMBER[" + submenuVisibility + "]"
+            else:
+                submenuVisibilityElement.text = DATA.slugify( submenuVisibility )
             
         # Visibility
         if visibilityCondition is not None:
