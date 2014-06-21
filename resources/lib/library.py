@@ -1197,6 +1197,7 @@ class LibraryFunctions():
                     
                 if len( replacementLabel ) == 2:
                     # We're also overriding the type
+                    log( "### label2: " + replacementLabel[1] )
                     displayLabel2 = replacementLabel[1]
                     shortcutType = replacementLabel[1]
                     
@@ -1220,9 +1221,9 @@ class LibraryFunctions():
         # Create localised label2
         try:
             if not displayLabel2.find( "::SCRIPT::" ) == -1:
-                displayLabel2 = __language__(int( item[2][10:] ) )
+                displayLabel2 = __language__(int( displayLabel2[10:] ) )
             elif not displayLabel2.find( "::LOCAL::" ) == -1:
-                displayLabel2 = xbmc.getLocalizedString(int( item[2][9:] ) )
+                displayLabel2 = xbmc.getLocalizedString(int( displayLabel2[9:] ) )
             elif displayLabel2.isdigit():
                 displayLabel2 = xbmc.getLocalizedString( int( displayLabel2 ) )
                 
@@ -1233,6 +1234,8 @@ class LibraryFunctions():
                     shortcutType = "::LOCAL::" + shortcutType
         except:
             print_exc()
+            
+        log( "### Display2: " + displayLabel2 )
             
         # If this launches our explorer, append a notation to the displayLabel
         if item[0].startswith( "||" ):
