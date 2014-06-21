@@ -649,9 +649,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # User has chosen to browse for an image/folder
                 imagedialog = xbmcgui.Dialog()
                 if selectedBackground == 1: # Single image
-                    custom_image = dialog.browse( 2 , xbmc.getLocalizedString(1030), 'files')
+                    custom_image = imagedialog.browse( 2 , xbmc.getLocalizedString(1030), 'files')
                 else: # Multi-image
-                    custom_image = dialog.browse( 0 , xbmc.getLocalizedString(1030), 'files')
+                    custom_image = imagedialog.browse( 0 , xbmc.getLocalizedString(1030), 'files')
                 
                 if custom_image:
                     self._add_additionalproperty( listitem, "background", custom_image )
