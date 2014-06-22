@@ -1197,7 +1197,6 @@ class LibraryFunctions():
                     
                 if len( replacementLabel ) == 2:
                     # We're also overriding the type
-                    log( "### label2: " + replacementLabel[1] )
                     displayLabel2 = replacementLabel[1]
                     shortcutType = replacementLabel[1]
                     
@@ -1234,8 +1233,6 @@ class LibraryFunctions():
                     shortcutType = "::LOCAL::" + shortcutType
         except:
             print_exc()
-            
-        log( "### Display2: " + displayLabel2 )
             
         # If this launches our explorer, append a notation to the displayLabel
         if item[0].startswith( "||" ):

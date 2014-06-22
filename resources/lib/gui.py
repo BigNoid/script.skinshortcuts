@@ -48,6 +48,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
         self.group = kwargs[ "group" ]
         self.nolabels = kwargs[ "nolabels" ]
+        self.groupname = kwargs[ "groupname" ]
         self.shortcutgroup = 1
         
         # Empty arrays for different shortcut types
@@ -74,6 +75,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
         else:
             self.window_id = xbmcgui.getCurrentWindowDialogId()
             xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
+            if self.groupname is not None:
+                xbmcgui.Window( self.window_id ).setProperty( 'groupDisplayName', self.groupname )
+                
+            log( "### " + repr( self.groupname ) )
 
             # Load library shortcuts in thread
             thread.start_new_thread( LIBRARY.loadLibrary, () )
@@ -96,6 +101,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if self.getControl( 500 ).getLabel() == "":
                     if self.group == "mainmenu":
                         self.getControl( 500 ).setLabel( __language__(32071) )
+                    elif self.groupname is not None:
+                        self.getControl( 500 ).setLabel( __language__(32080).replace( "::MENUNAME::", self.groupname ) )
                     else:
                         self.getControl( 500 ).setLabel( __language__(32072) )
             except:
@@ -822,6 +829,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Get the group we're about to edit
             launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
+            groupName = self.getControl( 211 ).getSelectedItem().getLabel()
             
             # If the labelID property is empty, we need to generate one
             if launchGroup is None or launchGroup == "":
@@ -845,8 +853,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 launchGroup = launchGroup + "." + currentWindow.getProperty("level")
                 currentWindow.clearProperty("level")
                 
+            # Check if 'groupname' property has been set
+            if currentWindow.getProperty( "overrideName" ):
+                groupName = currentWindow.getProperty( "overrideName" )
+                currentWindow.clearProperty( "overrideName" )
+                
             # Execute the script
-            xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&nolabels=" + self.nolabels + ")" )
+            xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&groupname=" + groupName + "&nolabels=" + self.nolabels + ")" )
             
 
     def warnonremoval( self, item ):

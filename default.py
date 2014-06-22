@@ -72,7 +72,7 @@ class Main:
         if self.TYPE=="launchpvr":
             xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Player.Open", "params": { "item": {"channelid": ' + self.CHANNEL + '} } }')
         if self.TYPE=="manage":
-            self._manage_shortcuts( self.GROUP, self.NOLABELS )
+            self._manage_shortcuts( self.GROUP, self.NOLABELS, self.GROUPNAME )
         if self.TYPE=="list":
             self._check_Window_Properties()
             self._list_shortcuts( self.GROUP )
@@ -135,6 +135,7 @@ class Main:
                 params = {}
         
         self.GROUP = params.get( "group", "" )
+        self.GROUPNAME = params.get( "groupname", None )
         self.PATH = params.get( "path", "" )
         self.MENUID = params.get( "mainmenuID", "0" )
         self.LEVEL = params.get( "level", "" )
@@ -186,9 +187,9 @@ class Main:
                     xbmc.executebuiltin( singleAction )
         
     
-    def _manage_shortcuts( self, group, nolabels ):
+    def _manage_shortcuts( self, group, nolabels, groupname ):
         import gui
-        ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group, nolabels=nolabels )
+        ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group, nolabels=nolabels, groupname=groupname )
         ui.doModal()
         del ui
         
