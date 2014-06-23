@@ -580,15 +580,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Generate list of widgets for select dialog
             widget = [""]
             widgetLabel = [__language__(32053)]
+            widgetName = [""]
             for key in self.widgets:
                 widget.append( key[0] )
                 widgetLabel.append( key[1] )
+                widgetName.append( "" )
                 
             # If playlists have been enabled for widgets, add them too
             if self.widgetPlaylists:
                 for playlist in LIBRARY.widgetPlaylistsList:
                     widget.append( "::PLAYLIST::" + playlist[0] )
                     widgetLabel.append( playlist[1] )
+                    widgetName.append( playlist[2] )
                     
             # Show the dialog
             selectedWidget = xbmcgui.Dialog().select( __language__(32044), widgetLabel )
@@ -605,13 +608,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             else:
                 if widget[selectedWidget].startswith( "::PLAYLIST::" ):
                     self._add_additionalproperty( listitem, "widget", "Playlist" )
+                    self._add_additionalproperty( listitem, "widgetName", widgetName[selectedWidget] )
                     self._add_additionalproperty( listitem, "widgetPlaylist", widget[selectedWidget].strip( "::PLAYLIST::" ) )
-
                 else:
+                    self._add_additionalproperty( listitem, "widgetName", widgetLabel[selectedWidget] )
                     self._add_additionalproperty( listitem, "widget", widget[selectedWidget] )
                     self._remove_additionalproperty( listitem, "widgetPlaylist" )
-                
-                self._add_additionalproperty( listitem, "widgetName", widgetLabel[selectedWidget] )
                 
             self.changeMade = True
                 
