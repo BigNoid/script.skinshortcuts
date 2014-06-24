@@ -82,8 +82,11 @@ class Main:
         if self.TYPE=="settings":
             self._check_Window_Properties()
             self._manage_shortcut_links() 
+            
         if self.TYPE=="hidesubmenu":
             self._hidesubmenu( self.MENUID )
+        if self.TYPE=="focusmenu":
+            self._focus_menu( self.MENUID, self.LABELID )
             
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
@@ -143,6 +146,7 @@ class Main:
         self.CUSTOMID = params.get( "customid", "" )
         self.MODE = params.get( "mode", None )
         self.CHANNEL = params.get( "channel", None )
+        self.LABELID = params.get( "labelid", None )
         
         # Properties when using LIBRARY._displayShortcuts
         self.LABEL = params.get( "skinLabel", None )
@@ -512,6 +516,22 @@ class Main:
             xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
         
         xbmc.executebuiltin( "ClearProperty(submenuVisibility, 10000)" )
+        
+    def _focus_menu( self, menuid, labelid ):
+        log( "Focusing menu" )
+        count = 0
+        totalCount = int( xbmc.getInfoLabel("Container(" + menuid + ").NumItems" ) )
+        
+        while xbmc.getCondVisibility( "!StringCompare(Container(" + menuid + ").ListItem(" + str( count ) + ").Property(labelID)," + labelid + ")" ):
+            count +=1
+            log( " - " + str( count ) )
+            if count > totalCount:
+                # No item with that labelID found
+                log( "Not found" )
+                return
+        if count != 0:
+            log( "Moving menu " + str( count ) + " items" )
+            xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + ")" )
                     
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)

@@ -626,7 +626,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if widgetType[ selectedWidget] is not None:
                     self._add_additionalproperty( listitem, "widgetType", widgetType[ selectedWidget] )
                 else:
-                    self._remove_additional_property( listitem, "widgetType" )
+                    self._remove_additionalproperty( listitem, "widgetType" )
                 
             self.changeMade = True
                 
