@@ -259,6 +259,7 @@ class XMLFunctions():
             if len( menuitems ) == 0:
                 break
             
+            itemidmainmenu = 0
         
             # Work out percentages for dialog
             percent = profilePercent / len( menuitems )
@@ -266,14 +267,15 @@ class XMLFunctions():
             i = 0
             for item in menuitems:
                 i += 1
+                itemidmainmenu += 1
                 progress.update( ( profilePercent * profileCount) + percent * i )
                 
                 # Build the main menu item
                 if groups == "":
                     submenu = DATA._get_labelID( item[5] )
-                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], submenu )
+                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu )
                     if buildMode == "single":
-                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], submenu )
+                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu )
                 else:
                     submenu = DATA._get_labelID( item )
                 
@@ -284,6 +286,7 @@ class XMLFunctions():
                     # Create trees for individual submenu's
                     justmenuTreeA = xmltree.SubElement( root, "include" )
                     justmenuTreeB = xmltree.SubElement( root, "include" )
+                    itemidsubmenu = 0
                     
                     # Get the submenu items
                     if count == 0:
@@ -319,11 +322,12 @@ class XMLFunctions():
                         onClickElement.set( "condition", "!StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
                         
                     for subitem in submenuitems:
-                        self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")", profile[1] )
-                        self.buildElement( subitem, justmenuTreeA, submenu, None, profile[1] )
-                        self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1] )
+                        itemidsubmenu += 1
+                        self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")", profile[1], itemid = itemidsubmenu )
+                        self.buildElement( subitem, justmenuTreeA, submenu, None, profile[1], itemid = itemidsubmenu )
+                        self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu )
                         if buildMode == "single":
-                            self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1] )
+                            self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu )
                 
                     # Increase the counter
                     count += 1
@@ -356,10 +360,12 @@ class XMLFunctions():
         file.write( repr( hashlist.list ) )
         file.close
         
-    def buildElement( self, item, Tree, groupName, visibilityCondition, profileVisibility, submenuVisibility = None ):
+    def buildElement( self, item, Tree, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1 ):
         # This function will build an element for the passed Item in
         # the passed Tree
         newelement = xmltree.SubElement( Tree, "item" )
+        if itemid is not -1:
+            newelement.set( "id", str( itemid ) )
         
         # Onclick
         action = urllib.unquote( item[4] ).decode( "utf-8" )
