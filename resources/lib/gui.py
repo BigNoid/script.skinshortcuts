@@ -54,6 +54,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Empty arrays for different shortcut types
         self.backgroundBrowse = False
         self.widgetPlaylists = False
+        self.widgetPlaylistsType = None
         
         self.currentProperties = []
         self.defaultProperties = []
@@ -220,11 +221,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if tree is not None:
             elems = tree.findall('widget')
             for elem in elems:
+                widgetType = None
+                if "type" in elem.attrib:
+                    widgetType = elem.attrib.get( "type" )
                 if elem.attrib.get( 'label' ).isdigit():
-                    self.widgets.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ) ] )
+                    self.widgets.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ), widgetType ] )
                     self.widgetsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
                 else:
-                    self.widgets.append( [elem.text, elem.attrib.get( 'label' ) ] )
+                    self.widgets.append( [elem.text, elem.attrib.get( 'label' ), widgetType ] )
                     self.widgetsPretty[elem.text] = elem.attrib.get( 'label' )
                     
         # Get backgrounds
@@ -581,10 +585,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             widget = [""]
             widgetLabel = [__language__(32053)]
             widgetName = [""]
+            widgetType = [ None ]
             for key in self.widgets:
                 widget.append( key[0] )
                 widgetLabel.append( key[1] )
                 widgetName.append( "" )
+                widgetType.append( key[2] )
                 
             # If playlists have been enabled for widgets, add them too
             if self.widgetPlaylists:
@@ -592,6 +598,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     widget.append( "::PLAYLIST::" + playlist[0] )
                     widgetLabel.append( playlist[1] )
                     widgetName.append( playlist[2] )
+                    widgetType.append( self.widgetPlaylistsType )
                     
             # Show the dialog
             selectedWidget = xbmcgui.Dialog().select( __language__(32044), widgetLabel )
@@ -603,6 +610,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # User selected no widget
                 self._remove_additionalproperty( listitem, "widget" )
                 self._remove_additionalproperty( listitem, "widgetName" )
+                self._remove_additionalproperty( listitem, "widgetType" )
                 self._remove_additionalproperty( listitem, "widgetPlaylist" )
                 
             else:
@@ -614,6 +622,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self._add_additionalproperty( listitem, "widgetName", widgetLabel[selectedWidget] )
                     self._add_additionalproperty( listitem, "widget", widget[selectedWidget] )
                     self._remove_additionalproperty( listitem, "widgetPlaylist" )
+                
+                if widgetType[ selectedWidget] is not None:
+                    self._add_additionalproperty( listitem, "widgetType", widgetType[ selectedWidget] )
+                else:
+                    self._remove_additional_property( listitem, "widgetType" )
                 
             self.changeMade = True
                 
@@ -1222,6 +1235,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 elem = overrides.find('widgetPlaylists')
                 if elem is not None and elem.text == "True":
                     self.widgetPlaylists = True
+                    if "type" in elem.attrib:
+                        self.widgetPlaylistsType = elem.attrib.get( "type" )
                 
             except:
                 pass

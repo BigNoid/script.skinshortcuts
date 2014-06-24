@@ -39,7 +39,7 @@ Then use the following in the visibility condition for each widget:
 
 	<visible>StringCompare(Container(9000).ListItem.Property(widget),[WidgetID])</visible>
 	
-You can define your widgets - along with their WidgetID, and default labelID's they should appear against - in an overrides.xml file. See "overrides.xml" sections 3 and 4 for more details.
+You can define your widgets - along with their WidgetID, an optional widgetType parameter and default labelID's they should appear against - in an overrides.xml file. See "overrides.xml" sections 3 and 4 for more details.
 
 You can also user overrides.xml to let the user select a playlist to use as a widget, which can then be shown by using it as the <content> tag in a list. To check for a playlist widget:
 	
@@ -203,17 +203,18 @@ You can then choose which background to display based on the 'background' proper
 
 If you are using Skin Shortcuts to manage widgets, provide a list of the widgets your skin supports and defaults for labelID's in the overrides.xml.
 
-<widget label="[label]">[WidgetID]</widget>
+<widget label="[label]" type="[type]">[WidgetID]</widget>
 <widgetdefault labelID="[labelID]" group="[GroupName]" >[widgetID]</widgetdefault>
 
 [label] - The display name of the widget, to be shown when choosing widgets (can be a localised string)
+[type] - [Optional] A string you use to identy the type of widget (returned as property widgetType)
 [GroupName] - [Optional] The group that the labelID must be in, for example "movies". If omitted, the property will apply to items in the main menu.
 [widgetID] - A string you use to identify this widget
 [labelID] - The labelID you are setting the default for
 
 If you want the user to be able to select a playlist as a widget, also include:
 
-<widgetPlaylists>True</widgetPlaylists>
+<widgetPlaylists type="[type]">True</widgetPlaylists>
 
 So, for example:
 
