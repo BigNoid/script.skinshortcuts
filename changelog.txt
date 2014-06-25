@@ -1,4 +1,4 @@
-v0.3.4 - Unpublished development build
+v0.3.4
 - XML files are formatted (includes.xml, auto-generated playlists), includes now have an id property
 - New 'Settings' available shortcut grouping
 - Ability to override available shortcuts type, widget type

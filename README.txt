@@ -1,8 +1,6 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
-This is a DEVELOPMENT BUILD and may be UNSTABLE or even BROKEN.
-
-What's New for Skinners (version 0.3.4 Development Build)
+What's New for Skinners (version 0.3.4)
 -----------------------
 
  - Ability to override available shortcuts type - see "Advanced Usage.txt", section "Overrides.xml", part 7
