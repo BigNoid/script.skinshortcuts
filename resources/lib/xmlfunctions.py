@@ -253,6 +253,8 @@ class XMLFunctions():
             # Get groups OR main menu shortcuts
             if not groups == "":
                 menuitems = groups.split( "|" )
+                if menuitems[0] == "mainmenu":
+                    menuitems = DATA._get_shortcuts( "mainmenu", True, profile[0] ) + groups.split( "|" )
             else:
                 menuitems = DATA._get_shortcuts( "mainmenu", True, profile[0] )
                 
@@ -266,12 +268,14 @@ class XMLFunctions():
                 
             i = 0
             for item in menuitems:
+                log( repr( type( item ) ) )
                 i += 1
                 itemidmainmenu += 1
                 progress.update( ( profilePercent * profileCount) + percent * i )
                 
                 # Build the main menu item
-                if groups == "":
+                #if groups == "":
+                if type( item ) == list:
                     submenu = DATA._get_labelID( item[5] )
                     mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu )
                     if buildMode == "single":

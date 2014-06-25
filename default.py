@@ -87,6 +87,8 @@ class Main:
             self._hidesubmenu( self.MENUID )
         if self.TYPE=="focusmenu":
             self._focus_menu( self.MENUID, self.LABELID )
+            if self.SUBMENUID is not None:
+                self._focus_menu( self.SUBMENUID, self.SUBLABELID )
             
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
@@ -150,6 +152,8 @@ class Main:
         self.MODE = params.get( "mode", None )
         self.CHANNEL = params.get( "channel", None )
         self.LABELID = params.get( "labelid", None )
+        self.SUBMENUID = params.get( "submenuID", None )
+        self.SUBLABELID = params.get( "sublabelid", None )
         
         # Properties when using LIBRARY._displayShortcuts
         self.LABEL = params.get( "skinLabel", None )
@@ -522,6 +526,7 @@ class Main:
         
     def _focus_menu( self, menuid, labelid ):
         log( "Focusing menu" )
+        log( "Searching for menu item: " + labelid )
         count = 0
         totalCount = int( xbmc.getInfoLabel("Container(" + menuid + ").NumItems" ) )
         
