@@ -85,10 +85,6 @@ class Main:
             
         if self.TYPE=="hidesubmenu":
             self._hidesubmenu( self.MENUID )
-        if self.TYPE=="focusmenu":
-            self._focus_menu( self.MENUID, self.LABELID, self.FOCUS, self.LENGTH )
-            if self.SUBMENUID is not None:
-                self._focus_menu( self.SUBMENUID, self.SUBLABELID, self.SUBFOCUS, self.SUBLENGTH )
             
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
@@ -152,13 +148,6 @@ class Main:
         self.MODE = params.get( "mode", None )
         self.CHANNEL = params.get( "channel", None )
         self.LABELID = params.get( "labelid", None )
-        
-        self.FOCUS = params.get( "focus", None )
-        self.LENGTH = params.get( "length", None )
-        self.SUBMENUID = params.get( "submenuID", None )
-        self.SUBLABELID = params.get( "sublabelid", None )
-        self.SUBFOCUS = params.get( "subfocus", None )
-        self.SUBLENGTH = params.get( "sublength", None )
         
         # Properties when using LIBRARY._displayShortcuts
         self.LABEL = params.get( "skinLabel", None )
@@ -528,62 +517,6 @@ class Main:
             xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
         
         xbmc.executebuiltin( "ClearProperty(submenuVisibility, 10000)" )
-        
-    def _focus_menu( self, menuid, labelid, focus, length ):
-        log( "### Setting Focus" )
-        if focus is None:
-            log( "Focus value needs to be set to focus menu" )
-            
-        xbmc.executebuiltin( "SetFocus(" + menuid + "," + focus + ")" )
-
-        count = 0
-        totalCount = int( xbmc.getInfoLabel("Container(" + menuid + ").NumItems" ) )
-        maxCount = totalCount - int( length )
-        log( "### " + labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
-        
-        if maxCount <= 0 or xbmc.getCondVisibility( "StringCompare(Container(" + menuid + ").ListItem.Property(labelID)," + labelid + ")" ):
-            log( "The focus is correct" )
-            # The focus has to be correct
-            return
-        
-        log( "### Total items: " + str( totalCount ) )
-        log( "### Maxcount: " + str( maxCount ) )
-        
-        # Set to zero
-        xbmc.executebuiltin( "SetFocus(" + menuid + ",1000)" )
-        xbmc.executebuiltin( "Control.Move(" + menuid + ",1)" )
-        
-        # Find the item
-        count = 0
-        while xbmc.getCondVisibility( "!StringCompare(Container(" + menuid + ").ListItem(" + str( count ) + ").Property(labelID)," + labelid + ")" ):
-            count += 1
-            
-        # We now know the offset we need
-        offset = int( focus ) - count
-        offset = -offset
-        log( "### Found item at " + str( count ) + ", expected at " + focus + ". Therefore offset of " + str( offset ) + " needed" )
-        xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( int( length ) + offset ) + ")" )
-        xbmc.executebuiltin( "SetFocus(" + menuid + "," + focus + ")" )
-        log( "### " + labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
-        log( "### Finished" )
-        return
-
-        while xbmc.getCondVisibility( "!StringCompare(Container(" + menuid + ").ListItem.Property(labelID)," + labelid + ")" ):
-            # Move to the last item, then move down one. Repeat until we've reached the last item
-            xbmc.executebuiltin( "SetFocus(" + menuid + "," + str( int( length ) + 1 ) + ")" )
-            #xbmc.sleep( 100 )
-            xbmc.executebuiltin( "SetFocus(" + menuid + "," + focus + ")" )
-            #xbmc.sleep( 100 )
-            
-            log( labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
-            count += 1
-            log( str( count ) )
-            
-            if count > maxCount:
-                log( "Couldn't find the item" )
-                return
-                
-        log( "Found the item" )
                     
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
