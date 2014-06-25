@@ -6,6 +6,8 @@ What's New for Skinners (version 0.3.4 Development Build)
 -----------------------
 
  - Ability to override available shortcuts type - see "Advanced Usage.txt", section "Overrides.xml", part 7
+ - Ability to set widgetType property - see "Advanced Usage.txt", section "Overrides.xml", part 4
+ - Ability to build main menu and standalone menus - see "Using Includes - sub-menu only" below
 
 
 What's (hopefully) Coming
@@ -184,6 +186,8 @@ And in skinsettings.xml, the line:
 	<onunload>RunScript(script.skinshortcuts,type=buildxml&amp;mainmenuID=9000&amp;group=[groupname]|[groupname]|[groupname])</onunload>
 	
 Replace 9000 with the ID of the list you are using for the mainmenu. You should include all [groupname]'s that your skin supports, separated by a pipe. The script will then load all of the submenus, and set visibility conditions on each one.
+
+If you are not using a main menu to choose which display group to show, you must still include a mainmenuID value, but can set this to any random value. If you want to build the mainmenu and additional standalone groups, include the group parameter with "mainmenu" as the first option.
 
 
 2. Let the user manage their shortcuts

@@ -1,7 +1,8 @@
 v0.3.4 - Unpublished development build
-- XML files are formatted (includes.xml, auto-generated playlists)
+- XML files are formatted (includes.xml, auto-generated playlists), includes now have an id property
 - New 'Settings' available shortcut grouping
-- Ability to override available shortcuts type
+- Ability to override available shortcuts type, widget type
+- Ability to build main menu and standalone menus
 - A couple of small fixes and improvements
 - Fix: Work around XBMC translating numering labelID's to their localised string, causing sub-menus not to show
 
