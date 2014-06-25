@@ -204,7 +204,7 @@ You can then choose which background to display based on the 'background' proper
 If you are using Skin Shortcuts to manage widgets, provide a list of the widgets your skin supports and defaults for labelID's in the overrides.xml.
 
 <widget label="[label]" type="[type]">[WidgetID]</widget>
-<widgetdefault labelID="[labelID]" group="[GroupName]" >[widgetID]</widgetdefault>
+<widgetdefault labelID="[labelID]" group="[GroupName]" type="[type]">[widgetID]</widgetdefault>
 
 [label] - The display name of the widget, to be shown when choosing widgets (can be a localised string)
 [type] - [Optional] A string you use to identy the type of widget (returned as property widgetType)

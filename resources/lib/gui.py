@@ -1223,8 +1223,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             # Widget or background
                             if "group" not in elem.attrib:
                                 self.defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
+                                if "type" in elem.attrib:
+                                    self.defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), "widgetType", elem.attrib.get( "type" ) ] )
                             else:
                                 self.defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
+                                if "type" in elem.attrib:
+                                    self.defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), "widgetType", elem.attrib.get( "type" ) ] )
 
                 # Should we allow the user to browse for background images...
                 elem = overrides.find('backgroundBrowse')

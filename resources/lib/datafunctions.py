@@ -495,8 +495,12 @@ class DataFunctions():
                         # Widget or background
                         if "group" not in elem.attrib:
                             defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
+                            if "type" in elem.attrib:
+                                defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), "widgetType", elem.attrib.get( "type" ) ] )
                         else:
                             defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
+                            if "type" in elem.attrib:
+                                defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), "widgetType", elem.attrib.get( "type" ) ] )
                 
         returnVal = [currentProperties, defaultProperties]
         xbmcgui.Window( 10000 ).setProperty( "skinshortcutsAdditionalProperties", pickle.dumps( returnVal ) )
