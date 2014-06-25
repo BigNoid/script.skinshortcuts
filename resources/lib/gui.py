@@ -271,7 +271,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return
             
             # Copy the new shortcut
-            listitemCopy = self._duplicate_listitem( self.getControl( 111 ).getSelectedItem(), listControl.getListItem( itemIndex ) )
+            selectedItem = self.getControl( 111 ).getSelectedItem()
+            listitemCopy = self._duplicate_listitem( selectedItem, listControl.getListItem( itemIndex ) )
             
             path = urllib.unquote( listitemCopy.getProperty( "Path" ) )
             if path.startswith( "||BROWSE||" ):
@@ -305,18 +306,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             listitemCopy = None
                 else:
                     listitemCopy = None
-            elif path == "||PLAYLIST||":
+            elif path == "::PLAYLIST::":
                 # Give the user the choice of playing or displaying the playlist
                 dialog = xbmcgui.Dialog()
                 userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
                 # False: Display
                 # True: Play
                 if userchoice == False:
-                   listitemCopy.setProperty( "Path", self.getControl( 111 ).getSelectedItem().getProperty( "action-show" ) )
-                   listitemCopy.setProperty( "displayPath", urllib.unquote( self.getControl( 111 ).getSelectedItem().getProperty( "action-show" ) ) )
+                    listitemCopy.setProperty( "path", selectedItem.getProperty( "action-show" ) )
+                    listitemCopy.setProperty( "displayPath", urllib.unquote( selectedItem.getProperty( "action-show" ) ) )
                 else:
-                   listitemCopy.setProperty( "Path", self.getControl( 111 ).getSelectedItem().getProperty( "action-show" ) )
-                   listitemCopy.setProperty( "displayPath", urllib.unquote( self.getControl( 111 ).getSelectedItem().getProperty( "action-show" ) ) )
+                    listitemCopy.setProperty( "path", selectedItem.getProperty( "action-play" ) )
+                    listitemCopy.setProperty( "displayPath", urllib.unquote( selectedItem.getProperty( "action-play" ) ) )
              
             if listitemCopy is None:
                 # Nothing was selected in the explorer
@@ -710,6 +711,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             selectedShortcut = LIBRARY.selectShortcut()
             if selectedShortcut is not None:
                 listitemCopy = self._duplicate_listitem( selectedShortcut, self.getControl( 211 ).getListItem( num ) )
+                if selectedShortcut.getProperty( "chosenPath" ):
+                    listitemCopy.setProperty( "path", selectedShortcut.getProperty( "chosenPath" ) )
+                    listitemCopy.setProperty( "displayPath", urllib.unquote( selectedShortcut.getProperty( "chosenPath" ) ) )
                 LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
             
                 self.changeMade = True
@@ -1254,7 +1258,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
-        listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
+        listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )       
+        
         if listitem.getProperty( "LOCKED" ):
             listitemCopy.setProperty( "LOCKED", "True" )
         
@@ -1517,7 +1522,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         self.getControl( 111 ).reset()
         for item in newGroup[1]:
-            self.getControl( 111 ).addItem( self._duplicate_listitem( item ) )
+            newItem = self._duplicate_listitem( item )
+            if item.getProperty( "action-show" ):
+                newItem.setProperty( "action-show", item.getProperty( "action-show" ) )
+                newItem.setProperty( "action-play", item.getProperty( "action-play" ) )
+            self.getControl( 111 ).addItem( newItem )
         self.getControl( 101 ).setLabel( label + " (%s)" %self.getControl( 111 ).size() )
         
     def onAction( self, action ):

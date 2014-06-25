@@ -449,9 +449,9 @@ class LibraryFunctions():
                 # False: Display
                 # True: Play
                 if userchoice == False:
-                    selectedShortcut.setProperty( "path", urllib.unquote( selectedShortcut.getProperty( "action-show" ) ) )
+                    selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
                 else:
-                    selectedShortcut.setProperty( "path", urllib.unquote( selectedShortcut.getProperty( "action-play" ) ) )
+                    selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-play" ) )
                    
             elif path == "||CUSTOM||":
                 # Let the user type a comand

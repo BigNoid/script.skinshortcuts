@@ -104,6 +104,9 @@ class Main:
             # Now set the skin strings
             if selectedShortcut is not None:
                 path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                if selectedShortcut.getProperty( "chosenPath" ):
+                    path = urllib.unquote( selectedShortcut.getProperty( "chosenPath" ) )
+
                 if path.startswith( "pvr-channel://" ):
                     path = "RunScript(script.skinshortcuts,type=launchpvr&channel=" + path.replace( "pvr-channel://", "" ) + ")"
                 if self.LABEL is not None and selectedShortcut.getLabel() != "":
