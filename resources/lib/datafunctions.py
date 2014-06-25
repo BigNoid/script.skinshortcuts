@@ -516,7 +516,7 @@ class DataFunctions():
         xbmcgui.Window( 10000 ).setProperty( "skinshortcutsAdditionalProperties", pickle.dumps( returnVal ) )
         return returnVal
         
-    def getWidgetNameAndType( self, widgetID ):
+    def _getWidgetNameAndType( self, widgetID ):
         tree = self._get_overrides_skin()
         if tree is not None:
             for elem in tree.findall( "widget" ):
