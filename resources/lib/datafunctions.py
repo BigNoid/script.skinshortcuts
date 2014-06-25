@@ -495,18 +495,40 @@ class DataFunctions():
                         # Widget or background
                         if "group" not in elem.attrib:
                             defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
-                            if "type" in elem.attrib:
-                                defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), "widgetType", elem.attrib.get( "type" ) ] )
+                            if elemSearch[0] == "widget":
+                                # Get and set widget type and name
+                                widgetDetails = self._getWidgetNameAndType( elem.text )
+                                if widgetDetails is not None:
+                                    defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0] ] )
+                                    if widgetDetails[1] is not None:
+                                        defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1] ] )
                         else:
                             defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
-                            if "type" in elem.attrib:
-                                defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), "widgetType", elem.attrib.get( "type" ) ] )
-                
+                            if elemSearch[0] == "widget":
+                                # Get and set widget type and name
+                                widgetDetails = self._getWidgetNameAndType( elem.text )
+                                if widgetDetails is not None:
+                                    defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0] ] )
+                                    if widgetDetails[1] is not None:
+                                        defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1] ] )                
+                                        
         returnVal = [currentProperties, defaultProperties]
         xbmcgui.Window( 10000 ).setProperty( "skinshortcutsAdditionalProperties", pickle.dumps( returnVal ) )
         return returnVal
-
         
+    def getWidgetNameAndType( self, widgetID ):
+        tree = self._get_overrides_skin()
+        if tree is not None:
+            for elem in tree.findall( "widget" ):
+                if elem.text == widgetID:
+                    if "type" in elem.attrib:
+                        return [elem.attrib.get( "label" ), elem.attrib.get( "type" )]
+                    else:
+                        return [ elem.attrib.get( "label" ), None ]
+                        
+        return None
+    
+    
     def createNiceName ( self, item ):
         # Translate certain localized strings into non-localized form for labelID
         if item == "10006":

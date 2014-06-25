@@ -1227,12 +1227,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             # Widget or background
                             if "group" not in elem.attrib:
                                 self.defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
-                                if "type" in elem.attrib:
-                                    self.defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), "widgetType", elem.attrib.get( "type" ) ] )
+                                if elemSearch[0] == "widget":
+                                    # Get and set widget type and name
+                                    widgetDetails = DATA._getWidgetNameAndType( elem.text )
+                                    if widgetDetails is not None:
+                                        defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0] ] )
+                                        if widgetDetails[1] is not None:
+                                            defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1] ] )
                             else:
                                 self.defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
-                                if "type" in elem.attrib:
-                                    self.defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), "widgetType", elem.attrib.get( "type" ) ] )
+                                if elemSearch[0] == "widget":
+                                    # Get and set widget type and name
+                                    widgetDetails = DATA._getWidgetNameAndType( elem.text )
+                                    if widgetDetails is not None:
+                                        defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0] ] )
+                                        if widgetDetails[1] is not None:
+                                            defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1] ] )                
 
                 # Should we allow the user to browse for background images...
                 elem = overrides.find('backgroundBrowse')
