@@ -539,15 +539,14 @@ class Main:
         count = 0
         totalCount = int( xbmc.getInfoLabel("Container(" + menuid + ").NumItems" ) )
         maxCount = totalCount - int( length )
-        log( "### " + labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
+        log( "### Matched to " + labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
         
-        if maxCount <= 0 or xbmc.getCondVisibility( "StringCompare(Container(" + menuid + ").ListItem.Property(labelID)," + labelid + ")" ):
+        if xbmc.getCondVisibility( "StringCompare(Container(" + menuid + ").ListItem.Property(labelID)," + labelid + ")" ):
             log( "The focus is correct" )
             # The focus has to be correct
             return
         
         log( "### Total items: " + str( totalCount ) )
-        log( "### Maxcount: " + str( maxCount ) )
         
         # Set to zero
         xbmc.executebuiltin( "SetFocus(" + menuid + ",1000)" )
@@ -557,33 +556,20 @@ class Main:
         count = 0
         while xbmc.getCondVisibility( "!StringCompare(Container(" + menuid + ").ListItem(" + str( count ) + ").Property(labelID)," + labelid + ")" ):
             count += 1
+            if count > (totalCount + 1):
+                log( "### Can't find item" )
+                return
             
         # We now know the offset we need
         offset = int( focus ) - count
         offset = -offset
         log( "### Found item at " + str( count ) + ", expected at " + focus + ". Therefore offset of " + str( offset ) + " needed" )
         xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( int( length ) + offset ) + ")" )
+        #xbmc.sleep( 100 )
         xbmc.executebuiltin( "SetFocus(" + menuid + "," + focus + ")" )
-        log( "### " + labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
+        #xbmc.sleep( 100 )
+        log( "### matched to " + labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
         log( "### Finished" )
-        return
-
-        while xbmc.getCondVisibility( "!StringCompare(Container(" + menuid + ").ListItem.Property(labelID)," + labelid + ")" ):
-            # Move to the last item, then move down one. Repeat until we've reached the last item
-            xbmc.executebuiltin( "SetFocus(" + menuid + "," + str( int( length ) + 1 ) + ")" )
-            #xbmc.sleep( 100 )
-            xbmc.executebuiltin( "SetFocus(" + menuid + "," + focus + ")" )
-            #xbmc.sleep( 100 )
-            
-            log( labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
-            count += 1
-            log( str( count ) )
-            
-            if count > maxCount:
-                log( "Couldn't find the item" )
-                return
-                
-        log( "Found the item" )
                     
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
