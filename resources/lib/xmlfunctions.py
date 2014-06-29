@@ -372,7 +372,11 @@ class XMLFunctions():
             newelement.set( "id", str( itemid ) )
         
         # Onclick
-        action = urllib.unquote( item[4] ).decode( "utf-8" )
+        try:
+            action = urllib.unquote( item[4] ).decode( "utf-8" )
+        except:
+            action = urllib.unquote( item[4] )
+            
         if action.find("::MULTIPLE::") == -1:
             onclick = xmltree.SubElement( newelement, "onclick" )
             if action.startswith( "pvr-channel://" ):
