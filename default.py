@@ -100,7 +100,7 @@ class Main:
             selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM )
             
             # Now set the skin strings
-            if selectedShortcut is not None:
+            if selectedShortcut is not None and selectedShortcut.getProperty( "Path" ):
                 path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
                 if selectedShortcut.getProperty( "chosenPath" ):
                     path = urllib.unquote( selectedShortcut.getProperty( "chosenPath" ) )
@@ -113,8 +113,9 @@ class Main:
                     xbmc.executebuiltin( "Skin.SetString(" + self.ACTION + "," + path + " )" )
                 if self.SHORTCUTTYPE is not None:
                     xbmc.executebuiltin( "Skin.SetString(" + self.SHORTCUTTYPE + "," + selectedShortcut.getLabel2() + ")" )
+                if self.THUMBNAIL is not None and selectedShortcut.getProperty( "icon" ):
+                    xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "icon" ) + ")" )
                 if self.THUMBNAIL is not None and selectedShortcut.getProperty( "thumbnail" ):
-                    # REWRITE, to better return thumb or icon
                     xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "thumbnail" ) + ")" )
                 
         if self.TYPE=="resetall":
@@ -153,7 +154,7 @@ class Main:
         self.LABEL = params.get( "skinLabel", None )
         self.ACTION = params.get( "skinAction", None )
         self.SHORTCUTTYPE = params.get( "skinType", None )
-        self.THUMBNAIL = params.get( "skinThumnbail", None )
+        self.THUMBNAIL = params.get( "skinThumbnail", None )
         self.GROUPING = params.get( "grouping", None )
         self.CUSTOM = params.get( "custom", "False" )
         

@@ -425,10 +425,11 @@ class LibraryFunctions():
             elif path.startswith( "||BROWSE||" ):
                 selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType") )
                 # Convert backslashes to double-backslashes (windows fix)
-                newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
-                newAction = newAction.replace( "\\", "\\\\" )
-                selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
-                selectedShortcut.setProperty( "displayPath", newAction )
+                if selectedShortcut is not None:
+                    newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                    newAction = newAction.replace( "\\", "\\\\" )
+                    selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+                    selectedShortcut.setProperty( "displayPath", newAction )
             elif path == "||FOLDER||":
                 # The next set of shortcuts are within the listitem property folder-contents
                 shortcuts = self.folders[ selectedShortcut.getProperty( "folder" ) ]
