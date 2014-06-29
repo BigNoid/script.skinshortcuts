@@ -1,24 +1,11 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
-What's New for Skinners (version 0.3.4)
------------------------
+This is the RepoFixes branch - It contains only fixes for the current version on the XBMC repo.
 
- - Ability to override available shortcuts type - see "Advanced Usage.txt", section "Overrides.xml", part 7
- - Ability to set widgetType property - see "Advanced Usage.txt", section "Overrides.xml", part 4
- - Ability to build main menu and standalone menus - see "Using Includes - sub-menu only" below
+Included Fixes (0.3.5)
+--------------
 
-
-What's (hopefully) Coming
--------------------------
-
-Features intended for next stable release (0.3.5):
-- Improved localisation support equivalent to XBMC's native ($LOCALIZE, $ADDON, etc) in addition to ::SCRIPT:: ::LOCAL::
-- Replace .shortcuts files with .xml, including auto-upgrade of files
-- Improved behaviour of skin-required shortcuts
-- Easy skin option to force Settings in menu
-- Relegate Gotham list-filling method in favour of XML method (possible removal?)
-- Large code cleanup - fix cases of multiple uses of same code, clearer separation of different groupings of functions
-- PVR option changes for Helix (dependant on XBMC PR 7453)
+ - Fix for setting skin thumbnail property when using Just Select method
  
  
 With Thanks - Because their names don't deserve to be at the bottom :)
