@@ -6,6 +6,8 @@ Included Fixes (0.3.5)
 --------------
 
  - Fix for setting skin thumbnail property when using Just Select method
+ - Fix for menus failing to build when the action for a shortcut contains a unicode character
+ - Dirty fix for situations where a playlist in a menu will cause that menu to appear empty
  
  
 With Thanks - Because their names don't deserve to be at the bottom :)

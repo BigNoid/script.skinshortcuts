@@ -1,5 +1,7 @@
 v0.3.5 - RepoFixes Branch
 - Fix setting thumbnail and icon for Just Select method
+- Fix for unicode characters in shortcut action
+- Dirty fix for skin-provided playlists in menu
 
 v0.3.4
 - XML files are formatted (includes.xml, auto-generated playlists), includes now have an id property
