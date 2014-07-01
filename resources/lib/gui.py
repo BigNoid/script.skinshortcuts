@@ -1174,7 +1174,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             widgetPlaylistName = singleProperty[3]
                             
                         elif singleProperty[2] == "background":
-                            backgroundName = self.backgroundsPretty[ setValue ]
+                            backgroundName = self.backgroundsPretty[ singleProperty[3] ]
                         elif singleProperty[2] == "backgroundPlaylistName":
                             backgroundPlaylistName = singleProperty[3]
                             

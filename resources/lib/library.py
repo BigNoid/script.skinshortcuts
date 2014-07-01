@@ -1766,12 +1766,9 @@ class LibraryFunctions():
                 elements = target.split( "," )
             except:
                 return
-            try:
-                if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
-                    filename =  xbmc.translatePath( elements[1] )
-                else:
-                    return
-            except:
+            if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
+                filename =  xbmc.translatePath( elements[1] )
+            else:
                 return
                 
         # Load the tree and change the name
