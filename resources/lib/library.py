@@ -1356,7 +1356,7 @@ class LibraryFunctions():
                         if not playlist.endswith( '/' ):
                             playlist = playlist + "/"
                         playlist = playlist + file
-                        playlistfile = os.path.join( root, file ).decode( 'utf-8' )
+                        playlistfile = os.path.join( root, file )
                         mediaLibrary = path[2]
                         
                         if file.endswith( '.xsp' ):
@@ -1377,15 +1377,15 @@ class LibraryFunctions():
                                         name = file[:-4]
                                     # Create a list item
                                     listitem = self._create(["::PLAYLIST::", name, "::SCRIPT::" + path[1], {"icon": "DefaultPlaylist.png"} ])
-                                    listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist + ")" ) )
-                                    listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist + ", return)" ).encode( 'utf-8' ) )
+                                    listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist.encode( 'utf-8' ) + ")" ) )
+                                    listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist.encode( 'utf-8' ) + ", return)" ).encode( 'utf-8' ) )
                                     
                                     if mediaLibrary == "VideoLibrary":
                                         videolist.append( listitem )
                                     else:
                                         audiolist.append( listitem )
                                     # Save it for the widgets list
-                                    self.widgetPlaylistsList.append( [playlist.decode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name, name] )
+                                    self.widgetPlaylistsList.append( [playlist.encode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name, name] )
                                     
                                     count += 1
                                     break
