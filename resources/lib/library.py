@@ -1770,15 +1770,15 @@ class LibraryFunctions():
                 filename =  xbmc.translatePath( elements[1] )
             else:
                 return
-                
-        # Load the tree and change the name
-        tree = xmltree.parse( filename )
-        name = tree.getroot().find( "name" )
-        name.text = newLabel
-        
-        # Write the tree
-        DATA.indent( tree.getroot() )
-        tree.write( filename, encoding="utf-8" )
+                    
+            # Load the tree and change the name
+            tree = xmltree.parse( filename )
+            name = tree.getroot().find( "name" )
+            name.text = newLabel
+            
+            # Write the tree
+            DATA.indent( tree.getroot() )
+            tree.write( filename, encoding="utf-8" )
 
 class ShowDialog( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
