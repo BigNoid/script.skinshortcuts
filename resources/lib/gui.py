@@ -495,17 +495,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return
                 
             self.changeMade = True
-            
-            # Update the label, local string and labelID
-            listitem.setLabel( label )
-            listitem.setProperty( "localizedString", "" )
-            
-            LIBRARY._rename_playlist( listitem.getProperty( "path" ), label )
-            
-            # If there's no label2, set it to custom shortcut
-            if not listitem.getLabel2():
-                listitem.setLabel2( __language__(32024) )
-                listitem.setProperty( "shortcutType", "::SCRIPT::32024" )
+            self._set_label( listitem, label )
 
         if controlID == 306:
             # Change thumbnail
@@ -615,14 +605,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self._remove_additionalproperty( listitem, "widgetPlaylist" )
                 
             else:
+                currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+                
                 if widget[selectedWidget].startswith( "::PLAYLIST::" ):
                     self._add_additionalproperty( listitem, "widget", "Playlist" )
                     self._add_additionalproperty( listitem, "widgetName", widgetName[selectedWidget] )
                     self._add_additionalproperty( listitem, "widgetPlaylist", widget[selectedWidget].strip( "::PLAYLIST::" ) )
+                    if currentWindow.getProperty( "useWidgetNameAsLabel" ) == "true" :
+                        self._set_label( listitem, widgetName[selectedWidget] )
+                        currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 else:
                     self._add_additionalproperty( listitem, "widgetName", widgetLabel[selectedWidget] )
                     self._add_additionalproperty( listitem, "widget", widget[selectedWidget] )
                     self._remove_additionalproperty( listitem, "widgetPlaylist" )
+                    if currentWindow.getProperty( "useWidgetNameAsLabel" ) == "true" :
+                        self._set_label( listitem, widgetLabel[selectedWidget] )
+                        currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 
                 if widgetType[ selectedWidget] is not None:
                     self._add_additionalproperty( listitem, "widgetType", widgetType[ selectedWidget] )
@@ -1012,6 +1010,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
             else:
                 return []
         
+    def _set_label( self, listitem, label ):
+        # Update the label, local string and labelID
+        listitem.setLabel( label )
+        listitem.setProperty( "localizedString", "" )
+            
+        LIBRARY._rename_playlist( listitem.getProperty( "path" ), label )
+            
+        # If there's no label2, set it to custom shortcut
+        if not listitem.getLabel2():
+            listitem.setLabel2( __language__(32024) )
+            listitem.setProperty( "shortcutType", "::SCRIPT::32024" )
                 
     def _add_additionalproperty( self, listitem, propertyName, propertyValue ):
         # Add an item to the additional properties of a user items
