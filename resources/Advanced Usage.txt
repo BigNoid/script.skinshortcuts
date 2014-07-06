@@ -229,6 +229,8 @@ So, for example:
 
 You can then choose which widget to display based on the 'widget' property of the selected listitem.
 
+You can optionally use choose to set the shortcut name to the widget name when selecting a widget. To do so, set the window property "useWidgetNameAsLabel" to "true". This property will be reset after the widget is set.
+
 
 5. Skin-Recommended Shortcuts
 

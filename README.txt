@@ -1,13 +1,14 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 This is a DEVELOPMENT BUILD and may be UNSTABLE or even BROKEN.
+If do not require the new features but want to use a git version, use the repofixes branch.
 
-What's New for Skinners (version 0.3.4 Development Build)
+What's New for Skinners (version 0.3.5 Development Build)
 -----------------------
 
- - Ability to override available shortcuts type - see "Advanced Usage.txt", section "Overrides.xml", part 7
- - Ability to set widgetType property - see "Advanced Usage.txt", section "Overrides.xml", part 4
- - Ability to build main menu and standalone menus - see "Using Includes - sub-menu only" below
+This branch will be version 0.4.0 as such time as it is deemed the stable branch
+
+ - [bambi73] Use the widgetName as the label for a shortcut when setting widget, see "Advanced Usage.txt", section "Overrides.xml" part 4
 
 
 What's (hopefully) Coming
