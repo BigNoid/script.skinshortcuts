@@ -85,10 +85,6 @@ class Main:
             
         if self.TYPE=="hidesubmenu":
             self._hidesubmenu( self.MENUID )
-        if self.TYPE=="focusmenu":
-            self._focus_menu( self.MENUID, self.LABELID, self.FOCUS, self.LENGTH )
-            if self.SUBMENUID is not None:
-                self._focus_menu( self.SUBMENUID, self.SUBLABELID, self.SUBFOCUS, self.SUBLENGTH )
             
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
@@ -104,7 +100,7 @@ class Main:
             selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM )
             
             # Now set the skin strings
-            if selectedShortcut is not None:
+            if selectedShortcut is not None and selectedShortcut.getProperty( "Path" ):
                 path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
                 if selectedShortcut.getProperty( "chosenPath" ):
                     path = urllib.unquote( selectedShortcut.getProperty( "chosenPath" ) )
@@ -117,8 +113,9 @@ class Main:
                     xbmc.executebuiltin( "Skin.SetString(" + self.ACTION + "," + path + " )" )
                 if self.SHORTCUTTYPE is not None:
                     xbmc.executebuiltin( "Skin.SetString(" + self.SHORTCUTTYPE + "," + selectedShortcut.getLabel2() + ")" )
+                if self.THUMBNAIL is not None and selectedShortcut.getProperty( "icon" ):
+                    xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "icon" ) + ")" )
                 if self.THUMBNAIL is not None and selectedShortcut.getProperty( "thumbnail" ):
-                    # REWRITE, to better return thumb or icon
                     xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "thumbnail" ) + ")" )
                 
         if self.TYPE=="resetall":
@@ -153,18 +150,11 @@ class Main:
         self.CHANNEL = params.get( "channel", None )
         self.LABELID = params.get( "labelid", None )
         
-        self.FOCUS = params.get( "focus", None )
-        self.LENGTH = params.get( "length", None )
-        self.SUBMENUID = params.get( "submenuID", None )
-        self.SUBLABELID = params.get( "sublabelid", None )
-        self.SUBFOCUS = params.get( "subfocus", None )
-        self.SUBLENGTH = params.get( "sublength", None )
-        
         # Properties when using LIBRARY._displayShortcuts
         self.LABEL = params.get( "skinLabel", None )
         self.ACTION = params.get( "skinAction", None )
         self.SHORTCUTTYPE = params.get( "skinType", None )
-        self.THUMBNAIL = params.get( "skinThumnbail", None )
+        self.THUMBNAIL = params.get( "skinThumbnail", None )
         self.GROUPING = params.get( "grouping", None )
         self.CUSTOM = params.get( "custom", "False" )
         
@@ -528,48 +518,6 @@ class Main:
             xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
         
         xbmc.executebuiltin( "ClearProperty(submenuVisibility, 10000)" )
-        
-    def _focus_menu( self, menuid, labelid, focus, length ):
-        log( "### Setting Focus" )
-        if focus is None:
-            log( "Focus value needs to be set to focus menu" )
-            
-        xbmc.executebuiltin( "SetFocus(" + menuid + "," + focus + ")" )
-
-        count = 0
-        totalCount = int( xbmc.getInfoLabel("Container(" + menuid + ").NumItems" ) )
-        maxCount = totalCount - int( length )
-        log( "### Matched to " + labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
-        
-        if xbmc.getCondVisibility( "StringCompare(Container(" + menuid + ").ListItem.Property(labelID)," + labelid + ")" ):
-            log( "The focus is correct" )
-            # The focus has to be correct
-            return
-        
-        log( "### Total items: " + str( totalCount ) )
-        
-        # Set to zero
-        xbmc.executebuiltin( "SetFocus(" + menuid + ",1000)" )
-        xbmc.executebuiltin( "Control.Move(" + menuid + ",1)" )
-        
-        # Find the item
-        count = 0
-        while xbmc.getCondVisibility( "!StringCompare(Container(" + menuid + ").ListItem(" + str( count ) + ").Property(labelID)," + labelid + ")" ):
-            count += 1
-            if count > (totalCount + 1):
-                log( "### Can't find item" )
-                return
-            
-        # We now know the offset we need
-        offset = int( focus ) - count
-        offset = -offset
-        log( "### Found item at " + str( count ) + ", expected at " + focus + ". Therefore offset of " + str( offset ) + " needed" )
-        xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( int( length ) + offset ) + ")" )
-        #xbmc.sleep( 100 )
-        xbmc.executebuiltin( "SetFocus(" + menuid + "," + focus + ")" )
-        #xbmc.sleep( 100 )
-        log( "### matched to " + labelid + " : " + xbmc.getInfoLabel("Container(" + menuid + ").ListItem.Property(labelID)" ) )
-        log( "### Finished" )
                     
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)

@@ -425,10 +425,11 @@ class LibraryFunctions():
             elif path.startswith( "||BROWSE||" ):
                 selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType") )
                 # Convert backslashes to double-backslashes (windows fix)
-                newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
-                newAction = newAction.replace( "\\", "\\\\" )
-                selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
-                selectedShortcut.setProperty( "displayPath", newAction )
+                if selectedShortcut is not None:
+                    newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                    newAction = newAction.replace( "\\", "\\\\" )
+                    selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+                    selectedShortcut.setProperty( "displayPath", newAction )
             elif path == "||FOLDER||":
                 # The next set of shortcuts are within the listitem property folder-contents
                 shortcuts = self.folders[ selectedShortcut.getProperty( "folder" ) ]
@@ -1355,7 +1356,7 @@ class LibraryFunctions():
                         if not playlist.endswith( '/' ):
                             playlist = playlist + "/"
                         playlist = playlist + file
-                        playlistfile = os.path.join( root, file ).decode( 'utf-8' )
+                        playlistfile = os.path.join( root, file )
                         mediaLibrary = path[2]
                         
                         if file.endswith( '.xsp' ):
@@ -1376,15 +1377,15 @@ class LibraryFunctions():
                                         name = file[:-4]
                                     # Create a list item
                                     listitem = self._create(["::PLAYLIST::", name, "::SCRIPT::" + path[1], {"icon": "DefaultPlaylist.png"} ])
-                                    listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist + ")" ) )
-                                    listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist + ", return)" ).encode( 'utf-8' ) )
+                                    listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist.encode( 'utf-8' ) + ")" ) )
+                                    listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist.encode( 'utf-8' ) + ", return)" ).encode( 'utf-8' ) )
                                     
                                     if mediaLibrary == "VideoLibrary":
                                         videolist.append( listitem )
                                     else:
                                         audiolist.append( listitem )
                                     # Save it for the widgets list
-                                    self.widgetPlaylistsList.append( [playlist.decode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name, name] )
+                                    self.widgetPlaylistsList.append( [playlist.encode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name, name] )
                                     
                                     count += 1
                                     break
@@ -1769,15 +1770,15 @@ class LibraryFunctions():
                 filename =  xbmc.translatePath( elements[1] )
             else:
                 return
-                
-        # Load the tree and change the name
-        tree = xmltree.parse( filename )
-        name = tree.getroot().find( "name" )
-        name.text = newLabel
-        
-        # Write the tree
-        DATA.indent( tree.getroot() )
-        tree.write( filename, encoding="utf-8" )
+                    
+            # Load the tree and change the name
+            tree = xmltree.parse( filename )
+            name = tree.getroot().find( "name" )
+            name.text = newLabel
+            
+            # Write the tree
+            DATA.indent( tree.getroot() )
+            tree.write( filename, encoding="utf-8" )
 
 class ShowDialog( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
