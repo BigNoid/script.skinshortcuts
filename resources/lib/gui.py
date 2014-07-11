@@ -590,6 +590,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     widgetLabel.append( playlist[1] )
                     widgetName.append( playlist[2] )
                     widgetType.append( self.widgetPlaylistsType )
+                for playlist in LIBRARY.scriptPlaylists():
+                    widget.append( "::PLAYLIST::" + playlist[0] )
+                    widgetLabel.append( playlist[1] )
+                    widgetName.append( playlist[2] )
+                    widgetType.append( self.widgetPlaylistsType )
                     
             # Show the dialog
             selectedWidget = xbmcgui.Dialog().select( __language__(32044), widgetLabel )
@@ -647,6 +652,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for key in self.backgrounds:
                 if "::PLAYLIST::" in key[1]:
                     for playlist in LIBRARY.widgetPlaylistsList:
+                        background.append( [ key[0], playlist[0], playlist[1] ] )
+                        backgroundLabel.append( key[1].replace( "::PLAYLIST::", playlist[1] ) )
+                    for playlist in LIBRARY.scriptPlaylists():
                         background.append( [ key[0], playlist[0], playlist[1] ] )
                         backgroundLabel.append( key[1].replace( "::PLAYLIST::", playlist[1] ) )
                 else:
