@@ -838,9 +838,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Set the property
                 self._add_additionalproperty( listitem, propertyName, propertyValue )
             
-        if controlID == 405:
+        if controlID == 405 or controlID == 406 or controlID == 407 or controlID == 408 or controlID == 409 or controlID == 410:
             # Launch management dialog for submenu
-            log( "Launching management dialog for submenu (405)" )
+            log( "Launching management dialog for submenu/additional menu (" + str( controlID ) + ")" )
 
             currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
             
@@ -865,8 +865,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     launchGroup = self._get_labelID( labelID )
                 self.getControl( 211 ).getListItem( num ).setProperty( "labelID", launchGroup )                                        
             
+            # Check if we're launching a specific additional menu
+            if controlID == 406:
+                launchGroup = launchGroup + ".1"
+            elif controlID == 407:
+                launchGroup = launchGroup + ".2"
+            elif controlID == 408:
+                launchGroup = launchGroup + ".3"
+            elif controlID == 409:
+                launchGroup = launchGroup + ".4"
+            elif controlID == 410:
+                launchGroup = launchGroup + ".5"
             # Check if 'level' property has been set
-            if currentWindow.getProperty("level"):
+            elif currentWindow.getProperty("level"):
                 launchGroup = launchGroup + "." + currentWindow.getProperty("level")
                 currentWindow.clearProperty("level")
                 
@@ -877,7 +888,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             # Execute the script
             xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&groupname=" + groupName + "&nolabels=" + self.nolabels + ")" )
-            
 
     def warnonremoval( self, item ):
         # This function will warn the user before they modify a settings link

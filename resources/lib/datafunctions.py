@@ -57,14 +57,14 @@ class DataFunctions():
         if labelID in self.labelIDList:
             # We're going to add an -x to the end of this
             count = 0
-            while labelID + "-" + str( count ) in self.labelIDList:
+            while labelID + "--" + str( count ) in self.labelIDList:
                 count += 1
-                log( labelID + "-" + str( count ) )
+                log( labelID + "--" + str( count ) )
                 log( repr( self.labelIDList ) )
             
             # We can now use this one
-            self.labelIDList.append( labelID + "-" + str( count ) )
-            return labelID + "-" + str( count )
+            self.labelIDList.append( labelID + "--" + str( count ) )
+            return labelID + "--" + str( count )
         else:
             # We can use this one
             self.labelIDList.append( labelID )
