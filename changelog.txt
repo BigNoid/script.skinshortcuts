@@ -1,4 +1,5 @@
 v0.3.5 - Unpublished development build
+- Ability to create shortcuts to library sources not showing content from source selected
 - Fixes
  > Fix for setting skin thumbnail property when using Just Select method
  > Fix for menus failing to build when the action for a shortcut contains a unicode character

@@ -14,7 +14,7 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
 What's (hopefully) Coming
 -------------------------
 
-Features intended for next stable release (0.3.5):
+Features intended for next stable release (0.4.0):
 - Improved localisation support equivalent to XBMC's native ($LOCALIZE, $ADDON, etc) in addition to ::SCRIPT:: ::LOCAL::
 - Replace .shortcuts files with .xml, including auto-upgrade of files
 - Improved behaviour of skin-required shortcuts

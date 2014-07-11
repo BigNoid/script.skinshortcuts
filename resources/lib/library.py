@@ -1664,8 +1664,8 @@ class LibraryFunctions():
         mediaType = None
         # Check if we're going to display this in the files view, or the library view
         if selectedShortcut.getProperty( "windowID" ) == "10025":
-            # Video library                                    # Not in library     # Movies              # TV Shows           # Music videos
-            userChoice = dialog.select( __language__(32078), [__language__(32079), __language__(32015), __language__(32016), __language__(32018) ] )            
+            # Video library                                    Files view           Movies                TV Shows             Music videos         !Movies               !TV Shows            !Music Videos
+            userChoice = dialog.select( __language__(32078), [__language__(32079), __language__(32015), __language__(32016), __language__(32018), __language__(32081), __language__(32082), __language__(32083) ] )            
             if userChoice == -1:
                 return None
             elif userChoice == 0:
@@ -1677,13 +1677,25 @@ class LibraryFunctions():
                 return selectedShortcut
             elif userChoice == 1:
                 mediaType = "movies"
+                negative = False
             elif userChoice == 2:
                 mediaType = "tvshows"
-            else:
+                negative = False
+            elif userChoice == 3:
                 mediaType = "musicvideo"
+                negative = False
+            elif userChoice == 4:
+                mediaType = "movies"
+                negative = True
+            elif userChoice == 5:
+                mediaType = "tvshows"
+                negative = True
+            elif userChoice == 6:
+                mediaType = "musicvideo"
+                negative = True
         else:
-            # Music library                                    # Not in library      #Songs                        # Albums                       # Mixed
-            userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(134), xbmc.getLocalizedString(132), xbmc.getLocalizedString(20395) ] )            
+            # Music library                                    Files view           Songs                          Albums                         Mixed                           !Songs               !Albums               !Mixed
+            userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(134), xbmc.getLocalizedString(132), xbmc.getLocalizedString(20395), __language__(32084), __language__(32085), __language__(32086) ] )            
             if userChoice == -1:
                 return None
             elif userChoice == 0:
@@ -1695,19 +1707,31 @@ class LibraryFunctions():
                 return selectedShortcut
             elif userChoice == 1:
                 mediaType = "songs"
+                negative = False
             elif userChoice == 2:
                 mediaType = "albums"
-            else:
+                negative = False
+            elif userChoice == 3:
                 mediaType = "mixed"
+                negative = False
+            elif userChoice == 4:
+                mediaType = "songs"
+                negative = True
+            elif userChoice == 5:
+                mediaType = "albums"
+                negative = True
+            elif userChoice == 6:
+                mediaType = "mixed"
+                negative = True
             
         # We're going to display it in the library
-        filename = self._build_playlist( selectedShortcut.getProperty( "location" ), mediaType, selectedShortcut.getLabel() )
+        filename = self._build_playlist( selectedShortcut.getProperty( "location" ), mediaType, selectedShortcut.getLabel(), negative )
         newAction = "ActivateWindow(" + selectedShortcut.getProperty( "windowID" ) + "," +"special://profile/addon_data/" + __addonid__ + "/" + filename + ",return)"
         selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
         selectedShortcut.setProperty( "displayPath", newAction )
         return selectedShortcut
     
-    def _build_playlist( self, target, mediatype, name ):
+    def _build_playlist( self, target, mediatype, name, negative ):
         # This function will build a playlist that displays the contents of a source in the library view
         # (that is to say, "path" "contains")
         tree = xmltree.ElementTree( xmltree.Element( "smartplaylist" ) )
@@ -1730,10 +1754,16 @@ class LibraryFunctions():
         xmltree.SubElement( root, "match").text = "one"
         
         for item in target:
-            rule = xmltree.SubElement( root, "rule")
-            rule.set( "field", "path" )
-            rule.set( "operator", "startswith" )
-            xmltree.SubElement( rule, "value" ).text = item
+            if negative == False:
+                rule = xmltree.SubElement( root, "rule")
+                rule.set( "field", "path" )
+                rule.set( "operator", "startswith" )
+                xmltree.SubElement( rule, "value" ).text = item
+            else:
+                rule = xmltree.SubElement( root, "rule")
+                rule.set( "field", "path" )
+                rule.set( "operator", "doesnotcontain" )
+                xmltree.SubElement( rule, "value" ).text = item
         
         id = 1
         while xbmcvfs.exists( os.path.join( __datapath__, str( id ) + ".xsp" ) ) :
