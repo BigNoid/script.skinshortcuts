@@ -64,7 +64,7 @@ class Main:
             xbmcgui.Dialog().ok(__addonname__, line1)
             
         if self.TYPE=="buildxml":
-            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, self.MODE )
+            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, self.MODE, self.OPTIONS )
             
         if self.TYPE=="launch":
             xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
@@ -159,7 +159,7 @@ class Main:
         self.CUSTOM = params.get( "custom", "False" )
         
         self.NOLABELS = params.get( "nolabels", "false" ).lower()
-        
+        self.OPTIONS = params.get( "options", "" ).split( "|" )
         
     def _check_Window_Properties( self ):
         # Check if the user has changed skin or profile

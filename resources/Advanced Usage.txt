@@ -25,6 +25,8 @@ Remembering to replace 9000 with the id of the list containing your menu.
 
 You can also let the user choose to use a playlist for background images for use with, for example, script.grab.fanart, in which case the item will also have the property 'backgroundPlaylist', which will contain the path of the playlist.
 
+It may be advantageous for your submenu items to have the same background property as your main menu items. In which case, include &amp;options=clonebackgrounds in your buildxml command (multiple options can be separated with a pipe - | - symbol.
+
 Custom backgrounds are saved on a skin-by-skin basis.
 
 
@@ -50,6 +52,8 @@ And then set the content of the list as so:
 	<content>$INFO[Container(9000).ListItem.Property(widgetPlaylist)]</content>
 
 In all cases, remember to replace 9000 with the ID of the list containing the menu. Widgets are saved on a skin-by-skin basis.
+
+It may be advantageous for your submenu items to have the same background property as your main menu items. In which case, include &amp;options=clonewidgets in your buildxml command (multiple options can be separated with a pipe - | - symbol.
 
 
 Multiple Sub-Menus

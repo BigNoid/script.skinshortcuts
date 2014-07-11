@@ -26,9 +26,10 @@ def log(txt):
     
 class XMLFunctions():
     def __init__(self):
-        pass
+        self.MAINWIDGET = {}
+        self.MAINBACKGROUND = {}
         
-    def buildMenu( self, mainmenuID, groups, numLevels, buildMode ):
+    def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options ):
         # Entry point for building includes.xml files
         if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
             return
@@ -72,7 +73,7 @@ class XMLFunctions():
         
         # Write the menus
         try:
-            self.writexml( profilelist, mainmenuID, groups, numLevels, buildMode, progress )
+            self.writexml( profilelist, mainmenuID, groups, numLevels, buildMode, progress, options )
             complete = True
         except:
             log( "Failed to write menu" )
@@ -208,7 +209,7 @@ class XMLFunctions():
         return False
 
 
-    def writexml( self, profilelist, mainmenuID, groups, numLevels, buildMode, progress ):        
+    def writexml( self, profilelist, mainmenuID, groups, numLevels, buildMode, progress, options ):        
         # Reset the hashlist, add the profile list and script version
         hashlist.list = []
         hashlist.list.append( ["::PROFILELIST::", profilelist] )
@@ -277,9 +278,9 @@ class XMLFunctions():
                 #if groups == "":
                 if type( item ) == list:
                     submenu = DATA._get_labelID( item[5] )
-                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu )
+                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu, options = options )
                     if buildMode == "single":
-                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu )
+                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu, options = options )
                 else:
                     submenu = DATA._get_labelID( item )
                 
@@ -327,11 +328,11 @@ class XMLFunctions():
                         
                     for subitem in submenuitems:
                         itemidsubmenu += 1
-                        self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")", profile[1], itemid = itemidsubmenu )
-                        self.buildElement( subitem, justmenuTreeA, submenu, None, profile[1], itemid = itemidsubmenu )
-                        self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu )
+                        self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                        self.buildElement( subitem, justmenuTreeA, submenu, None, profile[1], itemid = itemidsubmenu, options = options )
+                        self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu, options = options )
                         if buildMode == "single":
-                            self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu )
+                            self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu, options = options )
                 
                     # Increase the counter
                     count += 1
@@ -364,7 +365,7 @@ class XMLFunctions():
         file.write( repr( hashlist.list ) )
         file.close
         
-    def buildElement( self, item, Tree, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1 ):
+    def buildElement( self, item, Tree, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1, options=[] ):
         # This function will build an element for the passed Item in
         # the passed Tree
         newelement = xmltree.SubElement( Tree, "item" )
@@ -467,6 +468,11 @@ class XMLFunctions():
         elif profileVisibility is not None:
             visibilityElement = xmltree.SubElement( newelement, "visible" )
             visibilityElement.text = profileVisibility
+            
+        # If this is a main menu item, clear our stored properties (used to set the same widget and background to submenu items)
+        if groupName == "mainmenu":
+            self.MAINWIDGET = {}
+            self.MAINBACKGROUND = {}
         
         # Additional properties
         if len( item[6] ) != 0:
@@ -485,6 +491,34 @@ class XMLFunctions():
                         additionalproperty.text = property[1].decode( "utf-8" )
                     except:
                         additionalproperty.text = property[1]
+                        
+                    # If this is the main menu, and we're cloning widgets or backgrounds...
+                    if groupName == "mainmenu":
+                        if "clonewidgets" in options:
+                            if property[0] == "widget" or property[0] == "widgetName" or property[0] == "widgetType" or property[0] == "widgetPlaylist":
+                                self.MAINWIDGET[ property[0] ] = property[1]
+                        if "clonebackgrounds" in options:
+                            if property[0] == "background" or property[0] == "backgroundName" or property[0] == "backgroundPlaylist" or property[0] == "backgroundPlaylistName":
+                                self.MAINBACKGROUND[ property[0] ] = property[1]
+                                
+        # If this isn't the main menu, and we're cloning widgets or backgrounds...
+        if groupName != "mainmenu":
+            if "clonewidgets" in options and len( self.MAINWIDGET ) is not 0:
+                for key in self.MAINWIDGET:
+                    additionalproperty = xmltree.SubElement( newelement, "property" )
+                    additionalproperty.set( "name", key )
+                    try:
+                        additionalproperty.text = self.MAINWIDGET[ key ].decode( "utf-8" )
+                    except:
+                        additionalproperty.text = self.MAINWIDGET[ key ]
+            if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) is not 0:
+                for key in self.MAINBACKGROUND:
+                    additionalproperty = xmltree.SubElement( newelement, "property" )
+                    additionalproperty.set( "name", key )
+                    try:
+                        additionalproperty.text = self.MAINBACKGROUND[ key ].decode( "utf-8" )
+                    except:
+                        additionalproperty.text = self.MAINBACKGROUND[ key ]
                     
         return newelement
         
