@@ -74,7 +74,7 @@ Rather than using list 111 to let the user select a shortcut, you can include bu
 
 If you want to attach a custom property to a menu item, you can include button 404.
 
-To set a property, first set the following window properties
+To manually set a property, first set the following window properties
 
 	customProperty	The name you are giving to the custom property
 	customValue		The value of the custom property (to clear a property, don't set this property)
@@ -82,6 +82,12 @@ To set a property, first set the following window properties
 Then send a click to control 404. The two properties will be cleared afterwards.
 
 You can set defaults for your custom property in your overrides.xml file. See resources/Advanced Usage.txt - "Overrides.xml".
+
+To let Skin Shortcuts show a dialog to let the user select from options you have defined in your Overrides.xml, set the following window property
+
+	chooseProperty	The property that you want the user to set
+	
+Then send a click to control 404. The property will be cleared afterwards.
 
 
 6. Launch management dialog for submenu / additional menus

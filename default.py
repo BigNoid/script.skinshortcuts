@@ -50,7 +50,13 @@ class Main:
     # MAIN ENTRY POINT
     def __init__(self):
         self._parse_argv()
-        self.WINDOW = xbmcgui.Window(10000)         
+        self.WINDOW = xbmcgui.Window(10000)    
+        
+        # --- UPGRADE ---
+        if __addon__.getSetting( "upgraded_labels" ) != "true":
+            datafunctions.UpgradeFunctions().upgrade_labels()
+            __addon__.setSetting("upgraded_labels", "true")
+            log( "### Upgraded labels" )
         
         # Create data and master paths if not exists
         if not xbmcvfs.exists(__datapath__):

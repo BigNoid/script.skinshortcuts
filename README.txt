@@ -3,6 +3,11 @@ script.skinshortcuts was written with the intention of making user customizable 
 This is a DEVELOPMENT BUILD and may be UNSTABLE or even BROKEN.
 If do not require the new features but want to use a git version, use the repofixes branch.
 
+*** New localisation code has now landed ***
+*** Gotham list-filling methods are BROKEN ***
+*** XML methods - EXPECT and REPORT breakages ***
+
+
 What's New for Skinners (version 0.3.5 Development Build)
 -----------------------
 
@@ -11,19 +16,19 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
  - [bambi73] Use the widgetName as the label for a shortcut when setting widget, see "Advanced Usage.txt", section "Overrides.xml" part 4
  - New management dialog controls to edit additional sub-menus, see "Management Dialog.txt", sections "Available Controls" and "6. Launch management dialog for submenu / additional menus"
  - Ability to clone widget and background properties from main menu items to submenu and additional menu items when building xml, see "Advanced Usage.txt", sections "Managing Custom Backgrounds" and "Managing Widgets"
+ - New localisation code - all local strings you provide should now simply be the string id, no need for ::LOCAL::stringID or ::SCRIPT::stringID
 
 
 What's (hopefully) Coming
 -------------------------
 
 Features intended for next stable release (0.4.0):
-- Improved localisation support equivalent to XBMC's native ($LOCALIZE, $ADDON, etc) in addition to ::SCRIPT:: ::LOCAL::
 - Replace .shortcuts files with .xml, including auto-upgrade of files
 - Improved behaviour of skin-required shortcuts
 - Easy skin option to force Settings in menu
 - Relegate Gotham list-filling method in favour of XML method (possible removal?)
 - Large code cleanup - fix cases of multiple uses of same code, clearer separation of different groupings of functions
-- PVR option changes for Helix (dependant on XBMC PR 7453)
+- PVR option changes for Helix, upgrade and addition of 'radio' to user menus
  
  
 With Thanks - Because their names don't deserve to be at the bottom :)

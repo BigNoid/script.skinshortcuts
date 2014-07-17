@@ -397,24 +397,11 @@ class XMLFunctions():
         
         # Label
         label = xmltree.SubElement( newelement, "label" )
-        if item[0].isdigit():
-            label.text="$NUMBER[" + item[0].decode( "utf-8" ) + "]"
-        else:
-            try:
-                label.text = item[0].decode( "utf-8" )
-            except:
-                label.text = item[0]
+        label.text = DATA.local( item[0] )[1]
         
         # Label 2
         label2 = xmltree.SubElement( newelement, "label2" )
-        if not item[1].find( "::SCRIPT::" ) == -1:
-            label2.text = __language__( int( item[1][10:] ) )
-        else:
-            try:
-                label2.text = item[1].decode( "utf-8" )
-            except:
-                label2.text = item[1]
-
+        label2.text = DATA.local( item[1] )[1]
 
         # Icon
         icon = xmltree.SubElement( newelement, "icon" )

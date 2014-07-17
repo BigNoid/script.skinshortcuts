@@ -224,23 +224,28 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 widgetType = None
                 if "type" in elem.attrib:
                     widgetType = elem.attrib.get( "type" )
-                if elem.attrib.get( 'label' ).isdigit():
-                    self.widgets.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ), widgetType ] )
-                    self.widgetsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
-                else:
-                    self.widgets.append( [elem.text, elem.attrib.get( 'label' ), widgetType ] )
-                    self.widgetsPretty[elem.text] = elem.attrib.get( 'label' )
+                self.widgets.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], widgetType ] )
+                self.widgetsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
+
+                #if elem.attrib.get( 'label' ).isdigit():
+                #    self.widgets.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) ), widgetType ] )
+                #    self.widgetsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+                #else:
+                #    self.widgets.append( [elem.text, elem.attrib.get( 'label' ), widgetType ] )
+                #    self.widgetsPretty[elem.text] = elem.attrib.get( 'label' )
                     
         # Get backgrounds
         if tree is not None:
             elems = tree.findall('background')
             for elem in elems:
-                if elem.attrib.get( 'label' ).isdigit():
-                    self.backgrounds.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )] )
-                    self.backgroundsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
-                else:
-                    self.backgrounds.append( [elem.text, elem.attrib.get( 'label' ) ] )
-                    self.backgroundsPretty[elem.text] = elem.attrib.get( 'label' )
+                self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+                self.backgroundsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
+                #if elem.attrib.get( 'label' ).isdigit():
+                #    self.backgrounds.append( [elem.text, xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )] )
+                #    self.backgroundsPretty[elem.text] = xbmc.getLocalizedString( int( elem.attrib.get( 'label' ) ) )
+                #else:
+                #    self.backgrounds.append( [elem.text, elem.attrib.get( 'label' ) ] )
+                #    self.backgroundsPretty[elem.text] = elem.attrib.get( 'label' )
 
 
     def onClick(self, controlID):
@@ -549,7 +554,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( "path", urllib.quote( action ) )
             listitem.setProperty( "displaypath", action )
             listitem.setLabel2( __language__(32024) )
-            listitem.setProperty( "shortcutType", "::SCRIPT::32024" )
+            listitem.setProperty( "shortcutType", "32024" )
             
         if controlID == 308:
             # Reset shortcuts
@@ -709,6 +714,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.changeMade = True
         
         if controlID == 401:
+            # Select shortcut
+            log( "Select shortcut (401)" )
+            
             num = self.getControl( 211 ).getSelectedPosition()
             
             if self.warnonremoval( self.getControl( 211 ).getListItem( num ) ) == False:
@@ -741,80 +749,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).addItems(listitems)
                 
                 self.getControl( 211 ).selectItem( num )
-        
-        #if controlID == 402:
-        #    # NOTE: Even if edit controls are now fixed, this code is out of date
-        #    # Change label (EDIT CONTROL)
-        #    
-        #    # Retrieve properties, copy item, etc (in case the user changes focus whilst we're running)
-        #    custom_label = self.getControl( 211 ).getSelectedItem().getLabel()
-        #    num = self.getControl( 211 ).getSelectedPosition()
-        #    listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
-        #    
-        #    custom_label = self.getControl( 402 ).getText()
-        #    if custom_label == "":
-        #        custom_label = __language__(32013)
-        #        
-        #    # Set properties of the listitemCopy
-        #    listitemCopy.setLabel(custom_label)
-        #    listitemCopy.setProperty( "localizedString", "" )
-        #    listitemCopy.setProperty( "labelID", self._get_labelID(custom_label) )
-        #    
-        #    # If there's no label2, set it to custom shortcut
-        #    if not listitemCopy.getLabel2():
-        #        listitemCopy.setLabel2( __language__(32024) )
-        #        listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
-        #    
-        #    # Loop through the original list, and replace the currently selected listitem with our new listitem with altered label
-        #    listitems = []
-        #    for x in range(0, self.getControl( 211 ).size()):
-        #        if x == num:
-        #            listitems.append(listitemCopy)
-        #        else:
-        #            # Duplicate the item and it to the listitems array
-        #            listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-        #            
-        #            listitems.append(listitemShortcutCopy)
-        #            
-        #    self.getControl( 211 ).reset()
-        #    self.getControl( 211 ).addItems(listitems)
-        #    
-        #    self.getControl( 211 ).selectItem( num )
-        
-        
-        #if controlID == 403:
-        #    # NOTE: Even if edit controls are now fixed, this code is out of date
-        #    # Change action (EDIT CONTROL)
-        #     #Retrieve properties, copy item, etc (in case the user changes focus)
-        #    custom_path = urllib.unquote( self.getControl( 211 ).getSelectedItem().getProperty( "path" ) )
-        #    listitemCopy = self._duplicate_listitem( self.getControl( 211 ).getSelectedItem() )
-        #    num = self.getControl( 211 ).getSelectedPosition()
-        #
-        #    custom_path = self.getControl( 403 ).getText()
-        #    if custom_path == "":
-        #        custom_path = "noop"
-        #            
-        #    if not urllib.quote( custom_path ) == self.getControl( 211 ).getSelectedItem().getProperty( "path" ):
-        #        listitemCopy.setProperty( "path", urllib.quote( custom_path ) )
-        #        listitemCopy.setLabel2( __language__(32024) )
-        #        listitemCopy.setProperty( "shortcutType", "::SCRIPT::32024" )
-        #    
-        #    # Loop through the original list, and replace the currently selected listitem with our new listitem with altered path
-        #    listitems = []
-        #    for x in range(0, self.getControl( 211 ).size()):
-        #        if x == num:
-        #            listitems.append(listitemCopy)
-        #        else:
-        #            # Duplicate the item and it to the listitems array
-        #            listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-        #            
-        #            listitems.append(listitemShortcutCopy)
-        #            
-        #    self.getControl( 211 ).reset()
-        #    self.getControl( 211 ).addItems(listitems)
-        #    
-        #    self.getControl( 211 ).selectItem( num )
-            
+                    
         if controlID == 404:
             # Set custom property
             log( "Setting custom property (404)" )
@@ -829,22 +764,62 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if currentWindow.getProperty( "customProperty" ):
                 propertyName = currentWindow.getProperty( "customProperty" )
                 currentWindow.clearProperty( "customProperty" )
+            
+                # Retrieve the custom value
+                if currentWindow.getProperty( "customValue" ):
+                    propertyValue = currentWindow.getProperty( "customValue" )
+                    currentWindow.clearProperty( "customValue" )
+                    
+                if propertyValue == "":
+                    # No value set, so remove it from additionalListItemProperties
+                    self._remove_additionalproperty( listitem, propertyName )
+                    self.changeMade = True
+                else:
+                    # Set the property
+                    self._add_additionalproperty( listitem, propertyName, propertyValue )
+                    self.changeMade = True
+
+            elif currentWindow.getProperty( "chooseProperty" ):
+                propertyName = currentWindow.getProperty( "chooseProperty" )
+                log( repr( propertyName ) )
+                # Create lists for the select dialog
+                property = [""]
+                propertyLabel = ["None"]
+                
+                # Get all the skin-defined properties
+                tree = DATA._get_overrides_skin()
+                for elem in tree.findall( "property" ):
+                    if "property" in elem.attrib and elem.attrib.get( "property" ) == propertyName:
+                        foundProperty = elem.text
+                        property.append( foundProperty )
+                        propertyLabel.append( DATA.local( foundProperty )[2] )
+                        #if not foundProperty.find( "::SCRIPT::" ) == -1:
+                        #    propertyLabel.append( __language__(int( foundProperty[10:] ) ) )
+                        #elif not foundProperty.find( "::LOCAL::" ) == -1:
+                        #    propertyLabel.append( xbmc.getLocalizedString(int( foundProperty[9:] ) ) )
+                        #elif foundProperty.isdigit():
+                        #    propertyLabel.append( xbmc.getLocalizedString( int( foundProperty ) ) )
+                        #else:
+                        #    propertyLabel.append( foundProperty )
+                
+                # Show the dialog
+                selectedProperty = xbmcgui.Dialog().select( "Choose property", propertyLabel )
+                
+                if selectedProperty == -1:
+                    # User cancelled
+                    return
+                elif selectedProperty == 0:
+                    # User selected no property
+                    self.changeMade = True
+                    self._remove_additionalproperty( listitem, propertyName )
+                else:
+                    self.changeMade = True
+                    self._add_additionalproperty( listitem, propertyName, property[ selectedProperty ] )
+                
             else:
                 # The customProperty value needs to be set, so return
                 currentWindow.clearProperty( "customValue" )
                 return
-            
-            # Retrieve the custom value
-            if currentWindow.getProperty( "customValue" ):
-                propertyValue = currentWindow.getProperty( "customValue" )
-                currentWindow.clearProperty( "customValue" )
-                
-            if propertyValue == "":
-                # No value set, so remove it from additionalListItemProperties
-                self._remove_additionalproperty( listitem, propertyName )
-            else:
-                # Set the property
-                self._add_additionalproperty( listitem, propertyName, propertyValue )
             
         if controlID == 405 or controlID == 406 or controlID == 407 or controlID == 408 or controlID == 409 or controlID == 410:
             # Launch management dialog for submenu
@@ -907,21 +882,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
         for elem in tree.findall( "warn" ):
             if elem.text.lower() == item.getProperty( "displaypath" ).lower():
                 # We want to show the message :)
-                message = elem.attrib.get( "message" )
-                if not message.find( "::SCRIPT::" ) == -1:
-                    message = __language__(int( message[10:] ) )
-                elif not message.find( "::LOCAL::" ) == -1:
-                    message = xbmc.getLocalizedString(int( message[9:] ) )
-                elif message.isdigit():
-                    xbmc.getLocalizedString(int( message ) )
+                message = DATA.local( elem.attrib.get( "message" ) )[2]
+                #if not message.find( "::SCRIPT::" ) == -1:
+                #    message = __language__(int( message[10:] ) )
+                #elif not message.find( "::LOCAL::" ) == -1:
+                #    message = xbmc.getLocalizedString(int( message[9:] ) )
+                #elif message.isdigit():
+                #    xbmc.getLocalizedString(int( message ) )
                     
-                heading = elem.attrib.get( "heading" )
-                if not message.find( "::SCRIPT::" ) == -1:
-                    heading = __language__(int( heading[10:] ) )
-                elif not heading.find( "::LOCAL::" ) == -1:
-                    heading = xbmc.getLocalizedString(int( heading[9:] ) )
-                elif heading.isdigit():
-                    xbmc.getLocalizedString(int( heading ) )
+                heading = DATA.local( elem.attrib.get( "heading" ) )[2]
+                #if not message.find( "::SCRIPT::" ) == -1:
+                #    heading = __language__(int( heading[10:] ) )
+                #elif not heading.find( "::LOCAL::" ) == -1:
+                #    heading = xbmc.getLocalizedString(int( heading[9:] ) )
+                #elif heading.isdigit():
+                #    xbmc.getLocalizedString(int( heading ) )
                 
                 dialog = xbmcgui.Dialog()
                 return dialog.yesno( heading, message )
@@ -1038,7 +1013,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # If there's no label2, set it to custom shortcut
         if not listitem.getLabel2():
             listitem.setLabel2( __language__(32024) )
-            listitem.setProperty( "shortcutType", "::SCRIPT::32024" )
+            listitem.setProperty( "shortcutType", "32024" )
                 
     def _add_additionalproperty( self, listitem, propertyName, propertyValue ):
         # Add an item to the additional properties of a user items
@@ -1050,12 +1025,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
         for property in properties:
             if property[0] == propertyName:
                 foundProperty = True
-                property[1] = propertyValue
-                listitem.setProperty( propertyName, propertyValue )
+                property[1] = DATA.local( propertyValue )[0]
+                listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
                 
         if foundProperty == False:
-            properties.append( [propertyName, propertyValue] )
-            listitem.setProperty( propertyName, propertyValue )
+            properties.append( [propertyName, DATA.local( propertyValue )[0] ] )
+            listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
             
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
         
@@ -1078,26 +1053,29 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
     def _parse_listitem( self, item ):
         # Parse a loaded listitem, replacing ::SCRIPT:: or ::LOCAL:: with localized strings
-        loadLabel = item[0]
-        loadLabel2 = item[1]
-        saveLabel2 = item[1]
+        loadLabel = DATA.local( item[0] )[0]
+        loadLabel2 = DATA.local( item[1] )[0]
+        saveLabel2 = DATA.local( item[1] )[2]
 
-        if not loadLabel2.find( "::SCRIPT::" ) == -1:
-            saveLabel2 = __language__( int ( loadLabel2[10:] ) )
-        elif not loadLabel2.find( "::LOCAL::" ) == -1:
-            saveLabel2 = xbmc.getLocalizedString(int( loadLabel2[9:] ) )
+        listitem = xbmcgui.ListItem(label= DATA.local( loadLabel )[2], label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
+        listitem.setProperty( "localizedString", loadLabel )
+
+        #if not loadLabel2.find( "::SCRIPT::" ) == -1:
+        #    saveLabel2 = __language__( int ( loadLabel2[10:] ) )
+        #elif not loadLabel2.find( "::LOCAL::" ) == -1:
+        #    saveLabel2 = xbmc.getLocalizedString(int( loadLabel2[9:] ) )
         
-        if not loadLabel.find( "::SCRIPT::" ) == -1:
-            # An item with a script-localized string
-            listitem = xbmcgui.ListItem(label=__language__(int( loadLabel[10:] ) ), label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
-            listitem.setProperty( "localizedString", loadLabel )
-        elif not loadLabel.find( "::LOCAL::" ) == -1:
-            # An item with an XBMC-localized string
-            listitem = xbmcgui.ListItem(label= xbmc.getLocalizedString(int( loadLabel[9:] ) ), label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
-            listitem.setProperty( "localizedString", loadLabel )
-        else:
-            # An item without a localized string
-            listitem = xbmcgui.ListItem(label=item[0], label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
+        #if not loadLabel.find( "::SCRIPT::" ) == -1:
+        #    # An item with a script-localized string
+        #    listitem = xbmcgui.ListItem(label=__language__(int( loadLabel[10:] ) ), label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
+        #    listitem.setProperty( "localizedString", loadLabel )
+        #elif not loadLabel.find( "::LOCAL::" ) == -1:
+        #    # An item with an XBMC-localized string
+        #    listitem = xbmcgui.ListItem(label= xbmc.getLocalizedString(int( loadLabel[9:] ) ), label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
+        #    listitem.setProperty( "localizedString", loadLabel )
+        #else:
+        #    # An item without a localized string
+        #    listitem = xbmcgui.ListItem(label=item[0], label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
            
         # Load the action (the "path" property)
         action = item[4]
@@ -1117,7 +1095,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitem.setProperty( "icon", item[2] )
         listitem.setProperty( "thumbnail", item[3] )
         
-        listitem.setProperty( "shortcutType", loadLabel2 )
+        listitem.setProperty( "shortcutType", DATA.local( loadLabel2 )[0] )
             
         listitem.setProperty( "labelID", self._get_labelID( loadLabel ) )
         return listitem
@@ -1125,8 +1103,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
     def _get_labelID ( self, item ):
         # Translate certain localized strings into non-localized form for labelID
-        item = item.replace("::SCRIPT::", "")
-        item = item.replace("::LOCAL::", "")
+        #item = item.replace("::SCRIPT::", "")
+        #item = item.replace("::LOCAL::", "")
+        item = DATA.local( item )[0]
         returnVal = None
         if item == "10006":
             returnVal = "videos"
@@ -1297,6 +1276,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
         listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )       
         
+        
         if listitem.getProperty( "LOCKED" ):
             listitemCopy.setProperty( "LOCKED", "True" )
         
@@ -1325,7 +1305,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitemProperties = eval( listitem.getProperty( "additionalListItemProperties" ) )
                 
                 for listitemProperty in listitemProperties:
-                    listitemCopy.setProperty( listitemProperty[0], listitemProperty[1] )
+                    listitemCopy.setProperty( listitemProperty[0], DATA.local( listitemProperty[1] )[2] )
         else:
             # Set these from the original item we were passed (this will keep original labelID and additional properties
             # in tact)
@@ -1335,7 +1315,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitemProperties = eval( originallistitem.getProperty( "additionalListItemProperties" ) )
                 
                 for listitemProperty in listitemProperties:
-                    listitemCopy.setProperty( listitemProperty[0], listitemProperty[1] )        
+                    listitemCopy.setProperty( listitemProperty[0], DATA.local(listitemProperty[1] )[2] )
                 
         return listitemCopy
         
@@ -1500,6 +1480,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             else:
                                 # Copy a default shortcuts file to the target path
                                 xbmcvfs.copy( path[0], target )
+                                
+                                # Upgrade the default shortcuts file
+                                datafunctions.UpgradeFunctions().upgrade_file( target )
                             break
                         
                 labelIDChanges.pop( 0 )
@@ -1551,11 +1534,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load the currently selected shortcut group
         newGroup = LIBRARY.retrieveGroup( self.shortcutgroup )
         
-        label = newGroup[0]
-        if not newGroup[0].find( "::SCRIPT::" ) == -1:
-            label = __language__(int( newGroup[0][10:] ) )
-        elif not newGroup[0].find( "::LOCAL::" ) == -1:
-            label = xbmc.getLocalizedString(int( newGroup[0][9:] ) )
+        label = DATA.local( newGroup[0] )[2]
+        #if not newGroup[0].find( "::SCRIPT::" ) == -1:
+        #    label = __language__(int( newGroup[0][10:] ) )
+        #elif not newGroup[0].find( "::LOCAL::" ) == -1:
+        #    label = xbmc.getLocalizedString(int( newGroup[0][9:] ) )
         
         self.getControl( 111 ).reset()
         for item in newGroup[1]:

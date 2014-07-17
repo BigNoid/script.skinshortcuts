@@ -148,14 +148,14 @@ class LibraryFunctions():
                     continue
 
             if count == number:
-                label = subnode.attrib.get( "label" )
-                try:
-                    if not label.find( "::SCRIPT::" ) == -1:
-                        label = __language__(int( label[10:] ) )
-                    elif not label.find( "::LOCAL::" ) == -1:
-                        label = xbmc.getLocalizedString( int( label[9:] ) )
-                except:
-                    print_exc()
+                label = DATA.local( subnode.attrib.get( "label" ) )[2]
+                #try:
+                #    if not label.find( "::SCRIPT::" ) == -1:
+                #        label = __language__(int( label[10:] ) )
+                #    elif not label.find( "::LOCAL::" ) == -1:
+                #        label = xbmc.getLocalizedString( int( label[9:] ) )
+                #except:
+                #    print_exc()
 
                 return [ label, subnode ]
                 
@@ -282,13 +282,13 @@ class LibraryFunctions():
                         
                         action = elem.text
                         
-                        if label.isdigit():
-                            label = "::LOCAL::" + label
+                        #if label.isdigit():
+                        #    label = "::LOCAL::" + label
                             
                         if type is None:
-                            type = "::SCRIPT::32024"
-                        elif type.isdigit():
-                            type = "::LOCAL::" + type
+                            type = "32024"
+                        #elif type.isdigit():
+                        #    type = "::LOCAL::" + type
                         
                         if icon is None:
                             icon = ""
@@ -312,13 +312,13 @@ class LibraryFunctions():
                     
                     action = elem.text
                     
-                    if label.isdigit():
-                        label = "::LOCAL::" + label
+                    #if label.isdigit():
+                    #    label = "::LOCAL::" + label
                         
                     if type is None:
-                        type = "::SCRIPT::32024"
-                    elif type.isdigit():
-                        type = "::LOCAL::" + type
+                        type = "32024"
+                    #elif type.isdigit():
+                    #    type = "::LOCAL::" + type
                         
                     if type is None or type == "":
                         type = "Skin Provided"
@@ -498,25 +498,25 @@ class LibraryFunctions():
         # Play dvd, eject tray
         # Settings, File Manager, Profiles, System Info
         try:
-            listitems.append( self._create(["ActivateWindow(Videos)", "::LOCAL::10006", "::SCRIPT::32034", {"icon": "DefaultVideo.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "::LOCAL::342", "::SCRIPT::32034", {"icon": "DefaultMovies.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "::LOCAL::20343", "::SCRIPT::32034", {"icon": "DefaultTVShows.png"} ]) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::SCRIPT::32022", "::SCRIPT::32034", {"icon": "DefaultTVShows.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(Music)", "::LOCAL::10005", "::SCRIPT::32034", {"icon": "DefaultMusicAlbums.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32034", {"icon": "DefaultMusicVideos.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(Pictures)", "::LOCAL::10002", "::SCRIPT::32034", {"icon": "DefaultPicture.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(Weather)", "::LOCAL::12600", "::SCRIPT::32034", {} ]) )
-            listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "::LOCAL::10001", "::SCRIPT::32034", {"icon": "DefaultProgram.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(Videos)", "10006", "32034", {"icon": "DefaultVideo.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "342", "32034", {"icon": "DefaultMovies.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "20343", "32034", {"icon": "DefaultTVShows.png"} ]) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {} ]) )
+            listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "10001", "32034", {"icon": "DefaultProgram.png"} ] ) )
 
-            listitems.append( self._create(["XBMC.PlayDVD()", "::SCRIPT::32032", "::SCRIPT::32034", {"icon": "DefaultDVDFull.png"} ] ) )
-            listitems.append( self._create(["EjectTray()", "::SCRIPT::32033", "::SCRIPT::32034", {"icon": "DefaultDVDFull.png"} ] ) )
+            listitems.append( self._create(["XBMC.PlayDVD()", "32032", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
+            listitems.append( self._create(["EjectTray()", "32033", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
                     
-            listitems.append( self._create(["ActivateWindow(Settings)", "::LOCAL::10004", "::SCRIPT::32034", {} ]) )
-            listitems.append( self._create(["ActivateWindow(FileManager)", "::LOCAL::7", "::SCRIPT::32034", {"icon": "DefaultFolder.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(Profiles)", "::LOCAL::13200", "::SCRIPT::32034", {"icon": "UnknownUser.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(SystemInfo)", "::LOCAL::10007", "::SCRIPT::32034", {} ]) )
+            listitems.append( self._create(["ActivateWindow(Settings)", "10004", "32034", {} ]) )
+            listitems.append( self._create(["ActivateWindow(FileManager)", "7", "32034", {"icon": "DefaultFolder.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(Profiles)", "13200", "32034", {"icon": "UnknownUser.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(SystemInfo)", "10007", "32034", {} ]) )
             
-            listitems.append( self._create(["ActivateWindow(Favourites)", "::LOCAL::1036", "::SCRIPT::32034", {} ]) )
+            listitems.append( self._create(["ActivateWindow(Favourites)", "1036", "32034", {} ]) )
         except:
             log( "Failed to load common XBMC shortcuts" )
             print_exc()
@@ -548,23 +548,23 @@ class LibraryFunctions():
             listitems = []
             log( 'Listing more XBMC commands...' )
             
-            listitems.append( self._create(["Reboot", "::LOCAL::13013", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["ShutDown", "::LOCAL::13005", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["PowerDown", "::LOCAL::13016", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["Quit", "::LOCAL::13009", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["Hibernate", "::LOCAL::13010", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["Suspend", "::LOCAL::13011", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["ActivateScreensaver", "::LOCAL::360", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["Minimize", "::LOCAL::13014", "::SCRIPT::32054", {} ]) )
+            listitems.append( self._create(["Reboot", "13013", "32054", {} ]) )
+            listitems.append( self._create(["ShutDown", "13005", "32054", {} ]) )
+            listitems.append( self._create(["PowerDown", "13016", "32054", {} ]) )
+            listitems.append( self._create(["Quit", "13009", "32054", {} ]) )
+            listitems.append( self._create(["Hibernate", "13010", "32054", {} ]) )
+            listitems.append( self._create(["Suspend", "13011", "32054", {} ]) )
+            listitems.append( self._create(["ActivateScreensaver", "360", "32054", {} ]) )
+            listitems.append( self._create(["Minimize", "13014", "32054", {} ]) )
 
-            listitems.append( self._create(["Mastermode", "::LOCAL::20045", "::SCRIPT::32054", {} ]) )
+            listitems.append( self._create(["Mastermode", "20045", "32054", {} ]) )
             
-            listitems.append( self._create(["RipCD", "::LOCAL::600", "::SCRIPT::32054", {} ]) )
+            listitems.append( self._create(["RipCD", "600", "32054", {} ]) )
             
-            listitems.append( self._create(["UpdateLibrary(video)", "::SCRIPT::32046", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["UpdateLibrary(music)", "::SCRIPT::32047", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(video)", "::SCRIPT::32055", "::SCRIPT::32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(music)", "::SCRIPT::32056", "::SCRIPT::32054", {} ]) )
+            listitems.append( self._create(["UpdateLibrary(video)", "32046", "32054", {} ]) )
+            listitems.append( self._create(["UpdateLibrary(music)", "32047", "32054", {} ]) )
+            listitems.append( self._create(["CleanLibrary(video)", "32055", "32054", {} ]) )
+            listitems.append( self._create(["CleanLibrary(music)", "32056", "32054", {} ]) )
             
             self.addToDictionary( "commands", listitems )
         except:
@@ -594,18 +594,18 @@ class LibraryFunctions():
             listitems = []
             log( 'Listing more XBMC commands...' )
             
-            listitems.append( self._create(["ActivateWindow(Settings)", "::LOCAL::10004", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(Settings)", "10004", "10004", {} ]) )
             
-            listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "::LOCAL::480", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(VideosSettings)", "::LOCAL::3", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(PVRSettings)", "::LOCAL::19020", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(MusicSettings)", "::LOCAL::2", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(PicturesSettings)", "::LOCAL::1", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(WeatherSettings)", "::LOCAL::8", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(AddonBrowser)", "::LOCAL::24001", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(ServiceSettings)", "::LOCAL::14036", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(SystemSettings)", "::LOCAL::13000", "::LOCAL::10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(SkinSettings)", "::LOCAL::20077", "::LOCAL::10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "480", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(VideosSettings)", "3", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(PVRSettings)", "19020", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(MusicSettings)", "2", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(PicturesSettings)", "1", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(WeatherSettings)", "8", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(AddonBrowser)", "24001", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(ServiceSettings)", "14036", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(SystemSettings)", "13000", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(SkinSettings)", "20077", "10004", {} ]) )
             
             self.addToDictionary( "settings", listitems )
         except:
@@ -767,12 +767,12 @@ class LibraryFunctions():
                             action = elem.text
                             
                             if label.isdigit():
-                                label = "::LOCAL::" + label
+                                label = label
                                 
                             if type is None:
-                                type = "::SCRIPT::32024"
+                                type = "32024"
                             elif type.isdigit():
-                                type = "::LOCAL::" + type
+                                type = type
                                 
                             if icon is None:
                                 icon = ""
@@ -823,10 +823,11 @@ class LibraryFunctions():
                         type = "Custom"
                         
                 # Get the label2 (The type of shortcut for items in this directory)
-                if label.isdigit():
-                    label2 = "::LOCAL::" + label
-                else:
-                    label2 = label
+                label2 = label
+                #if label.isdigit():
+                #    label2 = "::LOCAL::" + label
+                #else:
+                #    label2 = label
                         
                 # Get the order this should appear in
                 treeroot = tree.getroot()
@@ -854,7 +855,7 @@ class LibraryFunctions():
                     return [type, order, returnDict, label2, icon]
             elif noSubDirs == True:
                 type = "video"
-                label2 = "::SCRIPT::32014"
+                label2 = "32014"
                 order = unordered
                 icon = None
             else:
@@ -881,8 +882,8 @@ class LibraryFunctions():
                             
                         # Get the label of the item
                         label = tree.find( "label" ).text
-                        if label.isdigit():
-                            label = "::LOCAL::" + label
+                        #if label.isdigit():
+                        #    label = "::LOCAL::" + label
                         
                         # Get the itcon
                         nodeicon = tree.find( "icon" ).text
@@ -1084,15 +1085,15 @@ class LibraryFunctions():
             log('Listing pvr library...')
             
             # PVR
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "::LOCAL::19023", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "::LOCAL::19024", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "::LOCAL::19069", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "::LOCAL::19163", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "::SCRIPT::32023", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "19023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "19024", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "19069", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "32023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
 
-            listitems.append( self._create(["PlayPvrTV", "::SCRIPT::32066", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["PlayPvrRadio", "::SCRIPT::32067", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["PlayPvr", "::SCRIPT::32068", "::SCRIPT::32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["PlayPvrRadio", "32067", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
 
             self.addToDictionary( "pvr", listitems )            
             
@@ -1150,20 +1151,20 @@ class LibraryFunctions():
             log('Listing music library...')
                         
             # Music
-            listitems.append( self._create(["ActivateWindow(MusicFiles)", "::LOCAL::744", "::SCRIPT::32019", {"icon": "DefaultFolder.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "::LOCAL::15100", "::SCRIPT::32019", {"icon": "DefaultFolder.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "::LOCAL::20389", "::SCRIPT::32019", {"icon": "DefaultMusicVideos.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Genres,return)", "::LOCAL::135", "::SCRIPT::32019", {"icon": "DefaultMusicGenres.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Artists,return)", "::LOCAL::133", "::SCRIPT::32019", {"icon": "DefaultMusicArtists.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Albums,return)", "::LOCAL::132", "::SCRIPT::32019", {"icon": "DefaultMusicAlbums.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Songs,return)", "::LOCAL::134", "::SCRIPT::32019", {"icon": "DefaultMusicSongs.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Years,return)", "::LOCAL::652", "::SCRIPT::32019", {"icon": "DefaultMusicYears.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100,return)", "::LOCAL::271", "::SCRIPT::32019", {"icon": "DefaultMusicTop100.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Songs,return)", "::LOCAL::10504", "::SCRIPT::32019", {"icon": "DefaultMusicTop100Songs.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Albums,return)", "::LOCAL::10505", "::SCRIPT::32019", {"icon": "DefaultMusicTop100Albums.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "::LOCAL::359", "::SCRIPT::32019", {"icon": "DefaultMusicRecentlyAdded.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "::LOCAL::517", "::SCRIPT::32019", {"icon": "DefaultMusicRecentlyPlayed.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "::LOCAL::136", "::SCRIPT::32019", {"icon": "DefaultMusicPlaylists.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicFiles)", "744", "32019", {"icon": "DefaultFolder.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "15100", "32019", {"icon": "DefaultFolder.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "20389", "32019", {"icon": "DefaultMusicVideos.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Genres,return)", "135", "32019", {"icon": "DefaultMusicGenres.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Artists,return)", "133", "32019", {"icon": "DefaultMusicArtists.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Albums,return)", "132", "32019", {"icon": "DefaultMusicAlbums.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Songs,return)", "134", "32019", {"icon": "DefaultMusicSongs.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Years,return)", "652", "32019", {"icon": "DefaultMusicYears.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100,return)", "271", "32019", {"icon": "DefaultMusicTop100.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Songs,return)", "10504", "32019", {"icon": "DefaultMusicTop100Songs.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Albums,return)", "10505", "32019", {"icon": "DefaultMusicTop100Albums.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "359", "32019", {"icon": "DefaultMusicRecentlyAdded.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "517", "32019", {"icon": "DefaultMusicRecentlyPlayed.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "136", "32019", {"icon": "DefaultMusicPlaylists.png"} ] ) )
             
             # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
             if self.loadedUPNP == False:
@@ -1180,60 +1181,66 @@ class LibraryFunctions():
         
     def _create ( self, item, allowOverrideLabel = True ):         
         # Retrieve label
-        localLabel = item[1]
+        localLabel = DATA.local( item[1] )[0]
         
         # Create localised label2
-        displayLabel2 = item[2]
-        shortcutType = item[2]
+        displayLabel2 = DATA.local( item[2] )[2]
+        shortcutType = DATA.local( item[2] )[0]
         
         if allowOverrideLabel:
             # Check for a replaced label
             replacementLabel = DATA.checkShortcutLabelOverride( item[0] )
             if replacementLabel is not None:
+                
+                localLabel = DATA.local( replacementLabel[0] )[0]
                 # Check if it's an integer
-                if replacementLabel[0].isdigit():
-                    localLabel = "::LOCAL::" + replacementLabel[0]
-                else:
-                    localLabel = replacementLabel[0]
+                #if replacementLabel[0].isdigit():
+                #    localLabel = "::LOCAL::" + replacementLabel[0]
+                #else:
+                #    localLabel = replacementLabel[0]
                     
                 if len( replacementLabel ) == 2:
                     # We're also overriding the type
-                    displayLabel2 = replacementLabel[1]
-                    shortcutType = replacementLabel[1]
+                    displayLabel2 = DATA.local( replacementLabel[1] )[2]
+                    shortcutType = DATA.local( replacementLabel[1] )[0]
                     
         
         # Try localising it
-        try:
-            if not localLabel.find( "::SCRIPT::" ) == -1:
-                displayLabel = __language__(int( localLabel[10:] ) )
-                labelID = DATA.createNiceName( localLabel[10:] )
-            elif not localLabel.find( "::LOCAL::" ) == -1:
-                displayLabel = xbmc.getLocalizedString(int( localLabel[9:] ) )
-                labelID = DATA.createNiceName( localLabel[9:] )
-            else:
-                displayLabel = localLabel
-                labelID = DATA.createNiceName( localLabel )
-        except:
-            displayLabel = localLabel
-            labelID = DATA.createNiceName( localLabel )
-            print_exc()
+        displayLabel = DATA.local( localLabel )[2]
+        labelID = DATA.createNiceName( DATA.local( localLabel )[0] )
+        #try:
+        #    if not localLabel.find( "::SCRIPT::" ) == -1:
+        #        displayLabel = __language__(int( localLabel[10:] ) )
+        #        labelID = DATA.createNiceName( localLabel[10:] )
+        #    elif not localLabel.find( "::LOCAL::" ) == -1:
+        #        displayLabel = xbmc.getLocalizedString(int( localLabel[9:] ) )
+        #        labelID = DATA.createNiceName( localLabel[9:] )
+        #    else:
+        #        displayLabel = localLabel
+        #        labelID = DATA.createNiceName( localLabel )
+        #except:
+        #    displayLabel = localLabel
+        #    labelID = DATA.createNiceName( localLabel )
+        #    print_exc()
         
         # Create localised label2
-        try:
-            if not displayLabel2.find( "::SCRIPT::" ) == -1:
-                displayLabel2 = __language__(int( displayLabel2[10:] ) )
-            elif not displayLabel2.find( "::LOCAL::" ) == -1:
-                displayLabel2 = xbmc.getLocalizedString(int( displayLabel2[9:] ) )
-            elif displayLabel2.isdigit():
-                displayLabel2 = xbmc.getLocalizedString( int( displayLabel2 ) )
-                
-            if shortcutType.isdigit():
-                if int( shortcutTYpe ) > 32000:
-                    shortcutType = "::SCRIPT::" + shortcutType
-                else:
-                    shortcutType = "::LOCAL::" + shortcutType
-        except:
-            print_exc()
+        displayLabel2 = DATA.local( displayLabel2 )[2]
+        shortcutType = DATA.local( shortcutType )[0]
+        #try:
+        #    if not displayLabel2.find( "::SCRIPT::" ) == -1:
+        #        displayLabel2 = __language__(int( displayLabel2[10:] ) )
+        #    elif not displayLabel2.find( "::LOCAL::" ) == -1:
+        #        displayLabel2 = xbmc.getLocalizedString(int( displayLabel2[9:] ) )
+        #    elif displayLabel2.isdigit():
+        #        displayLabel2 = xbmc.getLocalizedString( int( displayLabel2 ) )
+        #        
+        #    if shortcutType.isdigit():
+        #        if int( shortcutTYpe ) > 32000:
+        #            shortcutType = "::SCRIPT::" + shortcutType
+        #        else:
+        #            shortcutType = "::LOCAL::" + shortcutType
+        #except:
+        #    print_exc()
             
         # If this launches our explorer, append a notation to the displayLabel
         if item[0].startswith( "||" ):
@@ -1274,6 +1281,7 @@ class LibraryFunctions():
         listitem.setProperty( "shortcutType", shortcutType )
         listitem.setProperty( "icon", icon )
         listitem.setProperty( "tempLabelID", labelID )
+        listitem.setProperty( "defaultLabel", labelID )
         
         return( listitem )
         
@@ -1376,7 +1384,7 @@ class LibraryFunctions():
                                     if not name:
                                         name = file[:-4]
                                     # Create a list item
-                                    listitem = self._create(["::PLAYLIST::", name, "::SCRIPT::" + path[1], {"icon": "DefaultPlaylist.png"} ])
+                                    listitem = self._create(["::PLAYLIST::", name, path[1], {"icon": "DefaultPlaylist.png"} ])
                                     listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist.encode( 'utf-8' ) + ")" ) )
                                     listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist.encode( 'utf-8' ) + ", return)" ).encode( 'utf-8' ) )
                                     
@@ -1391,7 +1399,7 @@ class LibraryFunctions():
                                     break
                         elif file.endswith( '.m3u' ):
                             name = file[:-4]
-                            listitem = self._create( ["::PLAYLIST::", name, "::SCRIPT::32005", {"icon": "DefaultPlaylist.png"} ] )
+                            listitem = self._create( ["::PLAYLIST::", name, "32005", {"icon": "DefaultPlaylist.png"} ] )
                             listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist + ")" ) )
                             listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ).encode( 'utf-8' ) )
                             
@@ -1495,7 +1503,7 @@ class LibraryFunctions():
                 except:
                     thumb = None
                 
-                listitems.append( self._create( [ path, name, "::SCRIPT::32006", { "icon": "DefaultFolder.png", "thumb": thumb} ] ) )
+                listitems.append( self._create( [ path, name, "32006", { "icon": "DefaultFolder.png", "thumb": thumb} ] ) )
             
             log( " - " + str( len( listitems ) ) + " favourites found" )
             
@@ -1600,7 +1608,7 @@ class LibraryFunctions():
         
         tree = DATA._get_overrides_skin()
         
-        listings.append( self._get_icon_overrides( tree, self._create( ["::CREATE::", "::SCRIPT::32058", "", {}] ), "" ) )
+        listings.append( self._get_icon_overrides( tree, self._create( ["::CREATE::", "32058", "", {}] ), "" ) )
                 
         # If this isn't the root, create a link to go up the heirachy
         if len( label ) is not 1:
@@ -1642,28 +1650,29 @@ class LibraryFunctions():
                 # User has chosen the shortcut they want
 
                 # Localize strings
-                if not itemType.find( "::SCRIPT::" ) == -1:
-                    localItemType = __language__(int( itemType[10:] ) )
-                elif not itemType.find( "::LOCAL::" ) == -1:
-                    localItemType = xbmc.getLocalizedString(int( itemType[9:] ) )
-                elif itemType.isdigit():
-                    localItemType = xbmc.getLocalizedString( int( itemType ) )
-                else:
-                    localItemType = itemType
+                localItemType = DATA.local( itemType )[2]
+                #if not itemType.find( "::SCRIPT::" ) == -1:
+                #    localItemType = __language__(int( itemType[10:] ) )
+                #elif not itemType.find( "::LOCAL::" ) == -1:
+                #    localItemType = xbmc.getLocalizedString(int( itemType[9:] ) )
+                #elif itemType.isdigit():
+                #    localItemType = xbmc.getLocalizedString( int( itemType ) )
+                #else:
+                #    localItemType = itemType
                     
                 # Create a listitem
                 listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  >", "" ), label2=localItemType, iconImage="DefaultShortcut.png", thumbnailImage=thumbnail[ len( thumbnail ) - 1 ])
                 
                 # Build the action
-                if itemType == "::SCRIPT::32010" or itemType == "::SCRIPT::32014" or itemType == "::SCRIPT::32069":
+                if itemType == "32010" or itemType == "32014" or itemType == "32069":
                     action = 'ActivateWindow(10025,"' + location + '",return)'
                     listitem.setProperty( "windowID", "10025" )
-                elif itemType == "::SCRIPT::32011" or itemType == "::SCRIPT::32019" or itemType == "::SCRIPT::32073":
+                elif itemType == "32011" or itemType == "32019" or itemType == "32073":
                     action = 'ActivateWindow(10501,"' + location + '",return)'
                     listitem.setProperty( "windowID", "10502" )
-                elif itemType == "::SCRIPT::32012":
+                elif itemType == "32012":
                     action = 'ActivateWindow(10002,"' + location + '",return)'
-                elif itemType == "::SCRIPT::32009":
+                elif itemType == "32009":
                     action = 'ActivateWindow(10001,"' + location + '",return)'
                 else:
                     action = "RunAddon(" + location + ")"

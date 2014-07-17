@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+    <category label="Testing">
+        <setting label="Has upgraded labels" type="bool" id="upgraded_labels" default="false"/>
+    </category>
+</settings>

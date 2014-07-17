@@ -110,9 +110,6 @@ class DataFunctions():
                         # Process shortcuts, marked as user-selected
                         processedList = self._process_shortcuts( unprocessedList, group, profileDir, True )
                         
-                        # Update any localised strings
-                        self._process_localised( path, unprocessedList )
-                        
                     else:
                         # Otherwise, just process them normally
                         processedList = self._process_shortcuts( unprocessedList, group, profileDir )
@@ -148,23 +145,23 @@ class DataFunctions():
         
         for item in listitems:
             # Generate the labelID
-            label = item[0]
-            labelID = item[0].replace(" ", "").lower()
+            label = self.local( item[0] )[2]
+            labelID = self.createNiceName( self.local( item[0] )[2].replace(" ", "").lower() )
             
             # Localize label & labelID
-            if not label.find( "::SCRIPT::" ) == -1:
-                labelID = self.createNiceName( label[10:] )
-                label = __language__(int( label[10:] ) )
-            elif not label.find( "::LOCAL::" ) == -1:
-                labelID = self.createNiceName( label[9:] )
-                label = xbmc.getLocalizedString(int( label[9:] ) )
-                # Check for a localised label from a non-current skin
-                try:
-                    skinName = item[6]
-                    if skinName != xbmc.getSkinDir():
-                        label = item[7]
-                except:
-                    hasChanged = False
+            #if not label.find( "::SCRIPT::" ) == -1:
+            #    labelID = self.createNiceName( label[10:] )
+            #    label = __language__(int( label[10:] ) )
+            #elif not label.find( "::LOCAL::" ) == -1:
+            #    labelID = self.createNiceName( label[9:] )
+            #    label = xbmc.getLocalizedString(int( label[9:] ) )
+            #    # Check for a localised label from a non-current skin
+            #    try:
+            #        skinName = item[6]
+            #        if skinName != xbmc.getSkinDir():
+            #            label = item[7]
+            #    except:
+            #        hasChanged = False
             
             # Check for a skin-override on the icon
             item[2] = self._get_icon_overrides( tree, item[2], group, labelID )
@@ -338,46 +335,8 @@ class DataFunctions():
         if not xbmc.skinHasImage( newicon ) and setToDefault == True:
             newicon = self._get_icon_overrides( tree, "DefaultShortcut.png", group, labelID, False )
         return newicon
-        
-    def _process_localised( self, path, items ):
-        # We will check a file to see if it uses strings localised by the skin and, if so, save their non-localised version in case the user
-        # switches skins in the future
-        updatedString = False
-        for item in items:
-            if not item[0].find( "::LOCAL::" ) == -1:
-                stringInt = int( item[0][9:] )
-                if stringInt > 30000:
-                    # This is a string localized by the skin
-                    localID = xbmc.getLocalizedString( stringInt )
-                    updateString = False
-                    
-                    # Check whether the skin providing the string is the current skin
-                    try:
-                        if item[6] == xbmc.getSkinDir():
-                            # The string has already been localised, check it hasn't changed
-                            if localID != item[7]:
-                                item[7] = localID
-                                updatedString = True
-                    except:
-                        # The string hasn't been localised at all
-                        if len(item) == 5:
-                            item.append( "False" )
-                            
-                        item.append( xbmc.getSkinDir() )
-                        item.append( localID )
-                        updatedString = True
-            
-        if updatedString == True:
-            # We updated a string, so we want to save this file
-            try:
-                f = xbmcvfs.File( path, 'w' )
-                f.write( repr( items ) )
-                f.close()
-            except:
-                print_exc()
-                log( "### ERROR could not save file %s" % path )                          
-                    
 
+        
     def _get_overrides_script( self ):
         # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
         if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-script-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-script" ) == __defaultpath__:
@@ -647,8 +606,64 @@ class DataFunctions():
         else:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
-            
+                
+                
+    def local( self, data ):
+        # This is our function to manage localisation
+        # It accepts strings in one of the following formats:
+        #   #####, ::LOCAL::#####, ::SCRIPT::#####
+        #   $LOCALISE[#####], $SKIN[####|skin.id|last translation]
+        #   $ADDON[script.skinshortcuts #####]
+        # If returns a list containing:
+        #   [Number/$SKIN, $LOCALIZE/$ADDON/Local string, Local string]
+        #   [Used for saving, used for building xml, used for displaying in dialog]
 
+        skinid = None
+        lasttranslation = None
+        
+        # Get just the integer of the string, for the input forms where this is valid
+        if not data.find( "::SCRIPT::" ) == -1:
+            data = data[10:]
+        elif not data.find( "::LOCAL::" ) == -1:            
+            data = data[9:]
+        elif not data.find( "$LOCALIZE[" ) == -1:
+            data = data.replace( "$LOCALIZE[", "" ).replace( "]", "" ).replace( " ", "" )
+        elif not data.find( "$ADDON[script.skinshortcuts" ) == -1:
+            data = data.replace( "$ADDON[script.skinshortcuts", "" ).replace( "]", "" ).replace( " ", "" )
+        
+        # Get the integer and skin id, from $SKIN input forms
+        elif not data.find( "$SKIN[" ) == -1:
+            splitdata = data[6:-1].split( "|" )
+            data = splitdata[0]
+            skinid = splitdata[1]
+            lasttranslation = splitdata[2]
+            
+        if data.isdigit():
+            if int( data ) >= 31000 and int( data ) < 32000:
+                # A number from a skin - we're going to return a $SKIN[#####|skin.id|last translation] unit
+                if skinid is None:
+                    # Set the skinid to the current skin id
+                    skinid = xbmc.getSkinDir()
+                    
+                # If we're on the same skin as the skinid, get the latest translation
+                if skinid == xbmc.getSkinDir():
+                    lasttranslation = xbmc.getLocalizedString( int( data ) )
+                    returnString = "$SKIN[" + data + "|" + skinid + "|" + lasttranslation + "]"
+                    return [ returnString, "$LOCALIZE[" + data + "]", lasttranslation ]
+                    
+                returnString = "$SKIN[" + data + "|" + skinid + "|" + lasttranslation + "]"
+                return [ returnString, lasttranslation, lasttranslation ]
+                
+            elif int( data ) >= 32000 and int( data ) < 33000:
+                # A number from the script
+                return [ data, "$ADDON[script.skinshortcuts " + data + "]", __language__( int( data ) ) ]
+                
+            else:
+                # A number from XBMC itself (probably)
+                return [ data, "$LOCALIZE[" + data + "]", xbmc.getLocalizedString( int( data ) ) ]
+                
+        # This isn't anything we can localize, just return it (in triplicate ;))
+        return[ data, data, data ]
     def smart_truncate(string, max_length=0, word_boundaries=False, separator=' '):
         string = string.strip(separator)
 
@@ -679,7 +694,7 @@ class DataFunctions():
         if type(text) != types.UnicodeType:
             text = unicode(text, 'utf-8', 'ignore')
 
-        # decode unicode ( 影師嗎 = Ying Shi Ma)
+        # decode unicode ( ??? = Ying Shi Ma)
         text = unidecode(text)
 
         # text back to unicode
@@ -725,3 +740,79 @@ class DataFunctions():
 
         return text
         
+class UpgradeFunctions():
+    def __init__(self):
+        pass
+    
+    def upgrade_labels( self ):
+        # This function will upgrade all the saved labels (label and label2) for the .shortcuts files
+        # For localised strings, this will be either to just numeric, or for skin strings, to $SKIN[number|skinID|LastTranslation]
+        # For non-localised strings, nothing will happen
+        
+        # Get all profiles
+        profile_file = xbmc.translatePath( 'special://userdata/profiles.xml' ).decode("utf-8")
+        tree = None
+        if xbmcvfs.exists( profile_file ):
+            tree = xmltree.parse( profile_file )
+        
+        profilelist = []
+        if tree is not None:
+            profiles = tree.findall( "profile" )
+            for profile in profiles:
+                name = profile.find( "name" ).text.encode( "utf-8" )
+                dir = profile.find( "directory" ).text.encode( "utf-8" )
+                # Localise the directory
+                if "://" in dir:
+                    dir = xbmc.translatePath( os.path.join( dir, "addon_data", "script.skinshortcuts" ) ).decode( "utf-8" )
+                else:
+                    # Base if off of the master profile
+                    dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir, "addon_data", "script.skinshortcuts" ) ).decode( "utf-8" )
+                profilelist.append( dir )
+                
+        else:
+            profilelist = ["special://masterprofile/addon_data/script.skinshortcuts"]
+            
+        for folder in profilelist:
+            log( repr( folder ) )
+            for root, subdirs, files in os.walk( folder ):
+                for file in files:
+                    if file.endswith( ".shortcuts" ):
+                        self.upgrade_file( os.path.join( folder, file ) )
+                break
+        
+    def upgrade_file( self, path ):
+        list = xbmcvfs.File( path ).read()
+        shortcuts = eval( list )
+        
+        # Save the original file as a backup
+        f = xbmcvfs.File( path + ".backup", 'w' )
+        f.write( repr( shortcuts ).replace( "],", "],\n" ) )
+        f.close()
+        
+        for shortcut in shortcuts:
+            # Save the original file as a backup
+            
+            # Upgrade label1 and label2
+            shortcut[0] = DataFunctions().local( shortcut[0] )[0]
+            shortcut[1] = DataFunctions().local( shortcut[1] )[0]
+            
+            # If there is a skinID, ensure this is set in label1 and label2
+            if len( shortcut ) is not 5:
+                skinID = shortcut[5]
+                if not shortcut[0].find( "$SKIN[" ) == -1:
+                    splitdata = shortcut[0][6:-1].split( "|" )
+                    stringid = splitdata[0]
+                    lasttranslation = splitdata[2]
+                    shortcut[0] = "$SKIN[" + stringID + "|" + skinID + "|" + lasttranslation + "]"
+                if not shortcut[1].find( "$SKIN[" ) == -1:
+                    splitdata = shortcut[1][6:-1].split( "|" )
+                    stringid = splitdata[0]
+                    lasttranslation = splitdata[2]
+                    shortcut[1] = "$SKIN[" + stringID + "|" + skinID + "|" + lasttranslation + "]"
+                    
+                shortcut = [shortcut[0], shortcut[1], shortcut[2], shortcut[3], shortcut[4]]
+                
+        # Save the file
+        f = xbmcvfs.File( path, 'w' )
+        f.write( repr( shortcuts ).replace( "],", "],\n" ) )
+        f.close()

@@ -333,9 +333,18 @@ If you are using Skin Shortcuts to set custom properties for shortcuts, you can 
 [Property] - The string used to identify the property
 [Property Value] - The default value of the property
 
+If you are using Skin Shortcuts to set these properties, then you must also set the available options:
+
+	<property property="[Property]">[Property Value]</property>
+
+[Property] - The string used to identify the property
+[Property Value] - The default value of the property
+
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
 	<propertydefault labelID="movies" property="description">Browse your movies</propertydefault>
+	<property property="description">Browse you movies</property>
+	<property property="description">31234</property>	
 </overrides>
 
 
@@ -372,7 +381,7 @@ Localisation
 
 If you are providing default shortcuts and want to localize your label, you can do it using the format
 
-  ::LOCAL::[id]
+  [id]
   
 Where [id] is any string id provided by XBMC or your skin.
 
