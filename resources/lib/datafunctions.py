@@ -803,12 +803,12 @@ class UpgradeFunctions():
                     splitdata = shortcut[0][6:-1].split( "|" )
                     stringid = splitdata[0]
                     lasttranslation = splitdata[2]
-                    shortcut[0] = "$SKIN[" + stringID + "|" + skinID + "|" + lasttranslation + "]"
+                    shortcut[0] = "$SKIN[" + stringid + "|" + skinID + "|" + lasttranslation + "]"
                 if not shortcut[1].find( "$SKIN[" ) == -1:
                     splitdata = shortcut[1][6:-1].split( "|" )
                     stringid = splitdata[0]
                     lasttranslation = splitdata[2]
-                    shortcut[1] = "$SKIN[" + stringID + "|" + skinID + "|" + lasttranslation + "]"
+                    shortcut[1] = "$SKIN[" + stringid + "|" + skinID + "|" + lasttranslation + "]"
                     
                 shortcut = [shortcut[0], shortcut[1], shortcut[2], shortcut[3], shortcut[4]]
                 
