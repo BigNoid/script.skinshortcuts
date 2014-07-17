@@ -30,6 +30,9 @@ class XMLFunctions():
         self.MAINBACKGROUND = {}
         
     def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options ):
+        for option in options:
+            log( "Build started with option: " + option )
+            
         # Entry point for building includes.xml files
         if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
             return
@@ -484,9 +487,11 @@ class XMLFunctions():
                         if "clonewidgets" in options:
                             if property[0] == "widget" or property[0] == "widgetName" or property[0] == "widgetType" or property[0] == "widgetPlaylist":
                                 self.MAINWIDGET[ property[0] ] = property[1]
+                                log( "Keeping widget to clone: " + property[0] + " - " + property[1] )
                         if "clonebackgrounds" in options:
                             if property[0] == "background" or property[0] == "backgroundName" or property[0] == "backgroundPlaylist" or property[0] == "backgroundPlaylistName":
                                 self.MAINBACKGROUND[ property[0] ] = property[1]
+                                log( "Keeping background to clone: " + property[0] + " - " + property[1] )
                                 
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
         if groupName != "mainmenu":
@@ -496,16 +501,20 @@ class XMLFunctions():
                     additionalproperty.set( "name", key )
                     try:
                         additionalproperty.text = self.MAINWIDGET[ key ].decode( "utf-8" )
+                        log( "Cloning widget: " + key + " - " + self.MAINWIDGET[ key ].decode( "utf-8" ) )
                     except:
                         additionalproperty.text = self.MAINWIDGET[ key ]
+                        log( "Cloning widget: " + key + " - " + self.MAINWIDGET[ key ] )
             if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) is not 0:
                 for key in self.MAINBACKGROUND:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
                     try:
                         additionalproperty.text = self.MAINBACKGROUND[ key ].decode( "utf-8" )
+                        log( "Cloning background: " + key + " - " + self.MAINWIDGET[ key ].decode( "utf-8" ) )
                     except:
                         additionalproperty.text = self.MAINBACKGROUND[ key ]
+                        log( "Cloning widget: " + key + " - " + self.MAINWIDGET[ key ] )
                     
         return newelement
         
