@@ -146,7 +146,7 @@ class DataFunctions():
         for item in listitems:
             # Generate the labelID
             label = self.local( item[0] )[2]
-            labelID = self.createNiceName( self.local( item[0] )[2].replace(" ", "").lower() )
+            labelID = self.createNiceName( self.local( item[0] )[3].replace(" ", "").lower() )
             
             # Localize label & labelID
             #if not label.find( "::SCRIPT::" ) == -1:
@@ -649,21 +649,21 @@ class DataFunctions():
                 if skinid == xbmc.getSkinDir():
                     lasttranslation = xbmc.getLocalizedString( int( data ) )
                     returnString = "$SKIN[" + data + "|" + skinid + "|" + lasttranslation + "]"
-                    return [ returnString, "$LOCALIZE[" + data + "]", lasttranslation ]
+                    return [ returnString, "$LOCALIZE[" + data + "]", lasttranslation, data ]
                     
                 returnString = "$SKIN[" + data + "|" + skinid + "|" + lasttranslation + "]"
-                return [ returnString, lasttranslation, lasttranslation ]
+                return [ returnString, lasttranslation, lasttranslation, data ]
                 
             elif int( data ) >= 32000 and int( data ) < 33000:
                 # A number from the script
-                return [ data, "$ADDON[script.skinshortcuts " + data + "]", __language__( int( data ) ) ]
+                return [ data, "$ADDON[script.skinshortcuts " + data + "]", __language__( int( data ) ), data ]
                 
             else:
                 # A number from XBMC itself (probably)
-                return [ data, "$LOCALIZE[" + data + "]", xbmc.getLocalizedString( int( data ) ) ]
+                return [ data, "$LOCALIZE[" + data + "]", xbmc.getLocalizedString( int( data ) ), data ]
                 
         # This isn't anything we can localize, just return it (in triplicate ;))
-        return[ data, data, data ]
+        return[ data, data, data, data ]
     def smart_truncate(string, max_length=0, word_boundaries=False, separator=' '):
         string = string.strip(separator)
 

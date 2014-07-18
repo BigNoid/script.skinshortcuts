@@ -1058,7 +1058,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         saveLabel2 = DATA.local( item[1] )[2]
 
         listitem = xbmcgui.ListItem(label= DATA.local( loadLabel )[2], label2=saveLabel2, iconImage=item[2], thumbnailImage=item[3])
-        listitem.setProperty( "localizedString", loadLabel )
+        listitem.setProperty( "localizedString", DATA.local( item[0] )[3] )
 
         #if not loadLabel2.find( "::SCRIPT::" ) == -1:
         #    saveLabel2 = __language__( int ( loadLabel2[10:] ) )
