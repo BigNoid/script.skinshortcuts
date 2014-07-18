@@ -143,10 +143,12 @@ class DataFunctions():
         usertree = self._get_overrides_user( profileDir )
         returnitems = []
         
+        self._clear_labelID()
+        
         for item in listitems:
             # Generate the labelID
             label = self.local( item[0] )[0]
-            labelID = self.createNiceName( self.local( item[0] )[3].replace(" ", "").lower() )
+            labelID = self._get_labelID( self.createNiceName( self.local( item[0] )[3].replace(" ", "").lower() ) )
             
             # Localize label & labelID
             #if not label.find( "::SCRIPT::" ) == -1:

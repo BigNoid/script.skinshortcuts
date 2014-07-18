@@ -234,7 +234,8 @@ class XMLFunctions():
                 subtree.set( "name", "skinshortcuts-submenu" )
             else:
                 subtree.set( "name", "skinshortcuts-submenu-" + str( level ) )
-            submenuTrees.append( subtree )
+            if not subtree in submenuTrees:
+                submenuTrees.append( subtree )
         
         if buildMode == "single":
             allmenuTree = xmltree.SubElement( root, "include" )
@@ -270,6 +271,7 @@ class XMLFunctions():
             percent = profilePercent / len( menuitems )
                 
             i = 0
+            submenus = []
             for item in menuitems:
                 log( repr( type( item ) ) )
                 i += 1
@@ -279,7 +281,8 @@ class XMLFunctions():
                 # Build the main menu item
                 #if groups == "":
                 if type( item ) == list:
-                    submenu = DATA._get_labelID( item[5] )
+                    #submenu = DATA._get_labelID( item[5] )
+                    submenu = item[5]
                     mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu, options = options )
                     if buildMode == "single":
                         mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu, options = options )
@@ -296,48 +299,50 @@ class XMLFunctions():
                     itemidsubmenu = 0
                     
                     # Get the submenu items
-                    if count == 0:
-                        justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) )
-                        justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
-                        submenuitems = DATA._get_shortcuts( submenu, True, profile[0] )
-                        
-                        # Set whether there are any submenu items for the main menu
-                        if groups == "":
-                            if not len( submenuitems ) == 0:
-                                hasSubMenu = xmltree.SubElement( mainmenuItemA, "property" )
-                                hasSubMenu.set( "name", "hasSubmenu" )
-                                hasSubMenu.text = "True"
-                                if buildMode == "single":
-                                    hasSubMenu = xmltree.SubElement( mainmenuItemB, "property" )
+                    if submenu not in submenus:
+                        if count == 0:
+                            justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) )
+                            justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
+                            submenuitems = DATA._get_shortcuts( submenu, True, profile[0] )
+                            
+                            # Set whether there are any submenu items for the main menu
+                            if groups == "":
+                                if not len( submenuitems ) == 0:
+                                    hasSubMenu = xmltree.SubElement( mainmenuItemA, "property" )
                                     hasSubMenu.set( "name", "hasSubmenu" )
                                     hasSubMenu.text = "True"
-                                
-                    else:
-                        # This is an additional sub-menu, not the primary one
-                        justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) + "-" + str( count ) )
-                        justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) + "-" + str( count ) )
-                        submenuitems = DATA._get_shortcuts( submenu + "." + str( count ), True, profile[0] )
-                    
-                    # If there is a submenu, and we're building a single menu list, replace the onclick of mainmenuItemB AND recreate it as the first
-                    # submenu item
-                    if buildMode == "single" and not len( submenuitems ) == 0:
-                        onClickElement = mainmenuItemB.find( "onclick" )
-                        altOnClick = xmltree.SubElement( mainmenuItemB, "onclick" )
-                        altOnClick.text = onClickElement.text
-                        altOnClick.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
-                        onClickElement.text = "SetProperty(submenuVisibility," + DATA.slugify( submenu ) + ",10000)"
-                        onClickElement.set( "condition", "!StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
+                                    if buildMode == "single":
+                                        hasSubMenu = xmltree.SubElement( mainmenuItemB, "property" )
+                                        hasSubMenu.set( "name", "hasSubmenu" )
+                                        hasSubMenu.text = "True"
+                                    
+                        else:
+                            # This is an additional sub-menu, not the primary one
+                            justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) + "-" + str( count ) )
+                            justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) + "-" + str( count ) )
+                            submenuitems = DATA._get_shortcuts( submenu + "." + str( count ), True, profile[0] )
                         
-                    for subitem in submenuitems:
-                        itemidsubmenu += 1
-                        self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")", profile[1], itemid = itemidsubmenu, options = options )
-                        self.buildElement( subitem, justmenuTreeA, submenu, None, profile[1], itemid = itemidsubmenu, options = options )
-                        self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu, options = options )
-                        if buildMode == "single":
-                            self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu, options = options )
-                
-                    # Increase the counter
-                    count += 1
+                        # If there is a submenu, and we're building a single menu list, replace the onclick of mainmenuItemB AND recreate it as the first
+                        # submenu item
+                        if buildMode == "single" and not len( submenuitems ) == 0:
+                            onClickElement = mainmenuItemB.find( "onclick" )
+                            altOnClick = xmltree.SubElement( mainmenuItemB, "onclick" )
+                            altOnClick.text = onClickElement.text
+                            altOnClick.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
+                            onClickElement.text = "SetProperty(submenuVisibility," + DATA.slugify( submenu ) + ",10000)"
+                            onClickElement.set( "condition", "!StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")" )
+                            
+                        for subitem in submenuitems:
+                            itemidsubmenu += 1
+                            self.buildElement( subitem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + escapeXML( DATA.slugify( submenu ) ) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                            self.buildElement( subitem, justmenuTreeA, submenu, None, profile[1], itemid = itemidsubmenu, options = options )
+                            self.buildElement( subitem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                            if buildMode == "single":
+                                self.buildElement( subitem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                    
+                        # Increase the counter
+                        count += 1
+                    submenus.append( submenu )
             
         progress.update( 100 )
             
