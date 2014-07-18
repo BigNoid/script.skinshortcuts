@@ -770,7 +770,7 @@ class UpgradeFunctions():
                 profilelist.append( dir )
                 
         else:
-            profilelist = ["special://masterprofile/addon_data/script.skinshortcuts"]
+            profilelist = [xbmc.translatePath( "special://masterprofile/addon_data/script.skinshortcuts" )]
             
         for folder in profilelist:
             log( repr( folder ) )
