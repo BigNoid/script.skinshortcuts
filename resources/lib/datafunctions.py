@@ -145,7 +145,7 @@ class DataFunctions():
         
         for item in listitems:
             # Generate the labelID
-            label = self.local( item[0] )[2]
+            label = self.local( item[0] )[0]
             labelID = self.createNiceName( self.local( item[0] )[3].replace(" ", "").lower() )
             
             # Localize label & labelID
