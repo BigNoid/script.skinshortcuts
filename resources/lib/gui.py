@@ -1105,7 +1105,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Translate certain localized strings into non-localized form for labelID
         #item = item.replace("::SCRIPT::", "")
         #item = item.replace("::LOCAL::", "")
-        item = DATA.local( item )[0]
+        item = DATA.local( item )[3]
         returnVal = None
         if item == "10006":
             returnVal = "videos"
