@@ -619,6 +619,11 @@ class DataFunctions():
         # If returns a list containing:
         #   [Number/$SKIN, $LOCALIZE/$ADDON/Local string, Local string]
         #   [Used for saving, used for building xml, used for displaying in dialog]
+        
+        try:
+            data = data.decode( "utf-8" )
+        except:
+            pass
 
         skinid = None
         lasttranslation = None
