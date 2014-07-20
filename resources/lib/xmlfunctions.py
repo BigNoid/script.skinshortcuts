@@ -97,11 +97,18 @@ class XMLFunctions():
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-isrunning" )
         progress.close()
         
-        # Reload the skin
         if complete == True:
+            # Menu is built, reload the skin
             xbmc.executebuiltin( "XBMC.ReloadSkin()" )
         else:
-            xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), "Unable to build menu" )
+            # Menu couldn't be built - if the user has script.xbmc.debug.log offer to upload a debug log
+            if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
+                ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), "Unable to build menu", "Upload a debug log to xbmclogs.com?" )
+                if ret:
+                    xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+            else:
+                
+                xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), "Unable to build menu" )
         
     def shouldwerun( self, profilelist ):
         log( "Checking if user has updated menu" )
