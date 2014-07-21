@@ -506,7 +506,7 @@ class DataFunctions():
             return "Library.HasContent(TVShows)"
         if action.startswith( "ActivateWindow(Video,MusicVideo" ):
             return "Library.HasContent(MusicVideos)"
-        if action.startswith( "ActivateWindow(MusicLibrary,MusicVideos" ):
+        if action.startswith( "ActivateWindow(MusicLibrary,MusicVideo" ):
             return "Library.HasContent(MusicVideos)"
         if action.startswith( "ActivateWindow(MusicLibrary," ):
             return "Library.HasContent(Music)"
