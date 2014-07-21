@@ -85,7 +85,7 @@ msgid "TV Shows"
 msgstr ""
 
 msgctxt "#32017"
-msgid "PVR"
+msgid "Live TV"
 msgstr ""
 
 msgctxt "#32018"
@@ -105,7 +105,7 @@ msgid "Programs"
 msgstr ""
 
 msgctxt "#32022"
-msgid "PVR"
+msgid "Live TV"
 msgstr ""
 
 msgctxt "#32023"
@@ -368,4 +368,12 @@ msgstr ""
 
 msgctxt "#32086"
 msgid "Mixed content not in this source"
+msgstr ""
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr ""
+
+msgctxt "#32088"
+msgid "Channels"
 msgstr ""

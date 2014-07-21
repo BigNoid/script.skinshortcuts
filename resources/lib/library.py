@@ -26,12 +26,17 @@ __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
 __language__     = sys.modules[ "__main__" ].__language__
 __cwd__          = sys.modules[ "__main__" ].__cwd__
+__xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
 def log(txt):
-    if isinstance (txt,str):
-        txt = txt.decode("utf-8")
-    message = u'%s: %s' % (__addonid__, txt)
-    xbmc.log(msg=message.encode("utf-8"), level=xbmc.LOGDEBUG)
+    if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
+        try:
+            if isinstance (txt,str):
+                txt = txt.decode('utf-8')
+            message = u'%s: %s' % (__addonid__, txt)
+            xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
+        except:
+            pass
 
 class LibraryFunctions():
     def __init__( self, *args, **kwargs ):
@@ -39,11 +44,11 @@ class LibraryFunctions():
         # values to mark whether data from different areas of the library have been loaded
         self.loadedCommon = False
         self.loadedMoreCommands = False
-        self.loadedMenuDefaults = False
         self.loadedVideoLibrary = False
         self.loadedMusicLibrary = False
         self.loadedLibrarySources = False
         self.loadedPVRLibrary = False
+        self.loadedRadioLibrary = False
         self.loadedPlaylists = False
         self.loadedAddOns = False
         self.loadedFavourites = False
@@ -53,7 +58,7 @@ class LibraryFunctions():
         self.widgetPlaylistsList = []
         
         # Empty dictionary for different shortcut types
-        self.dictionaryGroupings = {"common":None, "commands":None, "menudefault":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None, "settings":None }
+        self.dictionaryGroupings = {"common":None, "commands":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "radio":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None, "settings":None }
         self.folders = {}
         self.foldersCount = 0
         
@@ -63,10 +68,10 @@ class LibraryFunctions():
         # Load all library data, for use with threading
         self.common()
         self.more()
-        self.menudefault()
         self.videolibrary()
         self.musiclibrary()
         self.pvrlibrary()
+        self.radiolibrary()
         self.librarysources()
         self.playlists()
         self.addons()                
@@ -146,6 +151,10 @@ class LibraryFunctions():
                 if not xbmc.getCondVisibility( subnode.attrib.get( "condition" ) ):
                     number += 1
                     continue
+            if "version" in subnode.attrib:
+                if __xbmcversion__ != subnode.attrib.get( "version" ):
+                    number += 1
+                    continue
 
             if count == number:
                 label = DATA.local( subnode.attrib.get( "label" ) )[2]
@@ -166,6 +175,9 @@ class LibraryFunctions():
             if "condition" in node.attrib:
                 if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
                     continue
+            if "version" in node.attrib:
+                if __xbmcversion__ != node.attrib.get( "version" ):
+                    continue
             count += 1
             if node.tag == "content":
                 returnList = returnList + self.retrieveContent( node.text )
@@ -178,9 +190,9 @@ class LibraryFunctions():
                 
     def retrieveContent( self, content ):
         if content == "upnp-video":
-            items = [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32069", {"icon": "DefaultFolder.png"}]) ]
+            items = [ self._create(["||UPNP||", "32070", "32069", {"icon": "DefaultFolder.png"}]) ]
         elif content == "upnp-music":
-            items = [ self._create(["||UPNP||", "::SCRIPT::32070", "::SCRIPT::32073", {"icon": "DefaultFolder.png"}]) ]
+            items = [ self._create(["||UPNP||", "32070", "32073", {"icon": "DefaultFolder.png"}]) ]
             
         elif self.dictionaryGroupings[ content ] is None:
             # The data hasn't been loaded yet
@@ -345,8 +357,6 @@ class LibraryFunctions():
             self.common()
         if content  == "commands":
             self.more()
-        if content == "menudefault":
-            self.menudefault()
         if content == "video" or content == "movie" or content == "tvshow" or content == "musicvideo" or content == "customvideonode" or content == "movie-flat" or content == "tvshow-flat" or content == "musicvideo-flat" or content == "customvideonode-flat":
             self.videolibrary()
         if content == "videosources" or content == "musicsources":
@@ -355,6 +365,8 @@ class LibraryFunctions():
             self.musiclibrary()
         if content == "pvr" or content == "pvr-tv" or content == "pvr-radio":
             self.pvrlibrary()
+        if content == "radio":
+            self.radiolibrary()
         if content == "playlist-video" or content == "playlist-audio":
             self.playlists()
         if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image":
@@ -415,7 +427,7 @@ class LibraryFunctions():
         
         if number != -1:
             selectedShortcut = availableShortcuts[ number ]
-            path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+            path = selectedShortcut.getProperty( "Path" )
             if path.startswith( "||NODE||" ):
                 if group == "":
                     group = path.replace( "||NODE||", "" )
@@ -426,9 +438,9 @@ class LibraryFunctions():
                 selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType") )
                 # Convert backslashes to double-backslashes (windows fix)
                 if selectedShortcut is not None:
-                    newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                    newAction = selectedShortcut.getProperty( "Path" )
                     newAction = newAction.replace( "\\", "\\\\" )
-                    selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+                    selectedShortcut.setProperty( "Path", newAction )
                     selectedShortcut.setProperty( "displayPath", newAction )
             elif path == "||FOLDER||":
                 # The next set of shortcuts are within the listitem property folder-contents
@@ -436,10 +448,10 @@ class LibraryFunctions():
                 return self.selectShortcut( group=group, availableShortcuts=shortcuts, windowTitle = selectedShortcut.getLabel() )
             elif path == "||UPNP||":
                 selectedShortcut = self.explorer( ["upnp://"], "upnp://", [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType")  )
-                path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                path = selectedShortcut.getProperty( "Path" )
             elif path.startswith( "||SOURCE||" ):
                 selectedShortcut = self.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType")  )
-                if selectedShortcut is None or "upnp://" in urllib.unquote( selectedShortcut.getProperty( "Path" ) ):
+                if selectedShortcut is None or "upnp://" in selectedShortcut.getProperty( "Path" ):
                     return selectedShortcut
                 selectedShortcut = self._sourcelink_choice( selectedShortcut )
                 #path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
@@ -501,7 +513,13 @@ class LibraryFunctions():
             listitems.append( self._create(["ActivateWindow(Videos)", "10006", "32034", {"icon": "DefaultVideo.png"} ]) )
             listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "342", "32034", {"icon": "DefaultMovies.png"} ]) )
             listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "20343", "32034", {"icon": "DefaultTVShows.png"} ]) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
+
+            if __xbmcversion__ == "13":
+                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
+            else:
+                listitems.append( self._create(["ActivateWindow(TVGuide)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
+                listitems.append( self._create(["ActivateWindow(RadioGuide)", "32087", "32034", {"icon": "DefaultTVShows.png"} ]) )
+                
             listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
             listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicVideos,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
             listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
@@ -614,17 +632,6 @@ class LibraryFunctions():
             
         self.loadedSettings = True
         return self.loadedSettings
-        
-    def menudefault( self ):
-        # This is loaded slightly differently - by the main gui.py file as part of loading the window
-        if self.loadedMenuDefaults == True:
-            # The List has already been populated, return it
-            return True
-        else:
-            # We're going to wait until it has been loaded
-            while self.loadedMenuDefaults != True:
-                xbmc.sleep( 100 )
-            return True
         
         
     def videolibrary( self ):
@@ -1085,15 +1092,24 @@ class LibraryFunctions():
             log('Listing pvr library...')
             
             # PVR
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "19023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "19024", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "19069", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "32023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            if __xbmcversion__ == "13":
+                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "19023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "19024", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "19069", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "32023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
 
-            listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["PlayPvrRadio", "32067", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-            listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["PlayPvrRadio", "32067", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            else:
+                listitems.append( self._create(["ActivateWindow(TVChannels)", "32088", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(TVGuide)", "19069", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(TVRecordings)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(TVTimers)", "32023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                
+                listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
 
             self.addToDictionary( "pvr", listitems )            
             
@@ -1129,6 +1145,44 @@ class LibraryFunctions():
 
         self.loadedPVRLibrary = True
         return self.loadedPVRLibrary
+        
+    def radiolibrary( self ):
+        if self.loadedRadioLibrary == True:
+            # The List has already been populated, return it
+            return self.loadedRadioLibrary
+        elif self.loadedRadioLibrary == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while count < 20:
+                xbmc.sleep( 100 )
+                count += 1
+                if self.loadedRadioLibrary == True:
+                    return self.loadedRadioLibrary
+        else:
+            # We're going to populate the list
+            self.loadedRadioLibrary = "Loading"
+
+        try:
+            listitems = []
+            log('Listing pvr-radio library...')
+            
+            # PVR
+            listitems.append( self._create(["ActivateWindow(RadioChannels)", "32088", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(RadioGuide)", "19069", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(RadioRecordings)", "19163", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(RadioTimers)", "32023", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            
+            listitems.append( self._create(["PlayPvrRadio", "32067", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            listitems.append( self._create(["PlayPvr", "32068", "32087", {"icon": "DefaultAudio.png"} ] ) )
+
+            self.addToDictionary( "radio", listitems )            
+
+        except:
+            log( "Failed to load pvr-radio library" )
+            print_exc()
+
+        self.loadedRadioLibrary = True
+        return self.loadedRadioLibrary
         
     def musiclibrary( self ):
         if self.loadedMusicLibrary == True:
@@ -1276,7 +1330,7 @@ class LibraryFunctions():
             listitem.setProperty( "thumbnail", thumbnail)
         else:
             listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon)
-        listitem.setProperty( "path", urllib.quote( item[0].encode('utf-8') ).decode( "utf-8" ) )
+        listitem.setProperty( "path", item[0].encode('utf-8').decode( "utf-8" ) )
         listitem.setProperty( "localizedString", localLabel )
         listitem.setProperty( "shortcutType", shortcutType )
         listitem.setProperty( "icon", icon )
@@ -1385,8 +1439,8 @@ class LibraryFunctions():
                                         name = file[:-4]
                                     # Create a list item
                                     listitem = self._create(["::PLAYLIST::", name, path[1], {"icon": "DefaultPlaylist.png"} ])
-                                    listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist.encode( 'utf-8' ) + ")" ) )
-                                    listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(" + mediaLibrary + "," + playlist.encode( 'utf-8' ) + ", return)" ).encode( 'utf-8' ) )
+                                    listitem.setProperty( "action-play", "PlayMedia(" + playlist.encode( 'utf-8' ) + ")" )
+                                    listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist.encode( 'utf-8' ) + ", return)".encode( 'utf-8' ) )
                                     
                                     if mediaLibrary == "VideoLibrary":
                                         videolist.append( listitem )
@@ -1400,8 +1454,8 @@ class LibraryFunctions():
                         elif file.endswith( '.m3u' ):
                             name = file[:-4]
                             listitem = self._create( ["::PLAYLIST::", name, "32005", {"icon": "DefaultPlaylist.png"} ] )
-                            listitem.setProperty( "action-play", urllib.quote( "PlayMedia(" + playlist + ")" ) )
-                            listitem.setProperty( "action-show", urllib.quote( "ActivateWindow(MusicLibrary," + playlist + ", return)" ).encode( 'utf-8' ) )
+                            listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
+                            listitem.setProperty( "action-show", "ActivateWindow(MusicLibrary," + playlist + ", return)".encode( 'utf-8' ) )
                             
                             audiolist.append( listitem )
                             
@@ -1564,7 +1618,7 @@ class LibraryFunctions():
                             # If this is a plugin, mark that we can browse it
                             if item['addonid'].startswith( "plugin." ):
                                 path = "||BROWSE||" + item['addonid'].encode('utf-8')
-                                action = urllib.quote( "RunAddOn(" + item['addonid'].encode('utf-8') + ")" )
+                                action = "RunAddOn(" + item['addonid'].encode('utf-8') + ")"
 
                             thumb = "DefaultAddon.png"
                             if item['thumbnail'] != "":
@@ -1574,7 +1628,7 @@ class LibraryFunctions():
                                 
                             listitem = self._create([path, item['name'], shortcutType, {"icon": "DefaultAddon.png", "thumb": thumb} ])
                             if action is not None:
-                                listitem.setProperty( "path", urllib.quote( path ) )
+                                listitem.setProperty( "path", path )
                                 listitem.setProperty( "action", action )
 
                             listitems.append(listitem)
@@ -1645,7 +1699,7 @@ class LibraryFunctions():
         del w
         
         if selectedItem != -1:
-            selectedAction = urllib.unquote( listings[ selectedItem ].getProperty( "path" ) )
+            selectedAction = listings[ selectedItem ].getProperty( "path" )
             if selectedAction == "::CREATE::":
                 # User has chosen the shortcut they want
 
@@ -1677,7 +1731,7 @@ class LibraryFunctions():
                 else:
                     action = "RunAddon(" + location + ")"
 
-                listitem.setProperty( "path", urllib.quote( action ) )
+                listitem.setProperty( "path", action )
                 listitem.setProperty( "displayPath", action )
                 listitem.setProperty( "shortcutType", itemType )
                 listitem.setProperty( "icon", "DefaultShortcut.png" )
@@ -1718,9 +1772,9 @@ class LibraryFunctions():
                 return None
             elif userChoice == 0:
                 # Escape any backslashes (Windows fix)
-                newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                newAction = selectedShortcut.getProperty( "Path" )
                 newAction = newAction.replace( "\\", "\\\\" )
-                selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+                selectedShortcut.setProperty( "Path", newAction )
                 selectedShortcut.setProperty( "displayPath", newAction )
                 return selectedShortcut
             elif userChoice == 1:
@@ -1748,9 +1802,9 @@ class LibraryFunctions():
                 return None
             elif userChoice == 0:
                 # Escape any backslashes (Windows fix)
-                newAction = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+                newAction = selectedShortcut.getProperty( "Path" )
                 newAction = newAction.replace( "\\", "\\\\" )
-                selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+                selectedShortcut.setProperty( "Path", newAction )
                 selectedShortcut.setProperty( "displayPath", newAction )
                 return selectedShortcut
             elif userChoice == 1:
@@ -1775,7 +1829,7 @@ class LibraryFunctions():
         # We're going to display it in the library
         filename = self._build_playlist( selectedShortcut.getProperty( "location" ), mediaType, selectedShortcut.getLabel(), negative )
         newAction = "ActivateWindow(" + selectedShortcut.getProperty( "windowID" ) + "," +"special://profile/addon_data/" + __addonid__ + "/" + filename + ",return)"
-        selectedShortcut.setProperty( "Path", urllib.quote( newAction ) )
+        selectedShortcut.setProperty( "Path", newAction )
         selectedShortcut.setProperty( "displayPath", newAction )
         return selectedShortcut
     
@@ -1834,7 +1888,7 @@ class LibraryFunctions():
         
     def _delete_playlist( self, target ):
         # This function will check if the target links to an auto-generated playlist and, if so, delete it
-        target = urllib.unquote( target )
+        target = target
         if target.startswith( "ActivateWindow(" ):
             try:
                 elements = target.split( "," )
@@ -1849,15 +1903,19 @@ class LibraryFunctions():
         # This function changes the label tag of an auto-generated playlist
         
         # First we will check that this is a playlist
-        target = urllib.unquote( target )
+        target = target
         if target.startswith( "ActivateWindow(" ):
             try:
                 elements = target.split( "," )
             except:
                 return
-            if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
-                filename =  xbmc.translatePath( elements[1] )
-            else:
+                    
+            try:
+                if elements[1].startswith( "special://profile/addon_data/" + __addonid__ + "/" ) and elements[1].endswith( ".xsp" ):
+                    filename =  xbmc.translatePath( elements[1] )
+                else:
+                    return
+            except:
                 return
                     
             # Load the tree and change the name

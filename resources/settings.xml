@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
-    <category label="Testing">
+	<category label="Debugging">
+		<setting label="Enable debug logging" type="bool" id="enable_logging" default="false"/>
+	</category>
+	<category label="Testing">
         <setting label="Has upgraded labels" type="bool" id="upgraded_labels" default="false"/>
-    </category>
+		<setting label="Has upgraded to XML" type="bool" id="upgraded_xml" default="false"/>
+	</category>
 </settings>

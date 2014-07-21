@@ -28,6 +28,7 @@ __masterpath__   = os.path.join( xbmc.translatePath( "special://masterprofile/" 
 __profilepath__  = xbmc.translatePath( "special://profile/" ).decode('utf-8')
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
+__xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
 sys.path.append(__resource__)
 
@@ -41,10 +42,11 @@ LIBRARY = library.LibraryFunctions()
 hashlist = []
 
 def log(txt):
-    if isinstance (txt,str):
-        txt = txt.decode('utf-8')
-    message = u'%s: %s' % (__addonid__, txt)
-    xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
+    if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
+        if isinstance (txt,str):
+            txt = txt.decode('utf-8')
+        message = u'%s: %s' % (__addonid__, txt)
+        xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
         
 class Main:
     # MAIN ENTRY POINT
@@ -55,8 +57,14 @@ class Main:
         # --- UPGRADE ---
         if __addon__.getSetting( "upgraded_labels" ) != "true":
             datafunctions.UpgradeFunctions().upgrade_labels()
+            datafunctions.UpgradeFunctions().upgrade_toxml()
             __addon__.setSetting("upgraded_labels", "true")
-            log( "### Upgraded labels" )
+            __addon__.setSetting("upgraded_xml", "true")
+            log( "### Upgraded labels and file format" )
+        if __addon__.getSetting( "upgraded_xml" ) != "true":
+            datafunctions.UpgradeFunctions().upgrade_toxml()
+            __addon__.setSetting("upgraded_xml", "true")
+            log( "### Upgraded file format" )
         
         # Create data and master paths if not exists
         if not xbmcvfs.exists(__datapath__):
@@ -79,12 +87,12 @@ class Main:
             xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Player.Open", "params": { "item": {"channelid": ' + self.CHANNEL + '} } }')
         if self.TYPE=="manage":
             self._manage_shortcuts( self.GROUP, self.NOLABELS, self.GROUPNAME )
-        if self.TYPE=="list":
-            self._check_Window_Properties()
-            self._list_shortcuts( self.GROUP )
-        if self.TYPE=="submenu":
-            self._check_Window_Properties()
-            self._list_submenu( self.MENUID, self.LEVEL )
+        #if self.TYPE=="list":
+        #    self._check_Window_Properties()
+        #    self._list_shortcuts( self.GROUP )
+        #if self.TYPE=="submenu":
+        #    self._check_Window_Properties()
+        #    self._list_submenu( self.MENUID, self.LEVEL )
         if self.TYPE=="settings":
             self._check_Window_Properties()
             self._manage_shortcut_links() 
@@ -360,13 +368,14 @@ class Main:
                 # Try deleting all shortcuts
                 if files:
                     for file in files:
-                        file_path = os.path.join( __datapath__, file.decode( 'utf-8' ) ).encode( 'utf-8' )
-                        if xbmcvfs.exists( file_path ):
-                            try:
-                                xbmcvfs.delete( file_path )
-                            except:
-                                print_exc()
-                                log( "### ERROR could not delete file %s" % file[0] )
+                        if file != "settings.xml":
+                            file_path = os.path.join( __datapath__, file.decode( 'utf-8' ) ).encode( 'utf-8' )
+                            if xbmcvfs.exists( file_path ):
+                                try:
+                                    xbmcvfs.delete( file_path )
+                                except:
+                                    print_exc()
+                                    log( "### ERROR could not delete file %s" % file[0] )
         
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )   
@@ -490,30 +499,30 @@ class Main:
     def reset_window_properties( self ):
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-mainmenu" )
-        listitems = DATA._get_shortcuts( "mainmenu" )
-        for item in listitems:
-            # Get labelID so we can check shortcuts for this menu item
-            groupName = item[0].replace(" ", "").lower().encode('utf-8')
-            
-            # Localize strings
-            if not item[0].find( "::SCRIPT::" ) == -1:
-                groupName = DATA.createNiceName( item[0][10:] ).encode('utf-8')
-            elif not item[0].find( "::LOCAL::" ) == -1:
-                groupName = DATA.createNiceName( item[0][9:] ).encode('utf-8')
-                
-            # Clear the property
-            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName )
-            
-            # Clear any additional submenus
-            i = 0
-            finished = False
-            while finished == False:
-                i = i + 1
-                if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + groupName + "." + str( i ) ):
-                    xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName + "." + str( i ) )
-                else:
-                    finished = True
+        #xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-mainmenu" )
+        #listitems = DATA._get_shortcuts( "mainmenu" )
+        #for item in listitems:
+        #    # Get labelID so we can check shortcuts for this menu item
+        #    groupName = item[0].replace(" ", "").lower().encode('utf-8')
+        #    
+        #    # Localize strings
+        #    if not item[0].find( "::SCRIPT::" ) == -1:
+        #        groupName = DATA.createNiceName( item[0][10:] ).encode('utf-8')
+        #    elif not item[0].find( "::LOCAL::" ) == -1:
+        #        groupName = DATA.createNiceName( item[0][9:] ).encode('utf-8')
+        #        
+        #    # Clear the property
+        #    xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName )
+        #    
+        #    # Clear any additional submenus
+        #    i = 0
+        #    finished = False
+        #    while finished == False:
+        #        i = i + 1
+        #        if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + groupName + "." + str( i ) ):
+        #            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName + "." + str( i ) )
+        #        else:
+        #            finished = True
                     
     def _hidesubmenu( self, menuid ):
         count = 0

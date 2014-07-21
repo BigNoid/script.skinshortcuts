@@ -48,12 +48,12 @@ Most of these controls are optional (though it is recommended to include them), 
 
 2. List of window properties
 
-Property name		    			Description
-customProperty      			Custom property name - detailed description in section 5
-customValue         			Custom property value - detailed description in section 5
-level						    			Level of submenu - detailed description in section 6
-overrideName              Override for submenu groupname
-useWidgetNameAsLabel			Define if widget name is used for shortcut label too - detailed description in section 9
+Property name			Description
+customProperty			Custom property name - detailed description in section 5
+customValue				Custom property value - detailed description in section 5
+level					Level of submenu - detailed description in section 6
+overrideName			Override for window title when editing submenu
+useWidgetNameAsLabel	Define if widget name is used for shortcut label too - detailed description in section 9
 
 
 3. Using label2 on buttons to provide more information

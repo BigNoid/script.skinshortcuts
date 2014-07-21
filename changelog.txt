@@ -1,14 +1,16 @@
 v0.3.5 - Unpublished development build
+- New localisation code
+- New XML data store
+- Removal of Gotham list-filling methods
+- [bambi73] - Ability to replace label with widgetName
 - Ability to create shortcuts to library sources not showing content from source selected
 - Ability to choose random version of auto-generated source playlists as widget or background
 - Ability to clone widget and background properties from main menu to submenu items
 - New management dialog controls to show management dialog for additional sub-menus
-- New localisation code
 - Fixes
  > Fix for setting skin thumbnail property when using Just Select method
  > Fix for menus failing to build when the action for a shortcut contains a unicode character
  > Dirty fix for situations where a playlist in a menu will cause that menu to appear empty
-- [bambi73] - Ability to replace label with widgetName
 
 v0.3.4
 - XML files are formatted (includes.xml, auto-generated playlists), includes now have an id property

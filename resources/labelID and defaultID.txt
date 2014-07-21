@@ -1,4 +1,6 @@
-The following is a list of all labelID's, their default icon image and their corresponding English translation.
+The following is a list of all labelID/defaultID's, their default icon image and their corresponding English translation.
+
+Note: The labelID will change if the label of the shortcut is changed and is always unique within a single menu. The defaultID is always the same, but is not guaranteed unique.
 
 labelID		Icon						English translation	
 ----------- ----------------------- 	-------------------------
@@ -6,6 +8,7 @@ videos		DefaultVideos.png			Videos
 movies		DefaultMovies.png			Movies
 tvshows		DefaultTVShows.png			TV Shows
 livetv		DefaultTVShows.png			Live TV
+radio		DefaultAudio.png			Radio (Helix)
 music		DefaultMusicAlbums.png		Music
 musicvideos	DefaultMusicVideos.png		Music Videos
 pictures	DefaultPicture.png			Pictures
