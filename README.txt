@@ -23,6 +23,7 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
  - [bambi73] Use the widgetName as the label for a shortcut when setting widget, see "Advanced Usage.txt", section "Overrides.xml" part 4
  - New property for shortcuts - defaultID - a permanent form of the labelID, see "labelID and defaultID.txt" for details. Please note, on upgrade to XML file format this will be set to the items CURRENT labelID, not its original.
  - New management dialog controls to edit additional sub-menus, see "Management Dialog.txt", sections "Available Controls" and "6. Launch management dialog for submenu / additional menus"
+ - New override option to force including settings in menu, see "Providing Alternative Access to Settings" below and "Advanced Usage.txt", section "Overrides.xml" part 11
  - Ability to clone widget and background properties from main menu items to submenu and additional menu items when building xml, see "Advanced Usage.txt", sections "Managing Custom Backgrounds" and "Managing Widgets"
  - Advice change - skin-required shortcuts are now recommended for more than just skin-specific features, as they will now persist across skins
  - New PVR options available on Helix systems
@@ -32,7 +33,6 @@ What's (hopefully) Coming
 -------------------------
 
 Features intended for next stable release (0.4.0):
-- Easy skin option to force Settings in menu
 - Large code cleanup - fix cases of multiple uses of same code, clearer separation of different groupings of functions
 - Auto-upgrade on Helix to new PVR options including new radio menu
  
@@ -310,9 +310,9 @@ Providing alternative access to settings
 
 One of the side effects of using skinshortcuts to provide the whole main menu is that users have the ability to delete any shortcut, including those that they will later turn out to actually want. Generally, this isn't a problem as they can add them back at any time. However if they delete all links to settings, they will have no way to add it back unless your skin offers an alternative access.
 
-Therefore, it is recommended to have an alternative link to settings. One possible location is in your shutdown menu.
+Therefore, you should either include an alternative link to settings such as in the skins shutdown menu, or you can force settings to always be included in the menu - see "Advanced Usage", section "Overrides.xml" part 11
 
-If you don't provide any alternative access, it's possible to warn the user before they remove a link to shortcuts - see "Advanced Usage", section "Overrides.xml" part 10
+It's possible to warn the user before they remove a link to shortcuts - see "Advanced Usage", section "Overrides.xml" part 10
 
 
 Skinning the management dialog

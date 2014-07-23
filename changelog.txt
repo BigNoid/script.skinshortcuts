@@ -6,6 +6,7 @@ v0.3.5 - Unpublished development build
 - Ability to create shortcuts to library sources not showing content from source selected
 - Ability to choose random version of auto-generated source playlists as widget or background
 - Ability to clone widget and background properties from main menu to submenu items
+- Ability to force Settings link in menu
 - New management dialog controls to show management dialog for additional sub-menus
 - Fixes
  > Fix for setting skin thumbnail property when using Just Select method

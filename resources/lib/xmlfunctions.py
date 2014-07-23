@@ -29,6 +29,7 @@ class XMLFunctions():
     def __init__(self):
         self.MAINWIDGET = {}
         self.MAINBACKGROUND = {}
+        self.hasSettings = False
         
     def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options ):
         for option in options:
@@ -261,6 +262,8 @@ class XMLFunctions():
             profileVis = profile[1]
             profileCount += 1
             
+            self.hasSettings = False
+            
             # Clear any previous labelID's
             DATA._clear_labelID()
             
@@ -359,9 +362,29 @@ class XMLFunctions():
                             self.buildElement( submenuItem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu ) + ")", profile[1], itemid = itemidsubmenu, options = options )
                         
                     count += 1
+
+            if self.hasSettings == False:
+                # Check if the overrides asks for a forced settings...
+                overridestree = DATA._get_overrides_skin()
+                if overridestree is not None:
+                    forceSettings = overridestree.getroot().find( "forcesettings" )
+                    if forceSettings is not None:
+                        # We want a settings option to be added
+                        newelement = xmltree.SubElement( mainmenuTree, "item" )
+                        xmltree.SubElement( newelement, "label" ).text = "$LOCALIZE[10004]"
+                        xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
+                        xmltree.SubElement( newelement, "onclick" ).text = "ActivateWindow(settings)" 
+                        xmltree.SubElement( newelement, "visible" ).text = profile[1]
+                        
+                        if buildMode == "single":
+                            newelement = xmltree.SubElement( mainmenuTree, "item" )
+                            xmltree.SubElement( newelement, "label" ).text = "$LOCALIZE[10004]"
+                            xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
+                            xmltree.SubElement( newelement, "onclick" ).text = "ActivateWindow(settings)" 
+                            xmltree.SubElement( newelement, "visible" ).text = profile[1]
                     
         progress.update( 100 )
-            
+        
         # Get the skins addon.xml file
         addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")
         addon = xmltree.parse( addonpath )
@@ -440,6 +463,9 @@ class XMLFunctions():
             # TO-DO - Skin-relative links
             else:
                 onclickelement.text = onclick.text
+                
+            if onclick.text == "ActivateWindow(Settings)":
+                self.hasSettings = True
                 
             if "condition" in onclick.attrib:
                 onclickelement.set( "condition", onclick.attrib.get( "condition" ) )
