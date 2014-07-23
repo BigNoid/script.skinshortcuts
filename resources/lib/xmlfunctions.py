@@ -414,8 +414,12 @@ class XMLFunctions():
             xmltree.SubElement( newelement, "thumb" ).text = item.find( "thumb" ).text
         
         # labelID and defaultID
-        xmltree.SubElement( newelement, "labelID" ).text = item.find( "labelID" ).text
-        xmltree.SubElement( newelement, "defaultID" ).text = item.find( "defaultID" ).text
+        labelID = xmltree.SubElement( newelement, "property" )
+        labelID.text = item.find( "labelID" ).text
+        labelID.set( "name", "labelID" )
+        defaultID = xmltree.SubElement( newelement, "property" )
+        defaultID.text = item.find( "defaultID" ).text
+        defaultID.set( "name", "defaultID" )
         
         # Primary visibility
         visibility = item.find( "visibility" )
