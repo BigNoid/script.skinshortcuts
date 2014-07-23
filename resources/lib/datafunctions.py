@@ -79,6 +79,10 @@ class DataFunctions():
     def _clear_labelID( self ):
         # This clears our stored list of labelID's
         self.labelIDList = []
+        
+    
+    def _pop_labelID( self ):
+        self.labelIDList.pop()
     
                 
     def _get_shortcuts( self, group, isXML = False, profileDir = None, defaultsOnly = False ):
@@ -165,6 +169,7 @@ class DataFunctions():
             if version is not None:
                 if __xbmcversion__ != version.text:
                     tree.getroot().remove( node )
+                    self._pop_labelID()
                     continue
                     
             # Check that any skin-required shortcut matches current skin

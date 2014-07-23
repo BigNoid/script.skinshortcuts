@@ -1103,10 +1103,11 @@ class LibraryFunctions():
                 listitems.append( self._create(["PlayPvrRadio", "32067", "32017", {"icon": "DefaultTVShows.png"} ] ) )
                 listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
             else:
-                listitems.append( self._create(["ActivateWindow(TVChannels)", "32088", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindow(TVGuide)", "19069", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(TVChannels)", "19019", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(TVGuide)", "22020", "32017", {"icon": "DefaultTVShows.png"} ] ) )
                 listitems.append( self._create(["ActivateWindow(TVRecordings)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindow(TVTimers)", "32023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(TVTimers)", "19040", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(TVSearch)", "137", "32017", {"icon": "DefaultTVShows.png"} ] ) )
                 
                 listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
                 listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
@@ -1167,10 +1168,11 @@ class LibraryFunctions():
             log('Listing pvr-radio library...')
             
             # PVR
-            listitems.append( self._create(["ActivateWindow(RadioChannels)", "32088", "32087", {"icon": "DefaultAudio.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(RadioGuide)", "19069", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(RadioChannels)", "19019", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(RadioGuide)", "22020", "32087", {"icon": "DefaultAudio.png"} ] ) )
             listitems.append( self._create(["ActivateWindow(RadioRecordings)", "19163", "32087", {"icon": "DefaultAudio.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(RadioTimers)", "32023", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(RadioTimers)", "19040", "32087", {"icon": "DefaultAudio.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(RadioSearch)", "137", "32087", {"icon": "DefaultAudio.png"} ] ) )
             
             listitems.append( self._create(["PlayPvrRadio", "32067", "32087", {"icon": "DefaultAudio.png"} ] ) )
             listitems.append( self._create(["PlayPvr", "32068", "32087", {"icon": "DefaultAudio.png"} ] ) )

@@ -27,7 +27,15 @@
 		<label2>32034</label2>
 		<icon>DefaultTVShows.png</icon>
 		<thumb />
-		<action>ActivateWindow(TVRecordings)</action>
+		<action>ActivateWindow(TVGuide)</action>
+		<version>14</version>
+	</shortcut>
+	<shortcut>
+		<label>32087</label>
+		<label2>32034</label2>
+		<icon>DefaultAudio.png</icon>
+		<thumb />
+		<action>ActivateWindow(RadioGuide)</action>
 		<version>14</version>
 	</shortcut>
 	<shortcut>

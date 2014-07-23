@@ -9,7 +9,7 @@
 		<version>13</version>
 	</shortcut>
 	<shortcut>
-		<label>19023</label>
+		<label>19019</label>
 		<label2>32017</label2>
 		<icon>DefaultTVShows.png</icon>
 		<thumb />
@@ -33,7 +33,7 @@
 		<version>13</version>
 	</shortcut>
 	<shortcut>
-		<label>19069</label>
+		<label>22020</label>
 		<label2>32017</label2>
 		<icon>DefaultTVShows.png</icon>
 		<thumb />
@@ -65,11 +65,19 @@
 		<version>13</version>
 	</shortcut>
 	<shortcut>
-		<label>32023</label>
+		<label>19040</label>
 		<label2>32017</label2>
 		<icon>DefaultTVShows.png</icon>
 		<thumb />
 		<action>ActivateWindow(TVTimers)</action>
+		<version>14</version>
+	</shortcut>
+	<shortcut>
+		<label>137</label>
+		<label2>32017</label2>
+		<icon>DefaultTVShows.png</icon>
+		<thumb />
+		<action>ActivateWindow(TVSearch)</action>
 		<version>14</version>
 	</shortcut>
 </shortcuts>
