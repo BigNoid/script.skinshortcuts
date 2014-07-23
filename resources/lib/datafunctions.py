@@ -389,15 +389,7 @@ class DataFunctions():
 
     def _get_additionalproperties( self ):
         # Load all saved properties (widgets, backgrounds, custom properties)
-        
-        # Try loading from window property
-        try:
-            returnVal = xbmcgui.Window( 10000 ).getProperty( "skinshortcutsAdditionalProperties" )
-            return pickle.loads( returnVal )
-        except:
-            pass
             
-        # Couldn't load from window property, load manually
         currentProperties = []
         defaultProperties = []
         
@@ -452,7 +444,6 @@ class DataFunctions():
                                         defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1] ] )                
                                         
         returnVal = [currentProperties, defaultProperties]
-        xbmcgui.Window( 10000 ).setProperty( "skinshortcutsAdditionalProperties", pickle.dumps( returnVal ) )
         return returnVal
         
     def _getWidgetNameAndType( self, widgetID ):
