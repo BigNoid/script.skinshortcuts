@@ -27,7 +27,7 @@ __cwd__          = __addon__.getAddonInfo('path').decode("utf-8")
 __datapath__     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), __addonid__ )
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shortcuts').encode("utf-8") ).decode("utf-8")
-__language__     = sys.modules[ "__main__" ].__language__
+__language__     = __addon__.getLocalizedString
 __cwd__          = sys.modules[ "__main__" ].__cwd__
 __xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
@@ -1128,7 +1128,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitem = self.getControl( 211 ).getListItem( x )
                 
                 # If the item has a label...
-                if listitem.getLabel != __language__ (32013):
+                if listitem.getLabel() != __language__(32013):
                     # Generate labelID, and mark if it has changed
                     labelID = listitem.getProperty( "labelID" )
                     newlabelID = labelID
