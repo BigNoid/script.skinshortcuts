@@ -222,7 +222,8 @@ class XMLFunctions():
         return False
 
 
-    def writexml( self, profilelist, mainmenuID, groups, numLevels, buildMode, progress, options ):        
+    def writexml( self, profilelist, mainmenuID, groups, numLevels, buildMode, progress, options ): 
+        log( "### " + repr( groups ) )
         # Reset the hashlist, add the profile list and script version
         hashlist.list = []
         hashlist.list.append( ["::PROFILELIST::", profilelist] )
@@ -315,6 +316,10 @@ class XMLFunctions():
                         # Create these nodes
                         justmenuTreeA = xmltree.SubElement( root, "include" )
                         justmenuTreeB = xmltree.SubElement( root, "include" )
+                        
+                        justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) )
+                        justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
+                        
                         submenuNodes[ submenu ] = [ justmenuTreeA, justmenuTreeB ]
                         
                     itemidsubmenu = 0

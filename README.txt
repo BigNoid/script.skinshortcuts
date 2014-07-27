@@ -26,6 +26,7 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
  - New override option to force including settings in menu, see "Providing Alternative Access to Settings" below and "Advanced Usage.txt", section "Overrides.xml" part 11
  - Ability to clone widget and background properties from main menu items to submenu and additional menu items when building xml, see "Advanced Usage.txt", sections "Managing Custom Backgrounds" and "Managing Widgets"
  - Advice change - skin-required shortcuts are now recommended for more than just skin-specific features, as they will now persist across skins
+ - Advice change - additional submenu includes are now named skinshortcuts-group-[groupname].[level], rather than -[level] as previous (avoids conflicts)
  - New PVR options available on Helix systems
 
 
