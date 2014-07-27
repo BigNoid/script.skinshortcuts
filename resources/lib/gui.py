@@ -215,14 +215,25 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     widgetType = elem.attrib.get( "type" )
                 self.widgets.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], widgetType ] )
                 self.widgetsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
-                    
+                
+            # Should we allow the user to select a playlist as a widget...
+            elem = tree.find('widgetPlaylists')
+            if elem is not None and elem.text == "True":
+                self.widgetPlaylists = True
+                if "type" in elem.attrib:
+                    self.widgetPlaylistsType = elem.attrib.get( "type" )
+                
         # Get backgrounds
         if tree is not None:
             elems = tree.findall('background')
             for elem in elems:
                 self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
                 self.backgroundsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
-
+                
+            # Should we allow the user to browse for background images...
+            elem = tree.find('backgroundBrowse')
+            if elem is not None and elem.text == "True":
+                self.backgroundBrowse = True
 
     def onClick(self, controlID):
         if controlID == 102:
