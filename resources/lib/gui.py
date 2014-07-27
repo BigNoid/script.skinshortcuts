@@ -58,8 +58,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.widgetPlaylists = False
         self.widgetPlaylistsType = None
         
-        self.currentProperties = []
-        self.defaultProperties = []
+        #self.currentProperties = []
+        #self.defaultProperties = []
         
         self.changeMade = False
         
@@ -1268,8 +1268,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Save all additional properties (widgets, backgrounds, custom)
         log( "Saving properties" )
         
+        currentProperties = []
+        
         # Get previously loaded properties
-        currentProperties = self.currentProperties
+        path = os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".properties" )
+        if xbmcvfs.exists( path ):
+            # The properties file exists, load from it
+            listProperties = eval( xbmcvfs.File( path ).read() )
+            for listProperty in listProperties:
+                # listProperty[0] = groupname
+                # listProperty[1] = labelID
+                # listProperty[2] = property name
+                # listProperty[3] = property value
+                currentProperties.append( [listProperty[0], listProperty[1], listProperty[2], listProperty[3]] )
         
         # Copy any items not in the current group to the array we'll save, and
         # make any labelID changes whilst we're at it
