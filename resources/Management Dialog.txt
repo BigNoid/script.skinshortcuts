@@ -60,7 +60,7 @@ useWidgetNameAsLabel	Define if widget name is used for shortcut label too - deta
 
 You can set the label2 value of buttons to provide details of current selected - for example, the current label or action of the user selected shortcut.
 
-User-selected shortcuts have the same properties they will have when displayed in a menu, with the addition of displaypath which shows the current selected action in a displayable format.
+User-selected shortcuts have the same properties they will have when displayed in a menu, with the addition of "path" which shows the current selected action in a displayable format.
 
 NOTE: You MUST provide a label (even one set to a script-provided string) for label2's to operate.
 

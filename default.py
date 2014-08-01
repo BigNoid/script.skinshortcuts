@@ -57,14 +57,16 @@ class Main:
         # --- UPGRADE ---
         if __addon__.getSetting( "upgraded_labels" ) != "true":
             datafunctions.UpgradeFunctions().upgrade_labels()
-            datafunctions.UpgradeFunctions().upgrade_toxml()
             __addon__.setSetting("upgraded_labels", "true")
-            __addon__.setSetting("upgraded_xml", "true")
-            log( "### Upgraded labels and file format" )
+            log( "### Upgraded labels" )
         if __addon__.getSetting( "upgraded_xml" ) != "true":
             datafunctions.UpgradeFunctions().upgrade_toxml()
             __addon__.setSetting("upgraded_xml", "true")
             log( "### Upgraded file format" )
+        if __addon__.getSetting( "upgraded_labelID" ) != "true":
+            datafunctions.UpgradeFunctions().upgrade_addon_labelID()
+            __addon__.setSetting("upgraded_labelID", "true" )
+            log( "### Upgraded labelID" )
         
         # Create data and master paths if not exists
         if not xbmcvfs.exists(__datapath__):

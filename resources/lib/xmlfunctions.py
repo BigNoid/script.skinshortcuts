@@ -301,7 +301,7 @@ class XMLFunctions():
                     if buildMode == "single":
                         mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], submenu, itemid = itemidmainmenu, options = options )
                 else:
-                    submenu = DATA._get_labelID( item )
+                    submenu = DATA._get_labelID( item, None )
                     
                 # Build the submenu
                 count = 0

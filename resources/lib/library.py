@@ -1248,11 +1248,6 @@ class LibraryFunctions():
             if replacementLabel is not None:
                 
                 localLabel = DATA.local( replacementLabel[0] )[0]
-                # Check if it's an integer
-                #if replacementLabel[0].isdigit():
-                #    localLabel = "::LOCAL::" + replacementLabel[0]
-                #else:
-                #    localLabel = replacementLabel[0]
                     
                 if len( replacementLabel ) == 2:
                     # We're also overriding the type
@@ -1263,39 +1258,10 @@ class LibraryFunctions():
         # Try localising it
         displayLabel = DATA.local( localLabel )[2]
         labelID = DATA.createNiceName( DATA.local( localLabel )[0] )
-        #try:
-        #    if not localLabel.find( "::SCRIPT::" ) == -1:
-        #        displayLabel = __language__(int( localLabel[10:] ) )
-        #        labelID = DATA.createNiceName( localLabel[10:] )
-        #    elif not localLabel.find( "::LOCAL::" ) == -1:
-        #        displayLabel = xbmc.getLocalizedString(int( localLabel[9:] ) )
-        #        labelID = DATA.createNiceName( localLabel[9:] )
-        #    else:
-        #        displayLabel = localLabel
-        #        labelID = DATA.createNiceName( localLabel )
-        #except:
-        #    displayLabel = localLabel
-        #    labelID = DATA.createNiceName( localLabel )
-        #    print_exc()
         
         # Create localised label2
         displayLabel2 = DATA.local( displayLabel2 )[2]
         shortcutType = DATA.local( shortcutType )[0]
-        #try:
-        #    if not displayLabel2.find( "::SCRIPT::" ) == -1:
-        #        displayLabel2 = __language__(int( displayLabel2[10:] ) )
-        #    elif not displayLabel2.find( "::LOCAL::" ) == -1:
-        #        displayLabel2 = xbmc.getLocalizedString(int( displayLabel2[9:] ) )
-        #    elif displayLabel2.isdigit():
-        #        displayLabel2 = xbmc.getLocalizedString( int( displayLabel2 ) )
-        #        
-        #    if shortcutType.isdigit():
-        #        if int( shortcutTYpe ) > 32000:
-        #            shortcutType = "::SCRIPT::" + shortcutType
-        #        else:
-        #            shortcutType = "::LOCAL::" + shortcutType
-        #except:
-        #    print_exc()
             
         # If this launches our explorer, append a notation to the displayLabel
         if item[0].startswith( "||" ):
@@ -1319,7 +1285,7 @@ class LibraryFunctions():
         
         # Get a temporary labelID
         DATA._clear_labelID()
-        labelID = DATA._get_labelID( labelID )
+        labelID = DATA._get_labelID( labelID, item[0] )
                         
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
         if not icon or not xbmc.skinHasImage( icon ):
@@ -1331,7 +1297,7 @@ class LibraryFunctions():
             listitem.setProperty( "thumbnail", thumbnail)
         else:
             listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon)
-        listitem.setProperty( "path", item[0].encode('utf-8').decode( "utf-8" ) )
+        listitem.setProperty( "path", item[0] )
         listitem.setProperty( "localizedString", localLabel )
         listitem.setProperty( "shortcutType", shortcutType )
         listitem.setProperty( "icon", icon )

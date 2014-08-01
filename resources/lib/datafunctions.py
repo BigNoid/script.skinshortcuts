@@ -50,11 +50,16 @@ class DataFunctions():
         pass
         
     
-    def _get_labelID( self, labelID, getDefaultID = False ):
+    def _get_labelID( self, labelID, action, getDefaultID = False, includeAddOnID = True ):
         # This gets the unique labelID for the item we've been passed. We'll also store it, to make sure
         # we don't give it to any other item.
         
         labelID = self.createNiceName( self.slugify( labelID ).replace( " ", "" ).lower() )
+        
+        if includeAddOnID:
+            addon_labelID = self._get_addon_labelID( action )
+            if addon_labelID is not None:
+                labelID = addon_labelID
         
         # If we're getting the defaultID, just return this
         if getDefaultID == True:
@@ -62,7 +67,7 @@ class DataFunctions():
         
         # Check if the labelID exists in the list
         if labelID in self.labelIDList:
-            # We're going to add an -x to the end of this
+            # We're going to add an --[int] to the end of this
             count = 0
             while labelID + "--" + str( count ) in self.labelIDList:
                 count += 1
@@ -74,7 +79,30 @@ class DataFunctions():
             # We can use this one
             self.labelIDList.append( labelID )
             return labelID
+            
+    def _get_addon_labelID( self, action ):
+        # This will check the action to see if this is a program or the root of a plugin and, if so, return that as the labelID
         
+        if action is None:
+            return None
+        
+        try:
+            if action.startswith( "RunAddOn(" ) and "," not in action:
+                return action[9:-1]
+                
+            if action.startswith( "RunScript(" ) and "," not in action:
+                return action[10:-1]
+                
+            if "plugin://" in action and "?" not in action:
+                # Return the action
+                # - less ActivateWindow(
+                # - The second group after being split by comma
+                # - Less plugin://
+                return action[15:-1].split( "," )[1].replace( '"', '' )[9:]
+        except:
+            return None
+            
+        return None
     
     def _clear_labelID( self ):
         # This clears our stored list of labelID's
@@ -154,9 +182,12 @@ class DataFunctions():
                 searchNode = node.find( "defaultID" )
                 if searchNode is not None:
                     node.remove( searchNode )
+                    
+            # Get the action
+            action = node.find( "action" )
             
             # Generate the labelID
-            labelID = self._get_labelID( self.local( node.find( "label" ).text )[3].replace( " ", "" ).lower() )
+            labelID = self._get_labelID( self.local( node.find( "label" ).text )[3].replace( " ", "" ).lower(), action.text )
             xmltree.SubElement( node, "labelID" ).text = labelID
             
             # If there's no defaultID, set it to the labelID
@@ -182,7 +213,6 @@ class DataFunctions():
                 xmltree.SubElement( node, "override-icon" ).text = overridenIcon
             
             # If the action uses the special://skin protocol, translate it
-            action = node.find( "action" )
             if "special://skin/" in action.text:
                 action.text = xbmc.translatePath( action.text )
                 
@@ -850,10 +880,17 @@ class UpgradeFunctions():
             # Create the element
             actionTree = xmltree.SubElement( root, "shortcut" )
             
+            # Action
+            try:
+                action = urllib.unquote( shortcut[4] ).decode( "utf-8" )
+            except:
+                action = urllib.unquote( shortcut[4] )
+            xmltree.SubElement( actionTree, "action" ).text = action
+            
             # Label and label2, defaultID
             xmltree.SubElement( actionTree, "label" ).text = DataFunctions().local( shortcut[0] )[0]
             xmltree.SubElement( actionTree, "label2" ).text = DataFunctions().local( shortcut[1] )[0]
-            xmltree.SubElement( actionTree, "defaultID" ).text = DataFunctions()._get_labelID( DataFunctions().local( shortcut[0] )[3], True )
+            xmltree.SubElement( actionTree, "defaultID" ).text = DataFunctions()._get_labelID( DataFunctions().local( shortcut[0] )[3], action, True )
             
             # Icon and thumbnail
             try:
@@ -865,13 +902,6 @@ class UpgradeFunctions():
                 xmltree.SubElement( actionTree, "thumb" ).text = shortcut[3].decode( "utf-8" )
             except:
                 xmltree.SubElement( actionTree, "thumb" ).text = shortcut[3]
-            
-            # Action
-            try:
-                action = urllib.unquote( shortcut[4] ).decode( "utf-8" )
-            except:
-                action = urllib.unquote( shortcut[4] )
-            xmltree.SubElement( actionTree, "action" ).text = action
             
             # mixedVersion will be True if we're upgrading a skin's defaults
             if mixedVersion == True:
@@ -922,9 +952,62 @@ class UpgradeFunctions():
         # Delete the .shortcuts file
         xbmcvfs.delete( path )
         
+    def upgrade_addon_labelID( self, path = None ):
+        # This function will upgrade the labelIDs of addons (and any other out of date labelIDs) to the new format
+       
+        if path is not None:
+            profilelist = [path]
+        else:
+            # Get all profiles
+            profile_file = xbmc.translatePath( 'special://userdata/profiles.xml' ).decode("utf-8")
+            tree = None
+            if xbmcvfs.exists( profile_file ):
+                tree = xmltree.parse( profile_file )
+            
+            profilelist = []
+            if tree is not None:
+                profiles = tree.findall( "profile" )
+                for profile in profiles:
+                    name = profile.find( "name" ).text.encode( "utf-8" )
+                    dir = profile.find( "directory" ).text.encode( "utf-8" )
+                    # Localise the directory
+                    if "://" in dir:
+                        dir = xbmc.translatePath( os.path.join( dir, "addon_data", "script.skinshortcuts" ) ).decode( "utf-8" )
+                    else:
+                        # Base if off of the master profile
+                        dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir, "addon_data", "script.skinshortcuts" ) ).decode( "utf-8" )
+                    profilelist.append( dir )
+                    
+            else:
+                profilelist = [xbmc.translatePath( "special://masterprofile/addon_data/script.skinshortcuts" )]
+            
+        DATA = DataFunctions()
+
+        for folder in profilelist:
+            file = os.path.join( folder, "mainmenu.DATA.xml" )
+            if xbmcvfs.exists( file ):
+                DATA._clear_labelID()
+                root = xmltree.parse( file ).getroot()
+                
+                oldLabelID = []
+                newLabelID = []
+                
+                for shortcut in root.findall( "shortcut" ):
+                    DATA.labelIDList = oldLabelID
+                    oldLabel = DATA._get_labelID( shortcut.find( "label" ).text, shortcut.find( "action" ).text, includeAddOnID = False )
+                    oldLabelID = DATA.labelIDList
+                    
+                    DATA.labelIDList = newLabelID
+                    newLabel = DATA._get_labelID( shortcut.find( "label" ).text, shortcut.find( "action" ).text )
+                    newLabelID = DATA.labelIDList
+                    
+                    if oldLabel != newLabel:
+                        if xbmcvfs.exists( self.slugify( os.path.join( folder, oldLabel + ".DATA.xml" ) ) ):
+                            xbmcvfs.rename( self.slugify( os.path.join( folder, oldLabel + ".DATA.xml" ) ), self.slugify( os.path.join( folder, newLabel + ".DATA.xml" ) ) )
+                
+
     def upgrade_newtv( self ):
         # This function will upgrade the .DATA.xml files to the new pvr functions, add a new radio function
         # and add a new radio link to the mainmenu.DATA.xml file (if it exists) plus copy the skin/scripts default
         # radio.DATA.xml file to the users shortcut directory
         pass
-        

@@ -4,14 +4,6 @@ This is a DEVELOPMENT BUILD and may be UNSTABLE or even BROKEN.
 If do not require the new features but want to use a git version, use the repofixes branch.
 
 
-*** New XML data store has now landed ***
-*** EXPECT and REPORT breakages ***
-
-*** New localisation code has now landed ***
-*** Gotham list-filling methods are BROKEN ***
-*** XML methods - EXPECT and REPORT breakages ***
-
-
 What's New for Skinners (version 0.3.5 Development Build)
 -----------------------
 
@@ -28,6 +20,7 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
  - Advice change - skin-required shortcuts are now recommended for more than just skin-specific features, as they will now persist across skins
  - Advice change - additional submenu includes are now named skinshortcuts-group-[groupname].[level], rather than -[level] as previous (avoids conflicts)
  - New PVR options available on Helix systems
+ - Updated labelID's for add-ons - shortcuts to add-ons and root of plugins now script.addon.name - see "labelID and defaultID.txt" for details
 
 
 What's (hopefully) Coming

@@ -819,14 +819,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Get the labelID's of all other menu items
                 for x in range(0, self.getControl( 211 ).size()):
                     if not x == num:
-                        DATA._get_labelID( self.getControl( 211 ).getListItem( x ).getProperty( "labelID" ) )
+                        DATA._get_labelID( self.getControl( 211 ).getListItem( x ).getProperty( "labelID" ), self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
                         
                 # Now generate labelID for this menu item
                 labelID = self.getControl( 211 ).getListItem( num ).getProperty( "localizedString" )
                 if labelID is None or labelID == "":
-                    launchGroup = self._get_labelID( self.getControl( 211 ).getListItem( num ).getLabel() )
+                    launchGroup = self._get_labelID( self.getControl( 211 ).getListItem( num ).getLabel(), self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
                 else:
-                    launchGroup = self._get_labelID( labelID )
+                    launchGroup = self._get_labelID( labelID, self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
                 self.getControl( 211 ).getListItem( num ).setProperty( "labelID", launchGroup )                                        
             
             # Check if we're launching a specific additional menu
@@ -1039,7 +1039,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if listitem.getProperty( "defaultID" ):
             listitemCopy.setProperty( "defaultID", listitem.getProperty( "defaultID" ) )
         else:
-            listitemCopy.setProperty( "defaultID", DATA._get_labelID( DATA.local( listitem.getProperty( "localizedString" ) )[3], True ) )
+            listitemCopy.setProperty( "defaultID", DATA._get_labelID( DATA.local( listitem.getProperty( "localizedString" ) )[3],  listitem.getProperty( "path" ), True ) )
             
         # Revert to original icon (because we'll override it again in a minute!)
         if listitem.getProperty( "original-icon" ):
@@ -1076,7 +1076,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         labelID = listitem.getProperty( "localizedString" )
         if labelID == None or labelID == "":
             labelID = listitem.getLabel()
-        labelID = DATA._get_labelID( labelID )
+        labelID = DATA._get_labelID( labelID, listitem.getProperty( "path" ) )
         
         # Retrieve icon
         icon = listitem.getProperty( "icon" )
@@ -1148,7 +1148,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         localLabel = DATA.local( listitem.getLabel() )
                     else:
                         localLabel = DATA.local( localizedString )
-                    newlabelID = DATA._get_labelID( localLabel[3] )     
+                    newlabelID = DATA._get_labelID( localLabel[3], listitem.getProperty( "path" ) )     
                     if self.group == "mainmenu":
                         labelIDChanges.append( [labelID, newlabelID] )
                         labelIDChangesDict[ labelID ] = newlabelID
