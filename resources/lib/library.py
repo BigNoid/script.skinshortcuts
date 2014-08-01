@@ -58,7 +58,7 @@ class LibraryFunctions():
         self.widgetPlaylistsList = []
         
         # Empty dictionary for different shortcut types
-        self.dictionaryGroupings = {"common":None, "commands":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "radio":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None, "settings":None }
+        self.dictionaryGroupings = {"common":None, "commands":None, "video":None, "movie":None, "movie-flat":None, "tvshow":None, "tvshow-flat":None, "musicvideo":None, "musicvideo-flat":None, "customvideonode":None, "customvideonode-flat":None, "videosources":None, "pvr":None, "radio":None, "pvr-tv":None, "pvr-radio":None, "music":None, "musicsources":None, "picturesources":None, "playlist-video":None, "playlist-audio":None, "addon-program":None, "addon-video":None, "addon-audio":None, "addon-image":None, "favourite":None, "settings":None }
         self.folders = {}
         self.foldersCount = 0
         
@@ -359,7 +359,7 @@ class LibraryFunctions():
             self.more()
         if content == "video" or content == "movie" or content == "tvshow" or content == "musicvideo" or content == "customvideonode" or content == "movie-flat" or content == "tvshow-flat" or content == "musicvideo-flat" or content == "customvideonode-flat":
             self.videolibrary()
-        if content == "videosources" or content == "musicsources":
+        if content == "videosources" or content == "musicsources" or content == "picturesources":
             self.librarysources()
         if content == "music":
             self.musiclibrary()
@@ -1332,7 +1332,7 @@ class LibraryFunctions():
         # Add all directories returned by the json query
         if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
             for item in json_response['result']['sources']:
-                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "::SCRIPT::32069", {"icon": "DefaultFolder.png"} ]) )
+                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32069", {"icon": "DefaultFolder.png"} ]) )
         self.addToDictionary( "videosources", listitems )
         
         log( " - " + str( len( listitems ) ) + " video sources" )
@@ -1346,10 +1346,24 @@ class LibraryFunctions():
         # Add all directories returned by the json query
         if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
             for item in json_response['result']['sources']:
-                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "::SCRIPT::32073", {"icon": "DefaultFolder.png"} ]) )
+                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32073", {"icon": "DefaultFolder.png"} ]) )
         self.addToDictionary( "musicsources", listitems )
         
         log( " - " + str( len( listitems ) ) + " audio sources" )
+        
+        # Add picture sources
+        listitems = []
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "pictures" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+            
+        # Add all directories returned by the json query
+        if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
+            for item in json_response['result']['sources']:
+                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32089", {"icon": "DefaultFolder.png"} ]) )
+        self.addToDictionary( "picturesources", listitems )
+        
+        log( " - " + str( len( listitems ) ) + " picture sources" )
         
         self.loadedLibrarySources = True
         return self.loadedLibrarySources
@@ -1690,9 +1704,10 @@ class LibraryFunctions():
                     listitem.setProperty( "windowID", "10025" )
                 elif itemType == "32011" or itemType == "32019" or itemType == "32073":
                     action = 'ActivateWindow(10501,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "10502" )
-                elif itemType == "32012":
+                    listitem.setProperty( "windowID", "10501" )
+                elif itemType == "32012" or itemType == "32089":
                     action = 'ActivateWindow(10002,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "10002" )
                 elif itemType == "32009":
                     action = 'ActivateWindow(10001,"' + location + '",return)'
                 else:
@@ -1731,8 +1746,9 @@ class LibraryFunctions():
         dialog = xbmcgui.Dialog()
         
         mediaType = None
+        windowID = selectedShortcut.getProperty( "windowID" )
         # Check if we're going to display this in the files view, or the library view
-        if selectedShortcut.getProperty( "windowID" ) == "10025":
+        if windowID == "10025":
             # Video library                                    Files view           Movies                TV Shows             Music videos         !Movies               !TV Shows            !Music Videos
             userChoice = dialog.select( __language__(32078), [__language__(32079), __language__(32015), __language__(32016), __language__(32018), __language__(32081), __language__(32082), __language__(32083) ] )            
             if userChoice == -1:
@@ -1762,7 +1778,7 @@ class LibraryFunctions():
             elif userChoice == 6:
                 mediaType = "musicvideo"
                 negative = True
-        else:
+        elif windowID == "10501":
             # Music library                                    Files view           Songs                          Albums                         Mixed                           !Songs               !Albums               !Mixed
             userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(134), xbmc.getLocalizedString(132), xbmc.getLocalizedString(20395), __language__(32084), __language__(32085), __language__(32086) ] )            
             if userChoice == -1:
@@ -1776,26 +1792,50 @@ class LibraryFunctions():
                 return selectedShortcut
             elif userChoice == 1:
                 mediaType = "songs"
+                windowID = "10502"
                 negative = False
             elif userChoice == 2:
                 mediaType = "albums"
+                windowID = "10502"
                 negative = False
             elif userChoice == 3:
                 mediaType = "mixed"
+                windowID = "10502"
                 negative = False
             elif userChoice == 4:
                 mediaType = "songs"
+                windowID = "10502"
                 negative = True
             elif userChoice == 5:
                 mediaType = "albums"
+                windowID = "10502"
                 negative = True
             elif userChoice == 6:
                 mediaType = "mixed"
+                windowID = "10502"
                 negative = True
+        else:
+            # Pictures                                         Files view            Slideshow
+            userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(108)])
+            if userChoice == -1:
+                return None
+            elif userChoice == 0:
+                # Escape any backslashes (Windows fix)
+                newAction = selectedShortcut.getProperty( "Path" )
+                newAction = newAction.replace( "\\", "\\\\" )
+                selectedShortcut.setProperty( "Path", newAction )
+                selectedShortcut.setProperty( "displayPath", newAction )
+                return selectedShortcut
+            elif userChoice == 1:
+                log( "### SLIDESHOW FOR " + selectedShortcut.getProperty( "location" ) )
+                newAction = "SlideShow(" + selectedShortcut.getProperty( "location" ) + ")"
+                selectedShortcut.setProperty( "path", newAction )
+                selectedShortcut.setProperty( "displayPath", newAction )
+                return selectedShortcut
             
         # We're going to display it in the library
         filename = self._build_playlist( selectedShortcut.getProperty( "location" ), mediaType, selectedShortcut.getLabel(), negative )
-        newAction = "ActivateWindow(" + selectedShortcut.getProperty( "windowID" ) + "," +"special://profile/addon_data/" + __addonid__ + "/" + filename + ",return)"
+        newAction = "ActivateWindow(" + windowID + "," +"special://profile/addon_data/" + __addonid__ + "/" + filename + ",return)"
         selectedShortcut.setProperty( "Path", newAction )
         selectedShortcut.setProperty( "displayPath", newAction )
         return selectedShortcut

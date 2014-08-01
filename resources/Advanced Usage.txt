@@ -266,6 +266,8 @@ Shortcut groupings within the management dialog are made up of several smaller g
  - music
  - musicsources
  
+ - picturesources
+ 
  - pvr
  - radio 			(Helix)
  - pvr-tv

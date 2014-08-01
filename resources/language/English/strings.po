@@ -377,3 +377,7 @@ msgstr ""
 msgctxt "#32088"
 msgid "Channels"
 msgstr ""
+
+msgctxt "#32089"
+msgid "Picture Source"
+msgstr ""

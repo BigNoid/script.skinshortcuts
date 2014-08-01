@@ -32,6 +32,7 @@
 			<content>upnp-video</content>
 			<content>musicsources</content>
 			<content>upnp-music</content>
+			<content>picturesources</content>
 		</node>
 		<node label="32040">
 			<content>playlist-video</content>
@@ -111,6 +112,9 @@
 			<node label="19024">
 				<content>pvr-radio</content>
 			</node>
+		</node>
+		<node label="32020">
+			<content>picturesources</content>
 		</node>
 		<node label="32007">
 			<node label="32009">
