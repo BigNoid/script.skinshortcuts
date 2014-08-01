@@ -1002,8 +1002,8 @@ class UpgradeFunctions():
                     newLabelID = DATA.labelIDList
                     
                     if oldLabel != newLabel:
-                        if xbmcvfs.exists( self.slugify( os.path.join( folder, oldLabel + ".DATA.xml" ) ) ):
-                            xbmcvfs.rename( self.slugify( os.path.join( folder, oldLabel + ".DATA.xml" ) ), self.slugify( os.path.join( folder, newLabel + ".DATA.xml" ) ) )
+                        if xbmcvfs.exists( DATA.slugify( os.path.join( folder, oldLabel + ".DATA.xml" ) ) ):
+                            xbmcvfs.rename( DATA.slugify( os.path.join( folder, oldLabel + ".DATA.xml" ) ), DATA.slugify( os.path.join( folder, newLabel + ".DATA.xml" ) ) )
                 
 
     def upgrade_newtv( self ):
