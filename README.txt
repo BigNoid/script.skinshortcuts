@@ -22,6 +22,7 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
  - Advice change - additional submenu includes are now named skinshortcuts-group-[groupname].[level], rather than -[level] as previous (avoids conflicts)
  - New PVR options available on Helix systems
  - Updated labelID's for add-ons - shortcuts to add-ons and root of plugins now script.addon.name - see "labelID and defaultID.txt" for details
+ - Advice on targeting Helix - see "Targeting Helix (Kodi 14)", below
 
 
 What's (hopefully) Coming
@@ -314,6 +315,22 @@ Skinning the management dialog
 ------------------------------
 
 For details on skinning the management dialog, see resources/Management Dialog.txt.
+
+
+Targeting Helix (Kodi 14)
+-------------------------
+
+There are no required changes to your implementation of Skin Shortcuts to target the upcoming release of Kodi. However, you may wish to update your PVR defaults to use the new implementation (full details on the skinning forum).
+
+It is possible to include defaults for both Gotham and Helix in your defaults if you use the new XML format. Include a <version/> tag, with the value of either 13 or 14 for the version of Kobi for which it applies:
+
+	<version>13</version>  - A default for Gotham
+	<version>14</version>  - A default for Helix
+
+If you have customised the order of available shortcuts in your overrides.xml, it is also possible to target both Gotham and Helix by displaying different nodes depending on the version by including the version in the node tag:
+
+	<node label="32017" condition="System.GetBool(pvrmanager.enabled)" version="13">  - A node for Gotham
+	<node label="32017" condition="PVR.HasTVChannels" version="14">  - A node for Helix
 
 
 Advanced Usage
