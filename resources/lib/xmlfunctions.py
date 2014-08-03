@@ -174,12 +174,6 @@ class XMLFunctions():
                     checkedXBMCVer = True
                     if __xbmcversion__ != hash[1]:
                         log( "  - XBMC version does not match" )
-                        
-                        # Check if we need to upgrade
-                        if __xbmcversion__ == "14" and hash[1] == "13":
-                            log( "We need to upgrade" )
-                            # TO-DO - UPGRADE
-                            
                         return True
                 elif hash[0] == "::SKINVER::":
                     # Check the skin version is still the same as hash[1]
@@ -200,12 +194,13 @@ class XMLFunctions():
                         log( "  - Profile list does not match" )
                         return True
                 elif hash[0] == "::LANGUAGE::":
+                    # We no longer need to rebuild on a system language change
                     pass
                 else:
                     hasher = hashlib.md5()
                     hasher.update( xbmcvfs.File( hash[0] ).read() )
                     if hasher.hexdigest() != hash[1]:
-                        log( "  - Hash does not match on file " + hash[0] )
+                        log( "  - Hash does not match on file " + hash[0] + " (" + hash[1] + " > " + hasher.hexdigest() + ")" )
                         return True
             else:
                 if xbmcvfs.exists( hash[0] ):
@@ -404,9 +399,14 @@ class XMLFunctions():
         skinVersion = addon.getroot().attrib.get( "version" )
         
         # Save the tree
+        DATA.indent( tree.getroot() )
         for path in paths:
-            DATA.indent( tree.getroot() )
             tree.write( path, encoding="UTF-8" )
+            
+            # Save the hash of the file we've just written
+            with open(path, "r+") as f:
+                DATA._save_hash( path, f.read() )
+                f.close()
             
         # Save the hashes
         # Append the skin version to the hashlist

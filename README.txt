@@ -21,6 +21,7 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
  - Ability to clone widget and background properties from main menu items to submenu and additional menu items when building xml, see "Advanced Usage.txt", sections "Managing Custom Backgrounds" and "Managing Widgets"
  - Advice change - skin-required shortcuts are now recommended for more than just skin-specific features, as they will now persist across skins
  - Advice change - additional submenu includes are now named skinshortcuts-group-[groupname].[level], rather than -[level] as previous (avoids conflicts)
+ - Advice change - whilst it is still preferable not to include a script-skinshortcuts-includes.xml file, the script will now recognise if its version has been overwritten and re-write it
  - New PVR options available on Helix systems
  - Updated labelID's for add-ons - shortcuts to add-ons and root of plugins now script.addon.name - see "labelID and defaultID.txt" for details
  - Advice on targeting Helix - see "Targeting Helix (Kodi 14)", below

@@ -64,8 +64,6 @@ class LibraryFunctions():
         
         self.useDefaultThumbAsIcon = None
         
-        
-        
     def loadLibrary( self ):
         # Load all library data, for use with threading
         self.common()
@@ -85,7 +83,10 @@ class LibraryFunctions():
             json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
             self.loadedUPNP = True
 
-        
+    # ==============================================
+    # === BUILD/DISPLAY AVAILABLE SHORTCUT NODES ===
+    # ==============================================
+    
     def retrieveGroup( self, group, flat = True ):
         log( "Retrieve group " + str( group ) )
         trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
@@ -143,7 +144,6 @@ class LibraryFunctions():
                     
                 return [ nodes[0], self.buildNodeListing( nodes[1], False ) ]
                         
-                        
     def getNode( self, tree, number ):
         count = 0
         for subnode in tree:
@@ -160,14 +160,6 @@ class LibraryFunctions():
 
             if count == number:
                 label = DATA.local( subnode.attrib.get( "label" ) )[2]
-                #try:
-                #    if not label.find( "::SCRIPT::" ) == -1:
-                #        label = __language__(int( label[10:] ) )
-                #    elif not label.find( "::LOCAL::" ) == -1:
-                #        label = xbmc.getLocalizedString( int( label[9:] ) )
-                #except:
-                #    print_exc()
-
                 return [ label, subnode ]
                 
     def buildNodeListing( self, nodes, flat ):
@@ -216,43 +208,6 @@ class LibraryFunctions():
             item = self._get_icon_overrides( tree, item, content )
             
         return items
-        
-    def _get_icon_overrides( self, tree, item, content, setToDefault = True ):
-        if tree is None:
-            return item
-            
-        oldicon = None
-        newicon = item.getProperty( "icon" )
-        for elem in tree.findall( "icon" ):
-            if oldicon is None:
-                if ("labelID" in elem.attrib and elem.attrib.get( "labelID" ) == item.getProperty( "tempLabelID" )) or ("image" in elem.attrib and elem.attrib.get( "image" ) == item.getProperty( "icon" )):
-                    # LabelID matched
-                    if "grouping" in elem.attrib:
-                        if elem.attrib.get( "grouping" ) == content:
-                            # Group also matches - change icon
-                            oldicon = item.getProperty( "icon" )
-                            newicon = elem.text
-                    elif "group" not in elem.attrib:
-                        # No group - change icon
-                        oldicon = item.getProperty( "icon" )
-                        newicon = elem.text
-                        
-        # If the icon doesn't exist, set icon to default
-        setDefault = False
-        if not xbmc.skinHasImage( newicon ) and setToDefault == True:
-            oldicon = item.getProperty( "icon" )
-            icon = "DefaultShortcut.png"
-            setDefault == True
-
-        if oldicon is not None:
-            # we found an icon override
-            item.setProperty( "icon", newicon )
-            item.setIconImage( newicon )
-            
-        if setDefault == True:
-            item = self._get_icon_overrides( tree, item, content, False )
-            
-        return item
             
     def checkForFolder( self, items ):
         # This function will check for any folders in the listings that are being returned
@@ -269,7 +224,53 @@ class LibraryFunctions():
                 returnItems.append( item )
             
         return( returnItems )
-                
+        
+    def loadGrouping( self, content ):
+        # We'll be called if the data for a wanted group hasn't been loaded yet
+        if content == "common":
+            self.common()
+        if content  == "commands":
+            self.more()
+        if content == "video" or content == "movie" or content == "tvshow" or content == "musicvideo" or content == "customvideonode" or content == "movie-flat" or content == "tvshow-flat" or content == "musicvideo-flat" or content == "customvideonode-flat":
+            self.videolibrary()
+        if content == "videosources" or content == "musicsources" or content == "picturesources":
+            self.librarysources()
+        if content == "music":
+            self.musiclibrary()
+        if content == "pvr" or content == "pvr-tv" or content == "pvr-radio":
+            self.pvrlibrary()
+        if content == "radio":
+            self.radiolibrary()
+        if content == "playlist-video" or content == "playlist-audio":
+            self.playlists()
+        if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image":
+            self.addons()
+        if content == "favourite":
+            self.favourites()
+        if content == "settings":
+            self.settings()
+            
+        # The data has now been loaded, return it
+        return self.dictionaryGroupings[ content ]
+        
+    def flatGroupingsCount( self ):
+        # Return how many nodes there are in the the flat grouping
+        tree = DATA._get_overrides_script()
+        if tree is None:
+            return 1
+        groupings = tree.find( "flatgroupings" )
+        nodes = groupings.findall( "node" )
+        count = 0
+        for node in nodes:
+            if "condition" in node.attrib:
+                if xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
+                    # Node is visibile
+                    count += 1
+            else:
+                count += 1
+        return count
+        
+    
     def addToDictionary( self, group, content ):
         # This function adds content to the dictionaryGroupings - including
         # adding any skin-provided shortcuts to the group
@@ -352,53 +353,143 @@ class LibraryFunctions():
                         content.append( listitem )
                     
         self.dictionaryGroupings[ originalGroup ] = content
-
-    def loadGrouping( self, content ):
-        # We'll be called if the data for a wanted group hasn't been loaded yet
-        if content == "common":
-            self.common()
-        if content  == "commands":
-            self.more()
-        if content == "video" or content == "movie" or content == "tvshow" or content == "musicvideo" or content == "customvideonode" or content == "movie-flat" or content == "tvshow-flat" or content == "musicvideo-flat" or content == "customvideonode-flat":
-            self.videolibrary()
-        if content == "videosources" or content == "musicsources" or content == "picturesources":
-            self.librarysources()
-        if content == "music":
-            self.musiclibrary()
-        if content == "pvr" or content == "pvr-tv" or content == "pvr-radio":
-            self.pvrlibrary()
-        if content == "radio":
-            self.radiolibrary()
-        if content == "playlist-video" or content == "playlist-audio":
-            self.playlists()
-        if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image":
-            self.addons()
-        if content == "favourite":
-            self.favourites()
-        if content == "settings":
-            self.settings()
+        
+    # ================================
+    # === BUILD AVAILABLE SHORTCUT ===
+    # ================================
+    
+    def _create ( self, item, allowOverrideLabel = True ):         
+        # Retrieve label
+        localLabel = DATA.local( item[1] )[0]
+        
+        # Create localised label2
+        displayLabel2 = DATA.local( item[2] )[2]
+        shortcutType = DATA.local( item[2] )[0]
+        
+        if allowOverrideLabel:
+            # Check for a replaced label
+            replacementLabel = DATA.checkShortcutLabelOverride( item[0] )
+            if replacementLabel is not None:
+                
+                localLabel = DATA.local( replacementLabel[0] )[0]
+                    
+                if len( replacementLabel ) == 2:
+                    # We're also overriding the type
+                    displayLabel2 = DATA.local( replacementLabel[1] )[2]
+                    shortcutType = DATA.local( replacementLabel[1] )[0]
+                    
+        
+        # Try localising it
+        displayLabel = DATA.local( localLabel )[2]
+        labelID = DATA.createNiceName( DATA.local( localLabel )[0] )
+        
+        # Create localised label2
+        displayLabel2 = DATA.local( displayLabel2 )[2]
+        shortcutType = DATA.local( shortcutType )[0]
             
-        # The data has now been loaded, return it
-        return self.dictionaryGroupings[ content ]
-        
-    def flatGroupingsCount( self ):
-        # Return how many nodes there are in the the flat grouping
-        tree = DATA._get_overrides_script()
-        if tree is None:
-            return 1
-        groupings = tree.find( "flatgroupings" )
-        nodes = groupings.findall( "node" )
-        count = 0
-        for node in nodes:
-            if "condition" in node.attrib:
-                if xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
-                    # Node is visibile
-                    count += 1
+        # If this launches our explorer, append a notation to the displayLabel
+        if item[0].startswith( "||" ):
+            displayLabel = displayLabel + "  >"
+            
+        # Retrieve icon and thumbnail
+        if item[3]:
+            if "icon" in item[3].keys():
+                icon = item[3]["icon"]
             else:
-                count += 1
-        return count
+                icon = "DefaultShortcut.png"
+            if "thumb" in item[3].keys():
+                thumbnail = item[3]["thumb"]
+            else:
+                thumbnail = None
+        else:
+            icon = "DefaultShortcut.png"
+            thumbnail = None
+            
+        # Check if the option to use the thumb as the icon is enabled
+        if self.useDefaultThumbAsIcon is None:
+            # Retrieve the choice from the overrides.xml
+            tree = DATA._get_overrides_skin()
+            if tree is None:
+                self.useDefaultThumbAsIcon = False
+            else:
+                node = tree.getroot().find( "useDefaultThumbAsIcon" )
+                if node is None:
+                    self.useDefaultThumbAsIcon = False
+                else:
+                    if node.text.lower() == "true":
+                        self.useDefaultThumbAsIcon = True
+                    else:
+                        self.useDefaultThumbAsIcon = False
+            
+        usedDefaultThumbAsIcon = False
+        if self.useDefaultThumbAsIcon == True and thumbnail is not None:            
+            icon = thumbnail
+            thumbnail = None
+            usedDefaultThumbAsIcon = True
+            
+        oldicon = None
         
+        # Get a temporary labelID
+        DATA._clear_labelID()
+        labelID = DATA._get_labelID( labelID, item[0] )
+                        
+        # If the skin doesn't have the icon, replace it with DefaultShortcut.png
+        if not icon or not xbmc.skinHasImage( icon ):
+            if not usedDefaultThumbAsIcon:
+                icon = "DefaultShortcut.png"
+            
+        # Build listitem
+        if thumbnail is not None:
+            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon, thumbnailImage=thumbnail)
+            listitem.setProperty( "thumbnail", thumbnail)
+        else:
+            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon)
+        listitem.setProperty( "path", item[0] )
+        listitem.setProperty( "localizedString", localLabel )
+        listitem.setProperty( "shortcutType", shortcutType )
+        listitem.setProperty( "icon", icon )
+        listitem.setProperty( "tempLabelID", labelID )
+        listitem.setProperty( "defaultLabel", labelID )
         
+        return( listitem )
+                
+    def _get_icon_overrides( self, tree, item, content, setToDefault = True ):
+        if tree is None:
+            return item
+            
+        oldicon = None
+        newicon = item.getProperty( "icon" )
+        for elem in tree.findall( "icon" ):
+            if oldicon is None:
+                if ("labelID" in elem.attrib and elem.attrib.get( "labelID" ) == item.getProperty( "tempLabelID" )) or ("image" in elem.attrib and elem.attrib.get( "image" ) == item.getProperty( "icon" )):
+                    # LabelID matched
+                    if "grouping" in elem.attrib:
+                        if elem.attrib.get( "grouping" ) == content:
+                            # Group also matches - change icon
+                            oldicon = item.getProperty( "icon" )
+                            newicon = elem.text
+                    elif "group" not in elem.attrib:
+                        # No group - change icon
+                        oldicon = item.getProperty( "icon" )
+                        newicon = elem.text
+                        
+        # If the icon doesn't exist, set icon to default
+        setDefault = False
+        if not xbmc.skinHasImage( newicon ) and setToDefault == True:
+            oldicon = item.getProperty( "icon" )
+            icon = "DefaultShortcut.png"
+            setDefault == True
+
+        if oldicon is not None:
+            # we found an icon override
+            item.setProperty( "icon", newicon )
+            item.setIconImage( newicon )
+            
+        if setDefault == True:
+            item = self._get_icon_overrides( tree, item, content, False )
+            
+        return item
+
     def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None ):
         # This function allows the user to select a shortcut
         
@@ -489,153 +580,10 @@ class LibraryFunctions():
         else:
             return None
 
-                
-    def common( self ):
-        if self.loadedCommon == True:
-            return True
-        elif self.loadedCommon == "Loading":
-            # The list is currently being populated, wait and then return it
-            count = 0
-            while count < 20:
-                xbmc.sleep( 100 )
-                count += 1
-                if self.loadedCommon == True:
-                    return True
-        else:
-            # We're going to populate the list
-            self.loadedCommon = "Loading"
-        
-        listitems = []
-        log('Listing xbmc common items...')
-        
-        # Videos, Movies, TV Shows, Live TV, Music, Music Videos, Pictures, Weather, Programs,
-        # Play dvd, eject tray
-        # Settings, File Manager, Profiles, System Info
-        try:
-            listitems.append( self._create(["ActivateWindow(Videos)", "10006", "32034", {"icon": "DefaultVideo.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "342", "32034", {"icon": "DefaultMovies.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "20343", "32034", {"icon": "DefaultTVShows.png"} ]) )
-
-            if __xbmcversion__ == "13":
-                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
-            else:
-                listitems.append( self._create(["ActivateWindow(TVGuide)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
-                listitems.append( self._create(["ActivateWindow(RadioGuide)", "32087", "32034", {"icon": "DefaultTVShows.png"} ]) )
-                
-            listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(Videos,MusicVideos,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {} ]) )
-            listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "10001", "32034", {"icon": "DefaultProgram.png"} ] ) )
-
-            listitems.append( self._create(["XBMC.PlayDVD()", "32032", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
-            listitems.append( self._create(["EjectTray()", "32033", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
-                    
-            listitems.append( self._create(["ActivateWindow(Settings)", "10004", "32034", {} ]) )
-            listitems.append( self._create(["ActivateWindow(FileManager)", "7", "32034", {"icon": "DefaultFolder.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(Profiles)", "13200", "32034", {"icon": "UnknownUser.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(SystemInfo)", "10007", "32034", {} ]) )
-            
-            listitems.append( self._create(["ActivateWindow(Favourites)", "1036", "32034", {} ]) )
-        except:
-            log( "Failed to load common XBMC shortcuts" )
-            print_exc()
-            listitems = []
-            
-        self.addToDictionary( "common", listitems )
-        
-        self.loadedCommon = True
-        
-        return self.loadedCommon
-        
-    def more( self ):
-        if self.loadedMoreCommands == True:
-            # The List has already been populated, return it
-            return True
-        elif self.loadedMoreCommands == "Loading":
-            # The list is currently being populated, wait and then return it
-            count = 0
-            while count < 20:
-                xbmc.sleep( 100 )
-                count += 1
-                if self.loadedMoreCommands == True:
-                    return True
-        else:
-            # We're going to populate the list
-            self.loadedMoreCommands = "Loading"
-
-        try:
-            listitems = []
-            log( 'Listing more XBMC commands...' )
-            
-            listitems.append( self._create(["Reboot", "13013", "32054", {} ]) )
-            listitems.append( self._create(["ShutDown", "13005", "32054", {} ]) )
-            listitems.append( self._create(["PowerDown", "13016", "32054", {} ]) )
-            listitems.append( self._create(["Quit", "13009", "32054", {} ]) )
-            listitems.append( self._create(["Hibernate", "13010", "32054", {} ]) )
-            listitems.append( self._create(["Suspend", "13011", "32054", {} ]) )
-            listitems.append( self._create(["ActivateScreensaver", "360", "32054", {} ]) )
-            listitems.append( self._create(["Minimize", "13014", "32054", {} ]) )
-
-            listitems.append( self._create(["Mastermode", "20045", "32054", {} ]) )
-            
-            listitems.append( self._create(["RipCD", "600", "32054", {} ]) )
-            
-            listitems.append( self._create(["UpdateLibrary(video)", "32046", "32054", {} ]) )
-            listitems.append( self._create(["UpdateLibrary(music)", "32047", "32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(video)", "32055", "32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(music)", "32056", "32054", {} ]) )
-            
-            self.addToDictionary( "commands", listitems )
-        except:
-            log( "Failed to load more XBMC commands" )
-            print_exc()
-            
-        self.loadedMoreCommands = True
-        return self.loadedMoreCommands
-        
-    def settings( self ):
-        if self.loadedSettings == True:
-            # The List has already been populated, return it
-            return True
-        elif self.loadedSettings == "Loading":
-            # The list is currently being populated, wait and then return it
-            count = 0
-            while count < 20:
-                xbmc.sleep( 100 )
-                count += 1
-                if self.loadedSettings == True:
-                    return True
-        else:
-            # We're going to populate the list
-            self.loadedSettings = "Loading"
-
-        try:
-            listitems = []
-            log( 'Listing more XBMC commands...' )
-            
-            listitems.append( self._create(["ActivateWindow(Settings)", "10004", "10004", {} ]) )
-            
-            listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "480", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(VideosSettings)", "3", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(PVRSettings)", "19020", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(MusicSettings)", "2", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(PicturesSettings)", "1", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(WeatherSettings)", "8", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(AddonBrowser)", "24001", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(ServiceSettings)", "14036", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(SystemSettings)", "13000", "10004", {} ]) )
-            listitems.append( self._create(["ActivateWindow(SkinSettings)", "20077", "10004", {} ]) )
-            
-            self.addToDictionary( "settings", listitems )
-        except:
-            log( "Failed to load more XBMC settings" )
-            print_exc()
-            
-        self.loadedSettings = True
-        return self.loadedSettings
-        
-        
+    # ===================================
+    # === LOAD VIDEO LIBRARY HEIRACHY ===
+    # ===================================
+    
     def videolibrary( self ):
         if self.loadedVideoLibrary == True:
             # The List has already been populated, return it
@@ -1072,6 +1020,156 @@ class LibraryFunctions():
             else:
                 return True
     
+
+    # ============================
+    # === LOAD OTHER LIBRARIES ===
+    # ============================
+                
+    def common( self ):
+        if self.loadedCommon == True:
+            return True
+        elif self.loadedCommon == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while count < 20:
+                xbmc.sleep( 100 )
+                count += 1
+                if self.loadedCommon == True:
+                    return True
+        else:
+            # We're going to populate the list
+            self.loadedCommon = "Loading"
+        
+        listitems = []
+        log('Listing xbmc common items...')
+        
+        # Videos, Movies, TV Shows, Live TV, Music, Music Videos, Pictures, Weather, Programs,
+        # Play dvd, eject tray
+        # Settings, File Manager, Profiles, System Info
+        try:
+            listitems.append( self._create(["ActivateWindow(Videos)", "10006", "32034", {"icon": "DefaultVideo.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(Videos,MovieTitles,return)", "342", "32034", {"icon": "DefaultMovies.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(Videos,TVShowTitles,return)", "20343", "32034", {"icon": "DefaultTVShows.png"} ]) )
+
+            if __xbmcversion__ == "13":
+                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
+            else:
+                listitems.append( self._create(["ActivateWindow(TVGuide)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
+                listitems.append( self._create(["ActivateWindow(RadioGuide)", "32087", "32034", {"icon": "DefaultTVShows.png"} ]) )
+                
+            listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(Videos,MusicVideos,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {} ]) )
+            listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "10001", "32034", {"icon": "DefaultProgram.png"} ] ) )
+
+            listitems.append( self._create(["XBMC.PlayDVD()", "32032", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
+            listitems.append( self._create(["EjectTray()", "32033", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
+                    
+            listitems.append( self._create(["ActivateWindow(Settings)", "10004", "32034", {} ]) )
+            listitems.append( self._create(["ActivateWindow(FileManager)", "7", "32034", {"icon": "DefaultFolder.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(Profiles)", "13200", "32034", {"icon": "UnknownUser.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(SystemInfo)", "10007", "32034", {} ]) )
+            
+            listitems.append( self._create(["ActivateWindow(Favourites)", "1036", "32034", {} ]) )
+        except:
+            log( "Failed to load common XBMC shortcuts" )
+            print_exc()
+            listitems = []
+            
+        self.addToDictionary( "common", listitems )
+        
+        self.loadedCommon = True
+        
+        return self.loadedCommon
+        
+    def more( self ):
+        if self.loadedMoreCommands == True:
+            # The List has already been populated, return it
+            return True
+        elif self.loadedMoreCommands == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while count < 20:
+                xbmc.sleep( 100 )
+                count += 1
+                if self.loadedMoreCommands == True:
+                    return True
+        else:
+            # We're going to populate the list
+            self.loadedMoreCommands = "Loading"
+
+        try:
+            listitems = []
+            log( 'Listing more XBMC commands...' )
+            
+            listitems.append( self._create(["Reboot", "13013", "32054", {} ]) )
+            listitems.append( self._create(["ShutDown", "13005", "32054", {} ]) )
+            listitems.append( self._create(["PowerDown", "13016", "32054", {} ]) )
+            listitems.append( self._create(["Quit", "13009", "32054", {} ]) )
+            listitems.append( self._create(["Hibernate", "13010", "32054", {} ]) )
+            listitems.append( self._create(["Suspend", "13011", "32054", {} ]) )
+            listitems.append( self._create(["ActivateScreensaver", "360", "32054", {} ]) )
+            listitems.append( self._create(["Minimize", "13014", "32054", {} ]) )
+
+            listitems.append( self._create(["Mastermode", "20045", "32054", {} ]) )
+            
+            listitems.append( self._create(["RipCD", "600", "32054", {} ]) )
+            
+            listitems.append( self._create(["UpdateLibrary(video)", "32046", "32054", {} ]) )
+            listitems.append( self._create(["UpdateLibrary(music)", "32047", "32054", {} ]) )
+            listitems.append( self._create(["CleanLibrary(video)", "32055", "32054", {} ]) )
+            listitems.append( self._create(["CleanLibrary(music)", "32056", "32054", {} ]) )
+            
+            self.addToDictionary( "commands", listitems )
+        except:
+            log( "Failed to load more XBMC commands" )
+            print_exc()
+            
+        self.loadedMoreCommands = True
+        return self.loadedMoreCommands
+        
+    def settings( self ):
+        if self.loadedSettings == True:
+            # The List has already been populated, return it
+            return True
+        elif self.loadedSettings == "Loading":
+            # The list is currently being populated, wait and then return it
+            count = 0
+            while count < 20:
+                xbmc.sleep( 100 )
+                count += 1
+                if self.loadedSettings == True:
+                    return True
+        else:
+            # We're going to populate the list
+            self.loadedSettings = "Loading"
+
+        try:
+            listitems = []
+            log( 'Listing more XBMC commands...' )
+            
+            listitems.append( self._create(["ActivateWindow(Settings)", "10004", "10004", {} ]) )
+            
+            listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "480", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(VideosSettings)", "3", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(PVRSettings)", "19020", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(MusicSettings)", "2", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(PicturesSettings)", "1", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(WeatherSettings)", "8", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(AddonBrowser)", "24001", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(ServiceSettings)", "14036", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(SystemSettings)", "13000", "10004", {} ]) )
+            listitems.append( self._create(["ActivateWindow(SkinSettings)", "20077", "10004", {} ]) )
+            
+            self.addToDictionary( "settings", listitems )
+        except:
+            log( "Failed to load more XBMC settings" )
+            print_exc()
+            
+        self.loadedSettings = True
+        return self.loadedSettings
+        
     
     def pvrlibrary( self ):
         if self.loadedPVRLibrary == True:
@@ -1235,102 +1333,7 @@ class LibraryFunctions():
 
         self.loadedMusicLibrary = True
         return self.loadedMusicLibrary
-        
-    def _create ( self, item, allowOverrideLabel = True ):         
-        # Retrieve label
-        localLabel = DATA.local( item[1] )[0]
-        
-        # Create localised label2
-        displayLabel2 = DATA.local( item[2] )[2]
-        shortcutType = DATA.local( item[2] )[0]
-        
-        if allowOverrideLabel:
-            # Check for a replaced label
-            replacementLabel = DATA.checkShortcutLabelOverride( item[0] )
-            if replacementLabel is not None:
-                
-                localLabel = DATA.local( replacementLabel[0] )[0]
-                    
-                if len( replacementLabel ) == 2:
-                    # We're also overriding the type
-                    displayLabel2 = DATA.local( replacementLabel[1] )[2]
-                    shortcutType = DATA.local( replacementLabel[1] )[0]
-                    
-        
-        # Try localising it
-        displayLabel = DATA.local( localLabel )[2]
-        labelID = DATA.createNiceName( DATA.local( localLabel )[0] )
-        
-        # Create localised label2
-        displayLabel2 = DATA.local( displayLabel2 )[2]
-        shortcutType = DATA.local( shortcutType )[0]
-            
-        # If this launches our explorer, append a notation to the displayLabel
-        if item[0].startswith( "||" ):
-            displayLabel = displayLabel + "  >"
-            
-        # Retrieve icon and thumbnail
-        if item[3]:
-            if "icon" in item[3].keys():
-                icon = item[3]["icon"]
-            else:
-                icon = "DefaultShortcut.png"
-            if "thumb" in item[3].keys():
-                thumbnail = item[3]["thumb"]
-            else:
-                thumbnail = None
-        else:
-            icon = "DefaultShortcut.png"
-            thumbnail = None
-            
-        # Check if the option to use the thumb as the icon is enabled
-        if self.useDefaultThumbAsIcon is None:
-            # Retrieve the choice from the overrides.xml
-            tree = DATA._get_overrides_skin()
-            if tree is None:
-                self.useDefaultThumbAsIcon = False
-            else:
-                node = tree.getroot().find( "useDefaultThumbAsIcon" )
-                if node is None:
-                    self.useDefaultThumbAsIcon = False
-                else:
-                    if node.text.lower() == "true":
-                        self.useDefaultThumbAsIcon = True
-                    else:
-                        self.useDefaultThumbAsIcon = False
-            
-        usedDefaultThumbAsIcon = False
-        if self.useDefaultThumbAsIcon == True and thumbnail is not None:            
-            icon = thumbnail
-            thumbnail = None
-            usedDefaultThumbAsIcon = True
-            
-        oldicon = None
-        
-        # Get a temporary labelID
-        DATA._clear_labelID()
-        labelID = DATA._get_labelID( labelID, item[0] )
-                        
-        # If the skin doesn't have the icon, replace it with DefaultShortcut.png
-        if not icon or not xbmc.skinHasImage( icon ):
-            if not usedDefaultThumbAsIcon:
-                icon = "DefaultShortcut.png"
-            
-        # Build listitem
-        if thumbnail is not None:
-            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon, thumbnailImage=thumbnail)
-            listitem.setProperty( "thumbnail", thumbnail)
-        else:
-            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon)
-        listitem.setProperty( "path", item[0] )
-        listitem.setProperty( "localizedString", localLabel )
-        listitem.setProperty( "shortcutType", shortcutType )
-        listitem.setProperty( "icon", icon )
-        listitem.setProperty( "tempLabelID", labelID )
-        listitem.setProperty( "defaultLabel", labelID )
-        
-        return( listitem )
-        
+    
     def librarysources( self ):
         if self.loadedLibrarySources == True:
             # The List has already been populated, return it
@@ -1659,6 +1662,9 @@ class LibraryFunctions():
         self.loadedAddOns = True
         return self.loadedAddOns
             
+    # =============================
+    # === ADDON/SOURCE EXPLORER ===
+    # =============================
     
     def explorer( self, history, location, label, thumbnail, itemType ):
         dialogLabel = label[0].replace( "  >", "" )
@@ -1711,15 +1717,7 @@ class LibraryFunctions():
 
                 # Localize strings
                 localItemType = DATA.local( itemType )[2]
-                #if not itemType.find( "::SCRIPT::" ) == -1:
-                #    localItemType = __language__(int( itemType[10:] ) )
-                #elif not itemType.find( "::LOCAL::" ) == -1:
-                #    localItemType = xbmc.getLocalizedString(int( itemType[9:] ) )
-                #elif itemType.isdigit():
-                #    localItemType = xbmc.getLocalizedString( int( itemType ) )
-                #else:
-                #    localItemType = itemType
-                    
+                
                 # Create a listitem
                 listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  >", "" ), label2=localItemType, iconImage="DefaultShortcut.png", thumbnailImage=thumbnail[ len( thumbnail ) - 1 ])
                 
@@ -1764,6 +1762,9 @@ class LibraryFunctions():
                 thumbnail.append( listings[ selectedItem ].getProperty( "thumbnail" ) )
                 return self.explorer( history, selectedAction, label, thumbnail, itemType )
     
+    # ======================
+    # === AUTO-PLAYLISTS ===
+    # ======================
     
     def _sourcelink_choice( self, selectedShortcut ):
         # The user has selected a source. We're going to give them the choice of displaying it
@@ -1968,6 +1969,14 @@ class LibraryFunctions():
             DATA.indent( tree.getroot() )
             tree.write( filename.replace( ".xsp", "-randomversion.xsp" ), encoding="utf-8" )
 
+# =====================================
+# === COMMON SELECT SHORTCUT METHOD ===
+# =====================================
+
+# ============================
+# === PRETTY SELECT DIALOG ===
+# ============================
+            
 class ShowDialog( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
         xbmcgui.WindowXMLDialog.__init__( self )

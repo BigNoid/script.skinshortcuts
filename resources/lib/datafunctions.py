@@ -591,7 +591,6 @@ class DataFunctions():
         
         
     def _save_hash( self, filename, file ):
-        
         if file is not None:
             hasher = hashlib.md5()
             hasher.update( file )
