@@ -167,6 +167,13 @@ Note, any thumbnail image provided by the shortcut or set by the user has set wi
 
 A full list of labelID's and default icon images can be found in the Resources folder. A full list of groupings can be found below, in section 5 (Skin Recommended Shortcuts).
 
+By default, when an available shortcut has a thumbnail (add-ons, favourites, etc) these cannot be overriden. It is possible to return these as the icon (which can be overriden) by including the following in your overrides.xml:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<overrides>
+	<useDefaultThumbAsIcon>True</useDefaultThumbAsIcon>
+</overrides>
+
 IMPORTANT: In previous versions this element was called <thumbnail> - please update any old elements.
 
 

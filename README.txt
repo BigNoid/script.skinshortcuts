@@ -16,6 +16,7 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
  - New property for shortcuts - defaultID - a permanent form of the labelID, see "labelID and defaultID.txt" for details. Please note, on upgrade to XML file format this will be set to the items CURRENT labelID, not its original.
  - New management dialog controls to edit additional sub-menus, see "Management Dialog.txt", sections "Available Controls" and "6. Launch management dialog for submenu / additional menus"
  - New override option to force including settings in menu, see "Providing Alternative Access to Settings" below and "Advanced Usage.txt", section "Overrides.xml" part 11
+ - New override option to return thumbnail of available shortcuts as the icon, see "Advanced Usage", section "Overrides.xml" part 2
  - New available shortcut grouping - picturesources
  - Ability to clone widget and background properties from main menu items to submenu and additional menu items when building xml, see "Advanced Usage.txt", sections "Managing Custom Backgrounds" and "Managing Widgets"
  - Advice change - skin-required shortcuts are now recommended for more than just skin-specific features, as they will now persist across skins

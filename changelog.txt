@@ -7,6 +7,7 @@ v0.3.5 - Unpublished development build
 - Ability to choose random version of auto-generated source playlists as widget or background
 - Ability to clone widget and background properties from main menu to submenu items
 - Ability to force Settings link in menu
+- Ability to return thumnail as icon for available shortcuts
 - New management dialog controls to show management dialog for additional sub-menus
 - New available shortcut grouping - picture sources
 - Improved labelID's for add-ons

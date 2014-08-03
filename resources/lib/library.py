@@ -62,6 +62,8 @@ class LibraryFunctions():
         self.folders = {}
         self.foldersCount = 0
         
+        self.useDefaultThumbAsIcon = None
+        
         
         
     def loadLibrary( self ):
@@ -1281,6 +1283,28 @@ class LibraryFunctions():
             icon = "DefaultShortcut.png"
             thumbnail = None
             
+        # Check if the option to use the thumb as the icon is enabled
+        if self.useDefaultThumbAsIcon is None:
+            # Retrieve the choice from the overrides.xml
+            tree = DATA._get_overrides_skin()
+            if tree is None:
+                self.useDefaultThumbAsIcon = False
+            else:
+                node = tree.getroot().find( "useDefaultThumbAsIcon" )
+                if node is None:
+                    self.useDefaultThumbAsIcon = False
+                else:
+                    if node.text.lower() == "true":
+                        self.useDefaultThumbAsIcon = True
+                    else:
+                        self.useDefaultThumbAsIcon = False
+            
+        usedDefaultThumbAsIcon = False
+        if self.useDefaultThumbAsIcon == True and thumbnail is not None:            
+            icon = thumbnail
+            thumbnail = None
+            usedDefaultThumbAsIcon = True
+            
         oldicon = None
         
         # Get a temporary labelID
@@ -1289,7 +1313,8 @@ class LibraryFunctions():
                         
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
         if not icon or not xbmc.skinHasImage( icon ):
-            icon = "DefaultShortcut.png"
+            if not usedDefaultThumbAsIcon:
+                icon = "DefaultShortcut.png"
             
         # Build listitem
         if thumbnail is not None:
