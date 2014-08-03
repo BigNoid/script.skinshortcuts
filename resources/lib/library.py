@@ -490,96 +490,6 @@ class LibraryFunctions():
             
         return item
 
-    def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None ):
-        # This function allows the user to select a shortcut
-        
-        # If group is empty, start background loading of shortcuts
-        if group == "":
-            thread.start_new_thread( self.loadLibrary, () )
-        
-        if availableShortcuts is None:
-            nodes = self.retrieveGroup( group, False )
-            availableShortcuts = nodes[1]
-            windowTitle = nodes[0]
-        else:
-            availableShortcuts = self.checkForFolder( availableShortcuts )
-            
-        if custom is not False:
-            availableShortcuts.append( self._create(["||CUSTOM||", "Custom shortcut", "", {}] ) )
-        
-        # Check a shortcut is available
-        if len( availableShortcuts ) == 0:
-            log( "No available shortcuts found" )
-            xbmcgui.Dialog().ok( __language__(32064), __language__(32065) )
-            return
-                                
-        w = ShowDialog( "DialogSelect.xml", __cwd__, listing=availableShortcuts, windowtitle=windowTitle )
-        w.doModal()
-        number = w.result
-        del w
-        
-        if number != -1:
-            selectedShortcut = availableShortcuts[ number ]
-            path = selectedShortcut.getProperty( "Path" )
-            if path.startswith( "||NODE||" ):
-                if group == "":
-                    group = path.replace( "||NODE||", "" )
-                else:
-                    group = group + "," + path.replace( "||NODE||", "" )
-                return self.selectShortcut( group = group )
-            elif path.startswith( "||BROWSE||" ):
-                selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType") )
-                # Convert backslashes to double-backslashes (windows fix)
-                if selectedShortcut is not None:
-                    newAction = selectedShortcut.getProperty( "Path" )
-                    newAction = newAction.replace( "\\", "\\\\" )
-                    selectedShortcut.setProperty( "Path", newAction )
-                    selectedShortcut.setProperty( "displayPath", newAction )
-            elif path == "||FOLDER||":
-                # The next set of shortcuts are within the listitem property folder-contents
-                shortcuts = self.folders[ selectedShortcut.getProperty( "folder" ) ]
-                return self.selectShortcut( group=group, availableShortcuts=shortcuts, windowTitle = selectedShortcut.getLabel() )
-            elif path == "||UPNP||":
-                selectedShortcut = self.explorer( ["upnp://"], "upnp://", [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType")  )
-                path = selectedShortcut.getProperty( "Path" )
-            elif path.startswith( "||SOURCE||" ):
-                selectedShortcut = self.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType")  )
-                if selectedShortcut is None or "upnp://" in selectedShortcut.getProperty( "Path" ):
-                    return selectedShortcut
-                selectedShortcut = self._sourcelink_choice( selectedShortcut )
-                #path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
-            elif path == "::PLAYLIST::" :
-                # Give the user the choice of playing or displaying the playlist
-                dialog = xbmcgui.Dialog()
-                userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
-                # False: Display
-                # True: Play
-                if userchoice == False:
-                    selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
-                else:
-                    selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-play" ) )
-                   
-            elif path == "||CUSTOM||":
-                # Let the user type a comand
-                keyboard = xbmc.Keyboard( "", __language__(32027), False )
-                keyboard.doModal()
-                
-                if ( keyboard.isConfirmed() ):
-                    action = keyboard.getText()
-                    if action != "":
-                        # Create a really simple listitem to return
-                        selectedShortcut = xbmcgui.ListItem( None, __language__(32024) )
-                        selectedShortcut.setProperty( "Path", action )
-                    else:
-                        selectedShortcut = None
-                            
-                else:
-                    selectedShortcut = None
-
-            return selectedShortcut
-        else:
-            return None
-
     # ===================================
     # === LOAD VIDEO LIBRARY HEIRACHY ===
     # ===================================
@@ -1972,6 +1882,96 @@ class LibraryFunctions():
 # =====================================
 # === COMMON SELECT SHORTCUT METHOD ===
 # =====================================
+
+    def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None ):
+        # This function allows the user to select a shortcut
+        
+        # If group is empty, start background loading of shortcuts
+        if group == "":
+            thread.start_new_thread( self.loadLibrary, () )
+        
+        if availableShortcuts is None:
+            nodes = self.retrieveGroup( group, False )
+            availableShortcuts = nodes[1]
+            windowTitle = nodes[0]
+        else:
+            availableShortcuts = self.checkForFolder( availableShortcuts )
+            
+        if custom is not False:
+            availableShortcuts.append( self._create(["||CUSTOM||", "Custom shortcut", "", {}] ) )
+        
+        # Check a shortcut is available
+        if len( availableShortcuts ) == 0:
+            log( "No available shortcuts found" )
+            xbmcgui.Dialog().ok( __language__(32064), __language__(32065) )
+            return
+                                
+        w = ShowDialog( "DialogSelect.xml", __cwd__, listing=availableShortcuts, windowtitle=windowTitle )
+        w.doModal()
+        number = w.result
+        del w
+        
+        if number != -1:
+            selectedShortcut = availableShortcuts[ number ]
+            path = selectedShortcut.getProperty( "Path" )
+            if path.startswith( "||NODE||" ):
+                if group == "":
+                    group = path.replace( "||NODE||", "" )
+                else:
+                    group = group + "," + path.replace( "||NODE||", "" )
+                return self.selectShortcut( group = group )
+            elif path.startswith( "||BROWSE||" ):
+                selectedShortcut = self.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType") )
+                # Convert backslashes to double-backslashes (windows fix)
+                if selectedShortcut is not None:
+                    newAction = selectedShortcut.getProperty( "Path" )
+                    newAction = newAction.replace( "\\", "\\\\" )
+                    selectedShortcut.setProperty( "Path", newAction )
+                    selectedShortcut.setProperty( "displayPath", newAction )
+            elif path == "||FOLDER||":
+                # The next set of shortcuts are within the listitem property folder-contents
+                shortcuts = self.folders[ selectedShortcut.getProperty( "folder" ) ]
+                return self.selectShortcut( group=group, availableShortcuts=shortcuts, windowTitle = selectedShortcut.getLabel() )
+            elif path == "||UPNP||":
+                selectedShortcut = self.explorer( ["upnp://"], "upnp://", [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType")  )
+                path = selectedShortcut.getProperty( "Path" )
+            elif path.startswith( "||SOURCE||" ):
+                selectedShortcut = self.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [selectedShortcut.getLabel()], [selectedShortcut.getProperty("thumbnail")], selectedShortcut.getProperty("shortcutType")  )
+                if selectedShortcut is None or "upnp://" in selectedShortcut.getProperty( "Path" ):
+                    return selectedShortcut
+                selectedShortcut = self._sourcelink_choice( selectedShortcut )
+                #path = urllib.unquote( selectedShortcut.getProperty( "Path" ) )
+            elif path == "::PLAYLIST::" :
+                # Give the user the choice of playing or displaying the playlist
+                dialog = xbmcgui.Dialog()
+                userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
+                # False: Display
+                # True: Play
+                if userchoice == False:
+                    selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
+                else:
+                    selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-play" ) )
+                   
+            elif path == "||CUSTOM||":
+                # Let the user type a command
+                keyboard = xbmc.Keyboard( "", __language__(32027), False )
+                keyboard.doModal()
+                
+                if ( keyboard.isConfirmed() ):
+                    action = keyboard.getText()
+                    if action != "":
+                        # Create a really simple listitem to return
+                        selectedShortcut = xbmcgui.ListItem( None, __language__(32024) )
+                        selectedShortcut.setProperty( "Path", action )
+                    else:
+                        selectedShortcut = None
+                            
+                else:
+                    selectedShortcut = None
+
+            return selectedShortcut
+        else:
+            return None
 
 # ============================
 # === PRETTY SELECT DIALOG ===

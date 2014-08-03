@@ -4,10 +4,8 @@ This is a DEVELOPMENT BUILD and may be UNSTABLE or even BROKEN.
 If do not require the new features but want to use a git version, use the repofixes branch.
 
 
-What's New for Skinners (version 0.3.5 Development Build)
+What's New for Skinners (version 0.4.0 pre-release)
 -----------------------
-
-This branch will be version 0.4.0 as such time as it is deemed the stable branch
 
  - New XML file format for storing data - this required no changes on your part, but you can upgrade your default shortcuts to the new format, see "Providing default shortcuts" below
  - New localisation code - all local strings you provide should now simply be the string id, no need for ::LOCAL::stringID or ::SCRIPT::stringID
@@ -25,14 +23,6 @@ This branch will be version 0.4.0 as such time as it is deemed the stable branch
  - New PVR options available on Helix systems
  - Updated labelID's for add-ons - shortcuts to add-ons and root of plugins now script.addon.name - see "labelID and defaultID.txt" for details
  - Advice on targeting Helix - see "Targeting Helix (Kodi 14)", below
-
-
-What's (hopefully) Coming
--------------------------
-
-Features intended for next stable release (0.4.0):
-- Large code cleanup - fix cases of multiple uses of same code, clearer separation of different groupings of functions
-- Auto-upgrade on Helix to new PVR options including new radio menu
  
  
 With Thanks - Because their names don't deserve to be at the bottom :)
