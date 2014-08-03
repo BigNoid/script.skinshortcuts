@@ -5,6 +5,11 @@ import xml.etree.ElementTree as xmltree
 from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
 
+if sys.version_info < (2, 7):
+    import simplejson
+else:
+    import json as simplejson
+
 __addon__        = xbmcaddon.Addon()
 __addonid__      = sys.modules[ "__main__" ].__addonid__
 __addonversion__ = __addon__.getAddonInfo('version')
@@ -31,7 +36,7 @@ class XMLFunctions():
         self.MAINBACKGROUND = {}
         self.hasSettings = False
         
-    def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options ): 
+    def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options, weEnabledSystemDebug = False, weEnabledScriptDebug = False ): 
         # Entry point for building includes.xml files
         if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
             return
@@ -102,12 +107,50 @@ class XMLFunctions():
         else:
             # Menu couldn't be built - if the user has script.xbmc.debug.log offer to upload a debug log
             if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
-                ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), "Unable to build menu", "Upload a debug log to xbmclogs.com?" )
-                if ret:
-                    xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+                # If we enabled debug logging
+                if weEnabledSystemDebug or weEnabledScriptDebug:
+                    # Disable any logging we enabled
+                    if weEnabledSystemDebug:
+                        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":false} } ' )
+                    if weEnabledScriptDebug:
+                        __addon__.setSetting( "enable_logging", "false" )
+                        
+                    # Offer to upload a debug log
+                    ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), "Unable to build menu", "Upload a debug log to xbmclogs.com?" )
+                    if ret:
+                        xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )                    
+                        
+                else:
+                    # Enable any debug logging needed                        
+                    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Settings.getSettings", "params": { "filter":{"section":"system", "category":"debug"} } }')
+                    json_query = unicode(json_query, 'utf-8', errors='ignore')
+                    json_response = simplejson.loads(json_query)
+                    
+                    enabledSystemDebug = False
+                    enabledScriptDebug = False
+                    if json_response.has_key('result') and json_response['result'].has_key('settings') and json_response['result']['settings'] is not None:
+                        for item in json_response['result']['settings']:
+                            if item["id"] == "debug.showloginfo":
+                                log( "### Found debug logging" )
+                                if item["value"] == False:
+                                    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":true} } ' )
+                                    enabledSystemDebug = True
+                    
+                    if __addon__.getSetting( "enable_logging" ) != "true":
+                        __addon__.setSetting( "enable_logging", "true" )
+                        enabledScriptDebug = True
+                        
+                    if enabledSystemDebug or enabledScriptDebug:
+                        # We enabled one or more of the debug options, re-run this function
+                        self.buildMenu( mainmenuID, groups, numLevels, buildMode, options, enabledSystemDebug, enabledScriptDebug )
+                    else:
+                        # Debug logging already enabled - offer to upload a debug log
+                        ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), "Unable to build menu", "Upload a debug log to xbmclogs.com?" )
+                        if ret:
+                            xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )                    
+                            
             else:
-                
-                xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), "Unable to build menu" )
+                xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), "Unable to build menu. Install XBMC Log Uploader to easily get a debug log." )
         
     def shouldwerun( self, profilelist ):
         try:

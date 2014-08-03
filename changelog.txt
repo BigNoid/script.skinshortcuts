@@ -13,6 +13,7 @@ v0.4.0 - Pre-Release
 - Improved labelID's for add-ons
 - Indicator for default background and widget
 - Menu rebuilt on changes to script-skinshortcuts-includes.xml file
+- Auto-enable debug logging and offer to upload debug log on menu build failure (requires XBMC Log Uploader on system)
 - Code cleanup
 - Fixes
  > Fix for setting skin thumbnail property when using Just Select method
