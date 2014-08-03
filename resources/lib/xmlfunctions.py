@@ -465,7 +465,22 @@ class XMLFunctions():
             if onclick.text.startswith( "pvr-channel://" ):
                 # PVR action
                 onclickelement.text = "RunScript(script.skinshortcuts,type=launchpvr&channel=" + onclick.text.replace( "pvr-channel://", "" ) + ")"
-            # TO-DO - Skin-relative links
+            elif onclick.text.startswith( "ActivateWindow(" ) and xbmc.translatePath( "special://skin/" ) in onclick.text:
+                # Skin-relative links
+                try:
+                    actionParts = onclick.text[15:-1].split( "," )
+                    actionParts[1] = actionParts[1].replace( xbmc.translatePath( "special://skin/" ), "" )
+                    path = actionParts[1].split( os.sep )
+                    newAction = "special://skin"
+                    for actionPart in actionParts[1].split( os.sep ):
+                        if actionPart != "":
+                            newAction = newAction + "/" + actionPart
+                    if len( actionParts ) == 2:
+                        onclickelement.text = "ActivateWindow(" + actionParts[0] + "," + newAction + ")"
+                    else:
+                        onclickelement.text = "ActivateWindow(" + actionParts[0] + "," + newAction + "," + actionParts[2] + ")"
+                except:
+                    pass
             else:
                 onclickelement.text = onclick.text
                 
