@@ -11,6 +11,7 @@ v0.3.5 - Unpublished development build
 - New management dialog controls to show management dialog for additional sub-menus
 - New available shortcut grouping - picture sources
 - Improved labelID's for add-ons
+- Indicator for default background and widget
 - Fixes
  > Fix for setting skin thumbnail property when using Just Select method
  > Fix for menus failing to build when the action for a shortcut contains a unicode character
