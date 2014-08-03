@@ -279,8 +279,7 @@ class DataFunctions():
     def _get_skin_required( self, listitems, group, profileDir ):
         # This function builds a tree of any skin-required shortcuts not currently in the menu
         # Once the tree is built, it sends them to _process_shortcuts for any overrides, etc, then adds them to the menu tree
-        log( "### Checking skin-required shortcuts" )
-        # This function checks for and adds any skin-required shortcuts
+        
         tree = self._get_overrides_skin()
         if tree is None:
             return
@@ -551,7 +550,6 @@ class DataFunctions():
     def checkAdditionalProperties( self, group, labelID, isUserShortcuts ):
         # Return any additional properties, including widgets and backgrounds
         allProperties = self._get_additionalproperties()
-        #log( "Getting additional properties for " + labelID + " in group " + group )
         currentProperties = allProperties[1]
         
         returnProperties = []

@@ -80,8 +80,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
             if self.groupname is not None:
                 xbmcgui.Window( self.window_id ).setProperty( 'groupDisplayName', self.groupname )
-                
-            log( "### " + repr( self.groupname ) )
 
             # Load library shortcuts in thread
             thread.start_new_thread( LIBRARY.loadLibrary, () )
@@ -205,7 +203,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             shortcuts = DATA._get_shortcuts( self.group, defaultsOnly = True )
         
         listitems = []
-        log( repr( shortcuts ) )
         for shortcut in shortcuts.getroot().findall( "shortcut" ):
             listitems.append( self._parse_shortcut( shortcut ) )
             

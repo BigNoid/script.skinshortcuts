@@ -88,7 +88,6 @@ class LibraryFunctions():
     # ==============================================
     
     def retrieveGroup( self, group, flat = True ):
-        log( "Retrieve group " + str( group ) )
         trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
         nodes = None
         for tree in trees:
@@ -1057,7 +1056,7 @@ class LibraryFunctions():
 
         try:
             listitems = []
-            log( 'Listing more XBMC commands...' )
+            log( 'Listing XBMC settings...' )
             
             listitems.append( self._create(["ActivateWindow(Settings)", "10004", "10004", {} ]) )
             
@@ -1260,7 +1259,7 @@ class LibraryFunctions():
             # We're going to populate the list
             self.loadedLibrarySources = "Loading"
             
-        log('Loading library sources...')
+        log('Listing library sources...')
         # Add video sources
         listitems = []
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "video" } }')
@@ -1763,7 +1762,6 @@ class LibraryFunctions():
                 selectedShortcut.setProperty( "displayPath", newAction )
                 return selectedShortcut
             elif userChoice == 1:
-                log( "### SLIDESHOW FOR " + selectedShortcut.getProperty( "location" ) )
                 newAction = "SlideShow(" + selectedShortcut.getProperty( "location" ) + ")"
                 selectedShortcut.setProperty( "path", newAction )
                 selectedShortcut.setProperty( "displayPath", newAction )
@@ -1791,9 +1789,6 @@ class LibraryFunctions():
                     target.append( urllib.url2pathname( item ) )
         else:
             target = [target]
-            
-        for item in target:
-            log( repr( item ) )
         
         xmltree.SubElement( root, "name").text = name
         if negative == False:

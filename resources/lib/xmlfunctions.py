@@ -31,10 +31,7 @@ class XMLFunctions():
         self.MAINBACKGROUND = {}
         self.hasSettings = False
         
-    def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options ):
-        for option in options:
-            log( "Build started with option: " + option )
-            
+    def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options ): 
         # Entry point for building includes.xml files
         if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
             return
@@ -113,17 +110,15 @@ class XMLFunctions():
                 xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), "Unable to build menu" )
         
     def shouldwerun( self, profilelist ):
-        log( "Checking if user has updated menu" )
         try:
             property = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-reloadmainmenu" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-reloadmainmenu" )
             if property == "True":
-                log( " - Yes")
+                log( "Menu has been edited")
                 return True
         except:
             pass
             
-        log( "Checking include files exist" )
         # Get the skins addon.xml file
         addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")
         addon = xmltree.parse( addonpath )
@@ -146,7 +141,7 @@ class XMLFunctions():
         # Check for the includes file
         for path in paths:
             if not xbmcvfs.exists( path ):
-                log( " - No" )
+                log( "Includes file does not exist" )
                 return True
             else:
                 pass
@@ -161,7 +156,6 @@ class XMLFunctions():
             print_exc()
             return True
         
-        log( "Checking hashes..." )
         checkedXBMCVer = False
         checkedSkinVer = False
         checkedScriptVer = False
@@ -173,25 +167,25 @@ class XMLFunctions():
                     # Check the skin version is still the same as hash[1]
                     checkedXBMCVer = True
                     if __xbmcversion__ != hash[1]:
-                        log( "  - XBMC version does not match" )
+                        log( "Now running a different version of Kodi" )
                         return True
                 elif hash[0] == "::SKINVER::":
                     # Check the skin version is still the same as hash[1]
                     checkedSkinVer = True
                     if skinVersion != hash[1]:
-                        log( "  - Skin version does not match" )
+                        log( "Now running a different skin version" )
                         return True
                 elif hash[0] == "::SCRIPTVER::":
                     # Check the script version is still the same as hash[1]
                     checkedScriptVer = True
                     if __addonversion__ != hash[1]:
-                        log( "  - Script version does not match" )
+                        log( "Now running a different script version" )
                         return True
                 elif hash[0] == "::PROFILELIST::":
                     # Check the profilelist is still the same as hash[1]
                     checkedProfileList = True
                     if profilelist != hash[1]:
-                        log( "  - Profile list does not match" )
+                        log( "Profiles have changes" )
                         return True
                 elif hash[0] == "::LANGUAGE::":
                     # We no longer need to rebuild on a system language change
@@ -200,11 +194,12 @@ class XMLFunctions():
                     hasher = hashlib.md5()
                     hasher.update( xbmcvfs.File( hash[0] ).read() )
                     if hasher.hexdigest() != hash[1]:
-                        log( "  - Hash does not match on file " + hash[0] + " (" + hash[1] + " > " + hasher.hexdigest() + ")" )
+                        log( "Hash does not match on file " + hash[0] )
+                        log( "(" + hash[1] + " > " + hasher.hexdigest() + ")" )
                         return True
             else:
                 if xbmcvfs.exists( hash[0] ):
-                    log( "  - File now exists " + hash[0] )
+                    log( "File now exists " + hash[0] )
                     return True
                 
         # If the skin or script version, or profile list, haven't been checked, we need to rebuild the menu 
@@ -218,7 +213,6 @@ class XMLFunctions():
 
 
     def writexml( self, profilelist, mainmenuID, groups, numLevels, buildMode, progress, options ): 
-        log( "### " + repr( groups ) )
         # Reset the hashlist, add the profile list and script version
         hashlist.list = []
         hashlist.list.append( ["::PROFILELIST::", profilelist] )

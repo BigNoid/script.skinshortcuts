@@ -194,8 +194,6 @@ class Main:
     # -----------------
 
     def _launch_shortcut( self, path ):
-        log( "### Launching shortcut" )
-        
         action = urllib.unquote( self.PATH )
         
         if action.find("::MULTIPLE::") == -1:
