@@ -959,7 +959,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         self._set_label( listitem, widgetName[selectedWidget] )
                         currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 else:
-                    self._add_additionalproperty( listitem, "widgetName", widgetLabel[selectedWidget].repace( "* ", "" ) )
+                    self._add_additionalproperty( listitem, "widgetName", widgetLabel[selectedWidget].replace( "* ", "" ) )
                     self._add_additionalproperty( listitem, "widget", widget[selectedWidget] )
                     self._remove_additionalproperty( listitem, "widgetPlaylist" )
                     if currentWindow.getProperty( "useWidgetNameAsLabel" ) == "true" :
