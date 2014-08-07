@@ -80,9 +80,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             xbmcgui.Window(self.window_id).setProperty('groupname', self.group)
             if self.groupname is not None:
                 xbmcgui.Window( self.window_id ).setProperty( 'groupDisplayName', self.groupname )
-
-            # Load library shortcuts in thread
-            thread.start_new_thread( LIBRARY.loadLibrary, () )
             
             # Load widget and background names
             self._load_widgetsbackgrounds()
@@ -183,6 +180,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         self.getControl( 401 ).setLabel( __language__(32048) )
                 except:
                     log( "No widget button on GUI (id 401)" )
+                    
+            # Load library shortcuts in thread
+            thread.start_new_thread( LIBRARY.loadLibrary, () )
             
             try:
                 self._display_shortcuts()
