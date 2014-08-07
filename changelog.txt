@@ -20,6 +20,7 @@ v0.4.0 - Pre-Release
  > Fix for menus failing to build when the action for a shortcut contains a unicode character
  > Dirty fix for situations where a playlist in a menu will cause that menu to appear empty
  > Return skin playlists via special:// protocol (current skin only)
+ - Updated language files from Transifex (from 11th June 2014)
 
 v0.3.4
 - XML files are formatted (includes.xml, auto-generated playlists), includes now have an id property
