@@ -1,10 +1,7 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
-This is a DEVELOPMENT BUILD and may be UNSTABLE or even BROKEN.
-If do not require the new features but want to use a git version, use the repofixes branch.
 
-
-What's New for Skinners (version 0.4.0 pre-release)
+What's New for Skinners (version 0.4.0)
 -----------------------
 
  - New XML file format for storing data - this required no changes on your part, but you can upgrade your default shortcuts to the new format, see "Providing default shortcuts" below

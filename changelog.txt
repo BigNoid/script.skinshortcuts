@@ -1,4 +1,4 @@
-v0.4.0 - Pre-Release
+v0.4.0
 - New localisation code
 - New XML data store
 - Removal of Gotham list-filling methods
