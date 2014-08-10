@@ -766,6 +766,11 @@ class DataFunctions():
 class UpgradeFunctions():
     def __init__(self):
         pass
+        
+    def upgrade_all_single_file( self, path, removeDefaultID = False ):
+        self.upgrade_file( path )
+        self.upgrade_xmlfile( path )
+        
     
     def upgrade_labels( self ):
         # This function will upgrade all the saved labels (label and label2) for the .shortcuts files
@@ -1010,10 +1015,3 @@ class UpgradeFunctions():
                     if oldLabel != newLabel:
                         if xbmcvfs.exists( DATA.slugify( os.path.join( folder, oldLabel + ".DATA.xml" ) ) ):
                             xbmcvfs.rename( DATA.slugify( os.path.join( folder, oldLabel + ".DATA.xml" ) ), DATA.slugify( os.path.join( folder, newLabel + ".DATA.xml" ) ) )
-                
-
-    def upgrade_newtv( self ):
-        # This function will upgrade the .DATA.xml files to the new pvr functions, add a new radio function
-        # and add a new radio link to the mainmenu.DATA.xml file (if it exists) plus copy the skin/scripts default
-        # radio.DATA.xml file to the users shortcut directory
-        pass
