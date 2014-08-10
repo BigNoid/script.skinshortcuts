@@ -481,7 +481,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             xbmcvfs.copy( path[0], target.replace( ".DATA.xml", ".shortcuts" ) )
                             
                             # Upgrade the default shortcuts file
-                            datafunctions.UpgradeFunctions().upgrade_all_single_file( target.replace (".DATA.xml", ".shortcuts" ) )
+                            datafunctions.UpgradeFunctions().upgrade_file( target )
                             
                             # Delete the file we copied
                             xbmcvfs.delete( target.replace( ".DATA.xml", ".shortcuts" ) )
