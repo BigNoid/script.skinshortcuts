@@ -458,8 +458,20 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                 # Move the original to the target path
                                 xbmcvfs.rename( path[0], target )
                             else:
-                                # Copy a default shortcuts file to the target path
-                                xbmcvfs.copy( path[0], target )
+                                # We're copying the file (actually, we'll re-write the file without
+                                # any LOCKED or defaultID elements)
+                                newtree = xmltree.parse( path[0] )
+                                for newnode in newtree.getroot().findall( "shortcut" ):
+                                    searchNode = newnode.find( "locked" )
+                                    if searchNode is not None:
+                                        newnode.remove( searchNode )
+                                    searchNode = newnode.find( "defaultID" )
+                                    if searchNode is not None:
+                                        newnode.remove( searchNode )
+                                        
+                                # Write it to the target
+                                DATA.indent( newtree.getroot() )
+                                newtree.write( target, encoding="utf-8" )
                             break
                             
                         elif xbmcvfs.exists( path[0].replace( ".DATA.xml", ".shortcuts" ) ):
