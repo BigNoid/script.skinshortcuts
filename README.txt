@@ -241,6 +241,7 @@ The file format is simple enough:
 		<icon>The default icon to use for the shortcut</icon>
 		<thumb>The default thumbnail to use for the shortcut (optional)</thumb>
 		<action>The default action of the shortcut</action>
+		<visible>Visibility condition for the shortcut (optional)</visible>
 	</shortcut>
 </shortcuts
 

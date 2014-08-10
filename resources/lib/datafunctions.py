@@ -273,6 +273,15 @@ class DataFunctions():
                             xmltree.SubElement( node, "visibility" ).text = elem.attrib.get( "condition" )
                         else:
                             visibilityNode.text = "[" + visibilityNode.text + "] + [" + elem.attrib.get( "condition" ) + "]"
+                            
+            # Get any visibility conditions in the .DATA.xml file
+            if hasOverriden == False:
+                additionalVisibility = node.find( "visible" )
+                if additionalVisibility is not None:
+                    if visibilityNode == None:
+                        xmltree.SubElement( node, "visibility" ).text = additionalVisibility.text
+                    else:
+                        visibilityNode.text = "[" + visibilityNode.text + "] + [" + node.text + "]"
         
         return tree
         
