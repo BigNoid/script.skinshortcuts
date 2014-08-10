@@ -262,6 +262,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitem.setProperty( "defaultID", item.find( "defaultID" ).text )
         listitem.setProperty( "shortcutType", localLabel2[0] )
         
+        # Set any visible condition
+        visibleCondition = item.find( "visible" )
+        if visibleCondition is not None:
+            listitem.setProperty( "visible-condition", visibleCondition.text )
+        
         # Check if the shortcut is locked
         locked = item.find( "lock" )
         if locked is not None:
@@ -400,6 +405,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     except:
                         action = listitem.getProperty( "path" )
                     xmltree.SubElement( shortcut, "action" ).text = action
+                    
+                    # Visible
+                    if listitem.getProperty( "visible-condition" ):
+                        xmltree.SubElement( shortcut, "visible" ).text = listitem.getProperty( "visible-condition" )
                     
                     # Locked
                     if listitem.getProperty( "LOCKED" ):
@@ -1244,7 +1253,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "icon", listitem.getProperty("icon") )
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
-        listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )       
+        listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
+        
+        if listitem.getProperty( "visible-condition" ):
+            listitemCopy.setProperty( "visible-condition", listitem.getProperty( "visible-condition" ) )
         
         if listitem.getProperty( "LOCKED" ):
             listitemCopy.setProperty( "LOCKED", listitem.getProperty( "LOCKED" ) )
