@@ -487,13 +487,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             # An original .shortcuts file exists
                             
                             # Copy a default shortcuts file to the target path
-                            xbmcvfs.copy( path[0], target.replace( ".DATA.xml", ".shortcuts" ) )
+                            xbmcvfs.copy( path[0].replace( ".DATA.xml", ".shortcuts" ), target.replace( ".DATA.xml", ".shortcuts" ) )
                             
                             # Upgrade the default shortcuts file
-                            datafunctions.UpgradeFunctions().upgrade_file( target )
+                            datafunctions.UpgradeFunctions().upgrade_file( target.replace( ".DATA.xml", ".shortcuts" ) )
+                            datafunctions.UpgradeFunctions().upgrade_xmlfile( target.replace( ".DATA.xml", ".shortcuts" ) )
                             
-                            # Delete the file we copied
-                            xbmcvfs.delete( target.replace( ".DATA.xml", ".shortcuts" ) )
+                            # Delete the backup file
+                            xbmcvfs.delete( target.replace( ".DATA.xml", ".shortcuts.backup" ) )
                             break
                         
                 labelIDChanges.pop( 0 )
