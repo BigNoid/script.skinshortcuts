@@ -532,13 +532,13 @@ class DataFunctions():
             return "!IsEmpty(Weather.Plugin)"
         if action.startswith( "ActivateWindowAndFocus(MyPVR" ) or action.startswith( "PlayPvr" ):
             return "System.GetBool(pvrmanager.enabled)"
-        if action.startswith( "ActivateWindow(Video,Movie" ):
+        if action.startswith( "ActivateWindow(Videos,Movie" ):
             return "Library.HasContent(Movies)"
         if action.startswith( "ActivateWindow(Videos,RecentlyAddedMovies" ):
             return "Library.HasContent(Movies)"
-        if action.startswith( "ActivateWindow(Video,TVShow" ):
+        if action.startswith( "ActivateWindow(Videos,TvShow" ):
             return "Library.HasContent(TVShows)"
-        if action.startswith( "ActivateWindow(Video,MusicVideo" ):
+        if action.startswith( "ActivateWindow(Videos,MusicVideo" ):
             return "Library.HasContent(MusicVideos)"
         if action.startswith( "ActivateWindow(MusicLibrary,MusicVideo" ):
             return "Library.HasContent(MusicVideos)"
