@@ -19,7 +19,7 @@
 			<content>pvr-tv</content>
 			<content>pvr-radio</content>
 		</node>
-		<node label="32017" condition="System.GetBool(pvrmanager.enabled)" version="14">
+		<node label="32017" condition="PVR.HasTVChannels" version="14">
 			<content>pvr</content>
 			<content>pvr-tv</content>
 		</node>

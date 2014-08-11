@@ -116,6 +116,10 @@ class LibraryFunctions():
                     if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
                         group += 1
                         continue
+                if "version" in node.attrib:
+                    if __xbmcversion__ != node.attrib.get( "version" ):
+                        group += 1
+                        continue
                 if count == group:
                     # We found it :)
                     return( node.attrib.get( "label" ), self.buildNodeListing( node, True ) )
@@ -262,11 +266,14 @@ class LibraryFunctions():
         count = 0
         for node in nodes:
             if "condition" in node.attrib:
-                if xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
-                    # Node is visibile
-                    count += 1
-            else:
-                count += 1
+                if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
+                    continue
+            if "version" in node.attrib:
+                if __xbmcversion__ != node.attrib.get( "version" ):
+                    continue
+                    
+            count += 1
+                
         return count
         
     
@@ -1147,6 +1154,7 @@ class LibraryFunctions():
                 for item in json_response['result']['channels']:
                     listitems.append( self._create(["pvr-channel://" + str( item['channelid'] ), item['label'], "::SCRIPT::32077", {"icon": "DefaultTVShows.png", "thumb": item[ "thumbnail"]}]) )
             
+            log( "Found " + str( len( listitems ) ) + " radio channels" )
             self.addToDictionary( "pvr-radio", listitems )
 
         except:
