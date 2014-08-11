@@ -536,11 +536,15 @@ class DataFunctions():
             return "Library.HasContent(Movies)"
         if action.startswith( "ActivateWindow(Videos,RecentlyAddedMovies" ):
             return "Library.HasContent(Movies)"
-        if action.startswith( "ActivateWindow(Videos,TvShow" ):
+        if action.startswith( "ActivateWindow(Videos,TvShow" ) or action.startswith( "ActivateWindow(Videos,TVShow" ):
+            return "Library.HasContent(TVShows)"
+        if action.startswith( "ActivateWindow(Videos,RecentlyAddedEpisodes" ):
             return "Library.HasContent(TVShows)"
         if action.startswith( "ActivateWindow(Videos,MusicVideo" ):
             return "Library.HasContent(MusicVideos)"
         if action.startswith( "ActivateWindow(MusicLibrary,MusicVideo" ):
+            return "Library.HasContent(MusicVideos)"
+        if action.startswith( "ActivateWindow(Videos,RecentlyAddedMusicVideos" ):
             return "Library.HasContent(MusicVideos)"
         if action.startswith( "ActivateWindow(MusicLibrary," ):
             return "Library.HasContent(Music)"
