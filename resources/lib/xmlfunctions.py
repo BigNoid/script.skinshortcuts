@@ -47,7 +47,8 @@ class XMLFunctions():
         fav_file = xbmc.translatePath( 'special://userdata/profiles.xml' ).decode("utf-8")
         tree = None
         if xbmcvfs.exists( fav_file ):
-            tree = xmltree.parse( fav_file )
+            f = xbmcvfs.File( fav_file )
+            tree = xmltree.fromstring( f.read() )
         
         profilelist = []
         if tree is not None:
