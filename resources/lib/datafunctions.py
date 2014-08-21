@@ -716,7 +716,11 @@ class DataFunctions():
             truncated = string[:max_length]
         return truncated.strip(separator)
 
-    def slugify(self, text, entities=True, decimal=True, hexadecimal=True, max_length=0, word_boundary=False, separator='-'):
+    def slugify(self, text, entities=True, decimal=True, hexadecimal=True, max_length=0, word_boundary=False, separator='-', convertInteger=False):
+        # Handle integers
+        if convertInteger and text.isdigit():
+            text = "NUM-" + text
+    
         # text to unicode
         if type(text) != types.UnicodeType:
             text = unicode(text, 'utf-8', 'ignore')

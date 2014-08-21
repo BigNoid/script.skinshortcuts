@@ -330,9 +330,9 @@ class XMLFunctions():
                 # If this is a main menu item...
                 if not isinstance( item, basestring ):
                     submenu = item.find( "labelID" ).text
-                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], "mainmenu-" + str(itemidmainmenu), itemid = itemidmainmenu, options = options )
+                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
                     if buildMode == "single":
-                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], "mainmenu-" + str(itemidmainmenu), itemid = itemidmainmenu, options = options )
+                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
                 else:
                     submenu = DATA._get_labelID( item, None )
                     
@@ -381,23 +381,23 @@ class XMLFunctions():
                     if buildMode == "single" and not len( submenuitems ) == 0:
                         for onclickelement in mainmenuItemB.findall( "onclick" ):
                             if "condition" in onclickelement.attrib:
-                                onclickelement.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility),mainmenu-" + str(itemidmainmenu) + ") + [" + onclickelement.attrib.get( "condition" ) + "]" )
+                                onclickelement.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu, convertInteger=True ) + ") + [" + onclickelement.attrib.get( "condition" ) + "]" )
                                 newonclick = xmltree.SubElement( mainmenuItemB, "onclick" )
-                                newonclick.text = "SetProperty(submenuVisibility,mainmenu-" + str(itemidmainmenu) + ",10000)"
+                                newonclick.text = "SetProperty(submenuVisibility," + DATA.slugify( submenu, convertInteger=True ) + ",10000)"
                                 newonclick.set( "condition", onclickelement.attrib.get( "condition" ) )
                             else:
-                                onclickelement.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility),mainmenu-" + str(itemidmainmenu) + ")" )
+                                onclickelement.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu, convertInteger=True ) + ")" )
                                 newonclick = xmltree.SubElement( mainmenuItemB, "onclick" )
-                                newonclick.text = "SetProperty(submenuVisibility,mainmenu-" + str(itemidmainmenu) + ",10000)"
+                                newonclick.text = "SetProperty(submenuVisibility," + DATA.slugify( submenu, convertInteger=True ) + ",10000)"
                     
                     # Build the submenu
                     for submenuItem in submenuitems:
                         itemidsubmenu += 1
-                        self.buildElement( submenuItem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility),mainmenu-" + str(itemidmainmenu) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                        self.buildElement( submenuItem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenu, convertInteger=True ) + ")", profile[1], itemid = itemidsubmenu, options = options )
                         self.buildElement( submenuItem, justmenuTreeA, submenu, None, profile[1], itemid = itemidsubmenu, options = options )
-                        self.buildElement( submenuItem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility),mainmenu-" + str(itemidmainmenu) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                        self.buildElement( submenuItem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu, convertInteger=True ) + ")", profile[1], itemid = itemidsubmenu, options = options )
                         if buildMode == "single":
-                            self.buildElement( submenuItem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility),mainmenu-" + str(itemidmainmenu) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                            self.buildElement( submenuItem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenu, convertInteger=True ) + ")", profile[1], itemid = itemidsubmenu, options = options )
                         
                     count += 1
 
