@@ -176,6 +176,7 @@ class Main:
         
         self.NOLABELS = params.get( "nolabels", "false" ).lower()
         self.OPTIONS = params.get( "options", "" ).split( "|" )
+        self.WARNING = params.get( "warning", None )
         
     def _check_Window_Properties( self ):
         # Check if the user has changed skin or profile
@@ -360,10 +361,18 @@ class Main:
 
     def _reset_all_shortcuts( self ):
         log( "### Resetting all shortcuts" )
+        log( repr( self.WARNING) )
         dialog = xbmcgui.Dialog()
         
+        shouldRun = None
+        if self.WARNING is not None and self.WARNING.lower() == "false":
+            shouldRun = True
+        
         # Ask the user if they're sure they want to do this
-        if dialog.yesno(__language__(32037), __language__(32038)):
+        if shouldRun is None:
+            shouldRun = dialog.yesno( __language__( 32037 ), __language__( 32038 ) )
+        
+        if shouldRun:
             for files in xbmcvfs.listdir( __datapath__ ):
                 # Try deleting all shortcuts
                 if files:
