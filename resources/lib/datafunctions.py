@@ -590,10 +590,11 @@ class DataFunctions():
                 returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
                 log( "### Matched " + labelID + " to " + currentProperty[1] )
                 log( "### - " + currentProperty[2] + " = " + currentProperty[3] )
-            if defaultID is not None and currentProperty[0] == group and currentProperty[4] == defaultID:
-                returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
-                log( "### Matched " + repr( defaultID ) + " to " + repr( currentProperty[4] ) )
-                log( "### - " + currentProperty[2] + " = " + currentProperty[3] )
+            if len( currentProperty ) is not 4:
+                if defaultID is not None and currentProperty[0] == group and currentProperty[4] == defaultID:
+                    returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
+                    log( "### Matched " + repr( defaultID ) + " to " + repr( currentProperty[4] ) )
+                    log( "### - " + currentProperty[2] + " = " + currentProperty[3] )
                 
         return returnProperties
             
