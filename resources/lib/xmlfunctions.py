@@ -305,7 +305,7 @@ class XMLFunctions():
             
             # If building the main menu, split the mainmenu shortcut nodes into the menuitems list
             if groups == "" or groups.split( "|" )[0] == "mainmenu":
-                for node in DATA._get_shortcuts( "mainmenu", True, profile[0] ).findall( "shortcut" ):
+                for node in DATA._get_shortcuts( "mainmenu", None, True, profile[0] ).findall( "shortcut" ):
                     menuitems.append( node )
                     
             # If building specific groups, split them into the menuitems list
@@ -328,11 +328,13 @@ class XMLFunctions():
                 itemidmainmenu += 1
                 progress.update( ( profilePercent * profileCount) + percent * i )
                 # If this is a main menu item...
+                submenuDefaultID = None
                 if not isinstance( item, basestring ):
                     submenu = item.find( "labelID" ).text
                     mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
                     if buildMode == "single":
                         mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
+                    submenuDefaultID = item.find( "defaultID" ).text
                 else:
                     submenu = DATA._get_labelID( item, None )
                     
@@ -357,7 +359,7 @@ class XMLFunctions():
                         
                     itemidsubmenu = 0
                         
-                    submenudata = DATA._get_shortcuts( submenu, True, profile[0] )
+                    submenudata = DATA._get_shortcuts( submenu, submenuDefaultID, True, profile[0] )
                     if type( submenudata ) == list:
                         submenuitems = submenudata
                     else:

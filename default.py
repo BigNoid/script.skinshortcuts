@@ -88,7 +88,7 @@ class Main:
         if self.TYPE=="launchpvr":
             xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Player.Open", "params": { "item": {"channelid": ' + self.CHANNEL + '} } }')
         if self.TYPE=="manage":
-            self._manage_shortcuts( self.GROUP, self.NOLABELS, self.GROUPNAME )
+            self._manage_shortcuts( self.GROUP, self.DEFAULTGROUP, self.NOLABELS, self.GROUPNAME )
         #if self.TYPE=="list":
         #    self._check_Window_Properties()
         #    self._list_shortcuts( self.GROUP )
@@ -177,6 +177,7 @@ class Main:
         self.NOLABELS = params.get( "nolabels", "false" ).lower()
         self.OPTIONS = params.get( "options", "" ).split( "|" )
         self.WARNING = params.get( "warning", None )
+        self.DEFAULTGROUP = params.get( "defaultGroup", None )
         
     def _check_Window_Properties( self ):
         # Check if the user has changed skin or profile
@@ -208,9 +209,9 @@ class Main:
                     xbmc.executebuiltin( singleAction )
         
     
-    def _manage_shortcuts( self, group, nolabels, groupname ):
+    def _manage_shortcuts( self, group, defaultGroup, nolabels, groupname ):
         import gui
-        ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group, nolabels=nolabels, groupname=groupname )
+        ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group, defaultGroup=defaultGroup, nolabels=nolabels, groupname=groupname )
         ui.doModal()
         del ui
         

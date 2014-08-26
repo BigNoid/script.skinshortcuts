@@ -49,6 +49,12 @@ def log(txt):
 class GUI( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
         self.group = kwargs[ "group" ]
+        try:
+            self.defaultGroup = kwargs[ "defaultGroup" ]
+            if self.defaultGroup == "":
+                self.defaultGroup = None
+        except:
+            self.defaultGroup = None
         self.nolabels = kwargs[ "nolabels" ]
         self.groupname = kwargs[ "groupname" ]
         self.shortcutgroup = 1
@@ -198,9 +204,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         DATA._clear_labelID()
         
         if includeUserShortcuts:
-            shortcuts = DATA._get_shortcuts( self.group )
+            shortcuts = DATA._get_shortcuts( self.group, defaultGroup = self.defaultGroup )
         else:
-            shortcuts = DATA._get_shortcuts( self.group, defaultsOnly = True )
+            shortcuts = DATA._get_shortcuts( self.group, defaultGroup = self.defaultGroup, defaultsOnly = True )
         
         listitems = []
         for shortcut in shortcuts.getroot().findall( "shortcut" ):
@@ -367,6 +373,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Generate labelID, and mark if it has changed
                     labelID = listitem.getProperty( "labelID" )
                     newlabelID = labelID
+                    # defaultID
+                    try:
+                        defaultID = listitem.getProperty( "defaultID" ).decode( "utf-8" )
+                    except:
+                        defaultID = listitem.getProperty( "defaultID" )
+                    
                     localizedString = listitem.getProperty( "localizedString" )
                     if localizedString is None or localizedString == "":
                         localLabel = DATA.local( listitem.getLabel() )
@@ -374,22 +386,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         localLabel = DATA.local( localizedString )
                     newlabelID = DATA._get_labelID( localLabel[3], listitem.getProperty( "path" ) )     
                     if self.group == "mainmenu":
-                        labelIDChanges.append( [labelID, newlabelID] )
+                        labelIDChanges.append( [labelID, newlabelID, defaultID] )
                         labelIDChangesDict[ labelID ] = newlabelID
                         
                     # We want to save this
                     shortcut = xmltree.SubElement( root, "shortcut" )
+                    xmltree.SubElement( shortcut, "defaultID" ).text = defaultID
                     
                     # Label and label2
                     xmltree.SubElement( shortcut, "label" ).text = localLabel[0]
                     xmltree.SubElement( shortcut, "label2" ).text = DATA.local( listitem.getLabel2() )[0]
-                    
-                    # defaultID
-                    try:
-                        defaultID = listitem.getProperty( "defaultID" ).decode( "utf-8" )
-                    except:
-                        defaultID = listitem.getProperty( "defaultID" )
-                    xmltree.SubElement( shortcut, "defaultID" ).text = defaultID
                     
                     # Icon and thumbnail
                     if listitem.getProperty( "original-icon" ):
@@ -428,6 +434,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Get the first labelID change, and check that we're not changing anything from that
                 labelIDFrom = labelIDChanges[0][0]
                 labelIDTo = labelIDChanges[0][1]
+                defaultIDFrom = labelIDChanges[0][2]
                 
                 # If labelIDFrom is empty. this is a new item so we want to set the From the same as the To
                 # (this will ensure any default .shortcuts file is copied across)
@@ -449,10 +456,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Make the change (0 - the main sub-menu, 1-5 - additional submenus )
                 for i in range( 0, 6 ):
                     if i == 0:
-                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( labelIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( labelIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [None, "New"]]
+                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( defaultIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( defaultIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [None, "New"]]
                         target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + ".DATA.xml" ).encode( "utf-8" )
                     else:
-                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".DATA,xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"]]
+                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".DATA,xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"]]
                         target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" )
                     
                     for path in paths:
@@ -465,22 +472,24 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             # The XML file exists
                             if path[1] == "Move":
                                 # Move the original to the target path
+                                log( "### Moving " + path[0] + " > " + target )
                                 xbmcvfs.rename( path[0], target )
                             else:
                                 # We're copying the file (actually, we'll re-write the file without
-                                # any LOCKED or defaultID elements)
+                                # any LOCKED elements)
                                 newtree = xmltree.parse( path[0] )
                                 for newnode in newtree.getroot().findall( "shortcut" ):
                                     searchNode = newnode.find( "locked" )
                                     if searchNode is not None:
                                         newnode.remove( searchNode )
-                                    searchNode = newnode.find( "defaultID" )
-                                    if searchNode is not None:
-                                        newnode.remove( searchNode )
+                                    #searchNode = newnode.find( "defaultID" )
+                                    #if searchNode is not None:
+                                    #    newnode.remove( searchNode )
                                         
                                 # Write it to the target
                                 DATA.indent( newtree.getroot() )
                                 newtree.write( target, encoding="utf-8" )
+                                log( "### Copying " + path[0] + " > " + target )
                             break
                             
                         elif xbmcvfs.exists( path[0].replace( ".DATA.xml", ".shortcuts" ) ):
@@ -1183,8 +1192,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Get the group we're about to edit
             launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
+            launchDefaultGroup = self.getControl( 211 ).getSelectedItem().getProperty( "defaultID" )
             groupName = self.getControl( 211 ).getSelectedItem().getLabel()
             
+            if launchDefaultGroup == None:
+                launchDefaultGroup = ""
+                            
             # If the labelID property is empty, we need to generate one
             if launchGroup is None or launchGroup == "":
                 DATA._clear_labelID()
@@ -1224,7 +1237,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 currentWindow.clearProperty( "overrideName" )
                 
             # Execute the script
-            xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&groupname=" + groupName + "&nolabels=" + self.nolabels + ")" )
+            xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&defaultGroup=" + launchDefaultGroup + "&groupname=" + groupName + "&nolabels=" + self.nolabels + ")" )
 
     # ========================
     # === HELPER FUNCTIONS ===

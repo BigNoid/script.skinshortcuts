@@ -113,7 +113,7 @@ class DataFunctions():
         self.labelIDList.pop()
     
                 
-    def _get_shortcuts( self, group, isXML = False, profileDir = None, defaultsOnly = False ):
+    def _get_shortcuts( self, group, defaultGroup = None, isXML = False, profileDir = None, defaultsOnly = False ):
         # This will load the shortcut file
         # Additionally, if the override files haven't been loaded, we'll load them too
         log( "Loading shortcuts for group " + group )
@@ -124,6 +124,10 @@ class DataFunctions():
         userShortcuts = os.path.join( profileDir, "addon_data", __addonid__, self.slugify( group ) + ".DATA.xml" ).encode('utf-8')
         skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".DATA.xml").encode('utf-8')
         defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".DATA.xml" ).encode('utf-8')
+        log( "### " + repr( defaultGroup ) )
+        if defaultGroup is not None:
+            skinShortcuts = os.path.join( __skinpath__ , self.slugify( defaultGroup ) + ".DATA.xml").encode('utf-8')    
+            defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( defaultGroup ) + ".DATA.xml" ).encode('utf-8')
 
         if defaultsOnly:
             paths = [skinShortcuts, defaultShortcuts ]
@@ -179,9 +183,11 @@ class DataFunctions():
                 searchNode = node.find( "locked" )
                 if searchNode is not None:
                     node.remove( searchNode )
-                searchNode = node.find( "defaultID" )
-                if searchNode is not None:
-                    node.remove( searchNode )
+                    
+            # Remove any labelID node (because it confuses us!)
+            searchNode = node.find( "labelID" )
+            if searchNode is not None:
+                node.remove( searchNode )
                     
             # Get the action
             action = node.find( "action" )
