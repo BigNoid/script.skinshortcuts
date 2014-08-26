@@ -124,7 +124,6 @@ class DataFunctions():
         userShortcuts = os.path.join( profileDir, "addon_data", __addonid__, self.slugify( group ) + ".DATA.xml" ).encode('utf-8')
         skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".DATA.xml").encode('utf-8')
         defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".DATA.xml" ).encode('utf-8')
-        log( "### " + repr( defaultGroup ) )
         if defaultGroup is not None:
             skinShortcuts = os.path.join( __skinpath__ , self.slugify( defaultGroup ) + ".DATA.xml").encode('utf-8')    
             defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( defaultGroup ) + ".DATA.xml" ).encode('utf-8')
@@ -210,7 +209,7 @@ class DataFunctions():
                     continue
                     
             # Check that any skin-required shortcut matches current skin
-            xmltree.SubElement( node, "additional-properties" ).text = repr( self.checkAdditionalProperties( group, labelID, isUserShortcuts ) )
+            xmltree.SubElement( node, "additional-properties" ).text = repr( self.checkAdditionalProperties( group, labelID, defaultID, isUserShortcuts ) )
                         
             # Get a skin-overriden icon
             overridenIcon = self._get_icon_overrides( skinoverrides, node.find( "icon" ).text, group, labelID )
@@ -463,29 +462,29 @@ class DataFunctions():
                     if elemSearch[0] == "custom":
                         # Custom property
                         if "group" not in elem.attrib:
-                            defaultProperties.append( ["mainmenu", elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text ] )
+                            defaultProperties.append( ["mainmenu", elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, elem.attrib.get( 'defaultID' ) ] )
                         else:
-                            defaultProperties.append( [elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text ] )
+                            defaultProperties.append( [elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, elem.attrib.get( 'defaultID' ) ] )
                     else:
                         # Widget or background
                         if "group" not in elem.attrib:
-                            defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
+                            defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), elemSearch[0], elem.text, elem.attrib.get( 'defaultID' ) ] )
                             if elemSearch[0] == "widget":
                                 # Get and set widget type and name
                                 widgetDetails = self._getWidgetNameAndType( elem.text )
                                 if widgetDetails is not None:
-                                    defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0] ] )
+                                    defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0], elem.attrib.get( 'defaultID' ) ] )
                                     if widgetDetails[1] is not None:
-                                        defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1] ] )
+                                        defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1], elem.attrib.get( 'defaultID' ) ] )
                         else:
-                            defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elemSearch[0], elem.text ] )
+                            defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elemSearch[0], elem.text, elem.attrib.get( 'defaultID' ) ] )
                             if elemSearch[0] == "widget":
                                 # Get and set widget type and name
                                 widgetDetails = self._getWidgetNameAndType( elem.text )
                                 if widgetDetails is not None:
-                                    defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0] ] )
+                                    defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0], elem.attrib.get( 'defaultID' ) ] )
                                     if widgetDetails[1] is not None:
-                                        defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1] ] )                
+                                        defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1], elem.attrib.get( 'defaultID' ) ] )                
                                         
         returnVal = [currentProperties, defaultProperties]
         return returnVal
@@ -566,7 +565,7 @@ class DataFunctions():
         return ""
         
         
-    def checkAdditionalProperties( self, group, labelID, isUserShortcuts ):
+    def checkAdditionalProperties( self, group, labelID, defaultID, isUserShortcuts ):
         # Return any additional properties, including widgets and backgrounds
         allProperties = self._get_additionalproperties()
         currentProperties = allProperties[1]
@@ -586,8 +585,15 @@ class DataFunctions():
             # currentProperty[1] = labelID
             # currentProperty[2] = Property name
             # currentProperty[3] = Property value
-            if currentProperty[0] == group and currentProperty[1] == labelID:
+            # currentProperty[4] = defaultID
+            if labelID is not None and currentProperty[0] == group and currentProperty[1] == labelID:
                 returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
+                log( "### Matched " + labelID + " to " + currentProperty[1] )
+                log( "### - " + currentProperty[2] + " = " + currentProperty[3] )
+            if defaultID is not None and currentProperty[0] == group and currentProperty[4] == defaultID:
+                returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
+                log( "### Matched " + repr( defaultID ) + " to " + repr( currentProperty[4] ) )
+                log( "### - " + currentProperty[2] + " = " + currentProperty[3] )
                 
         return returnProperties
             

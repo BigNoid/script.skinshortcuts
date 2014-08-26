@@ -5,6 +5,7 @@ What's New for Skinners (version 0.4.1 - development revision)
 -----------------------
 
  - Ability to skip warning when resetting all shortcuts. See "Resetting all shortcuts", below
+ - Ability to set default backgrounds and widgets based on defaultID. See "Advanced Usage.txt", section "Overrides.xml", parts 3 and 4
  - Advice change - consider providing a defaultID in your default shortcuts. See "Providing default shortcuts", below.
  
 

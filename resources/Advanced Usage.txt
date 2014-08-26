@@ -187,7 +187,7 @@ If you are using Skin Shortcuts to manage background images, provide a list of b
 [Label] - The display name of the background (can be a localised string)
 [GroupName] - [Optional] The group that the labelID must be in, for example "movies". If omitted, the default will apply to items in the main menu.
 [backgroundID] - A string you use to identify the background
-[labelID] - The labelID you are providing a default for.
+[labelID] - The labelID you are providing a default for. (Replace with defaultID="[defaultID]" to set default based on this property instead)
 
 If you want to let the user browse for either a single or multi-image background, also include:
 
@@ -221,7 +221,7 @@ If you are using Skin Shortcuts to manage widgets, provide a list of the widgets
 [type] - [Optional] A string you use to identy the type of widget (returned as property widgetType)
 [GroupName] - [Optional] The group that the labelID must be in, for example "movies". If omitted, the property will apply to items in the main menu.
 [widgetID] - A string you use to identify this widget
-[labelID] - The labelID you are setting the default for
+[labelID] - The labelID you are setting the default for. (Replace with defaultID="[defaultID]" to set default based on this property instead)
 
 If you want the user to be able to select a playlist as a widget, also include:
 

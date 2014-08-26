@@ -936,7 +936,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem = listControl.getSelectedItem()
             
             # Get the default widget for this item
-            defaultWidget = self.find_default( "widget", listitem.getProperty( "labelID" ) )
+            defaultWidget = self.find_default( "widget", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
             
             # Generate list of widgets for select dialog
             widget = [""]
@@ -1019,7 +1019,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 backgroundLabel = [__language__(32053)]
                 
             # Get the default background for this item
-            defaultBackground = self.find_default( "background", listitem.getProperty( "labelID" ) )
+            defaultBackground = self.find_default( "background", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
 
             # Generate list of backgrounds for the dialog
             for key in self.backgrounds:
@@ -1364,7 +1364,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         return True
         
-    def find_default( self, backgroundorwidget, labelID ):
+    def find_default( self, backgroundorwidget, labelID, defaultID ):
         # This function finds the id of an items default background or widget
         tree = DATA._get_overrides_skin()
         if tree is not None:
@@ -1375,7 +1375,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             if elems is not None:
                 for elem in elems:
-                    if elem.attrib.get( "labelID" ) == labelID:
+                    if elem.attrib.get( "labelID" ) == labelID or elem.attrib.get( "defaultID" ) == defaultID:
                         if "group" in elem.attrib:
                             if elem.attrib.get( "group" ) == self.group:
                                 return elem.text
@@ -1383,6 +1383,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                 continue
                         else:
                             return elem.text
+                                        
             return None
                         
     def _set_label( self, listitem, label ):

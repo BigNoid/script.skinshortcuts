@@ -2,6 +2,7 @@ v0.4.1 (Development revision)
 - [robweber] Fix for profiles shared via path substitution
 - Change how submenuVisibility property is generated
 - Skin and script default shortcuts now loaded from defaultID property
+- Ability to set background and widget defaults based on defaultID
 - Ability to skip warning when resetting all shortcuts
 
 v0.4.0
