@@ -506,9 +506,9 @@ class DataFunctions():
         tree = self._get_overrides_skin()
         if tree is not None:
             for elem in tree.findall( "widget" ):
-                xbmc.executebuiltin( "Skin.Reset(skinshortcuts-widget-" + elem.text )
+                xbmc.executebuiltin( "Skin.Reset(skinshortcuts-widget-" + elem.text + ")" )
             for elem in tree.findall( "background" ):
-                xbmc.executebuiltin( "Skin.Reset(skinshortcuts-background-" + elem.text )
+                xbmc.executebuiltin( "Skin.Reset(skinshortcuts-background-" + elem.text + ")" )
                 
     
     def createNiceName ( self, item ):

@@ -589,9 +589,11 @@ class XMLFunctions():
                         
                     # If this is a widget or background, set a skin setting to say it's enabled
                     if property[0] == "widget":
-                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-widget-" + property[1] )
+                        log( "### Setting bool skinshortcuts-widget-" + property[1] )
+                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-widget-" + property[1] + ")" )
                     elif property[0] == "background":
-                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] )
+                        log( "### Setting bool skinshortcuts-background-" + property[1] )
+                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
                         
                     # If this is the main menu, and we're cloning widgets or backgrounds...
                     if groupName == "mainmenu":
