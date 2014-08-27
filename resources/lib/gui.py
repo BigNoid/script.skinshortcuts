@@ -1237,7 +1237,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 currentWindow.clearProperty( "overrideName" )
                 
             # Execute the script
-            xbmc.executebuiltin( "RunScript(script.skinshortcuts,type=manage&group=" + launchGroup + "&defaultGroup=" + launchDefaultGroup + "&groupname=" + groupName + "&nolabels=" + self.nolabels + ")" )
+            currentWindow.setProperty( "additionalDialog", "True" )
+            import gui
+            ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=launchGroup, defaultGroup=launchDefaultGroup, nolabels=self.nolabels, groupname=groupName )
+            ui.doModal()
+            del ui
+            currentWindow.clearProperty( "additionalDialog" )
 
     # ========================
     # === HELPER FUNCTIONS ===

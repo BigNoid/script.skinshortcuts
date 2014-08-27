@@ -209,7 +209,7 @@ class Main:
                     xbmc.executebuiltin( singleAction )
         
     
-    def _manage_shortcuts( self, group, defaultGroup, nolabels, groupname ):
+    def _manage_shortcuts( self, group, defaultGroup, nolabels, groupname ):            
         import gui
         ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group, defaultGroup=defaultGroup, nolabels=nolabels, groupname=groupname )
         ui.doModal()
