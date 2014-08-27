@@ -27,6 +27,10 @@ You can also let the user choose to use a playlist for background images for use
 
 It may be advantageous for your submenu items to have the same background property as your main menu items. In which case, include &amp;options=clonebackgrounds in your buildxml command (multiple options can be separated with a pipe - | - symbol.
 
+If you wish to run code based on whether a particular background is active, the script will set the skin property skinshortcuts-background-[backgroundID] for each background currently selected for a menu item. For a background with the ID complexBackground for example, you could use the following in a condition:
+
+	condition="Skin.HasSetting(skinshortcuts-background-complexBackground)"
+
 Custom backgrounds are saved on a skin-by-skin basis.
 
 
@@ -54,6 +58,12 @@ And then set the content of the list as so:
 In all cases, remember to replace 9000 with the ID of the list containing the menu. Widgets are saved on a skin-by-skin basis.
 
 It may be advantageous for your submenu items to have the same background property as your main menu items. In which case, include &amp;options=clonewidgets in your buildxml command (multiple options can be separated with a pipe - | - symbol.
+
+If you wish to run code based on whether a particular widget is attached to a menu item, the script will set the skin property skinshortcuts-widget-[widgetID] for each widget currently selected for a menu item. For a widget with the ID complexWidget for example, you could use the following in a condition:
+
+	condition="Skin.HasSetting(skinshortcuts-widget-complexWidget)"
+
+Widgets are saved on a skin-by-skin basis.
 
 
 Multiple Sub-Menus

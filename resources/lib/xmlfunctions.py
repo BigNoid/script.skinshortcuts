@@ -263,6 +263,9 @@ class XMLFunctions():
         hashlist.list.append( ["::SCRIPTVER::", __addonversion__] )
         hashlist.list.append( ["::XBMCVER::", __xbmcversion__] )
         
+        # Clear any skin settings for backgrounds and widgets
+        DATA._reset_backgroundandwidgets()
+        
         # Create a new tree and includes for the various groups
         tree = xmltree.ElementTree( xmltree.Element( "includes" ) )
         root = tree.getroot()
@@ -583,6 +586,12 @@ class XMLFunctions():
                         additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
                     except:
                         additionalproperty.text = DATA.local( property[1] )[1]
+                        
+                    # If this is a widget or background, set a skin setting to say it's enabled
+                    if property[0] == "widget":
+                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-widget-" + property[1] )
+                    elif property[0] == "background":
+                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] )
                         
                     # If this is the main menu, and we're cloning widgets or backgrounds...
                     if groupName == "mainmenu":

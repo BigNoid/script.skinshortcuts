@@ -500,7 +500,16 @@ class DataFunctions():
                         return [ elem.attrib.get( "label" ), None ]
                         
         return None
-    
+                
+    def _reset_backgroundandwidgets( self ):
+        # This function resets all skin properties used to identify if specific backgrounds or widgets are active
+        tree = self._get_overrides_skin()
+        if tree is not None:
+            for elem in tree.findall( "widget" ):
+                xbmc.executebuiltin( "Skin.Reset(skinshortcuts-widget-" + elem.text )
+            for elem in tree.findall( "background" ):
+                xbmc.executebuiltin( "Skin.Reset(skinshortcuts-background-" + elem.text )
+                
     
     def createNiceName ( self, item ):
         # Translate certain localized strings into non-localized form for labelID
@@ -588,13 +597,9 @@ class DataFunctions():
             # currentProperty[4] = defaultID
             if labelID is not None and currentProperty[0] == group and currentProperty[1] == labelID:
                 returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
-                log( "### Matched " + labelID + " to " + currentProperty[1] )
-                log( "### - " + currentProperty[2] + " = " + currentProperty[3] )
             if len( currentProperty ) is not 4:
                 if defaultID is not None and currentProperty[0] == group and currentProperty[4] == defaultID:
                     returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
-                    log( "### Matched " + repr( defaultID ) + " to " + repr( currentProperty[4] ) )
-                    log( "### - " + currentProperty[2] + " = " + currentProperty[3] )
                 
         return returnProperties
             
