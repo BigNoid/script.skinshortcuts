@@ -1,4 +1,4 @@
-# XBMC Media Center language file
+# Kodi Media Center language file
 # Addon Name: Skin Shortcuts
 # Addon id: script.skinshortcuts
 # Addon Provider: Unfledged
@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: XBMC Translation Team\n"
+"Last-Translator: Kodi Translation Team\n"
 "Language-Team: Hungarian (http://www.transifex.com/projects/p/xbmc-addons/language/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -84,10 +84,6 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Sorozatok"
 
-msgctxt "#32017"
-msgid "PVR"
-msgstr "PVR"
-
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Videóklipek"
@@ -103,10 +99,6 @@ msgstr "Képek"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programok"
-
-msgctxt "#32022"
-msgid "PVR"
-msgstr "PVR"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -233,8 +225,8 @@ msgid "None"
 msgstr "Nincs"
 
 msgctxt "#32054"
-msgid "XBMC Command"
-msgstr "XBMC Parancs"
+msgid "Kodi Command"
+msgstr "Kodi Parancs"
 
 msgctxt "#32055"
 msgid "Clean video library"
@@ -245,8 +237,8 @@ msgid "Clean audio library"
 msgstr "Audió könyvtár tisztítása"
 
 msgctxt "#32057"
-msgid "XBMC Commands"
-msgstr "XBMC Parancsok"
+msgid "Kodi Commands"
+msgstr "Kodi Parancsok"
 
 msgctxt "#32058"
 msgid "Create shortcut to here"

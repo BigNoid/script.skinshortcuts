@@ -1,4 +1,4 @@
-# XBMC Media Center language file
+# Kodi Media Center language file
 # Addon Name: Skin Shortcuts
 # Addon id: script.skinshortcuts
 # Addon Provider: Unfledged
@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: XBMC Translation Team\n"
+"Last-Translator: Kodi Translation Team\n"
 "Language-Team: Finnish (http://www.transifex.com/projects/p/xbmc-addons/language/fi/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -48,10 +48,6 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "TV-Sarjat"
 
-msgctxt "#32017"
-msgid "PVR"
-msgstr "Suora televisiolähetys"
-
 msgctxt "#32019"
 msgid "Music"
 msgstr "Musiikki"
@@ -63,10 +59,6 @@ msgstr "Kuvat"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Ohjelmat"
-
-msgctxt "#32022"
-msgid "PVR"
-msgstr "Suora televisiolähetys"
 
 msgctxt "#32030"
 msgid "Video Library"
