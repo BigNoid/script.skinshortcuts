@@ -286,7 +286,7 @@ class DataFunctions():
                     if visibilityNode == None:
                         xmltree.SubElement( node, "visibility" ).text = additionalVisibility.text
                     else:
-                        visibilityNode.text = "[" + visibilityNode.text + "] + [" + node.text + "]"
+                        visibilityNode.text = "[" + visibilityNode.text + "] + [" + additionalVisibility.text + "]"
         
         return tree
         
