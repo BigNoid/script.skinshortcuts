@@ -461,7 +461,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         if labelIDChanges[x][0] == labelIDTo:
                             tempLocation = str( random.randrange(0,9999999999999999) )
                             labelIDChanges[0][1] = tempLocation
-                            labelIDChanges.append( [tempLocation, labelIDTo] )
+                            labelIDChanges.append( [tempLocation, labelIDTo, defaultIDFrom] )
                             labelIDTo = tempLocation
                             break
                             
