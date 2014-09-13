@@ -9,6 +9,7 @@ What's New for Skinners (version 0.4.1 - development revision)
  - Skin properties set for each background and widget that is active. See "Advanced Usage.txt", sections "Managing Custom Backgrounds" and "Managing Widgets".
  - Window property set when management dialog for submenu/additional menu is launched. See "Management Dialog.txt", part 6
  - Advice change - consider providing a defaultID in your default shortcuts. See "Providing default shortcuts", below.
+ - Shortcuts with a <visible/> element will not only show in management dialog if this property evaluates to true. Though they won't be visible in the management dialog, they will not be removed from the menu, but will move to the end of the menu.
  
 
 What's New for Skinners (version 0.4.0)

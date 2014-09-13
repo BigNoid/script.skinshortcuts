@@ -64,8 +64,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.widgetPlaylists = False
         self.widgetPlaylistsType = None
         
-        #self.currentProperties = []
-        #self.defaultProperties = []
+        self.hiddenitems = []
         
         self.changeMade = False
         
@@ -210,11 +209,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         listitems = []
         for shortcut in shortcuts.getroot().findall( "shortcut" ):
-            listitems.append( self._parse_shortcut( shortcut ) )
+            # Parse the shortcut, and add it to the visible or hidden list
+            item = self._parse_shortcut( shortcut )
+            if item[0] == True:
+                listitems.append( item[1] )
+            else:
+                self.hiddenitems.append( item[1] )
             
+        # Add all visible shortcuts to control 211
         if len( listitems ) != 0:
             self.getControl( 211 ).addItems( listitems )
         else:
+            # There are no visible shortcuts, add one
             listitem = xbmcgui.ListItem( __language__(32013), iconImage = "DefaultShortcut.png" )
             listitem.setProperty( "Path", 'noop' )
             listitem.setProperty( "icon", "DefaultShortcut.png" )
@@ -269,9 +275,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitem.setProperty( "shortcutType", localLabel2[0] )
         
         # Set any visible condition
+        isVisible = True
         visibleCondition = item.find( "visible" )
         if visibleCondition is not None:
             listitem.setProperty( "visible-condition", visibleCondition.text )
+            isVisible = xbmc.getCondVisibility( visibleCondition.text )
         
         # Check if the shortcut is locked
         locked = item.find( "lock" )
@@ -300,7 +308,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         else:
             listitem.setProperty( "additionalListItemProperties", "[]" )
         
-        return listitem
+        return [ isVisible, listitem ]
 
     def _get_icon_overrides( self, listitem, setToDefault = True ):
         # Start by getting the labelID
@@ -364,6 +372,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             labelIDChangesDict = {}
            
             DATA._clear_labelID()
+            
+            # Add any invisible shortcuts to the list
+            if len( self.hiddenitems ) != 0:
+                self.getControl( 211 ).addItems( self.hiddenitems )
             
             for x in range( 0, self.getControl( 211 ).size() ):
                 listitem = self.getControl( 211 ).getListItem( x )

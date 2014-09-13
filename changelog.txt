@@ -6,6 +6,7 @@ v0.4.1 (Development revision)
 - Ability to skip warning when resetting all shortcuts
 - Skin settings set to identify which backgrounds and widgets have been selected by user
 - Window property to identify when additional management dialog has been launched
+- Custom visibility properties are now honoured by management dialog
 
 v0.4.0
 - New localisation code
