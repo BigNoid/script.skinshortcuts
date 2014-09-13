@@ -937,6 +937,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             self.getControl( 211 ).reset()
             
+            self.hiddenitems = []
+            
             # Call the load shortcuts function, but add that we don't want
             # previously saved user shortcuts
             self.load_shortcuts( False )
