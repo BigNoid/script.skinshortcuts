@@ -711,7 +711,11 @@ class LibraryFunctions():
                     unordered += 1
                 
                 # Get the icon
-                icon = tree.find( "icon" ).text
+                icon = tree.find( "icon" )
+                if icon is not None:
+                    icon = icon.text
+                else:
+                    icon = ""
                 
                 if returnType is None:
                     # If we've not been asked to ignore sub-dirs, we're going to re-call this
@@ -759,7 +763,11 @@ class LibraryFunctions():
                         #    label = "::LOCAL::" + label
                         
                         # Get the itcon
-                        nodeicon = tree.find( "icon" ).text
+                        nodeicon = tree.find( "icon" )
+                        if nodeicon is not None:
+                            nodeicon = nodeicon.text
+                        else:
+                            nodeicon = ""
                         
                         # Check if we know a 'pretty' way of accessing this item
                         prettyLink = self._pretty_videonode( file, type, tree )
