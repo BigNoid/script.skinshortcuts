@@ -9,6 +9,9 @@ from traceback import print_exc
 from htmlentitydefs import name2codepoint
 from unidecode import unidecode
 
+import nodefunctions
+NODE = nodefunctions.NodeFunctions()
+
 __addon__        = xbmcaddon.Addon()
 __addonid__      = __addon__.getAddonInfo('id').decode( 'utf-8' )
 __addonversion__ = __addon__.getAddonInfo('version')
@@ -570,6 +573,14 @@ class DataFunctions():
             return "PVR.HasTVChannels"
         if action.startswith( "ActivateWindow(Radio" ):
             return "PVR.HasRadioChannels"
+            
+        # Video node visibility
+        if action.startswith( "ActivateWindow(Videos,videodb://" ) or action.startswith( "ActivateWindow(10025,videodb://" ) or action.startswith( "ActivateWindow(Videos,library://video/" ) or action.startswith( "ActivateWindow(10025,library://video/" ):
+            path = action.split( "," )
+            if path[ 1 ].endswith( ")" ):
+                path[ 1 ] = path[ 1 ][:-1]
+            log( NODE.get_visibility( path[ 1 ] ) )
+            return NODE.get_visibility( path[ 1 ] )
             
         return ""
         
