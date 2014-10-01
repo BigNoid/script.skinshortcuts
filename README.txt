@@ -9,6 +9,7 @@ What's New for Skinners (version 0.4.1 - development revision)
  - Skin properties set for each background and widget that is active. See "Advanced Usage.txt", sections "Managing Custom Backgrounds" and "Managing Widgets".
  - Window property set when management dialog for submenu/additional menu is launched. See "Management Dialog.txt", part 6
  - Advice change - consider providing a defaultID in your default shortcuts. See "Providing default shortcuts", below.
+ - Advice change - use video node links, rather than library links, in your default shortcuts. See "Providing default shortcuts" below; and "Advanced Usage.txt", section "Overrides.xml", part 1.
  - Shortcuts with a <visible/> element will not only show in management dialog if this property evaluates to true. Though they won't be visible in the management dialog, they will not be removed from the menu, but will move to the end of the menu.
  
 
@@ -270,6 +271,18 @@ The file format is simple enough:
 If you want to provide a default which links to a playlist you include with your skin, then make sure the .shortcuts file uses the special protocol (e.g. special://skin/) as the URI to it. The script will replace this with a localised version, so that the playlist link will continue to work even if the user switches to another skin supporting skin shortcuts.
 
 Particularly when setting defaults for the main menu, you may wish to include the <defaultID> element. This will set the [groupname] of the submenu's .DATA.xml file. (e.g. defaultID of tvshows -> tvshows.DATA.xml). Please note, any defaultID must follow the standard rules - all lowercase, all english characters, no spaces.
+
+As Skin Shortcuts will integrate with a Video Node Editor script (for skins where the script manages the full menu), it is strongly suggested that default shortcuts use video nodes rather than library shortcuts where appropriate.
+
+For example, a link to movie titles should be:
+
+	<action>ActivateWindow(10025,videodb://movies/titles/,Return)</action>
+	
+rather than
+
+	<action>ActivateWindow(10025,MovieTitles,Return)</action>
+	
+This will ensure that any users modifying the default Movies node (for example) will access the content they expect rather than, as video library links provide, all content.
 	
 	
 Properties returned

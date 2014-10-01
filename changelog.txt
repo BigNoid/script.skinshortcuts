@@ -7,6 +7,7 @@ v0.4.1 (Development revision)
 - Skin settings set to identify which backgrounds and widgets have been selected by user
 - Window property to identify when additional management dialog has been launched
 - Custom visibility properties are now honoured by management dialog
+- Shortcuts always use video nodes (where appropriate) rather than library links
 
 v0.4.0
 - New localisation code

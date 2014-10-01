@@ -146,6 +146,8 @@ Note, any override will replace the original menu item with one which is only vi
 	</override>
 </overrides>
 
+Please be aware that in the latest revisions of the script, library links - ActivateWindow(Videos,MovieTitles) - have been replaced by video nodes - ActivateWindow(Videos,videodb://movies/titles/). You should ensure any overrides work with both types of link.
+
 IMPORTANT: User choice MUST be respected when overriding actions. That is to say, unless the user specifically gives permission for a shortcut they have chosen to do something else, it should be left alone. If you are overriding the action, it is expected that in most cases you will use a visibility condition - possibly linked to a skin settings - to ensure the user has consented.
 
 Users can also provide an overrides.xml file to override actions in special://profile/
