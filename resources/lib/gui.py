@@ -786,8 +786,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( "Path", 'noop' )
             
             # Add new item to both displayed list and list kept in memory
-            listControl.addItem( listitem )
+            #listControl.addItem( listitem )
             self.allListItems.append( listitem )
+            self._display_listitems( listControl.size() )
             
             # Set focus
             listControl.selectItem( listControl.size() -1 )
