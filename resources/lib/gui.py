@@ -64,7 +64,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.widgetPlaylists = False
         self.widgetPlaylistsType = None
         
-        self.hiddenitems = []
+        self.allListItems = []
         
         self.changeMade = False
         
@@ -193,10 +193,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self._display_shortcuts()
             except:
                 log( "No list of shortcuts to choose from on GUI" )
-        
+
+                
     # ======================
     # === LOAD/SAVE DATA ===
     # ======================
+
     
     def load_shortcuts( self, includeUserShortcuts = True, addShortcutsToWindow = True ):
         log( "Loading shortcuts" )
@@ -207,28 +209,71 @@ class GUI( xbmcgui.WindowXMLDialog ):
         else:
             shortcuts = DATA._get_shortcuts( self.group, defaultGroup = self.defaultGroup, defaultsOnly = True )
         
-        listitems = []
+        #listitems = []
         for shortcut in shortcuts.getroot().findall( "shortcut" ):
-            # Parse the shortcut, and add it to the visible or hidden list
+            # Parse the shortcut, and add it to the list of shortcuts
             item = self._parse_shortcut( shortcut )
-            if item[0] == True:
-                listitems.append( item[1] )
-            else:
-                self.hiddenitems.append( item[1] )
+            self.allListItems.append( item[1] )
             
+            #if item[0] == True:
+            #    listitems.append( item[1] )
+            #else:
+            #    self.hiddenitems.append( item[1] )
+        
         # Add all visible shortcuts to control 211
-        if len( listitems ) != 0:
-            self.getControl( 211 ).addItems( listitems )
-        else:
-            # There are no visible shortcuts, add one
+        self._display_listitems()
+        
+        #if len( listitems ) != 0:
+        #    self.getControl( 211 ).addItems( listitems )
+        #else:
+        #    # There are no visible shortcuts, add one
+        #    listitem = xbmcgui.ListItem( __language__(32013), iconImage = "DefaultShortcut.png" )
+        #    listitem.setProperty( "Path", 'noop' )
+        #    listitem.setProperty( "icon", "DefaultShortcut.png" )
+        #    
+        #    self.getControl( 211 ).addItem( listitem )
+        #    
+        #    # Set focus
+        #    self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+        
+    def _display_listitems( self, focus = None ):
+        # Displays listitems that are visible from self.allListItems
+        
+        # Initial properties
+        count = 0
+        DATA._clear_labelID()
+        listitems = []
+        
+        # If there are no shortcuts, add a blank one
+        if len( self.allListItems ) == 0:
             listitem = xbmcgui.ListItem( __language__(32013), iconImage = "DefaultShortcut.png" )
             listitem.setProperty( "Path", 'noop' )
             listitem.setProperty( "icon", "DefaultShortcut.png" )
+            self.allListItems = [ listitem ]
+        
+        for listitem in self.allListItems:
+            # Get icon overrides
+            self._get_icon_overrides( listitem )
             
-            self.getControl( 211 ).addItem( listitem )
+            # Set order index in case its changed
+            listitem.setProperty( "skinshortcuts-orderindex", str( count ) )
             
-            # Set focus
-            self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
+            shouldDisplay = True
+            # Check for a visibility condition
+            if listitem.getProperty( "visible-condition" ):
+                shouldDisplay = xbmc.getCondVisibility( listitem.getProperty( "visible-condition" ) )
+                
+            if shouldDisplay == True:
+                listitems.append( listitem )
+                
+            # Increase our count
+            count += 1
+                
+        self.getControl( 211 ).reset()
+        self.getControl( 211 ).addItems( listitems )
+        if focus is not None:
+            self.getControl( 211 ).selectItem( focus )
+            
         
     def _parse_shortcut( self, item ):
         # Parse a shortcut node
@@ -374,11 +419,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             DATA._clear_labelID()
             
             # Add any invisible shortcuts to the list
-            if len( self.hiddenitems ) != 0:
-                self.getControl( 211 ).addItems( self.hiddenitems )
+            #if len( self.hiddenitems ) != 0:
+            #    self.getControl( 211 ).addItems( self.hiddenitems )
             
-            for x in range( 0, self.getControl( 211 ).size() ):
-                listitem = self.getControl( 211 ).getListItem( x )
+            #for x in range( 0, self.getControl( 211 ).size() ):
+            #    listitem = self.getControl( 211 ).getListItem( x )
+            for listitem in self.allListItems:
                 
                 # If the item has a label...
                 if listitem.getLabel() != __language__(32013):
@@ -610,11 +656,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             elem = tree.find('backgroundBrowse')
             if elem is not None and elem.text == "True":
                 self.backgroundBrowse = True
+
                 
     # ========================
     # === GUI INTERACTIONS ===
     # ========================
 
+    
     def onClick(self, controlID):
         if controlID == 102:
             # Move to previous type of shortcuts
@@ -637,6 +685,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             log( "Select shortcut (111)" )
             listControl = self.getControl( 211 )
             itemIndex = listControl.getSelectedPosition()
+            orderIndex = int( listControl.getListItem( itemIndex ).getProperty( "skinshortcuts-orderindex" ) )
             altAction = None
             
             if self.warnonremoval( listControl.getListItem( itemIndex ) ) == False:
@@ -697,6 +746,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             self.changeMade = True
             
+            # Replace the allListItems listitem with our new list item
+            self.allListItems[ orderIndex ] = listitemCopy
+            
+            # Delete playlist (TO BE REMOVED!)
+            LIBRARY._delete_playlist( listControl.getListItem( itemIndex ).getProperty( "path" ) )
+            
+            # Display list items
+            self._display_listitems( focus = itemIndex )
+            
+            return
+            
             # Update the list
             listitems = []
             DATA._clear_labelID()
@@ -725,7 +785,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem = xbmcgui.ListItem( __language__(32013) )
             listitem.setProperty( "Path", 'noop' )
             
+            # Add new item to both displayed list and list kept in memory
             listControl.addItem( listitem )
+            self.allListItems.append( listitem )
             
             # Set focus
             listControl.selectItem( listControl.size() -1 )
@@ -736,14 +798,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.changeMade = True
             
             listControl = self.getControl( 211 )
-            num = self.getControl( 211 ).getSelectedPosition()
+            num = listControl.getSelectedPosition()
+            orderIndex = int( listControl.getListItem( num ).getProperty( "skinshortcuts-orderindex" ) )
             
             if self.warnonremoval( listControl.getListItem( num ) ) == False:
                 return
             
-            LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
+            LIBRARY._delete_playlist( listControl.getListItem( num ).getProperty( "path" ) )
             
             self.changeMade = True
+            
+            # Remove item from memory list, and reload all list items
+            self.allListItems.pop( orderIndex )
+            self._display_listitems( num )
+            
+            return
+            
             itemIndex = listControl.getSelectedPosition()
             listControl.removeItem( itemIndex )
             listControl.selectItem( itemIndex )
@@ -780,10 +850,34 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listControl = self.getControl( 211 )
             
             itemIndex = listControl.getSelectedPosition()
+            orderIndex = int( listControl.getListItem( itemIndex ).getProperty( "skinshortcuts-orderindex" ) )
             if itemIndex == 0:
+                # Top item, can't move it up
                 return
                 
             self.changeMade = True
+                
+            while True:
+                # Move the item one up in the list
+                self.allListItems[ orderIndex - 1 ], self.allListItems[ orderIndex ] = self.allListItems[ orderIndex ], self.allListItems[ orderIndex - 1 ]
+                
+                # If we've just moved to the top of the list, break
+                if orderIndex == 1:
+                    break
+                    
+                # Check if the item we've just swapped is visible
+                shouldBreak = True
+                if self.allListItems[ orderIndex ].getProperty( "visible-condition" ):
+                    shouldBreak = xbmc.getCondVisibility( self.allListItems[ orderIndex ].getProperty( "visible-condition" ) )
+                    
+                if shouldBreak:
+                    break
+                    
+                orderIndex -= 1
+                    
+            # Display the updated order
+            self._display_listitems( orderIndex - 1 )
+            return
             
             listitem = self._duplicate_listitem( listControl.getListItem( itemIndex ) )
             swapitem = self._duplicate_listitem( listControl.getListItem( itemIndex - 1) )
@@ -814,10 +908,36 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listControl = self.getControl( 211 )
             
             itemIndex = listControl.getSelectedPosition()
-            if itemIndex > listControl.size():
+            orderIndex = int( listControl.getListItem( itemIndex ).getProperty( "skinshortcuts-orderindex" ) )
+            
+            log( str( itemIndex ) + " : " + str( listControl.size() ) )
+            
+            if itemIndex == listControl.size() - 1:
                 return
                 
             self.changeMade = True
+            
+            while True:
+                # Move the item one up in the list
+                self.allListItems[ orderIndex + 1 ], self.allListItems[ orderIndex ] = self.allListItems[ orderIndex ], self.allListItems[ orderIndex + 1 ]
+                
+                # If we've just moved to the top of the list, break
+                if orderIndex == len( self.allListItems ) - 1:
+                    break
+                    
+                # Check if the item we've just swapped is visible
+                shouldBreak = True
+                if self.allListItems[ orderIndex ].getProperty( "visible-condition" ):
+                    shouldBreak = xbmc.getCondVisibility( self.allListItems[ orderIndex ].getProperty( "visible-condition" ) )
+                    
+                if shouldBreak:
+                    break
+                    
+                orderIndex += 1
+                    
+            # Display the updated order
+            self._display_listitems( orderIndex + 1 )
+            return
             
             listitem = self._duplicate_listitem( listControl.getListItem( itemIndex ) )
             swapitem = self._duplicate_listitem( listControl.getListItem( itemIndex + 1 ) )
@@ -937,7 +1057,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             self.getControl( 211 ).reset()
             
-            self.hiddenitems = []
+            self.allListItems = []
             
             # Call the load shortcuts function, but add that we don't want
             # previously saved user shortcuts
@@ -1104,6 +1224,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             log( "Select shortcut (401)" )
             
             num = self.getControl( 211 ).getSelectedPosition()
+            orderIndex = int( self.getControl( 211 ).getListItem( num ).getProperty( "skinshortcuts-orderindex" ) )
             
             if self.warnonremoval( self.getControl( 211 ).getListItem( num ) ) == False:
                 return
@@ -1117,6 +1238,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
             
                 self.changeMade = True
+                
+                self.allListItems[ orderIndex ] = listitemCopy
+                self._display_listitems( num )
+                
+                return
                 
                 # Loop through the original list, and replace the currently selected listitem with our new listitem
                 listitems = []
@@ -1216,10 +1342,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if launchGroup is None or launchGroup == "":
                 DATA._clear_labelID()
                 num = self.getControl( 211 ).getSelectedPosition()
+                orderIndex = int( self.getControl( 211 ).getListItem( num ) )
+                
+                count = 0
+                for listitem in self.allListItems:
+                    if count != num:
+                        DATA._get_labelID( listitem.getProperty( "labelID" ), listitem.getProperty( "path" ) )
+                    
                 # Get the labelID's of all other menu items
-                for x in range(0, self.getControl( 211 ).size()):
-                    if not x == num:
-                        DATA._get_labelID( self.getControl( 211 ).getListItem( x ).getProperty( "labelID" ), self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
+                #for x in range(0, self.getControl( 211 ).size()):
+                #    if not x == num:
+                #        DATA._get_labelID( self.getControl( 211 ).getListItem( x ).getProperty( "labelID" ), self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
                         
                 # Now generate labelID for this menu item
                 labelID = self.getControl( 211 ).getListItem( num ).getProperty( "localizedString" )
@@ -1257,6 +1390,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             ui.doModal()
             del ui
             currentWindow.clearProperty( "additionalDialog" )
+
+
 
     # ========================
     # === HELPER FUNCTIONS ===

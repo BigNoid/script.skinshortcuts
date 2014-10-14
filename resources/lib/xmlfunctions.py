@@ -308,8 +308,13 @@ class XMLFunctions():
             
             # If building the main menu, split the mainmenu shortcut nodes into the menuitems list
             if groups == "" or groups.split( "|" )[0] == "mainmenu":
+                # Set a skinstring that marks that we're providing the whole menu
+                xbmc.executebuiltin( "Skin.SetBool(SkinShortcuts-FullMenu)" )
                 for node in DATA._get_shortcuts( "mainmenu", None, True, profile[0] ).findall( "shortcut" ):
                     menuitems.append( node )
+            else:
+                # Clear any skinstring marking that we're providing the whole menu
+                xbmc.executebuiltin( "Skin.Reset(SkinShortcuts-FullMenu)" )
                     
             # If building specific groups, split them into the menuitems list
             count = 0

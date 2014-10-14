@@ -133,6 +133,12 @@ class Main:
                     xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "icon" ) + ")" )
                 if self.THUMBNAIL is not None and selectedShortcut.getProperty( "thumbnail" ):
                     xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "thumbnail" ) + ")" )
+                    
+        if self.TYPE=="addNode":
+            # We've been sent a node from plugin.program.video.node.editor
+            log( self.OPTIONS )
+            targetDir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" )
+            log( targetDir )
                 
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
