@@ -9,6 +9,11 @@ from traceback import print_exc
 from htmlentitydefs import name2codepoint
 from unidecode import unidecode
 
+if sys.version_info < (2, 7):
+    import simplejson
+else:
+    import json as simplejson
+
 __addon__        = xbmcaddon.Addon()
 __addonid__      = __addon__.getAddonInfo('id').decode( 'utf-8' )
 __addonversion__ = __addon__.getAddonInfo('version')
@@ -48,6 +53,10 @@ def log(txt):
 class NodeFunctions():
     def __init__(self):
         self.indexCounter = 0
+        
+    ##############################################
+    # Functions used by library.py to list nodes #
+    ##############################################
         
     def get_video_nodes( self, path ):
         dirs, files = xbmcvfs.listdir( path )
@@ -178,3 +187,45 @@ class NodeFunctions():
                 return ""
         except:
             return False
+            
+    ############################################
+    # Functions used to add a node to the menu #
+    ############################################
+
+    def addNodeToMenu( self, node, label, DATA ):
+        # Get a list of all nodes within
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + node + '", "media": "files" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+        
+        log( repr( json_response ) )
+        
+        labels = []
+        paths = []
+        
+        # Add all directories returned by the json query
+        if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
+            for item in json_response['result']['files']:
+                labels.append( item[ "label" ] )
+                paths.append( item[ "file" ] )
+                        
+        log( repr( paths ) )
+        
+        if len( paths ) == 0:
+            return False
+            
+        # Show a select dialog so the user can pick the default action
+        selected = xbmcgui.Dialog().select( "Choose default action for menu item", labels )
+        
+        if selected == -1 or selected is None:
+            # User cancelled
+            return True
+            
+        # We have all the information we need to add the node to the menu :)
+        
+        # Load existing main menu items
+        menuitems = DATA._get_shortcuts( "mainmenu" )
+        DATA._clear_labelID()
+        for menuitem in menuitems.findall( "shortcut" ):
+            # Get items labelID
+            log( "Report to here" )

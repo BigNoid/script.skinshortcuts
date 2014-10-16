@@ -32,11 +32,9 @@ __xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
 sys.path.append(__resource__)
 
-import xmlfunctions
+import xmlfunctions, datafunctions, library, nodefunctions
 XML = xmlfunctions.XMLFunctions()
-import datafunctions
 DATA = datafunctions.DataFunctions()
-import library
 LIBRARY = library.LibraryFunctions()
 
 hashlist = []
@@ -137,8 +135,16 @@ class Main:
         if self.TYPE=="addNode":
             # We've been sent a node from plugin.program.video.node.editor
             log( self.OPTIONS )
-            targetDir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" )
+            #if self.OPTIONS[ 0 ].startswith( "/" ):
+            #    self.OPTIONS[ 0 ] = self.OPTIONS[ 0 ][1:]
+                
+            targetDir = "library://video" + self.OPTIONS[ 0 ]
+            #targetDir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video", self.OPTIONS[ 0 ] )
+            #if not xbmcvfs.exists( targetDir ):
+            #    targetDir = os.path.join( xbmc.translatePath( "special://xbmc".decode( "utf-8" ) ), 
             log( targetDir )
+            
+            nodefunctions.NodeFunctions().addNodeToMenu( targetDir, self.OPTIONS[ 1 ], DATA )
                 
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
