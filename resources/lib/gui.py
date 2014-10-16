@@ -456,7 +456,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
                     # Additional properties
                     if listitem.getProperty( "additionalListItemProperties" ):
-                        properties.append( [ labelID, eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
+                        properties.append( [ newlabelID, eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
                         
             # Save the shortcuts
             DATA.indent( root )
