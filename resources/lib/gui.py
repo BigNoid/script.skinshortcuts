@@ -214,27 +214,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Parse the shortcut, and add it to the list of shortcuts
             item = self._parse_shortcut( shortcut )
             self.allListItems.append( item[1] )
-            
-            #if item[0] == True:
-            #    listitems.append( item[1] )
-            #else:
-            #    self.hiddenitems.append( item[1] )
         
         # Add all visible shortcuts to control 211
         self._display_listitems()
-        
-        #if len( listitems ) != 0:
-        #    self.getControl( 211 ).addItems( listitems )
-        #else:
-        #    # There are no visible shortcuts, add one
-        #    listitem = xbmcgui.ListItem( __language__(32013), iconImage = "DefaultShortcut.png" )
-        #    listitem.setProperty( "Path", 'noop' )
-        #    listitem.setProperty( "icon", "DefaultShortcut.png" )
-        #    
-        #    self.getControl( 211 ).addItem( listitem )
-        #    
-        #    # Set focus
-        #    self.getControl( 211 ).selectItem( self.getControl( 211 ).size() -1 )
         
     def _display_listitems( self, focus = None ):
         # Displays listitems that are visible from self.allListItems
@@ -418,12 +400,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
            
             DATA._clear_labelID()
             
-            # Add any invisible shortcuts to the list
-            #if len( self.hiddenitems ) != 0:
-            #    self.getControl( 211 ).addItems( self.hiddenitems )
-            
-            #for x in range( 0, self.getControl( 211 ).size() ):
-            #    listitem = self.getControl( 211 ).getListItem( x )
             for listitem in self.allListItems:
                 
                 # If the item has a label...
@@ -754,27 +730,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Display list items
             self._display_listitems( focus = itemIndex )
-            
-            return
-            
-            # Update the list
-            listitems = []
-            DATA._clear_labelID()
-            for x in range( 0, listControl.size() ):
-                if x == itemIndex:
-                    # Where the new shortcut should go
-                    LIBRARY._delete_playlist(listControl.getListItem( itemIndex ).getProperty( "path" ) )
-                    self._get_icon_overrides( listitemCopy )
-                    listitems.append( listitemCopy )
-                else:
-                    listitemOriginal = self._duplicate_listitem( listControl.getListItem( x ) )
-                    self._get_icon_overrides( listitemOriginal )
-                    listitems.append( listitemOriginal )
-            
-            listControl.reset()
-            listControl.addItems( listitems )
-            listControl.selectItem( itemIndex )
-            
         
         if controlID == 301:
             # Add a new item
@@ -786,7 +741,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( "Path", 'noop' )
             
             # Add new item to both displayed list and list kept in memory
-            #listControl.addItem( listitem )
             self.allListItems.append( listitem )
             self._display_listitems( listControl.size() )
             
@@ -812,38 +766,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Remove item from memory list, and reload all list items
             self.allListItems.pop( orderIndex )
             self._display_listitems( num )
-            
-            return
-            
-            itemIndex = listControl.getSelectedPosition()
-            listControl.removeItem( itemIndex )
-            listControl.selectItem( itemIndex )
-            
-            # If there are no other items in the list...
-            if not listControl.size() == 0:
-                # We're going to replace all the items, to ensure
-                # overrides are up to date
-                listitems = []
-                DATA._clear_labelID()
-                for x in range(0, self.getControl( 211 ).size()):
-                    # Duplicate the item and add it to the listitems array
-                    listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                    self._get_icon_overrides( listitemShortcutCopy )
-                    listitems.append(listitemShortcutCopy)
-                        
-                self.getControl( 211 ).reset()
-                self.getControl( 211 ).addItems(listitems)
-                
-                self.getControl( 211 ).selectItem( num )
-
-            else:
-                listitem = xbmcgui.ListItem( __language__(32013) )
-                listitem.setProperty( "Path", 'noop' )
-                
-                listControl.addItem( listitem )
-                
-                # Set focus
-                listControl.selectItem( listControl.size() -1 )
             
         if controlID == 303:
             # Move item up in list
@@ -878,30 +800,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
             # Display the updated order
             self._display_listitems( orderIndex - 1 )
-            return
-            
-            listitem = self._duplicate_listitem( listControl.getListItem( itemIndex ) )
-            swapitem = self._duplicate_listitem( listControl.getListItem( itemIndex - 1) )
-            
-            listitems = []
-            DATA._clear_labelID()
-            for x in range( 0 , listControl.size() ):
-                if x == itemIndex:
-                    # Where the original item was
-                    self._get_icon_overrides( swapitem )
-                    listitems.append( swapitem )
-                elif x == itemIndex - 1:
-                    # Where we want the item
-                    self._get_icon_overrides( listitem )
-                    listitems.append( listitem )
-                else:
-                    listitemCopy = self._duplicate_listitem( listControl.getListItem(x) )
-                    self._get_icon_overrides( listitemCopy )
-                    listitems.append( listitemCopy )
-                    
-            listControl.reset()
-            listControl.addItems( listitems )
-            listControl.selectItem( itemIndex - 1 )
             
         if controlID == 304:
             # Move item down in list
@@ -938,30 +836,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
             # Display the updated order
             self._display_listitems( orderIndex + 1 )
-            return
-            
-            listitem = self._duplicate_listitem( listControl.getListItem( itemIndex ) )
-            swapitem = self._duplicate_listitem( listControl.getListItem( itemIndex + 1 ) )
-            
-            listitems = []
-            DATA._clear_labelID()
-            for x in range( 0, listControl.size() ):
-                if x == itemIndex:
-                    # Where the original item was
-                    self._get_icon_overrides( swapitem )
-                    listitems.append( swapitem )
-                elif x == itemIndex + 1:
-                    # Where we want the item
-                    self._get_icon_overrides( listitem )
-                    listitems.append( listitem )
-                else:
-                    listitemCopy = self._duplicate_listitem( listControl.getListItem(x) )
-                    self._get_icon_overrides( listitemCopy )
-                    listitems.append( listitemCopy )
-                    
-            listControl.reset()
-            listControl.addItems( listitems )
-            listControl.selectItem( itemIndex + 1 )
 
         if controlID == 305:
             # Change label
@@ -1242,26 +1116,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 self.allListItems[ orderIndex ] = listitemCopy
                 self._display_listitems( num )
-                
-                return
-                
-                # Loop through the original list, and replace the currently selected listitem with our new listitem
-                listitems = []
-                DATA._clear_labelID()
-                for x in range(0, self.getControl( 211 ).size()):
-                    if x == num:
-                        self._get_icon_overrides( listitemCopy )
-                        listitems.append(listitemCopy)
-                    else:
-                        # Duplicate the item and add it to the listitems array
-                        listitemShortcutCopy = self._duplicate_listitem( self.getControl( 211 ).getListItem(x) )
-                        self._get_icon_overrides( listitemShortcutCopy )
-                        listitems.append(listitemShortcutCopy)
-                        
-                self.getControl( 211 ).reset()
-                self.getControl( 211 ).addItems(listitems)
-                
-                self.getControl( 211 ).selectItem( num )
                     
         if controlID == 404:
             # Set custom property
@@ -1346,16 +1200,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 orderIndex = int( self.getControl( 211 ).getListItem( num ) )
                 
                 count = 0
-                for listitem in self.allListItems:
-                    if count != num:
-                        DATA._get_labelID( listitem.getProperty( "labelID" ), listitem.getProperty( "path" ) )
-                    
                 # Get the labelID's of all other menu items
-                #for x in range(0, self.getControl( 211 ).size()):
-                #    if not x == num:
-                #        DATA._get_labelID( self.getControl( 211 ).getListItem( x ).getProperty( "labelID" ), self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
-                        
-                # Now generate labelID for this menu item
+                for listitem in self.allListItems:
+                    if count != orderIndex:
+                        DATA._get_labelID( listitem.getProperty( "labelID" ), listitem.getProperty( "path" ) )
+                
+                # Now generate labelID for this menu item, if it doesn't have one
                 labelID = self.getControl( 211 ).getListItem( num ).getProperty( "localizedString" )
                 if labelID is None or labelID == "":
                     launchGroup = self._get_labelID( self.getControl( 211 ).getListItem( num ).getLabel(), self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
@@ -1423,10 +1273,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
         listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
-        
-        if listitem.getProperty( "visible-condition" ):
-            listitemCopy.setProperty( "visible-condition", listitem.getProperty( "visible-condition" ) )
-        
+                
         if listitem.getProperty( "LOCKED" ):
             listitemCopy.setProperty( "LOCKED", listitem.getProperty( "LOCKED" ) )
             
@@ -1446,6 +1293,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # If we've haven't been passed an originallistitem, set the following from the listitem we were passed
         if originallistitem is None:
             listitemCopy.setProperty( "labelID", listitem.getProperty("labelID") )
+            if listitem.getProperty( "visible-condition" ):
+                listitemCopy.setProperty( "visible-condition", listitem.getProperty( "visible-condition" ) )
             if listitem.getProperty( "additionalListItemProperties" ):
                 listitemCopy.setProperty( "additionalListItemProperties", listitem.getProperty( "additionalListItemProperties" ) )
                 listitemProperties = eval( listitem.getProperty( "additionalListItemProperties" ) )
@@ -1456,6 +1305,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set these from the original item we were passed (this will keep original labelID and additional properties
             # in tact)
             listitemCopy.setProperty( "labelID", originallistitem.getProperty( "labelID" ) )
+            if originallistitem.getProperty( "visible-condition" ):
+                listitemCopy.setProperty( "visible-condition", originallistitem.getProperty( "visible-condition" ) )
             if originallistitem.getProperty( "additionalListItemProperties" ):
                 listitemCopy.setProperty( "additionalListItemProperties", originallistitem.getProperty( "additionalListItemProperties" ) )
                 listitemProperties = eval( originallistitem.getProperty( "additionalListItemProperties" ) )

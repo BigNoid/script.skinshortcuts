@@ -526,6 +526,7 @@ class LibraryFunctions():
         # Try loading custom nodes first
         try:
             if self._parse_videolibrary( "custom" ) == False:
+                log( "Failed to load custom video nodes" )
                 self._parse_videolibrary( "default" )
         except:
             log( "Failed to load custom video nodes" )
@@ -553,10 +554,8 @@ class LibraryFunctions():
             log( "Listing default video nodes..." )
             
         nodes = NODE.get_video_nodes( rootdir )
-        if nodes == False:
+        if nodes == False or len( nodes ) == 0:
             return False
-            
-        log( repr( nodes ) )
         
         videos = []
         
@@ -573,7 +572,6 @@ class LibraryFunctions():
             else:
                 videos.append( self._create( [ "ActivateWindow(10025,%s,Return)" %( nodes[ key ][ 2 ] ) , nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
             
-        log( repr( videos ) )
         self.addToDictionary( "video", videos )
     
 

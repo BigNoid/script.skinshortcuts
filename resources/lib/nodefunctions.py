@@ -70,8 +70,6 @@ class NodeFunctions():
             self.parse_view( os.path.join( node, "index.xml" ), nodes, True, "library://video/%s/" % (dir), node )
     
     def parse_view( self, file, nodes, isFolder = False, origFolder = None, origPath = None ):
-        if origFolder is not None:
-            log( repr( origFolder ) )
         if not isFolder and file.endswith( "index.xml" ):
             return
         try:
@@ -149,17 +147,11 @@ class NodeFunctions():
             
     def get_visibility( self, path ):
         path = path.replace( "videodb://", "library://video/" )
-        #log( "Getting visibility for " + path )
         
         customPath = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" ) ) + "index.xml"
         customFile = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" ) )[:-1] + ".xml"
         defaultPath = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" ) ) + "index.xml"
         defaultFile = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" ) )[:-1] + ".xml"
-        
-        #log( customPath )
-        #log( customFile )
-        #log( defaultPath )
-        #log( defaultFile )
         
         # Check whether the node exists - either as a parent node (with an index.xml) or a view node (append .xml)
         # in first custom video nodes, then default video nodes
