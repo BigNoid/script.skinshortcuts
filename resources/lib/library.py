@@ -1004,7 +1004,7 @@ class LibraryFunctions():
                                     # Create a list item
                                     listitem = self._create(["::PLAYLIST::", name, path[1], {"icon": "DefaultPlaylist.png"} ])
                                     listitem.setProperty( "action-play", "PlayMedia(" + playlist.encode( 'utf-8' ) + ")" )
-                                    listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist.encode( 'utf-8' ) + ", return)".encode( 'utf-8' ) )
+                                    listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist.encode( 'utf-8' ) + ",return)".encode( 'utf-8' ) )
                                     
                                     if mediaLibrary == "VideoLibrary":
                                         videolist.append( listitem )
@@ -1019,7 +1019,7 @@ class LibraryFunctions():
                             name = file[:-4]
                             listitem = self._create( ["::PLAYLIST::", name, "32005", {"icon": "DefaultPlaylist.png"} ] )
                             listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
-                            listitem.setProperty( "action-show", "ActivateWindow(MusicLibrary," + playlist + ", return)".encode( 'utf-8' ) )
+                            listitem.setProperty( "action-show", "ActivateWindow(MusicLibrary," + playlist + ",return)".encode( 'utf-8' ) )
                             
                             audiolist.append( listitem )
                             
