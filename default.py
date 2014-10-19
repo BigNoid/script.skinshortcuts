@@ -134,17 +134,17 @@ class Main:
                     
         if self.TYPE=="addNode":
             # We've been sent a node from plugin.program.video.node.editor
-            log( self.OPTIONS )
-            #if self.OPTIONS[ 0 ].startswith( "/" ):
-            #    self.OPTIONS[ 0 ] = self.OPTIONS[ 0 ][1:]
-                
             targetDir = "library://video" + self.OPTIONS[ 0 ]
-            #targetDir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video", self.OPTIONS[ 0 ] )
-            #if not xbmcvfs.exists( targetDir ):
-            #    targetDir = os.path.join( xbmc.translatePath( "special://xbmc".decode( "utf-8" ) ), 
-            log( targetDir )
             
-            nodefunctions.NodeFunctions().addNodeToMenu( targetDir, self.OPTIONS[ 1 ], DATA )
+            icon = "DefaultShortcut.png"
+            if self.OPTIONS[ 2 ] != "None":
+                icon = self.OPTIONS[ 2 ].decode( "utf-8" )
+            
+            result = nodefunctions.NodeFunctions().addNodeToMenu( targetDir, urllib.unquote( self.OPTIONS[ 1 ] ).decode( "utf-8" ), icon, DATA )
+            
+            if result == False:
+                # The item failed to add to the menu
+                xbmcgui.dialog().ok( __addon__.getAddonInfo( "name" ), __language__(32091) )
                 
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media

@@ -57,7 +57,7 @@ class DataFunctions():
         # This gets the unique labelID for the item we've been passed. We'll also store it, to make sure
         # we don't give it to any other item.
         
-        labelID = self.createNiceName( self.slugify( labelID ).replace( " ", "" ).lower() )
+        labelID = self.createNiceName( self.slugify( labelID.replace( " ", "" ).lower() ) )
         
         if includeAddOnID:
             addon_labelID = self._get_addon_labelID( action )
@@ -579,7 +579,6 @@ class DataFunctions():
             path = action.split( "," )
             if path[ 1 ].endswith( ")" ):
                 path[ 1 ] = path[ 1 ][:-1]
-            log( NODE.get_visibility( path[ 1 ] ) )
             return NODE.get_visibility( path[ 1 ] )
             
         return ""

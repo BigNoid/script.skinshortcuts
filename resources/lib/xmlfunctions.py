@@ -132,7 +132,6 @@ class XMLFunctions():
                     if json_response.has_key('result') and json_response['result'].has_key('settings') and json_response['result']['settings'] is not None:
                         for item in json_response['result']['settings']:
                             if item["id"] == "debug.showloginfo":
-                                log( "### Found debug logging" )
                                 if item["value"] == False:
                                     json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":true} } ' )
                                     enabledSystemDebug = True
@@ -146,12 +145,12 @@ class XMLFunctions():
                         self.buildMenu( mainmenuID, groups, numLevels, buildMode, options, enabledSystemDebug, enabledScriptDebug )
                     else:
                         # Debug logging already enabled - offer to upload a debug log
-                        ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), "Unable to build menu", "Upload a debug log to xbmclogs.com?" )
+                        ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), __language__( 32092 ), __language__( 32093 ) )
                         if ret:
                             xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )                    
                             
             else:
-                xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), "Unable to build menu. Install XBMC Log Uploader to easily get a debug log." )
+                xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__( 32092 ), __language__( 32094 ) )
         
     def shouldwerun( self, profilelist ):
         try:
@@ -594,10 +593,8 @@ class XMLFunctions():
                         
                     # If this is a widget or background, set a skin setting to say it's enabled
                     if property[0] == "widget":
-                        log( "### Setting bool skinshortcuts-widget-" + property[1] )
                         xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-widget-" + property[1] + ")" )
                     elif property[0] == "background":
-                        log( "### Setting bool skinshortcuts-background-" + property[1] )
                         xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
                         
                     # If this is the main menu, and we're cloning widgets or backgrounds...

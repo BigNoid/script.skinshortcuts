@@ -192,7 +192,7 @@ class NodeFunctions():
     # Functions used to add a node to the menu #
     ############################################
 
-    def addNodeToMenu( self, node, label, DATA ):
+    def addNodeToMenu( self, node, label, icon, DATA ):
         # Get a list of all nodes within
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + node + '", "media": "files" } }')
         json_query = unicode(json_query, 'utf-8', errors='ignore')
@@ -208,8 +208,8 @@ class NodeFunctions():
             for item in json_response['result']['files']:
                 labels.append( item[ "label" ] )
                 paths.append( item[ "file" ] )
-                        
-        log( repr( paths ) )
+        else:
+            return False
         
         if len( paths ) == 0:
             return False
@@ -221,11 +221,49 @@ class NodeFunctions():
             # User cancelled
             return True
             
-        # We have all the information we need to add the node to the menu :)
+        # We have all the information we need from the user to add the node to the menu :)
         
         # Load existing main menu items
         menuitems = DATA._get_shortcuts( "mainmenu" )
         DATA._clear_labelID()
         for menuitem in menuitems.findall( "shortcut" ):
-            # Get items labelID
-            log( "Report to here" )
+            # Get existing items labelID's/
+            DATA._get_labelID( DATA.local( menuitem.find( "label" ).text )[3], menuitem.find( "action" ).text )
+            
+        # Generate a new labelID
+        labelID = DATA._get_labelID( label, paths[ selected ] )
+        
+        # Write the updated mainmenu.DATA.xml
+        newelement = xmltree.SubElement( menuitems.getroot(), "shortcut" )
+        xmltree.SubElement( newelement, "label" ).text = label
+        xmltree.SubElement( newelement, "label2" ).text = "32024" # Custom shortcut
+        xmltree.SubElement( newelement, "icon" ).text = icon
+        xmltree.SubElement( newelement, "thumb" )
+        xmltree.SubElement( newelement, "action" ).text = "ActivateWindow(10025," + paths[ selected ] + ",return)"
+        
+        DATA.indent( menuitems.getroot() )
+        path = xbmc.translatePath( os.path.join( "special://profile", "addon_data", __addonid__, "mainmenu.DATA.xml" ).encode('utf-8') )
+        menuitems.write( path, encoding="UTF-8" )
+
+        # Write the new [labelID].DATA.xml
+        menuitems = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
+        
+        for item in json_response['result']['files']:
+            newelement = xmltree.SubElement( menuitems.getroot(), "shortcut" )
+            xmltree.SubElement( newelement, "label" ).text = item[ "label" ]
+            xmltree.SubElement( newelement, "label2" ).text = "32024" # Custom shortcut
+            xmltree.SubElement( newelement, "icon" ).text = item[ "thumbnail" ]
+            xmltree.SubElement( newelement, "thumb" )
+            xmltree.SubElement( newelement, "action" ).text = "ActivateWindow(10025," + item[ "file" ] + ",return)"
+            
+        DATA.indent( menuitems.getroot() )
+        path = xbmc.translatePath( os.path.join( "special://profile", "addon_data", __addonid__, DATA.slugify( labelID ) + ".DATA.xml" ).encode('utf-8') )
+        menuitems.write( path, encoding="UTF-8" )
+        
+        # Mark that the menu needs to be rebuilt
+        xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-reloadmainmenu", "True" )
+        
+        # And tell the user it all worked
+        xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__(32090) )
+        
+        return True
