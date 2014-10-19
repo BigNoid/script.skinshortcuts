@@ -61,6 +61,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Empty arrays for different shortcut types
         self.backgroundBrowse = False
+        self.backgroundBrowseDefault = None
         self.widgetPlaylists = False
         self.widgetPlaylistsType = None
         
@@ -632,6 +633,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             elem = tree.find('backgroundBrowse')
             if elem is not None and elem.text == "True":
                 self.backgroundBrowse = True
+                if "default" in elem.attrib:
+                    self.backgroundBrowseDefault = elem.attrib.get( "default" )
 
                 
     # ========================
@@ -1063,10 +1066,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             elif self.backgroundBrowse == True and (selectedBackground == 1 or selectedBackground == 2):
                 # User has chosen to browse for an image/folder
                 imagedialog = xbmcgui.Dialog()
+                log( repr( self.backgroundBrowseDefault ) )
                 if selectedBackground == 1: # Single image
-                    custom_image = imagedialog.browse( 2 , xbmc.getLocalizedString(1030), 'files')
+                    custom_image = imagedialog.browse( 2 , xbmc.getLocalizedString(1030), 'files', '', True, False, self.backgroundBrowseDefault)
                 else: # Multi-image
-                    custom_image = imagedialog.browse( 0 , xbmc.getLocalizedString(1030), 'files')
+                    custom_image = imagedialog.browse( 0 , xbmc.getLocalizedString(1030), 'files', '', True, False, self.backgroundBrowseDefault)
                 
                 if custom_image:
                     self._add_additionalproperty( listitem, "background", custom_image )

@@ -203,7 +203,9 @@ If you are using Skin Shortcuts to manage background images, provide a list of b
 
 If you want to let the user browse for either a single or multi-image background, also include:
 
-<backgroundBrowse>True</backgroundBrowse>
+<backgroundBrowse default="protocol://path/to/folder>True</backgroundBrowse>
+
+where default is an optional path to the folder that will be displayed by default in the select dialog.
 
 You can also let the user choose a playlist to use as a background. In that case, set the label to a localised string containing the string "::PLAYLIST::". Skin Shortcuts will create multiple copies of this entry, with ::PLAYLIST:: replaced by the name of each of the users defined playlists. List items will then have the additional property "backgroundPlaylist", containing the path of the playlist.
 
