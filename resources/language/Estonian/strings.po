@@ -52,6 +52,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Seriaalid"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Live TV"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Muusika"
@@ -63,6 +67,10 @@ msgstr "Pildid"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programmid"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Live TV"
 
 msgctxt "#32032"
 msgid "Play DVD"
@@ -91,3 +99,11 @@ msgstr "Ekraan"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Esita"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Raadio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kanalid"

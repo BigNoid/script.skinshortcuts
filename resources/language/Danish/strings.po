@@ -48,6 +48,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "TV-serier"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "TV"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Musikvideoer"
@@ -63,6 +67,10 @@ msgstr "Billeder"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programmer"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "TV"
 
 msgctxt "#32029"
 msgid "Common"
@@ -111,3 +119,11 @@ msgstr "Spil"
 msgctxt "#32075"
 msgid "Sources"
 msgstr "Kilder"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kanaler"

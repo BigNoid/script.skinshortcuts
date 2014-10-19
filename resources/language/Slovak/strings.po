@@ -48,6 +48,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Seriály"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Živé TV vysielanie"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Hudba"
@@ -59,6 +63,10 @@ msgstr "Obrázky"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programy"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Živé TV vysielanie"
 
 msgctxt "#32031"
 msgid "Music Library"
@@ -95,3 +103,11 @@ msgstr "Obrazovka"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Prehrať"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Rádio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kanály"

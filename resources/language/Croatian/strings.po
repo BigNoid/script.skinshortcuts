@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "TV emisije"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "TV u živo"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Glazbeni spotovi"
@@ -99,6 +103,10 @@ msgstr "Slike"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programi"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "TV u živo"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -259,3 +267,11 @@ msgstr "Zaslon"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Reproduciraj"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kanali"

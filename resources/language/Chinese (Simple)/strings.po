@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "剧集"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "直播电视"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "音乐电视"
@@ -99,6 +103,10 @@ msgstr "图片"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "程序"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "直播电视"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -259,3 +267,11 @@ msgstr "播放"
 msgctxt "#32075"
 msgid "Sources"
 msgstr "来源"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "电台"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "频道"

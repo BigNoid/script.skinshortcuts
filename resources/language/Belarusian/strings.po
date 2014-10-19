@@ -56,6 +56,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "ТЫ шоў"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Жывое ТВ"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Music Videos"
@@ -71,6 +75,10 @@ msgstr "Pictures"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Праграмы"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Жывое ТВ"
 
 msgctxt "#32029"
 msgid "Common"
@@ -115,3 +123,11 @@ msgstr "Граць"
 msgctxt "#32075"
 msgid "Sources"
 msgstr "Sources"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Радыё"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Channels"

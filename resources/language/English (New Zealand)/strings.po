@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "TV Shows"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Live TV"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Music Videos"
@@ -99,6 +103,10 @@ msgstr "Pictures"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programs"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Live TV"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -255,3 +263,11 @@ msgstr "Play"
 msgctxt "#32075"
 msgid "Sources"
 msgstr "Sources"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Channels"

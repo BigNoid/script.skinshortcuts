@@ -52,6 +52,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Sèries de TV"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "TV en directe"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Música"
@@ -63,6 +67,10 @@ msgstr "Imatges"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programes"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "TV en directe"
 
 msgctxt "#32029"
 msgid "Common"
@@ -103,3 +111,11 @@ msgstr "Reprodueix"
 msgctxt "#32075"
 msgid "Sources"
 msgstr "Fonts"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Ràdio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Canals"

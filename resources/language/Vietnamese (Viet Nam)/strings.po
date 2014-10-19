@@ -24,6 +24,10 @@ msgctxt "#32014"
 msgid "Videos"
 msgstr "Video"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "TV trực tuyến"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Video clip"
@@ -36,6 +40,14 @@ msgctxt "#32021"
 msgid "Programs"
 msgstr "Chương trình"
 
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "TV trực tuyến"
+
+msgctxt "#32023"
+msgid "Timers"
+msgstr "Thời gian"
+
 msgctxt "#32053"
 msgid "None"
 msgstr "Không"
@@ -43,3 +55,7 @@ msgstr "Không"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Chạy"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kênh"

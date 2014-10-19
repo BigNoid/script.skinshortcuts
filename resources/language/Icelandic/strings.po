@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Sjónvarpsþættir"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Sjónvarp bein útsending"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Tónlistarmyndbönd"
@@ -99,6 +103,10 @@ msgstr "LJÓSMYNDIR"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "FORRIT"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Sjónvarp bein útsending"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -267,3 +275,11 @@ msgstr "Engir Flýtivísar"
 msgctxt "#32065"
 msgid "There are no shortcuts available for the category that you choose."
 msgstr "Það eru engir flýtivísar tiltækir fyrir þann flokk sem þú valdir."
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Útvarp"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Rásir"

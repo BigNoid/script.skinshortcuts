@@ -32,6 +32,10 @@ msgctxt "#32015"
 msgid "Movies"
 msgstr "Фільми"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "ТБ"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Музика"
@@ -43,6 +47,10 @@ msgstr "Фото"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Програми"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "ТБ"
 
 msgctxt "#32030"
 msgid "Video Library"
@@ -71,3 +79,11 @@ msgstr "Екран"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Відтворити"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Радіо"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Канали"

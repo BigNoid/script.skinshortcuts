@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Τηλ. Σειρές"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Live TV"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Μουσικά Βίντεο"
@@ -99,6 +103,10 @@ msgstr "Εικόνες"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Εφαρμογές"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Live TV"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -320,6 +328,50 @@ msgctxt "#32077"
 msgid "Radio Channel"
 msgstr "Ραδιοφωνικός Σταθμός"
 
+msgctxt "#32078"
+msgid "Display..."
+msgstr "Απεικόνιση..."
+
+msgctxt "#32079"
+msgid "Files view"
+msgstr "Λίστα αρχείων"
+
 msgctxt "#32080"
 msgid "Edit ::MENUNAME:: Submenu"
 msgstr "Επεξεργασία ::MENUNAME:: Υπομενού"
+
+msgctxt "#32081"
+msgid "Movies not in this source"
+msgstr "Ταινίες που δεν είναι στην πηγή"
+
+msgctxt "#32082"
+msgid "TV Shows not in this source"
+msgstr "Τηλ. Σειρές που δεν είναι στην πηγή"
+
+msgctxt "#32083"
+msgid "Music Videos not in this source"
+msgstr "Μουσικά Βίντεο που δεν είναι στην πηγή"
+
+msgctxt "#32084"
+msgid "Songs not in this source"
+msgstr "Τραγούδια που δεν είναι στην πηγή"
+
+msgctxt "#32085"
+msgid "Albums not in this source"
+msgstr "Άλμπουμ που δεν είναι στην πηγή"
+
+msgctxt "#32086"
+msgid "Mixed content not in this source"
+msgstr "Ανάμικτο περιεχόμενο που δεν είναι στην πηγή"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Ραδιόφωνο"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Κανάλια"
+
+msgctxt "#32089"
+msgid "Picture Source"
+msgstr "Πηγή Εικόνων"

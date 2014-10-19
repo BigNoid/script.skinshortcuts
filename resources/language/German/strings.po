@@ -34,11 +34,11 @@ msgstr "Nach unten"
 
 msgctxt "#32004"
 msgid "Video Playlist"
-msgstr "Video Playlist"
+msgstr "Videowiedergabeliste"
 
 msgctxt "#32005"
 msgid "Music Playlist"
-msgstr "Musik Playlist"
+msgstr "Musikwiedergabeliste"
 
 msgctxt "#32006"
 msgid "Favourite"
@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Serien"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Live-TV"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Musik Videos"
@@ -99,6 +103,10 @@ msgstr "Bilder"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programme"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Live-TV"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -170,7 +178,7 @@ msgstr "Wähle Widget für ::MENUNAME::"
 
 msgctxt "#32040"
 msgid "Playlist"
-msgstr "Playlisten"
+msgstr "Wiedergabeliste"
 
 msgctxt "#32041"
 msgid "Action"
@@ -320,6 +328,50 @@ msgctxt "#32077"
 msgid "Radio Channel"
 msgstr "Radiosender"
 
+msgctxt "#32078"
+msgid "Display..."
+msgstr "Anzeige..."
+
+msgctxt "#32079"
+msgid "Files view"
+msgstr "Dateienansicht"
+
 msgctxt "#32080"
 msgid "Edit ::MENUNAME:: Submenu"
 msgstr "Bearbeite ::MENÜNAME:: Untermenü"
+
+msgctxt "#32081"
+msgid "Movies not in this source"
+msgstr "Filme sind nicht in dieser Quelle"
+
+msgctxt "#32082"
+msgid "TV Shows not in this source"
+msgstr "Fernsehshows sind nicht in dieser Quelle"
+
+msgctxt "#32083"
+msgid "Music Videos not in this source"
+msgstr "Musikvideos sind nicht in dieser Quelle"
+
+msgctxt "#32084"
+msgid "Songs not in this source"
+msgstr "Songs sind nicht in dieser Quelle"
+
+msgctxt "#32085"
+msgid "Albums not in this source"
+msgstr "Alben sind nicht in dieser Quelle"
+
+msgctxt "#32086"
+msgid "Mixed content not in this source"
+msgstr "Gemischte Inhalte sind nicht in dieser Quelle"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Sender"
+
+msgctxt "#32089"
+msgid "Picture Source"
+msgstr "Bildquelle"

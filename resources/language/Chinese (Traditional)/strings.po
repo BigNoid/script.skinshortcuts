@@ -40,6 +40,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "電視劇"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "電視"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "音樂"
@@ -51,6 +55,10 @@ msgstr "圖片"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "程式"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "電視"
 
 msgctxt "#32030"
 msgid "Video Library"
@@ -83,3 +91,11 @@ msgstr "顯示器"
 msgctxt "#32062"
 msgid "Play"
 msgstr "播放"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "無線電廣播"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "頻道"

@@ -80,6 +80,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "TV 쇼"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "TV 시청"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "뮤직비디오"
@@ -95,6 +99,10 @@ msgstr "사진"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "프로그램"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "TV 시청"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -299,3 +307,11 @@ msgstr "TV 채널"
 msgctxt "#32077"
 msgid "Radio Channel"
 msgstr "라디오 채널"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "라디오"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "채널"

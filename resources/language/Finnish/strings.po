@@ -48,6 +48,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "TV-Sarjat"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "TV-lähetys"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Musiikki"
@@ -59,6 +63,10 @@ msgstr "Kuvat"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Ohjelmat"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "TV-lähetys"
 
 msgctxt "#32030"
 msgid "Video Library"
@@ -99,3 +107,11 @@ msgstr "Näyttö"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Toista"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kanavat"

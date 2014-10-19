@@ -32,6 +32,10 @@ msgctxt "#32015"
 msgid "Movies"
 msgstr "Filmovi"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Телевизија уживо"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Музика"
@@ -43,6 +47,10 @@ msgstr "Слике"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programi"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Телевизија уживо"
 
 msgctxt "#32040"
 msgid "Playlist"

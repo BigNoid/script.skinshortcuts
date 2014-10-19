@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Series de TV"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "TV en Directo"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Vídeos Musicais"
@@ -99,6 +103,10 @@ msgstr "Imaxes"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Aplicativos"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "TV en Directo"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -323,3 +331,11 @@ msgstr "Canle de Radio"
 msgctxt "#32080"
 msgid "Edit ::MENUNAME:: Submenu"
 msgstr "Editar ::MENUNAME:: Submenú"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Canles"

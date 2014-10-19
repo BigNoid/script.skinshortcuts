@@ -48,6 +48,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "รายการทีวี"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "ทีวี สด"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "เพลง"
@@ -59,6 +63,10 @@ msgstr "รูปภาพ"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "โปรแกรม"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "ทีวี สด"
 
 msgctxt "#32030"
 msgid "Video Library"
@@ -95,3 +103,11 @@ msgstr "การแสดงผล"
 msgctxt "#32062"
 msgid "Play"
 msgstr "เล่น"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "วิทยุ"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "ช่องสัญญาณ"

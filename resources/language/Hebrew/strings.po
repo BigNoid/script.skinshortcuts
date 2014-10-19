@@ -56,6 +56,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "סדרות"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "טלוויזיה חיה"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "קליפים"
@@ -71,6 +75,10 @@ msgstr "תמונות"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "תוכנות"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "טלוויזיה חיה"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -119,3 +127,11 @@ msgstr "שחק"
 msgctxt "#32075"
 msgid "Sources"
 msgstr "מקורות"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "רדיו"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "ערוצים"

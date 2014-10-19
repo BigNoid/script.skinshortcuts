@@ -36,6 +36,10 @@ msgctxt "#32015"
 msgid "Movies"
 msgstr "فیلم ها"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "تلویزیون زنده"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "موسیقی"
@@ -47,6 +51,10 @@ msgstr "تصاویر"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "برنامه‌ها"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "تلویزیون زنده"
 
 msgctxt "#32030"
 msgid "Video Library"

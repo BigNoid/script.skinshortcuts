@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "ТВ передачи"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "ТВ"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Муз. видео"
@@ -99,6 +103,10 @@ msgstr "Фото"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Программы"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "ТВ"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -255,3 +263,11 @@ msgstr "Экран"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Включить воспроизведение"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Радио"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Каналы"

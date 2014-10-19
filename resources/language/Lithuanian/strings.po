@@ -66,7 +66,7 @@ msgstr "Muzikos priedas"
 
 msgctxt "#32012"
 msgid "Picture Add-On"
-msgstr "Paveikslėlių priedas"
+msgstr "Nuotraukų priedas"
 
 msgctxt "#32013"
 msgid "<None>"
@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "TV laidos"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Televizija"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Muzikiniai vaizdo klipai"
@@ -99,6 +103,10 @@ msgstr "Nuotraukos"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programos"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Televizija"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -320,6 +328,50 @@ msgctxt "#32077"
 msgid "Radio Channel"
 msgstr "Radijo kanalas"
 
+msgctxt "#32078"
+msgid "Display..."
+msgstr "Rodyti..."
+
+msgctxt "#32079"
+msgid "Files view"
+msgstr "Failų rodinys"
+
 msgctxt "#32080"
 msgid "Edit ::MENUNAME:: Submenu"
 msgstr "Keisti ::MENUNAME:: submeniu"
+
+msgctxt "#32081"
+msgid "Movies not in this source"
+msgstr "Filmai, kurių nėra šaltinyje"
+
+msgctxt "#32082"
+msgid "TV Shows not in this source"
+msgstr "TV laidos, kurių nėra šaltinyje"
+
+msgctxt "#32083"
+msgid "Music Videos not in this source"
+msgstr "Muzikiniai vaizdo klipai, kurių nėra šaltinyje"
+
+msgctxt "#32084"
+msgid "Songs not in this source"
+msgstr "Dainos, kurių nėra šaltinyje"
+
+msgctxt "#32085"
+msgid "Albums not in this source"
+msgstr "Albumai, kurių nėra šaltinyje"
+
+msgctxt "#32086"
+msgid "Mixed content not in this source"
+msgstr "Įvairus turinys, kurių nėra šaltinyje"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radijas"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kanalai"
+
+msgctxt "#32089"
+msgid "Picture Source"
+msgstr "Nuotraukų šaltinis"

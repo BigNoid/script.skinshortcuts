@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Séries télé"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Télé en direct"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Vidéos musicales"
@@ -99,6 +103,10 @@ msgstr "Images"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programmes"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Télé en direct"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -320,6 +328,50 @@ msgctxt "#32077"
 msgid "Radio Channel"
 msgstr "Chaîne radio"
 
+msgctxt "#32078"
+msgid "Display..."
+msgstr "Affichage..."
+
+msgctxt "#32079"
+msgid "Files view"
+msgstr "Vue des fichiers"
+
 msgctxt "#32080"
 msgid "Edit ::MENUNAME:: Submenu"
 msgstr "Modifier ::MENUNAME:: Sousmenu"
+
+msgctxt "#32081"
+msgid "Movies not in this source"
+msgstr "Les films ne sont pas dans la source"
+
+msgctxt "#32082"
+msgid "TV Shows not in this source"
+msgstr "Les séries télé ne sont pas dans la source"
+
+msgctxt "#32083"
+msgid "Music Videos not in this source"
+msgstr "Les vidéos musicales ne sont pas dans la source"
+
+msgctxt "#32084"
+msgid "Songs not in this source"
+msgstr "Les morceaux ne sont pas dans la source"
+
+msgctxt "#32085"
+msgid "Albums not in this source"
+msgstr "Les albums ne sont pas dans la source"
+
+msgctxt "#32086"
+msgid "Mixed content not in this source"
+msgstr "Le contenu mélangé n'est pas dans la source"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Chaînes"
+
+msgctxt "#32089"
+msgid "Picture Source"
+msgstr "Source des images"

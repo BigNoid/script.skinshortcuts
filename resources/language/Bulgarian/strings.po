@@ -80,6 +80,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "ТВ Сериали"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Телевизия"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Музикални клипове"
@@ -95,6 +99,10 @@ msgstr "Снимки"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Програми"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Телевизия"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -219,3 +227,11 @@ msgstr "UPnP"
 msgctxt "#32075"
 msgid "Sources"
 msgstr "Източник"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Радио"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Канали"

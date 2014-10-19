@@ -20,6 +20,18 @@ msgctxt "#32014"
 msgid "Videos"
 msgstr "Fideo"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Teledu"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Teledu"
+
 msgctxt "#32053"
 msgid "None"
 msgstr "Dim"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Sianeli"

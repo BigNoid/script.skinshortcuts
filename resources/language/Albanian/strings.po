@@ -32,6 +32,10 @@ msgctxt "#32015"
 msgid "Movies"
 msgstr "Filma"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Live TV"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Muzikë"
@@ -43,6 +47,10 @@ msgstr "Fotografi"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programe"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Live TV"
 
 msgctxt "#32040"
 msgid "Playlist"
@@ -63,3 +71,11 @@ msgstr "Ekrani"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Riprodho"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kanalet"

@@ -20,6 +20,18 @@ msgctxt "#32014"
 msgid "Videos"
 msgstr "Video"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Beinleiðis sjónvarp"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Beinleiðis sjónvarp"
+
 msgctxt "#32053"
 msgid "None"
 msgstr "Onki"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Rás"

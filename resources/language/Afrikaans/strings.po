@@ -36,6 +36,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "TV Programme"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Lewendige TV"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Musiek"
@@ -47,6 +51,10 @@ msgstr "Prentjies"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programme"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Lewendige TV"
 
 msgctxt "#32040"
 msgid "Playlist"
@@ -71,3 +79,11 @@ msgstr "Vertoon"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Speel"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kanale"

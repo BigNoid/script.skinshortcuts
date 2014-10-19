@@ -84,6 +84,10 @@ msgctxt "#32016"
 msgid "TV Shows"
 msgstr "Sorozatok"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "Élő TV"
+
 msgctxt "#32018"
 msgid "Music Videos"
 msgstr "Videóklipek"
@@ -99,6 +103,10 @@ msgstr "Képek"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programok"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "Élő TV"
 
 msgctxt "#32023"
 msgid "Timers"
@@ -271,3 +279,11 @@ msgstr "Nincsenek elérhető parancsikonok a kiválasztott kategóriához"
 msgctxt "#32075"
 msgid "Sources"
 msgstr "Források"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Rádió"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Csatornák"

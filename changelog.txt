@@ -9,6 +9,7 @@ v0.4.1 (Development revision)
 - Window property to identify when additional management dialog has been launched
 - Custom visibility properties are now honoured by management dialog
 - Shortcuts always use video nodes (where appropriate) rather than library links
+- Updated language files from Transifex (from 19th October 2014)
 
 v0.4.0
 - New localisation code

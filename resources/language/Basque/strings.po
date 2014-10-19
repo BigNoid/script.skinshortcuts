@@ -32,6 +32,10 @@ msgctxt "#32015"
 msgid "Movies"
 msgstr "Filmak"
 
+msgctxt "#32017"
+msgid "Live TV"
+msgstr "TB"
+
 msgctxt "#32019"
 msgid "Music"
 msgstr "Musika"
@@ -43,6 +47,10 @@ msgstr "Irudiak"
 msgctxt "#32021"
 msgid "Programs"
 msgstr "Programak"
+
+msgctxt "#32022"
+msgid "Live TV"
+msgstr "TB"
 
 msgctxt "#32040"
 msgid "Playlist"
@@ -63,3 +71,11 @@ msgstr "Erakutsi"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Play"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Irratia"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Kateak"

@@ -63,3 +63,11 @@ msgstr "Layar"
 msgctxt "#32062"
 msgid "Play"
 msgstr "Mainkan"
+
+msgctxt "#32087"
+msgid "Radio"
+msgstr "Radio"
+
+msgctxt "#32088"
+msgid "Channels"
+msgstr "Saluran"
