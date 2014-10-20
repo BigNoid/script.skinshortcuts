@@ -1,4 +1,4 @@
-v0.4.1 (Development revision)
+v0.4.2
 - [robweber] Fix for profiles shared via path substitution
 - Integration with plugin.program.video.node.editor
 - Change how submenuVisibility property is generated

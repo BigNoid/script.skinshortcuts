@@ -1,7 +1,7 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.4.1 - development revision)
+What's New for Skinners (version 0.4.2)
 -----------------------
 
  - Ability to skip warning when resetting all shortcuts. See "Resetting all shortcuts", below
@@ -14,7 +14,7 @@ What's New for Skinners (version 0.4.1 - development revision)
  - Shortcuts with a <visible/> element will not only show in management dialog if this property evaluates to true. Though they won't be visible in the management dialog, they will not be removed from the menu, but will move to the end of the menu.
  
 
-What's New for Skinners (version 0.4.0)
+What's New for Skinners (version 0.4.0 - previous release)
 -----------------------
 
  - New XML file format for storing data - this required no changes on your part, but you can upgrade your default shortcuts to the new format, see "Providing default shortcuts" below
