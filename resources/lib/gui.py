@@ -275,6 +275,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             thumb = thumb.text
         else:
             thumb = ""
+            
+        # If either localLabel[ 2 ] starts with a $, ask Kodi to parse it for us
+        if localLabel[ 2 ].startswith( "$" ):
+            localLabel[ 2 ] = xbmc.getInfoLabel( localLabel[ 2 ] )
+        if localLabel2[ 2 ].startswith( "$" ):
+            localLabel2[ 2 ] = xbmc.getInfoLabel( localLabel2[ 2 ] )
         
         # Create the list item
         listitem = xbmcgui.ListItem( label=localLabel[2], label2 = localLabel2[2], iconImage = icon, thumbnailImage = thumb )
