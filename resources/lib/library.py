@@ -399,6 +399,12 @@ class LibraryFunctions():
         # Create localised label2
         displayLabel2 = DATA.local( displayLabel2 )[2]
         shortcutType = DATA.local( shortcutType )[0]
+        
+        # If either displayLabel starts with a $, ask Kodi to parse it for us
+        if displayLabel.startswith( "$" ):
+            displayLabel = xbmc.getInfoLabel( displayLabel )
+        if displayLabel2.startswith( "$" ):
+            displayLabel2 = xbmc.getInfoLabel( displayLabel2 )
             
         # If this launches our explorer, append a notation to the displayLabel
         if item[0].startswith( "||" ):
