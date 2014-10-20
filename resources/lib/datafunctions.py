@@ -124,12 +124,12 @@ class DataFunctions():
         if profileDir is None:
             profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
         
-        userShortcuts = os.path.join( profileDir, "addon_data", __addonid__, self.slugify( group ) + ".DATA.xml" ).encode('utf-8')
-        skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".DATA.xml").encode('utf-8')
-        defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".DATA.xml" ).encode('utf-8')
+        userShortcuts = os.path.join( profileDir, "addon_data", __addonid__, self.slugify( group ) + ".DATA.xml" )#.encode('utf-8')
+        skinShortcuts = os.path.join( __skinpath__ , self.slugify( group ) + ".DATA.xml")#.encode('utf-8')
+        defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( group ) + ".DATA.xml" )#.encode('utf-8')
         if defaultGroup is not None:
-            skinShortcuts = os.path.join( __skinpath__ , self.slugify( defaultGroup ) + ".DATA.xml").encode('utf-8')    
-            defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( defaultGroup ) + ".DATA.xml" ).encode('utf-8')
+            skinShortcuts = os.path.join( __skinpath__ , self.slugify( defaultGroup ) + ".DATA.xml")#.encode('utf-8')    
+            defaultShortcuts = os.path.join( __defaultpath__ , self.slugify( defaultGroup ) + ".DATA.xml" )#.encode('utf-8')
 
         if defaultsOnly:
             paths = [skinShortcuts, defaultShortcuts ]
@@ -137,6 +137,11 @@ class DataFunctions():
             paths = [userShortcuts, skinShortcuts, defaultShortcuts ]
         
         for path in paths:
+            try:
+                path = path.decode( "utf-8" )
+            except:
+                pass
+                
             tree = None
             altPath = path.replace( ".DATA.xml", ".shortcuts" )
             if xbmcvfs.exists( path ):

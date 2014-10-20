@@ -461,7 +461,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
             # Save the shortcuts
             DATA.indent( root )
-            path = os.path.join( __datapath__ , DATA.slugify( self.group ) + ".DATA.xml" ).encode('utf-8')
+            path = os.path.join( __datapath__ , DATA.slugify( self.group ) + ".DATA.xml" )
+            
+            try:
+                path = path.decode( "utf-8" )
+            except:
+                pass
+            
             tree.write( path.replace( ".shortcuts", ".DATA.xml" ), encoding="UTF-8"  )
             
             # Now make any labelID changes
@@ -496,8 +502,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     else:
                         paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".DATA,xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"]]
                         target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" )
+                        
+                    try:
+                        target = target.decode( "utf-8" )
+                    except:
+                        pass
                     
                     for path in paths:
+                        try:
+                            path[ 0 ] = path[ 0 ].decode( "utf-8" )
+                        except:
+                            pass
+                        try:
+                            path[ 1 ] = path[ 1 ].decode( "utf-8" )
+                        except:
+                            pass
+                            
                         if path[1] == "New":
                             tree = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
                             tree.write( target, encoding="UTF-8"  )
