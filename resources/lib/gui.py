@@ -828,7 +828,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 orderIndex -= 1
                     
             # Display the updated order
-            self._display_listitems( orderIndex - 1 )
+            self._display_listitems( itemIndex - 1 )
             
         if controlID == 304:
             # Move item down in list
@@ -864,7 +864,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 orderIndex += 1
                     
             # Display the updated order
-            self._display_listitems( orderIndex + 1 )
+            self._display_listitems( itemIndex + 1 )
 
         if controlID == 305:
             # Change label
