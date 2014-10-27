@@ -5,7 +5,10 @@
 		<import addon="script.module.simplejson" version="3.3.0"/>
 		<import addon="script.module.unidecode" version="0.4.14"/>
 	</requires>
-	<extension point="xbmc.python.library" library="default.py"/>
+	<extension point="xbmc.python.script" library="default.py">
+		<provides>executable</provides>
+	</extension>
+	<!--extension point="xbmc.python.library" library="default.py"/-->
 	<extension point="xbmc.addon.metadata">
 		<description lang="bg">Добавка за облици, която осигурява просто управление и списък с потребителски преки пътища (изисква поддръжка от облика)</description>
 		<description lang="de">Add-on für Skins für einfache Bearbeitung und Auflistung von benutzerdefinierten Verknüpfungen (erfordert Skin-Unterstützung)</description>
