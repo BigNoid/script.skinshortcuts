@@ -99,6 +99,8 @@ class Main:
             
         if self.TYPE=="hidesubmenu":
             self._hidesubmenu( self.MENUID )
+        if self.TYPE=="resetlist":
+            self._resetlist( self.MENUID )
             
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
@@ -555,7 +557,17 @@ class Main:
             xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
         
         xbmc.executebuiltin( "ClearProperty(submenuVisibility, 10000)" )
-                    
+        
+    def _resetlist( self, menuid ):
+        count = 0
+        while xbmc.getCondVisibility( "!IsEmpty(Container(" + menuid + ").ListItemNoWrap(" + str( count ) + ").Label" ):
+            count -= 1
+            
+        count += 1
+            
+        if count != 0:
+            xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
+        
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
     
