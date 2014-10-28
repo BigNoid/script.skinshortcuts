@@ -100,7 +100,7 @@ class Main:
         if self.TYPE=="hidesubmenu":
             self._hidesubmenu( self.MENUID )
         if self.TYPE=="resetlist":
-            self._resetlist( self.MENUID )
+            self._resetlist( self.MENUID, self.NEXTACTION )
             
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
@@ -173,6 +173,7 @@ class Main:
         self.GROUPNAME = params.get( "groupname", None )
         self.PATH = params.get( "path", "" )
         self.MENUID = params.get( "mainmenuID", "0" )
+        self.NEXTACTION = params.get( "action", "0" )
         self.LEVEL = params.get( "level", "" )
         self.LEVELS = params.get( "levels", "0" )
         self.CUSTOMID = params.get( "customid", "" )
@@ -558,15 +559,17 @@ class Main:
         
         xbmc.executebuiltin( "ClearProperty(submenuVisibility, 10000)" )
         
-    def _resetlist( self, menuid ):
+    def _resetlist( self, menuid, action ):
         count = 0
-        while xbmc.getCondVisibility( "!IsEmpty(Container(" + menuid + ").ListItemNoWrap(" + str( count ) + ").Label" ):
+        while xbmc.getCondVisibility( "!IsEmpty(Container(" + menuid + ").ListItemNoWrap(" + str( count ) + ").Label)" ):
             count -= 1
             
         count += 1
             
         if count != 0:
             xbmc.executebuiltin( "Control.Move(" + menuid + "," + str( count ) + " )" )
+            
+        xbmc.executebuiltin( urllib.unquote( action ) )
         
 if ( __name__ == "__main__" ):
     log('script version %s started' % __addonversion__)
