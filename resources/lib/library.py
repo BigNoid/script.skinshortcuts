@@ -7,7 +7,6 @@ from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
 from unidecode import unidecode
-
 import datafunctions, nodefunctions
 DATA = datafunctions.DataFunctions()
 NODE = nodefunctions.NodeFunctions()
@@ -38,6 +37,40 @@ def log(txt):
             xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
         except:
             pass
+
+def kodilistdir(path, walkEverything = False, stringForce = False):
+    json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Files.GetDirectory","params":{"directory":"%s","media":"files"},"id":1}' % str(path))
+    json_query = unicode(json_query, 'utf-8', errors='ignore')
+    json_response = simplejson.loads(json_query)
+    dirs = []
+    files = []
+    if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
+        for item in json_response['result']['files']:
+            if item.has_key('file') and item.has_key('filetype') and item.has_key('label'):
+                if item['filetype'] == 'directory' and (walkEverything or ((not item['file'].endswith('.xsp')) and (not item['file'].endswith('.xml/')) and (not item['file'].endswith('.xml')))):
+                    if stringForce and item['file'].startswith(stringForce):
+                        dirs.append({'path':xbmc.translatePath(item['file']), 'label':item['label']})
+                    else:
+                        dirs.append({'path':item['file'], 'label':item['label']})
+                else:
+                    if stringForce and item['file'].startswith(stringForce):
+                        files.append({'path':xbmc.translatePath(item['file']), 'label':item['label']})
+                    else:
+                        files.append({'path':item['file'], 'label':item['label']})
+    return [path,dirs,files]
+        
+def kodiwalk(path, walkEverything = False, stringForce = False, paths = None):
+    if paths is None or len(paths) == 0:
+        paths = [kodilistdir(path, walkEverything, stringForce)]
+    else:
+        paths.append( kodilistdir(path, walkEverything, stringForce) )
+    dirs = paths[-1][1]
+    for dir in dirs:
+        if stringForce:
+            return kodiwalk(dir['path'].replace(xbmc.translatePath(stringForce),stringForce).replace('\\','/'), walkEverything, True, paths)
+        else:
+            return kodiwalk(dir['path'], walkEverything, stringForce, paths)
+    return paths
 
 class LibraryFunctions():
     def __init__( self, *args, **kwargs ):
@@ -976,22 +1009,18 @@ class LibraryFunctions():
         try:
             audiolist = []
             videolist = []
-            
             log('Loading playlists...')
-            paths = [['special://profile/playlists/video/','32004','VideoLibrary'], ['special://profile/playlists/music/','32005','MusicLibrary'], ['special://profile/playlists/mixed/','32008','MusicLibrary'], [xbmc.translatePath( "special://skin/playlists/" ).decode('utf-8'),'32059',None], [xbmc.translatePath( "special://skin/extras/" ).decode('utf-8'),'32059',None]]
+            paths = [['special://videoplaylists/','32004','VideoLibrary'], ['special://musicplaylists/','32005','MusicLibrary'], [xbmc.translatePath( "special://skin/playlists/" ).decode('utf-8'),'32059',None], [xbmc.translatePath( "special://skin/extras/" ).decode('utf-8'),'32059',None]]
             for path in paths:
                 count = 0
-                rootpath = xbmc.translatePath( path[0] ).decode('utf-8')
-                for root, subdirs, files in os.walk( rootpath ):
+                for root, subdirs, files in kodiwalk( path[0], stringForce = "special://skin/" ):
                     for file in files:
-                        playlist = root.replace( rootpath, path[0] )
-                        if not playlist.endswith( '/' ):
-                            playlist = playlist + "/"
-                        playlist = playlist + file
-                        playlistfile = os.path.join( root, file )
+                        playlist = file['path']
+                        label = file['label']
+                        playlistfile = xbmc.translatePath( playlist ).decode('utf-8')
                         mediaLibrary = path[2]
                         
-                        if file.endswith( '.xsp' ):
+                        if playlist.endswith( '.xsp' ):
                             contents = xbmcvfs.File(playlistfile, 'r')
                             contents_data = contents.read().decode('utf-8')
                             xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
@@ -1006,7 +1035,7 @@ class LibraryFunctions():
                                 if line.tag == "name" and mediaLibrary is not None:
                                     name = line.text
                                     if not name:
-                                        name = file[:-4]
+                                        name = label
                                     # Create a list item
                                     listitem = self._create(["::PLAYLIST::", name, path[1], {"icon": "DefaultPlaylist.png"} ])
                                     listitem.setProperty( "action-play", "PlayMedia(" + playlist.encode( 'utf-8' ) + ")" )
@@ -1021,8 +1050,8 @@ class LibraryFunctions():
                                     
                                     count += 1
                                     break
-                        elif file.endswith( '.m3u' ):
-                            name = file[:-4]
+                        elif playlist.endswith( '.m3u' ):
+                            name = label
                             listitem = self._create( ["::PLAYLIST::", name, "32005", {"icon": "DefaultPlaylist.png"} ] )
                             listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
                             listitem.setProperty( "action-show", "ActivateWindow(MusicLibrary," + playlist + ",return)".encode( 'utf-8' ) )
@@ -1051,16 +1080,13 @@ class LibraryFunctions():
             log('Loading script generated playlists...')
             path = "special://profile/addon_data/" + __addonid__ + "/"
             count = 0
-            rootpath = xbmc.translatePath( path ).decode('utf-8')
-            for root, subdirs, files in os.walk( rootpath ):
+            for root, subdirs, files in kodiwalk( path ):
                 for file in files:
-                    playlist = root.replace( rootpath, path )
-                    if not playlist.endswith( '/' ):
-                        playlist = playlist + "/"
-                    playlist = playlist + file
-                    playlistfile = os.path.join( root, file )
+                    playlist = file['path']
+                    label = file['label']
+                    playlistfile = xbmc.translatePath( playlist ).decode('utf-8')
                     
-                    if file.endswith( '-randomversion.xsp' ):
+                    if playlist.endswith( '-randomversion.xsp' ):
                         contents = xbmcvfs.File(playlistfile, 'r')
                         contents_data = contents.read().decode('utf-8')
                         xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
