@@ -1,3 +1,6 @@
+v0.4.3 (Unreleased development release)
+- [phate89] Use files.getDirectory to list playlists
+
 v0.4.2
 - [robweber] Fix for profiles shared via path substitution
 - Integration with plugin.program.video.node.editor
