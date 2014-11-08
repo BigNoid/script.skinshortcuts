@@ -35,6 +35,7 @@ class XMLFunctions():
         self.MAINWIDGET = {}
         self.MAINBACKGROUND = {}
         self.hasSettings = False
+        self.widgetCount = 1
         
     def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options, weEnabledSystemDebug = False, weEnabledScriptDebug = False ): 
         # Entry point for building includes.xml files
@@ -264,6 +265,7 @@ class XMLFunctions():
         
         # Clear any skin settings for backgrounds and widgets
         DATA._reset_backgroundandwidgets()
+        self.widgetCount = 1
         
         # Create a new tree and includes for the various groups
         tree = xmltree.ElementTree( xmltree.Element( "includes" ) )
@@ -594,6 +596,10 @@ class XMLFunctions():
                     # If this is a widget or background, set a skin setting to say it's enabled
                     if property[0] == "widget":
                         xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-widget-" + property[1] + ")" )
+                        # And if it's the main menu, list it
+                        if groupName == "mainmenu":
+                            xbmc.executebuiltin( "Skin.SetString(skinshortcuts-widget-" + str( self.widgetCount ) + "," + property[ 1 ] + ")" )
+                            self.widgetCount += 1
                     elif property[0] == "background":
                         xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
                         
