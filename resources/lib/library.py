@@ -709,10 +709,19 @@ class LibraryFunctions():
             
             listitems.append( self._create(["RipCD", "600", "32054", {} ]) )
             
-            listitems.append( self._create(["UpdateLibrary(video)", "32046", "32054", {} ]) )
-            listitems.append( self._create(["UpdateLibrary(music)", "32047", "32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(video)", "32055", "32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(music)", "32056", "32054", {} ]) )
+            if __xbmcversion__ == "13":
+                listitems.append( self._create(["UpdateLibrary(video)", "32046", "32054", {} ]) )
+                listitems.append( self._create(["UpdateLibrary(music)", "32047", "32054", {} ]) )
+            else:
+                listitems.append( self._create(["UpdateLibrary(video,,true)", "32046", "32054", {} ]) )
+                listitems.append( self._create(["UpdateLibrary(music,,true)", "32047", "32054", {} ]) )
+            
+            if __xbmcversion__ == "13":
+                listitems.append( self._create(["CleanLibrary(video)", "32055", "32054", {} ]) )
+                listitems.append( self._create(["CleanLibrary(music)", "32056", "32054", {} ]) )
+            else:
+                listitems.append( self._create(["CleanLibrary(video,,true)", "32055", "32054", {} ]) )
+                listitems.append( self._create(["CleanLibrary(music,,true)", "32056", "32054", {} ]) )
             
             self.addToDictionary( "commands", listitems )
         except:
