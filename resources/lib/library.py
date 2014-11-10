@@ -720,8 +720,8 @@ class LibraryFunctions():
                 listitems.append( self._create(["CleanLibrary(video)", "32055", "32054", {} ]) )
                 listitems.append( self._create(["CleanLibrary(music)", "32056", "32054", {} ]) )
             else:
-                listitems.append( self._create(["CleanLibrary(video,,true)", "32055", "32054", {} ]) )
-                listitems.append( self._create(["CleanLibrary(music,,true)", "32056", "32054", {} ]) )
+                listitems.append( self._create(["CleanLibrary(video,true)", "32055", "32054", {} ]) )
+                listitems.append( self._create(["CleanLibrary(music,true)", "32056", "32054", {} ]) )
             
             self.addToDictionary( "commands", listitems )
         except:
