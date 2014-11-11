@@ -141,9 +141,9 @@ class Main:
                     xbmc.executebuiltin( "Skin.Reset(" + self.ACTION + " )" )
                 if self.SHORTCUTTYPE is not None:
                     xbmc.executebuiltin( "Skin.Reset(" + self.SHORTCUTTYPE + ")" )
-                if self.THUMBNAIL is not None and selectedShortcut.getProperty( "icon" ):
+                if self.THUMBNAIL is not None:
                     xbmc.executebuiltin( "Skin.Reset(" + self.THUMBNAIL + ")" )
-                if self.THUMBNAIL is not None and selectedShortcut.getProperty( "thumbnail" ):
+                if self.THUMBNAIL is not None:
                     xbmc.executebuiltin( "Skin.Reset(" + self.THUMBNAIL + ")" )
                     
         if self.TYPE=="addNode":
