@@ -1588,7 +1588,7 @@ class LibraryFunctions():
 # === COMMON SELECT SHORTCUT METHOD ===
 # =====================================
 
-    def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None ):
+    def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None, showNone = False ):
         # This function allows the user to select a shortcut
         
         # If group is empty, start background loading of shortcuts
@@ -1601,6 +1601,9 @@ class LibraryFunctions():
             windowTitle = nodes[0]
         else:
             availableShortcuts = self.checkForFolder( availableShortcuts )
+            
+        if showNone is not False:
+            availableShortcuts.insert( 0, self._create(["::NONE::", "None", "", {"icon":"DefaultAddonNone.png"}] ) )
             
         if custom is not False:
             availableShortcuts.append( self._create(["||CUSTOM||", "Custom shortcut", "", {}] ) )
@@ -1681,6 +1684,10 @@ class LibraryFunctions():
                             
                 else:
                     selectedShortcut = None
+                    
+            elif path == "::NONE::":
+                # Create a really simple listitem to return
+                selectedShortcut = xbmcgui.ListItem( "::NONE::" )
 
             return selectedShortcut
         else:

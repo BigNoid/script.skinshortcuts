@@ -113,7 +113,7 @@ class Main:
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user-data" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
             
-            selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM )
+            selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM, showNone = self.NONE )
             
             # Now set the skin strings
             if selectedShortcut is not None and selectedShortcut.getProperty( "Path" ):
@@ -133,6 +133,18 @@ class Main:
                     xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "icon" ) + ")" )
                 if self.THUMBNAIL is not None and selectedShortcut.getProperty( "thumbnail" ):
                     xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "thumbnail" ) + ")" )
+            elif selectedShortcut is not None and selectedShortcut.getLabel() == "::NONE::":
+                # Clear the skin strings
+                if self.LABEL is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.LABEL + ")" )
+                if self.ACTION is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.ACTION + " )" )
+                if self.SHORTCUTTYPE is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.SHORTCUTTYPE + ")" )
+                if self.THUMBNAIL is not None and selectedShortcut.getProperty( "icon" ):
+                    xbmc.executebuiltin( "Skin.Reset(" + self.THUMBNAIL + ")" )
+                if self.THUMBNAIL is not None and selectedShortcut.getProperty( "thumbnail" ):
+                    xbmc.executebuiltin( "Skin.Reset(" + self.THUMBNAIL + ")" )
                     
         if self.TYPE=="addNode":
             # We've been sent a node from plugin.program.video.node.editor
@@ -188,6 +200,7 @@ class Main:
         self.THUMBNAIL = params.get( "skinThumbnail", None )
         self.GROUPING = params.get( "grouping", None )
         self.CUSTOM = params.get( "custom", "False" )
+        self.NONE = params.get( "showNone", "False" )
         
         self.NOLABELS = params.get( "nolabels", "false" ).lower()
         self.OPTIONS = params.get( "options", "" ).split( "|" )

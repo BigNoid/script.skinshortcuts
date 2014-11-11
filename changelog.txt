@@ -1,5 +1,6 @@
 v0.4.3 (Unreleased development release)
 - [phate89] Use files.getDirectory to list playlists
+- Just Select method - option to show 'None'
 
 v0.4.2
 - [robweber] Fix for profiles shared via path substitution

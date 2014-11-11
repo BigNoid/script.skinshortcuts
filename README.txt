@@ -4,7 +4,8 @@ script.skinshortcuts was written with the intention of making user customizable 
 What's New for Skinners (development version 0.4.3)
 -----------------------
 
-There are currently no new features for skinners in the development release.
+ - Just Select method - option to show a 'None' option, which will reset all skin labels passed in. See "Advanced Usage.txt", section "Just Select Shortcuts"
+ 
 
 What's New for Skinners (version 0.4.2 - current Repo release)
 -----------------------

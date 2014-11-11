@@ -103,9 +103,10 @@ When using this method, you specify which skin strings you want the script to se
 
 To use the script in this way, put the following in an onclick:
 
-RunScript(script.skinshortcuts,type=shortcuts&amp;custom=[True/False]&amp;skinLabel=[skinLabel]&amp;skinAction=[skinAction]&amp;skinType=[skinType]&amp;skinThumbnail=[skinThumbnail])
+RunScript(script.skinshortcuts,type=shortcuts&amp;custom=[True/False]&amp;showNone=[True/False]&amp;skinLabel=[skinLabel]&amp;skinAction=[skinAction]&amp;skinType=[skinType]&amp;skinThumbnail=[skinThumbnail])
 
-[True/False] - Whether you wish to allow the user to type their own custom command. If ommitted this will default to false. [OPTIONAL]
+custom=[True/False] - Whether you wish to allow the user to type their own custom command. If ommitted this will default to False. [OPTIONAL]
+showNone=[True/False] - Whether you wish to show a 'None' option to reset skin labels. If ommitted this will default to False. [OPTIONAL]
 [skinLabel] - The skin string the script will write the label of the selected shortcut to. [OPTIONAL]
 [skinAction] - the skin string the script will write the action of the selected shortcut to. [OPTIONAL]
 [skinType] - The skin string the script will write the type of the selected shortcut to. [OPTIONAL]
