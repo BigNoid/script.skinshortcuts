@@ -1019,7 +1019,7 @@ class LibraryFunctions():
             audiolist = []
             videolist = []
             log('Loading playlists...')
-            paths = [['special://videoplaylists/','32004','VideoLibrary'], ['special://musicplaylists/','32005','MusicLibrary'], [xbmc.translatePath( "special://skin/playlists/" ).decode('utf-8'),'32059',None], [xbmc.translatePath( "special://skin/extras/" ).decode('utf-8'),'32059',None]]
+            paths = [['special://videoplaylists/','32004','VideoLibrary'], ['special://musicplaylists/','32005','MusicLibrary'], ["special://skin/playlists/",'32059',None], ["special://skin/extras/",'32059',None]]
             for path in paths:
                 count = 0
                 for root, subdirs, files in kodiwalk( path[0], stringForce = "special://skin/" ):
@@ -1047,15 +1047,15 @@ class LibraryFunctions():
                                         name = label
                                     # Create a list item
                                     listitem = self._create(["::PLAYLIST::", name, path[1], {"icon": "DefaultPlaylist.png"} ])
-                                    listitem.setProperty( "action-play", "PlayMedia(" + playlist.encode( 'utf-8' ) + ")" )
-                                    listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist.encode( 'utf-8' ) + ",return)".encode( 'utf-8' ) )
+                                    listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
+                                    listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist + ",return)".encode( 'utf-8' ) )
                                     
                                     if mediaLibrary == "VideoLibrary":
                                         videolist.append( listitem )
                                     else:
                                         audiolist.append( listitem )
                                     # Save it for the widgets list
-                                    self.widgetPlaylistsList.append( [playlist.encode( 'utf-8' ), "(" + __language__( int( path[1] ) ) + ") " + name, name] )
+                                    self.widgetPlaylistsList.append( [playlist, "(" + __language__( int( path[1] ) ) + ") " + name, name] )
                                     
                                     count += 1
                                     break
