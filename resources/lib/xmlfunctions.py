@@ -350,8 +350,10 @@ class XMLFunctions():
                 # Build the submenu
                 count = 0
                 for submenuTree in submenuTrees:
-                    if count != 0:
+                    if count == 1:
                         submenu = submenu + "." + str( count )
+                    elif count != 0:
+                        submenu = submenu[:-1] + str( count )
                         
                     if submenu in submenuNodes:
                         justmenuTreeA = submenuNodes[ submenu ][ 0 ]
@@ -367,8 +369,12 @@ class XMLFunctions():
                         submenuNodes[ submenu ] = [ justmenuTreeA, justmenuTreeB ]
                         
                     itemidsubmenu = 0
+                    
+                    if count == 0:
+                        submenudata = DATA._get_shortcuts( submenu, submenuDefaultID, True, profile[0] )
+                    else:
+                        submenudata = DATA._get_shortcuts( submenu, None, True, profile[0] )
                         
-                    submenudata = DATA._get_shortcuts( submenu, submenuDefaultID, True, profile[0] )
                     if type( submenudata ) == list:
                         submenuitems = submenudata
                     else:
