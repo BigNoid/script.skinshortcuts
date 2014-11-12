@@ -1227,20 +1227,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if launchGroup is None or launchGroup == "":
                 DATA._clear_labelID()
                 num = self.getControl( 211 ).getSelectedPosition()
-                orderIndex = int( self.getControl( 211 ).getListItem( num ) )
+                orderIndex = self.getControl( 211 ).getListItem( num )
                 
-                count = 0
                 # Get the labelID's of all other menu items
                 for listitem in self.allListItems:
-                    if count != orderIndex:
+                    if listitem != orderIndex:
                         DATA._get_labelID( listitem.getProperty( "labelID" ), listitem.getProperty( "path" ) )
                 
                 # Now generate labelID for this menu item, if it doesn't have one
                 labelID = self.getControl( 211 ).getListItem( num ).getProperty( "localizedString" )
                 if labelID is None or labelID == "":
-                    launchGroup = self._get_labelID( self.getControl( 211 ).getListItem( num ).getLabel(), self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
+                    launchGroup = DATA._get_labelID( self.getControl( 211 ).getListItem( num ).getLabel(), self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
                 else:
-                    launchGroup = self._get_labelID( labelID, self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
+                    launchGroup = DATA._get_labelID( labelID, self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
                 self.getControl( 211 ).getListItem( num ).setProperty( "labelID", launchGroup )                                        
             
             # Check if we're launching a specific additional menu
