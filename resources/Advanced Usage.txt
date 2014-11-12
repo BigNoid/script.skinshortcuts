@@ -409,6 +409,16 @@ It is recommended that you provide an alternative access to settings somewhere i
 Please note, this will cause the script to create a shortcut with the action ActivateWindow(Settings) if none exists. It doesn't look for any other settings area links. It also doesn't take into account any overrides or visibility conditions that may be attached to a shortcut.
 
 
+12. Provide available thumbnails
+
+When using button 311 in the management dialog, you can provide a list of thumbnails the user can choose from for their shortcut.
+
+<thumbnail label="[label]">[path]</thumbnail>
+
+[label] - The name displayed to the user in the select dialog
+[path] - The path to the image. No need to include full path if the thumbnail is included with your skin.
+
+
 Localisation
 ------------
 

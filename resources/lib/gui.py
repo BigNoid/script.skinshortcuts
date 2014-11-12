@@ -622,11 +622,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             log( "### ERROR could not save file %s" % __datapath__ )                
     
     def _load_widgetsbackgrounds( self ):
-        # Pre-load widget and background options provided by skin
+        # Pre-load widget, background and thumbnail options provided by skin
         self.widgets = []
         self.widgetsPretty = {}
         self.backgrounds = []
         self.backgroundsPretty = {}
+        self.thumbnails = []
+        self.thumbnailsPretty = {}
         
         # Load skin overrides
         tree = DATA._get_overrides_skin()
@@ -662,6 +664,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if "default" in elem.attrib:
                     self.backgroundBrowseDefault = elem.attrib.get( "default" )
 
+        # Get thumbnails
+        if tree is not None:
+            elems = tree.findall('thumbnail')
+            for elem in elems:
+                self.thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+                self.thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
                 
     # ========================
     # === GUI INTERACTIONS ===
@@ -1121,6 +1129,49 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self._add_additionalproperty( listitem, "backgroundName", backgroundLabel[selectedBackground].replace( "* ", "" ) )
                     self._remove_additionalproperty( listitem, "backgroundPlaylist" )
                     self._remove_additionalproperty( listitem, "backgroundPlaylistName" )
+            
+            self.changeMade = True
+        
+        if controlID == 311:
+            # Choose thumbnail
+            log( "Choose thumbnail (311)" )
+            listControl = self.getControl( 211 )
+            listitem = listControl.getSelectedItem()
+            
+            # Create lists for the select dialog
+            thumbnail = [""]                     
+            thumbnailLabel = [LIBRARY._create(["", __language__(32096), "", {}] )]
+            
+            # Generate list of thumbnails for the dialog
+            for key in self.thumbnails:
+                log( repr( key[ 0 ] ) + " " + repr( key[ 1 ] ) )
+                thumbnail.append( key[0] )            
+                thumbnailLabel.append( LIBRARY._create(["", key[ 1 ], "", {"icon": key[ 0 ] }] ) )
+            
+            # Show the dialog
+            w = library.ShowDialog( "DialogSelect.xml", __cwd__, listing=thumbnailLabel, windowtitle="Select thumbnail" )
+            w.doModal()
+            selectedThumbnail = w.result
+            del w
+            
+            if selectedThumbnail == -1:
+                # User cancelled
+                return
+
+            elif selectedThumbnail == 0:
+                # User has chosen to browse for an image
+                imagedialog = xbmcgui.Dialog()
+                custom_image = imagedialog.browse( 2 , xbmc.getLocalizedString(1030), 'files', '', True, False, self.backgroundBrowseDefault)
+                
+                if custom_image:
+                    listitem.setThumbnailImage( custom_image )
+                else:
+                    # User cancelled
+                    return
+
+            else:
+                # User has selected a normal thumbnail
+                listitem.setThumbnailImage( thumbnail[ selectedThumbnail ] )
             
             self.changeMade = True
         

@@ -405,3 +405,7 @@ msgstr ""
 msgctxt "#32095"
 msgid "Choose default action for main menu item"
 msgstr ""
+
+msgctxt "#32096"
+msgid "Browse..."
+msgstr ""

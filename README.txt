@@ -5,6 +5,7 @@ What's New for Skinners (development version 0.4.3)
 -----------------------
 
  - Just Select method - option to show a 'None' option, which will reset all skin labels passed in. See "Advanced Usage.txt", section "Just Select Shortcuts"
+ - Ability to specify available thumbnails for user to choose from with new button 311. See "Advanced Usage.txt", section "Overrides.xml", part 12 and "Management Dialog.txt"
  
 
 What's New for Skinners (version 0.4.2 - current Repo release)
