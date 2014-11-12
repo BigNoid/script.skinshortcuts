@@ -71,20 +71,17 @@ Multiple Sub-Menus
 
 When using Skin Shortcuts to provide the whole main menu system, you may wish to provide more than one sub menu. For example, you could ape Confluence's favourites - which are displayed below the main and sub-menu's - with an additional sub menu.
 
-In the list where you want an additional sub-menu to appear, put the following in the <content> tag:
- 
-	plugin://script.skinshortcuts?type=submenu&amp;level=1&amp;mainmenuID=9000
-   
-Remember to replace 9000 with the id of the list you are using for the main menu. To provide more sub-menus for a main menu item, increase the value of the 'level' parameter.
+To cause the script to build the additional submenus, include levels=[number of additional submenus] in the build command. You can build up to an additional 5 menus.
 
-The script can provide a list of controls for your overrides.xml to let the user manage the additional sub-menu items.
-  
-In the list where you want these controls to appear, put the following in the <content> tag:
-  
-	plugin://script.skinshortcuts?type=settings&amp;level=1&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
+	RunScript(script.skinshortcuts,type=buildxml&amp;mainmenuID=9000&amp;levels=1)
+
+Then include the additional submenu in the list where you want the items to appear.
+
+	<include>skinshortcuts-submenu-1</include>
 	
-You MUST provide a string for the settings list. See 'overrides.xml' (section 4) for details. Skin Shortcuts supports a maximum of 5 additional sub-menus, numbered 1 through 5.
+Where the number at the end is the number of additional submenu you want displayed.
 
+Within the management dialog, include buttons in the range of 405 - 410 to allow the user to manage the items within the additional submenu. See "Management Dialog.txt" for details.
 
 Alternative Listing Methods
 ---------------------------
