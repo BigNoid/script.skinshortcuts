@@ -67,7 +67,7 @@ def kodiwalk(path, walkEverything = False, stringForce = False, paths = None):
     dirs = paths[-1][1]
     for dir in dirs:
         if stringForce:
-            return kodiwalk(dir['path'].replace(xbmc.translatePath(stringForce),stringForce).replace('\\','/'), walkEverything, True, paths)
+            return kodiwalk(dir['path'].replace(xbmc.translatePath(stringForce),stringForce).replace('\\','/'), walkEverything, stringForce, paths)
         else:
             return kodiwalk(dir['path'], walkEverything, stringForce, paths)
     return paths
