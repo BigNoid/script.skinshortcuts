@@ -383,18 +383,33 @@ class XMLFunctions():
                         submenuitems = submenudata.findall( "shortcut" )
                     
                     # Are there any submenu items for the main menu?
-                    if count == 0 and not len( submenuitems ) == 0:
-                        try:
-                            hasSubMenu = xmltree.SubElement( mainmenuItemA, "property" )
-                            hasSubMenu.set( "name", "hasSubmenu" )
-                            hasSubMenu.text = "True"
-                            if buildMode == "single":
-                                hasSubMenu = xmltree.SubElement( mainmenuItemB, "property" )
+                    if count == 0:
+                        if len( submenuitems ) != 0:
+                            log( "Has submenu" )
+                            try:
+                                hasSubMenu = xmltree.SubElement( mainmenuItemA, "property" )
                                 hasSubMenu.set( "name", "hasSubmenu" )
                                 hasSubMenu.text = "True"
-                        except:
-                            # There probably isn't a main menu
-                            pass
+                                if buildMode == "single":
+                                    hasSubMenu = xmltree.SubElement( mainmenuItemB, "property" )
+                                    hasSubMenu.set( "name", "hasSubmenu" )
+                                    hasSubMenu.text = "True"
+                            except:
+                                # There probably isn't a main menu
+                                pass
+                        else:   
+                            log( "No submenu" )
+                            try:
+                                hasSubMenu = xmltree.SubElement( mainmenuItemA, "property" )
+                                hasSubMenu.set( "name", "hasSubmenu" )
+                                hasSubMenu.text = "False"
+                                if buildMode == "single":
+                                    hasSubMenu = xmltree.SubElement( mainmenuItemB, "property" )
+                                    hasSubMenu.set( "name", "hasSubmenu" )
+                                    hasSubMenu.text = "False"
+                            except:
+                                # There probably isn't a main menu
+                                pass
                 
                     # If we're building a single menu, update the onclicks of the main menu
                     if buildMode == "single" and not len( submenuitems ) == 0:
