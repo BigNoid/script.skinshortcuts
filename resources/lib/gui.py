@@ -981,9 +981,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
-            # Get the default widget for this item
-            defaultWidget = self.find_default( "widget", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
-            
             # Generate list of widgets for select dialog
             widget = [""]
             widgetLabel = [__language__(32053)]
@@ -993,11 +990,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 widget.append( key[0] )
                 widgetName.append( "" )
                 widgetType.append( key[2] )
-                
-                if key[0] == defaultWidget:
-                    widgetLabel.append( "* " + key[1] )
-                else:
-                    widgetLabel.append( key[1] )
+                widgetLabel.append( key[1] )
                 
             # If playlists have been enabled for widgets, add them too
             if self.widgetPlaylists:
@@ -1036,11 +1029,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         self._set_label( listitem, widgetName[selectedWidget] )
                         currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 else:
-                    self._add_additionalproperty( listitem, "widgetName", widgetLabel[selectedWidget].replace( "* ", "" ) )
+                    self._add_additionalproperty( listitem, "widgetName", widgetLabel[selectedWidget] )
                     self._add_additionalproperty( listitem, "widget", widget[selectedWidget] )
                     self._remove_additionalproperty( listitem, "widgetPlaylist" )
                     if currentWindow.getProperty( "useWidgetNameAsLabel" ) == "true" :
-                        self._set_label( listitem, widgetLabel[selectedWidget].replace( "* ", "" ) )
+                        self._set_label( listitem, widgetLabel[selectedWidget] )
                         currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 
                 if widgetType[ selectedWidget] is not None:
@@ -1063,9 +1056,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             else:
                 background = [""]                         
                 backgroundLabel = [__language__(32053)]
-                
-            # Get the default background for this item
-            defaultBackground = self.find_default( "background", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
 
             # Generate list of backgrounds for the dialog
             for key in self.backgrounds:
@@ -1078,11 +1068,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         backgroundLabel.append( key[1].replace( "::PLAYLIST::", playlist[1] ) )
                 else:
                     background.append( key[0] )            
-                    if defaultBackground == key[0]:
-                        # This is the default background for the item
-                        backgroundLabel.append( "* " + key[1] )
-                    else:
-                        backgroundLabel.append( key[1] )
+                    backgroundLabel.append( key[1] )
             
             # Show the dialog
             selectedBackground = xbmcgui.Dialog().select( __language__(32045), backgroundLabel )
@@ -1126,7 +1112,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 else:
                     # User has selected a normal background
                     self._add_additionalproperty( listitem, "background", background[selectedBackground] )
-                    self._add_additionalproperty( listitem, "backgroundName", backgroundLabel[selectedBackground].replace( "* ", "" ) )
+                    self._add_additionalproperty( listitem, "backgroundName", backgroundLabel[selectedBackground] )
                     self._remove_additionalproperty( listitem, "backgroundPlaylist" )
                     self._remove_additionalproperty( listitem, "backgroundPlaylistName" )
             
@@ -1450,28 +1436,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         return True
         
-    def find_default( self, backgroundorwidget, labelID, defaultID ):
-        # This function finds the id of an items default background or widget
-        tree = DATA._get_overrides_skin()
-        if tree is not None:
-            if backgroundorwidget == "background":
-                elems = tree.getroot().findall( "backgrounddefault" )
-            else:
-                elems = tree.getroot().findall( "widgetdefault" )
-                
-            if elems is not None:
-                for elem in elems:
-                    if elem.attrib.get( "labelID" ) == labelID or elem.attrib.get( "defaultID" ) == defaultID:
-                        if "group" in elem.attrib:
-                            if elem.attrib.get( "group" ) == self.group:
-                                return elem.text
-                            else:
-                                continue
-                        else:
-                            return elem.text
-                                        
-            return None
-                        
     def _set_label( self, listitem, label ):
         # Update the label, local string and labelID
         listitem.setLabel( label )

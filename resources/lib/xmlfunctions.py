@@ -385,7 +385,6 @@ class XMLFunctions():
                     # Are there any submenu items for the main menu?
                     if count == 0:
                         if len( submenuitems ) != 0:
-                            log( "Has submenu" )
                             try:
                                 hasSubMenu = xmltree.SubElement( mainmenuItemA, "property" )
                                 hasSubMenu.set( "name", "hasSubmenu" )
@@ -398,7 +397,6 @@ class XMLFunctions():
                                 # There probably isn't a main menu
                                 pass
                         else:   
-                            log( "No submenu" )
                             try:
                                 hasSubMenu = xmltree.SubElement( mainmenuItemA, "property" )
                                 hasSubMenu.set( "name", "hasSubmenu" )
