@@ -207,6 +207,8 @@ class DataFunctions():
             defaultID = node.find( "defaultID" )
             if defaultID == None:
                 xmltree.SubElement( node, "defaultID" ).text = labelID
+            else:
+                defaultID = defaultID.text
             
             # Check that any version node matches current XBMC version
             version = node.find( "version" )
