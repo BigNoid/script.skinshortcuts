@@ -466,7 +466,6 @@ class DataFunctions():
         if tree is not None:
             for elemSearch in [["widget", tree.findall( "widgetdefault" )], ["background", tree.findall( "backgrounddefault" )], ["custom", tree.findall( "propertydefault" )] ]:
                 for elem in elemSearch[1]:
-                    
                     if elemSearch[0] == "custom":
                         # Custom property
                         if "group" not in elem.attrib:
@@ -477,6 +476,13 @@ class DataFunctions():
                         # Widget or background
                         if "group" not in elem.attrib:
                             defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), elemSearch[0], elem.text, elem.attrib.get( 'defaultID' ) ] )
+                            
+                            if elemSearch[ 0 ] == "background":
+                                # Get and set the background name
+                                backgroundName = self._getBackgroundName( elem.text )
+                                if backgroundName is not None:
+                                    defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "backgroundName", backgroundName, elem.attrib.get( 'defaultID' ) ] )
+                                
                             if elemSearch[0] == "widget":
                                 # Get and set widget type and name
                                 widgetDetails = self._getWidgetNameAndType( elem.text )
@@ -486,6 +492,13 @@ class DataFunctions():
                                         defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1], elem.attrib.get( 'defaultID' ) ] )
                         else:
                             defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elemSearch[0], elem.text, elem.attrib.get( 'defaultID' ) ] )
+                            
+                            if elemSearch[ 0 ] == "background":
+                                # Get and set the background name
+                                backgroundName = self._getBackgroundName( elem.text )
+                                if backgroundName is not None:
+                                    defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "backgroundName", backgroundName, elem.attrib.get( 'defaultID' ) ] )
+                            
                             if elemSearch[0] == "widget":
                                 # Get and set widget type and name
                                 widgetDetails = self._getWidgetNameAndType( elem.text )
@@ -506,6 +519,15 @@ class DataFunctions():
                         return [elem.attrib.get( "label" ), elem.attrib.get( "type" )]
                     else:
                         return [ elem.attrib.get( "label" ), None ]
+                        
+        return None
+        
+    def _getBackgroundName( self, backgroundID ):
+        tree = self._get_overrides_skin()
+        if tree is not None:
+            for elem in tree.findall( "background" ):
+                if elem.text == backgroundID:
+                    return elem.attrib.get( "label" )
                         
         return None
                 
