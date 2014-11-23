@@ -201,7 +201,7 @@ If you are using Skin Shortcuts to manage background images, provide a list of b
 
 If you want to let the user browse for either a single or multi-image background, also include:
 
-<backgroundBrowse default="protocol://path/to/folder>True</backgroundBrowse>
+<backgroundBrowse default="protocol://path/to/folder">True</backgroundBrowse>
 
 where default is an optional path to the folder that will be displayed by default in the select dialog.
 
