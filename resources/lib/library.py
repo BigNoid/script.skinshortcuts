@@ -1204,7 +1204,7 @@ class LibraryFunctions():
                         
             contenttypes = ["executable", "video", "audio", "image"]
             for contenttype in contenttypes:
-                listitems = []
+                listitems = {}
                 if contenttype == "executable":
                     contentlabel = __language__(32009)
                     shortcutType = "::SCRIPT::32009"
@@ -1244,19 +1244,20 @@ class LibraryFunctions():
                                 listitem.setProperty( "path", path )
                                 listitem.setProperty( "action", action )
 
-                            listitems.append(listitem)
+                            listitems[ item[ "name" ] ] = listitem
+                            #listitems.append(listitem)
                             
                 if contenttype == "executable":
-                    self.addToDictionary( "addon-program", listitems )
+                    self.addToDictionary( "addon-program", self.sortDictionary( listitems ) )
                     log( " - " + str( len( listitems ) ) + " programs found" )
                 elif contenttype == "video":
-                    self.addToDictionary( "addon-video", listitems )
+                    self.addToDictionary( "addon-video", self.sortDictionary( listitems ) )
                     log( " - " + str( len( listitems ) ) + " video add-ons found" )
                 elif contenttype == "audio":
-                    self.addToDictionary( "addon-audio", listitems )
+                    self.addToDictionary( "addon-audio", self.sortDictionary( listitems ) )
                     log( " - " + str( len( listitems ) ) + " audio add-ons found" )
                 elif contenttype == "image":
-                    self.addToDictionary( "addon-image", listitems )
+                    self.addToDictionary( "addon-image", self.sortDictionary( listitems ) )
                     log( " - " + str( len( listitems ) ) + " image add-ons found" )
             
         except:
@@ -1265,6 +1266,12 @@ class LibraryFunctions():
         
         self.loadedAddOns = True
         return self.loadedAddOns
+        
+    def sortDictionary( self, dictionary ):
+        listitems = []
+        for key in sorted( dictionary.keys() ): #, reverse = True):
+            listitems.append( dictionary[ key ] )
+        return listitems
             
     # =============================
     # === ADDON/SOURCE EXPLORER ===
