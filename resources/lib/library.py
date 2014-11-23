@@ -401,7 +401,7 @@ class LibraryFunctions():
     # === BUILD AVAILABLE SHORTCUT ===
     # ================================
     
-    def _create ( self, item, allowOverrideLabel = True ):         
+    def _create ( self, item, allowOverrideLabel = True ):
         # Retrieve label
         localLabel = DATA.local( item[1] )[0]
         
@@ -456,7 +456,7 @@ class LibraryFunctions():
         else:
             icon = "DefaultShortcut.png"
             thumbnail = None
-            
+                        
         # Check if the option to use the thumb as the icon is enabled
         if self.useDefaultThumbAsIcon is None:
             # Retrieve the choice from the overrides.xml
@@ -481,27 +481,35 @@ class LibraryFunctions():
             
         oldicon = None
         
+        # If the icon starts with a $, ask Kodi to parse it for us
+        displayIcon = icon
+        if icon.startswith( "$" ):
+            displayIcon = xbmc.getInfoLabel( icon )
+        
         # Get a temporary labelID
         DATA._clear_labelID()
         labelID = DATA._get_labelID( labelID, item[0] )
                         
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
-        if not icon or not xbmc.skinHasImage( icon ):
+        if not displayIcon or not xbmc.skinHasImage( displayIcon ):
             if not usedDefaultThumbAsIcon:
-                icon = "DefaultShortcut.png"
-            
+                displayIcon = "DefaultShortcut.png"
+                            
         # Build listitem
         if thumbnail is not None:
-            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon, thumbnailImage=thumbnail)
+            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=displayIcon, thumbnailImage=thumbnail)
             listitem.setProperty( "thumbnail", thumbnail)
         else:
-            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=icon)
+            listitem = xbmcgui.ListItem(label=displayLabel, label2=displayLabel2, iconImage=thumbnail)
         listitem.setProperty( "path", item[0] )
         listitem.setProperty( "localizedString", localLabel )
         listitem.setProperty( "shortcutType", shortcutType )
-        listitem.setProperty( "icon", icon )
+        listitem.setProperty( "icon", displayIcon )
         listitem.setProperty( "tempLabelID", labelID )
         listitem.setProperty( "defaultLabel", labelID )
+        
+        if displayIcon != icon:
+            listitem.setProperty( "untranslatedIcon", icon )
         
         return( listitem )
                 

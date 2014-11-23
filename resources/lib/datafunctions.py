@@ -342,6 +342,10 @@ class DataFunctions():
                 
                 
     def _get_icon_overrides( self, tree, icon, group, labelID, setToDefault = True ):
+        # If the icon is a VAR or an INFO, we aren't going to override
+        if icon.startswith( "$" ):
+            return icon
+        
         # This function will get any icon overrides based on labelID or group
         if icon is None:
             return

@@ -265,6 +265,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Get icon and thumb (and set to None if there isn't any)
         icon = item.find( "icon" )
+        
         if icon is not None:
             icon = icon.text
         else:
@@ -354,6 +355,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Retrieve icon
         icon = listitem.getProperty( "icon" )
         oldicon = None
+        
+        # If the icon is a VAR or an INFO, we're going to translate it and set the untranslatedIcon property
+        if icon.startswith( "$" ):
+            listitem.setProperty( "untranslatedIcon", icon )
+            icon = xbmc.getInfoLabel( icon )
+            listitem.setProperty( "icon", icon )
+            listitem.setIconImage( icon )
         
         # Check for overrides
         tree = DATA._get_overrides_skin()
@@ -1383,6 +1391,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitemCopy.setProperty( "defaultID", listitem.getProperty( "defaultID" ) )
         else:
             listitemCopy.setProperty( "defaultID", DATA._get_labelID( DATA.local( listitem.getProperty( "localizedString" ) )[3],  listitem.getProperty( "path" ), True ) )
+            
+        # If the item has an untranslated icon, set the icon image to it
+        if listitem.getProperty( "untranslatedIcon" ):
+            icon = listitem.getProperty( "untranslatedIcon" )
+            listitemCopy.setIconImage( icon )
+            listitemCopy.setProperty( "icon", icon )
             
         # Revert to original icon (because we'll override it again in a minute!)
         if listitem.getProperty( "original-icon" ):
