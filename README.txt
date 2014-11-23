@@ -6,6 +6,7 @@ What's New for Skinners (development version 0.4.3)
 
  - Just Select method - option to show a 'None' option, which will reset all skin labels passed in. See "Advanced Usage.txt", section "Just Select Shortcuts"
  - Ability to specify available thumbnails for user to choose from with new button 311. See "Advanced Usage.txt", section "Overrides.xml", part 12 and "Management Dialog.txt"
+ - Advice change - hasSubmenu cannot be relied upon to indicate there are no visible items, there may still be invisible items.
  
 
 What's New for Skinners (version 0.4.2 - current Repo release)
@@ -291,6 +292,8 @@ Regardless of which method you use, the script will always return a list with a 
 	Property(backgroundName)    - The display name of the widget will appear here
 
 You can also use the script to manage any additional properties you would like. See "resources/Management Dialog.txt" and "resources/Advanced Usage.txt" - "Overrides.xml" - section 5 (Custom shortcut properties)
+
+Note, there is an additional property - Property(hasSubmenu) - which is used by the methods used for building all menus in a single list. It should not be relied upon to determine whether there are any visible items in a submenu, as it will still return True if all items within the submenu are invisible. Suggestion is to use Container.NumItems to determine this information instead.
 	
 	
 Display more controls depending on the mainmenu item
