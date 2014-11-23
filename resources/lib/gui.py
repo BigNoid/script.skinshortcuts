@@ -1049,13 +1049,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
+            usePrettyDialog = False
+            
             # Create lists for the select dialog, with image browse buttons if enabled
             if self.backgroundBrowse:
                 background = ["", "", ""]         
                 backgroundLabel = [__language__(32053), __language__(32051), __language__(32052)]
+                backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", {}] ), LIBRARY._create(["", __language__(32051), "", {}] ), LIBRARY._create(["", __language__(32052), "", {}] ) ]
             else:
                 background = [""]                         
                 backgroundLabel = [__language__(32053)]
+                backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", {}] ) ]
 
             # Generate list of backgrounds for the dialog
             for key in self.backgrounds:
@@ -1063,15 +1067,29 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     for playlist in LIBRARY.widgetPlaylistsList:
                         background.append( [ key[0], playlist[0], playlist[1] ] )
                         backgroundLabel.append( key[1].replace( "::PLAYLIST::", playlist[1] ) )
+                        backgroundPretty.append( LIBRARY._create(["", key[1].replace( "::PLAYLIST::", playlist[1] ), "", {}] ) )
                     for playlist in LIBRARY.scriptPlaylists():
                         background.append( [ key[0], playlist[0], playlist[1] ] )
                         backgroundLabel.append( key[1].replace( "::PLAYLIST::", playlist[1] ) )
+                        backgroundPretty.append( LIBRARY._create(["", key[1].replace( "::PLAYLIST::", playlist[1] ), "", {}] ) )
                 else:
                     background.append( key[0] )            
                     backgroundLabel.append( key[1] )
+                    log( repr( xbmc.skinHasImage( key[ 0 ] ) ) )
+                    if xbmc.skinHasImage( key[ 0 ] ) == True:
+                        usePrettyDialog = True
+                        backgroundPretty.append( LIBRARY._create(["", key[ 1 ], "", { "icon": key[ 0 ] } ] ) )
+                    else:
+                        backgroundPretty.append( LIBRARY._create(["", key[ 1 ], "", {} ] ) )
             
-            # Show the dialog
-            selectedBackground = xbmcgui.Dialog().select( __language__(32045), backgroundLabel )
+            if usePrettyDialog:
+                w = library.ShowDialog( "DialogSelect.xml", __cwd__, listing=backgroundPretty, windowtitle=__language__(32045) )
+                w.doModal()
+                selectedThumbnail = w.result
+                del w
+            else:
+                # Show the dialog
+                selectedBackground = xbmcgui.Dialog().select( __language__(32045), backgroundLabel )
             
             if selectedBackground == -1:
                 # User cancelled
