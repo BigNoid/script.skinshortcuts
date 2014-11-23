@@ -1062,11 +1062,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if self.backgroundBrowse:
                 background = ["", "", ""]         
                 backgroundLabel = [__language__(32053), __language__(32051), __language__(32052)]
-                backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", {}] ), LIBRARY._create(["", __language__(32051), "", {}] ), LIBRARY._create(["", __language__(32052), "", {}] ) ]
+                backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", { "icon": "DefaultAddonNone.png" }] ), LIBRARY._create(["", __language__(32051), "", { "icon": "DefaultFile.png" }] ), LIBRARY._create(["", __language__(32052), "", { "icon": "DefaultFolder.png" }] ) ]
             else:
                 background = [""]                         
                 backgroundLabel = [__language__(32053)]
-                backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", {}] ) ]
+                backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", { "icon": "DefaultAddonNone.png" }] ) ]
 
             # Get the default background for this item
             defaultBackground = self.find_default( "background", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
@@ -1090,7 +1090,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         backgroundLabel.append( key[1] + " (%s)" %( __language__(32050) ) )
                         if xbmc.skinHasImage( key[ 0 ] ) == True:
                             usePrettyDialog = True
-                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", { "icon": key[ 0 ] } ] ) )
+                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", { "icon": "DefaultFile.png", "thumbnail": key[ 0 ] } ] ) )
                         else:
                             backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", {} ] ) )
                     else:
