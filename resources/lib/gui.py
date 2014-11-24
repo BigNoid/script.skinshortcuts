@@ -355,6 +355,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Retrieve icon
         icon = listitem.getProperty( "icon" )
         oldicon = None
+        iconIsVar = False
+        
+        if listitem.getProperty( "untranslatedIcon" ):
+            iconIsVar = True
         
         # If the icon is a VAR or an INFO, we're going to translate it and set the untranslatedIcon property
         if icon.startswith( "$" ):
@@ -362,6 +366,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             icon = xbmc.getInfoLabel( icon )
             listitem.setProperty( "icon", icon )
             listitem.setIconImage( icon )
+            iconIsVar = True
         
         # Check for overrides
         tree = DATA._get_overrides_skin()
@@ -383,7 +388,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
         setDefault = False
-        if not xbmc.skinHasImage( icon ) and setToDefault == True:
+        if ( not xbmc.skinHasImage( icon ) and setToDefault == True ) and not iconIsVar:
             if oldicon == None:
                 oldicon = icon
             setDefault = True
@@ -447,10 +452,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     xmltree.SubElement( shortcut, "label2" ).text = DATA.local( listitem.getLabel2() )[0]
                     
                     # Icon and thumbnail
-                    if listitem.getProperty( "original-icon" ):
-                        xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "original-icon" )
+                    if listitem.getProperty( "untranslatedIcon" ):
+                        xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "untranslatedIcon" )
                     else:
-                        xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "icon" )
+                        if listitem.getProperty( "original-icon" ):
+                            xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "original-icon" )
+                        else:
+                            xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "icon" )
                         
                     xmltree.SubElement( shortcut, "thumb" ).text = listitem.getProperty( "thumbnail" )
                     

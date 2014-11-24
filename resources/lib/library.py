@@ -483,15 +483,17 @@ class LibraryFunctions():
         
         # If the icon starts with a $, ask Kodi to parse it for us
         displayIcon = icon
+        iconIsVar = False
         if icon.startswith( "$" ):
             displayIcon = xbmc.getInfoLabel( icon )
+            iconIsVar = True
         
         # Get a temporary labelID
         DATA._clear_labelID()
         labelID = DATA._get_labelID( labelID, item[0] )
                         
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
-        if not displayIcon or not xbmc.skinHasImage( displayIcon ):
+        if ( not displayIcon or not xbmc.skinHasImage( displayIcon ) ) and not iconIsVar:
             if not usedDefaultThumbAsIcon:
                 displayIcon = "DefaultShortcut.png"
                             
