@@ -648,6 +648,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 widgetType = None
                 if "type" in elem.attrib:
                     widgetType = elem.attrib.get( "type" )
+                if "condition" in elem.attrib:
+                    if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                        continue
                 self.widgets.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], widgetType ] )
                 self.widgetsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
                 
@@ -662,6 +665,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if tree is not None:
             elems = tree.findall('background')
             for elem in elems:
+                if "condition" in elem.attrib:
+                    if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                        continue
+
                 self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
                 self.backgroundsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
                 

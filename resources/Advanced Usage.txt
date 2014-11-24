@@ -191,10 +191,11 @@ IMPORTANT: In previous versions this element was called <thumbnail> - please upd
 
 If you are using Skin Shortcuts to manage background images, provide a list of backgrounds and defaults for labelID's in the overrides.xml.
 
-<background label="[Label]">[backgroundID]</background>
+<background label="[Label]" condition="[Condition]">[backgroundID]</background>
 <backgrounddefault labelID="[LabelID]" group="[GroupName]">[backgroundID]</backgrounddefault>
 
 [Label] - The display name of the background (can be a localised string)
+[Condition] - [Optional] Boolean condition that must be true for the background to show in the management dialogs Background Select (evaluated when management dialog is loaded)
 [GroupName] - [Optional] The group that the labelID must be in, for example "movies". If omitted, the default will apply to items in the main menu.
 [backgroundID] - A string you use to identify the background
 [labelID] - The labelID you are providing a default for. (Replace with defaultID="[defaultID]" to set default based on this property instead)
@@ -226,11 +227,11 @@ You can then choose which background to display based on the 'background' proper
 
 If you are using Skin Shortcuts to manage widgets, provide a list of the widgets your skin supports and defaults for labelID's in the overrides.xml.
 
-<widget label="[label]" type="[type]">[WidgetID]</widget>
+<widget label="[label]" condition="[Condition]" type="[type]">[WidgetID]</widget>
 <widgetdefault labelID="[labelID]" group="[GroupName]">[widgetID]</widgetdefault>
 
 [label] - The display name of the widget, to be shown when choosing widgets (can be a localised string)
-[type] - [Optional] A string you use to identy the type of widget (returned as property widgetType)
+[Condition] - [Optional] Boolean condition that must be true for the background to show in the management dialogs Background Select (evaluated when management dialog is loaded)[type] - [Optional] A string you use to identy the type of widget (returned as property widgetType)
 [GroupName] - [Optional] The group that the labelID must be in, for example "movies". If omitted, the property will apply to items in the main menu.
 [widgetID] - A string you use to identify this widget
 [labelID] - The labelID you are setting the default for. (Replace with defaultID="[defaultID]" to set default based on this property instead)

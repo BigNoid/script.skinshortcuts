@@ -6,6 +6,7 @@ What's New for Skinners (development version 0.4.3)
 
  - Just Select method - option to show a 'None' option, which will reset all skin labels passed in. See "Advanced Usage.txt", section "Just Select Shortcuts"
  - Ability to specify available thumbnails for user to choose from with new button 311. See "Advanced Usage.txt", section "Overrides.xml", part 12 and "Management Dialog.txt"
+ - Ability to specify conditions for widgets and thumbnails to determine if they are available for selection. See "Advanced Usage.txt", section "Overrides.xml", parts 3 and 4
  - Advice change - hasSubmenu cannot be relied upon to indicate there are no visible items, there may still be invisible items.
  
 
