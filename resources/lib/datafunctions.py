@@ -601,6 +601,8 @@ class DataFunctions():
             return "Library.HasContent(Music)"
         if action == "XBMC.PlayDVD()":
             return "System.HasMediaDVD"
+        if action == "System.LogOff":
+            return "System.HasLoginScreen"
             
         # New Helix visibility conditions
         if action.startswith( "ActivateWindow(TV" ):

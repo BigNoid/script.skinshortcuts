@@ -712,7 +712,8 @@ class LibraryFunctions():
             listitems.append( self._create(["Quit", "13009", "32054", {} ]) )
             listitems.append( self._create(["Hibernate", "13010", "32054", {} ]) )
             listitems.append( self._create(["Suspend", "13011", "32054", {} ]) )
-            listitems.append( self._create(["System.LogOff", "20126", "32054", {} ]) )
+            if xbmc.getCondVisibility( "System.HasLoginScreen" ):
+                listitems.append( self._create(["System.LogOff", "20126", "32054", {} ]) )
             listitems.append( self._create(["ActivateScreensaver", "360", "32054", {} ]) )
             listitems.append( self._create(["Minimize", "13014", "32054", {} ]) )
 
