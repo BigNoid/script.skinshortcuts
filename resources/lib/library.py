@@ -445,7 +445,7 @@ class LibraryFunctions():
             
         # Retrieve icon and thumbnail
         if item[3]:
-            if "icon" in item[3].keys():
+            if "icon" in item[3].keys() and item[ 3 ][ "icon" ] is not None:
                 icon = item[3]["icon"]
             else:
                 icon = "DefaultShortcut.png"
