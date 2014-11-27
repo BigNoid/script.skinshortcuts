@@ -37,6 +37,8 @@ class XMLFunctions():
         self.hasSettings = False
         self.widgetCount = 1
         
+        self.checkForShorctcuts = []
+        
     def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options, weEnabledSystemDebug = False, weEnabledScriptDebug = False ): 
         # Entry point for building includes.xml files
         if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
@@ -300,7 +302,18 @@ class XMLFunctions():
             profileVis = profile[1]
             profileCount += 1
             
+            # Reset whether we have settings
             self.hasSettings = False
+            
+            # Get any shortcuts we're checking for
+            self.checkForShorctcuts = []
+            overridestree = DATA._get_overrides_skin()
+            if overridestree is not None:
+                checkForShorctcuts = overridestree.getroot().findall( "checkforshortcut" )
+                for checkForShortcut in checkForShorctcuts:
+                    if "property" in checkForShortcut.attrib:
+                        # Add this to the list of shortcuts we'll check for
+                        self.checkForShorctcuts.append( ( checkForShortcut.text.lower(), checkForShortcut.attrib.get( "property" ) ) )
             
             # Clear any previous labelID's
             DATA._clear_labelID()
@@ -331,6 +344,8 @@ class XMLFunctions():
             itemidmainmenu = 0
             percent = profilePercent / len( menuitems )
             
+            mainmenuItems = []
+            
             i = 0
             for item in menuitems:
                 i += 1
@@ -341,8 +356,10 @@ class XMLFunctions():
                 if not isinstance( item, basestring ):
                     submenu = item.find( "labelID" ).text
                     mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
+                    mainmenuItems.append( mainmenuItemA )
                     if buildMode == "single":
                         mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
+                        mainmenuItems.append( mainmenuItemB )
                     submenuDefaultID = item.find( "defaultID" ).text
                 else:
                     submenu = DATA._get_labelID( item, None )
@@ -452,6 +469,15 @@ class XMLFunctions():
                             xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
                             xmltree.SubElement( newelement, "onclick" ).text = "ActivateWindow(settings)" 
                             xmltree.SubElement( newelement, "visible" ).text = profile[1]
+                            
+            if len( self.checkForShorctcuts ) != 0:
+                # Add a property for the shortcuts we've been asked to check for (and aren't in the menu)
+                # to all main menu items
+                for mainmenuItem in mainmenuItems:
+                    for checkForShorctcut in self.checkForShorctcuts:
+                        checkProperty = xmltree.SubElement( mainmenuItem, "property" )
+                        checkProperty.set( "name", checkForShorctcut[ 1 ] )
+                        checkProperty.text = "False"
                     
         progress.update( 100 )
         
@@ -559,6 +585,16 @@ class XMLFunctions():
                 
             if "condition" in onclick.attrib:
                 onclickelement.set( "condition", onclick.attrib.get( "condition" ) )
+                
+            if len( self.checkForShorctcuts ) != 0:
+                # Check if we've been asked to watch for this shortcut
+                count = 0
+                for checkforShortcut in self.checkForShorctcuts:
+                    if onclick.text.lower() == checkforShortcut[ 0 ]:
+                        # They match, remove from the list
+                        self.checkForShorctcuts.pop( count )
+                        break
+                    count += 1
 
         # Visibility
         if visibilityCondition is not None:
