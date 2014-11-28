@@ -313,7 +313,7 @@ class XMLFunctions():
                 for checkForShortcut in checkForShorctcuts:
                     if "property" in checkForShortcut.attrib:
                         # Add this to the list of shortcuts we'll check for
-                        self.checkForShorctcuts.append( ( checkForShortcut.text.lower(), checkForShortcut.attrib.get( "property" ) ) )
+                        self.checkForShorctcuts.append( ( checkForShortcut.text.lower(), checkForShortcut.attrib.get( "property" ), "False" ) )
             
             # Clear any previous labelID's
             DATA._clear_labelID()
@@ -477,7 +477,7 @@ class XMLFunctions():
                     for checkForShorctcut in self.checkForShorctcuts:
                         checkProperty = xmltree.SubElement( mainmenuItem, "property" )
                         checkProperty.set( "name", checkForShorctcut[ 1 ] )
-                        checkProperty.text = "False"
+                        checkProperty.text = checkForShorctcut[ 2 ]
                     
         progress.update( 100 )
         
@@ -591,9 +591,8 @@ class XMLFunctions():
                 count = 0
                 for checkforShortcut in self.checkForShorctcuts:
                     if onclick.text.lower() == checkforShortcut[ 0 ]:
-                        # They match, remove from the list
-                        self.checkForShorctcuts.pop( count )
-                        break
+                        # They match, change the value to True
+                        checkforShortcut[ 2 ] = "True"
                     count += 1
 
         # Visibility
