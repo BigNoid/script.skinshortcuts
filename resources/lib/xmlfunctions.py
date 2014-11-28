@@ -588,12 +588,16 @@ class XMLFunctions():
                 
             if len( self.checkForShorctcuts ) != 0:
                 # Check if we've been asked to watch for this shortcut
-                count = 0
+                newCheckForShortcuts = []
                 for checkforShortcut in self.checkForShorctcuts:
+                    log( "### " + onclick.text.lower() + " : " + checkforShortcut[ 0 ] )
                     if onclick.text.lower() == checkforShortcut[ 0 ]:
                         # They match, change the value to True
-                        checkforShortcut[ 2 ] = "True"
-                    count += 1
+                        log( "### Found shortcut" )
+                        newCheckForShortcuts.append( ( checkforShortcut[ 0 ], checkforShortcut[ 1 ], "True" ) )
+                    else:
+                        newCheckForShortcuts.append( checkforShortcut )
+                self.checkForShorctcuts = newCheckForShortcuts
 
         # Visibility
         if visibilityCondition is not None:
