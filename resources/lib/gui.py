@@ -616,7 +616,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             #[ groupname, itemLabelID, property, value ]
             if not property[0] == self.group:
                 if property[0] in labelIDChanges.keys():
-                    property[0] = self.labelIDChanges[property[0]]
+                    property[0] = labelIDChanges[property[0]]
                 saveData.append( property )
         
         # Add all the properties we've been passed
