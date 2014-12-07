@@ -273,6 +273,18 @@ class XMLFunctions():
         tree = xmltree.ElementTree( xmltree.Element( "includes" ) )
         root = tree.getroot()
         
+        # Get any shortcuts we're checking for
+        self.checkForShortcuts = []
+        overridestree = DATA._get_overrides_skin()
+        if overridestree is not None:
+            checkForShorctcutsOverrides = overridestree.getroot().findall( "checkforshortcut" )
+            for checkForShortcutOverride in checkForShorctcutsOverrides:
+                if "variable" in checkForShortcutOverride.attrib:
+                    # Add this to the list of shortcuts we'll check for
+                    var = xmltree.SubElement( root, "variable" )
+                    var.set( "name", checkForShortcutOverride.attrib.get( "variable" ) )
+                    self.checkForShortcuts.append( ( checkForShortcutOverride.text.lower(), checkForShortcutOverride.attrib.get( "variable" ), var, "False" ) )
+        
         mainmenuTree = xmltree.SubElement( root, "include" )
         mainmenuTree.set( "name", "skinshortcuts-mainmenu" )
         
@@ -305,16 +317,12 @@ class XMLFunctions():
             # Reset whether we have settings
             self.hasSettings = False
             
-            # Get any shortcuts we're checking for
-            self.checkForShorctcuts = []
-            overridestree = DATA._get_overrides_skin()
-            if overridestree is not None:
-                checkForShorctcuts = overridestree.getroot().findall( "checkforshortcut" )
-                for checkForShortcut in checkForShorctcuts:
-                    if "property" in checkForShortcut.attrib:
-                        # Add this to the list of shortcuts we'll check for
-                        self.checkForShorctcuts.append( ( checkForShortcut.text.lower(), checkForShortcut.attrib.get( "property" ), "False" ) )
-            
+            # Reset any checkForShortcuts to say we haven't found them
+            newCheckForShortcuts = []
+            for checkforShortcut in self.checkForShortcuts:
+                newCheckForShortcuts.append( ( checkforShortcut[ 0 ], checkforShortcut[ 1 ], checkforShortcut[ 2 ], "False" ) )
+            self.checkForShortcuts = newCheckForShortcuts
+
             # Clear any previous labelID's
             DATA._clear_labelID()
             
@@ -470,17 +478,16 @@ class XMLFunctions():
                             xmltree.SubElement( newelement, "onclick" ).text = "ActivateWindow(settings)" 
                             xmltree.SubElement( newelement, "visible" ).text = profile[1]
                             
-            if len( self.checkForShorctcuts ) != 0:
-                # Add a property for the shortcuts we've been asked to check for (and aren't in the menu)
-                # to all main menu items
-                for mainmenuItem in mainmenuItems:
-                    for checkForShorctcut in self.checkForShorctcuts:
-                        checkProperty = xmltree.SubElement( mainmenuItem, "property" )
-                        checkProperty.set( "name", checkForShorctcut[ 1 ] )
-                        checkProperty.text = checkForShorctcut[ 2 ]
+            if len( self.checkForShortcuts ) != 0:
+                # Add a value to the variable for all checkForShortcuts
+                for checkForShortcut in self.checkForShortcuts:
+                    value = xmltree.SubElement( checkForShortcut[ 2 ], "value" )
+                    value.text = checkForShortcut[ 3 ]
+                    if profile[ 1 ] is not None:
+                        value.set( "condition", profile[ 1 ] )
                     
         progress.update( 100 )
-        
+                
         # Get the skins addon.xml file
         addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")
         addon = xmltree.parse( addonpath )
@@ -580,24 +587,27 @@ class XMLFunctions():
             else:
                 onclickelement.text = onclick.text
                 
+            # Also add it as a path property
+            pathelement = xmltree.SubElement( newelement, "property" )
+            pathelement.set( "name", "path" )
+            pathelement.text = onclickelement.text
+                
             if onclick.text == "ActivateWindow(Settings)":
                 self.hasSettings = True
                 
             if "condition" in onclick.attrib:
                 onclickelement.set( "condition", onclick.attrib.get( "condition" ) )
                 
-            if len( self.checkForShorctcuts ) != 0:
+            if len( self.checkForShortcuts ) != 0:
                 # Check if we've been asked to watch for this shortcut
                 newCheckForShortcuts = []
-                for checkforShortcut in self.checkForShorctcuts:
-                    log( "### " + onclick.text.lower() + " : " + checkforShortcut[ 0 ] )
+                for checkforShortcut in self.checkForShortcuts:
                     if onclick.text.lower() == checkforShortcut[ 0 ]:
                         # They match, change the value to True
-                        log( "### Found shortcut" )
-                        newCheckForShortcuts.append( ( checkforShortcut[ 0 ], checkforShortcut[ 1 ], "True" ) )
+                        newCheckForShortcuts.append( ( checkforShortcut[ 0 ], checkforShortcut[ 1 ], checkforShortcut[ 2 ], "True" ) )
                     else:
                         newCheckForShortcuts.append( checkforShortcut )
-                self.checkForShorctcuts = newCheckForShortcuts
+                self.checkForShortcuts = newCheckForShortcuts
 
         # Visibility
         if visibilityCondition is not None:
