@@ -70,7 +70,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.changeMade = False
         
         log( 'Management module loaded' )
-
+        
     def onInit( self ):
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script" )
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script-data" )
@@ -89,7 +89,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Load widget and background names
             self._load_widgetsbackgrounds()
-            
+
             # Load current shortcuts
             self.load_shortcuts()
                         
@@ -106,10 +106,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 pass
                 
             # Set enabled condition for various controls
+            has111 = True
             try:
                 self.getControl( 111 ).setEnableCondition( "IsEmpty(Container(211).ListItem.Property(LOCKED))" )
             except:
-                pass
+                has111 = False
             try:
                 self.getControl( 302 ).setEnableCondition( "IsEmpty(Container(211).ListItem.Property(LOCKED))" )
             except:
@@ -190,10 +191,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Load library shortcuts in thread
             thread.start_new_thread( LIBRARY.loadLibrary, () )
             
-            try:
-                self._display_shortcuts()
-            except:
-                log( "No list of shortcuts to choose from on GUI" )
+            if has111:
+                try:
+                    self._display_shortcuts()
+                except:
+                    pass
+
 
                 
     # ======================
