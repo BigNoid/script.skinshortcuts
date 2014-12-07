@@ -578,40 +578,64 @@ class DataFunctions():
             return item.lower( ).replace( " ", "" )
             
     def checkVisibility ( self, action ):
+        action = action.lower().replace( " ", "" )
+        
         # Return whether mainmenu items should be displayed
-        if action == "ActivateWindow(Weather)":
+        if action == "activatewindow(weather)":
             return "!IsEmpty(Weather.Plugin)"
-        if action.startswith( "ActivateWindowAndFocus(MyPVR" ) or action.startswith( "PlayPvr" ):
-            return "System.GetBool(pvrmanager.enabled)"
-        if action.startswith( "ActivateWindow(Videos,Movie" ):
+        elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ):
+            return "system.getbool(pvrmanager.enabled)"
+        elif action.startswith( "activatewindow(videos,movie" ):
             return "Library.HasContent(Movies)"
-        if action.startswith( "ActivateWindow(Videos,RecentlyAddedMovies" ):
+        elif action.startswith( "activatewindow(videos,recentlyaddedmovies" ):
             return "Library.HasContent(Movies)"
-        if action.startswith( "ActivateWindow(Videos,TvShow" ) or action.startswith( "ActivateWindow(Videos,TVShow" ):
+        elif action.startswith( "activatewindow(videos,tvshow" ) or action.startswith( "activatewindow(videos,tvshow" ):
             return "Library.HasContent(TVShows)"
-        if action.startswith( "ActivateWindow(Videos,RecentlyAddedEpisodes" ):
+        elif action.startswith( "activatewindow(videos,recentlyaddedepisodes" ):
             return "Library.HasContent(TVShows)"
-        if action.startswith( "ActivateWindow(Videos,MusicVideo" ):
+        elif action.startswith( "activatewindow(videos,musicvideo" ):
             return "Library.HasContent(MusicVideos)"
-        if action.startswith( "ActivateWindow(MusicLibrary,MusicVideo" ):
+        elif action.startswith( "activatewindow(musiclibrary,musicvideo" ):
             return "Library.HasContent(MusicVideos)"
-        if action.startswith( "ActivateWindow(Videos,RecentlyAddedMusicVideos" ):
+        elif action.startswith( "activatewindow(videos,recentlyaddedmusicvideos" ):
             return "Library.HasContent(MusicVideos)"
-        if action.startswith( "ActivateWindow(MusicLibrary," ):
+        elif action.startswith( "activatewindow(musiclibrary," ):
             return "Library.HasContent(Music)"
-        if action == "XBMC.PlayDVD()":
+        elif action == "xbmc.playdvd()":
             return "System.HasMediaDVD"
-        if action == "System.LogOff":
-            return "System.HasLoginScreen"
+            
+        # Power menu visibilities
+        elif action == "quit()" or action == "quit":
+            return "System.ShowExitButton"
+        elif action == "powerdown()" or action == "powerdown":
+            return "System.CanPowerDown"
+        elif action == "alarmclock(shutdowntimer,shutdown())":
+            return "!System.HasAlarm(shutdowntimer) + (System.CanPowerDown | System.CanSuspend | System.CanHibernate)"
+        elif action == "cancelalarm(shutdowntimer)":
+            return "System.HasAlarm(shutdowntimer)"
+        elif action == "suspend()" or action == "suspend":
+            return "System.CanSuspend"
+        elif action == "hibernate()" or action == "hibernate":
+            return "System.CanHibernate"
+        elif action == "reset()" or action == "reset":
+            return "System.CanReboot"
+        elif action == "system.logoff":
+            return "(System.HasLoginScreen | IntegerGreaterThan(System.ProfileCount,1)) + System.Loggedon"
+        elif action == "mastermode":
+            return "System.HasLocks"
+        elif action == "inhibitidleshutdown(true)":
+            return "System.HasShutdown +!System.IsInhibit"
+        elif action == "inhibitidleshutdown(false)":
+            return "System.HasShutdown + System.IsInhibit"
             
         # New Helix visibility conditions
-        if action.startswith( "ActivateWindow(TV" ):
+        elif action.startswith( "activatewindow(tv" ):
             return "PVR.HasTVChannels"
-        if action.startswith( "ActivateWindow(Radio" ):
+        elif action.startswith( "activatewindow(radio" ):
             return "PVR.HasRadioChannels"
             
         # Video node visibility
-        if action.startswith( "ActivateWindow(Videos,videodb://" ) or action.startswith( "ActivateWindow(10025,videodb://" ) or action.startswith( "ActivateWindow(Videos,library://video/" ) or action.startswith( "ActivateWindow(10025,library://video/" ):
+        elif action.startswith( "activatewindow(videos,videodb://" ) or action.startswith( "activatewindow(10025,videodb://" ) or action.startswith( "activatewindow(Videos,library://video/" ) or action.startswith( "activatewindow(10025,library://video/" ):
             path = action.split( "," )
             if path[ 1 ].endswith( ")" ):
                 path[ 1 ] = path[ 1 ][:-1]
