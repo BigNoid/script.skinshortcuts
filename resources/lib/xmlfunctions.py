@@ -236,6 +236,13 @@ class XMLFunctions():
                 elif hash[0] == "::LANGUAGE::":
                     # We no longer need to rebuild on a system language change
                     pass
+                elif hash[0] == "::SKINBOOL::":
+                    # A boolean we need to set (if profile matches)
+                    if xbmc.getCondVisibility( hash[ 1 ][ 0 ] ):
+                        if hash[ 1 ][ 2 ] == "True":
+                            xbmc.executebuiltin( "Skin.SetBool(%s)" %( hash[ 1 ][ 1 ] ) )
+                        else:
+                            xbmc.executebuiltin( "Skin.Reset(%s)" %( hash[ 1 ][ 1 ] ) )
                 else:
                     hasher = hashlib.md5()
                     hasher.update( xbmcvfs.File( hash[0] ).read() )
@@ -279,11 +286,9 @@ class XMLFunctions():
         if overridestree is not None:
             checkForShorctcutsOverrides = overridestree.getroot().findall( "checkforshortcut" )
             for checkForShortcutOverride in checkForShorctcutsOverrides:
-                if "variable" in checkForShortcutOverride.attrib:
+                if "property" in checkForShortcutOverride.attrib:
                     # Add this to the list of shortcuts we'll check for
-                    var = xmltree.SubElement( root, "variable" )
-                    var.set( "name", checkForShortcutOverride.attrib.get( "variable" ) )
-                    self.checkForShortcuts.append( ( checkForShortcutOverride.text.lower(), checkForShortcutOverride.attrib.get( "variable" ), var, "False" ) )
+                    self.checkForShortcuts.append( ( checkForShortcutOverride.text.lower(), checkForShortcutOverride.attrib.get( "property" ), "False" ) )
         
         mainmenuTree = xmltree.SubElement( root, "include" )
         mainmenuTree.set( "name", "skinshortcuts-mainmenu" )
@@ -320,7 +325,7 @@ class XMLFunctions():
             # Reset any checkForShortcuts to say we haven't found them
             newCheckForShortcuts = []
             for checkforShortcut in self.checkForShortcuts:
-                newCheckForShortcuts.append( ( checkforShortcut[ 0 ], checkforShortcut[ 1 ], checkforShortcut[ 2 ], "False" ) )
+                newCheckForShortcuts.append( ( checkforShortcut[ 0 ], checkforShortcut[ 1 ], "False" ) )
             self.checkForShortcuts = newCheckForShortcuts
 
             # Clear any previous labelID's
@@ -481,10 +486,14 @@ class XMLFunctions():
             if len( self.checkForShortcuts ) != 0:
                 # Add a value to the variable for all checkForShortcuts
                 for checkForShortcut in self.checkForShortcuts:
-                    value = xmltree.SubElement( checkForShortcut[ 2 ], "value" )
-                    value.text = checkForShortcut[ 3 ]
-                    if profile[ 1 ] is not None:
-                        value.set( "condition", profile[ 1 ] )
+                    if profile[ 1 ] is not None and xbmc.getCondVisibility( profile[ 1 ] ):
+                        # Current profile - set the skin bool
+                        if checkForShortcut[ 2 ] == "True":
+                            xbmc.executebuiltin( "Skin.SetBool(%s)" %( checkForShortcut[ 1 ] ) )
+                        else:
+                            xbmc.executebuiltin( "Skin.Reset(%s)" %( checkForShortcut[ 1 ] ) )
+                    # Save this to the hashes file, so we can set it on profile changes
+                    hashlist.list.append( [ "::SKINBOOL::", [ profile[ 1 ], checkForShortcut[ 1 ], checkForShortcut[ 2 ] ] ] )
                     
         progress.update( 100 )
                 
@@ -604,7 +613,7 @@ class XMLFunctions():
                 for checkforShortcut in self.checkForShortcuts:
                     if onclick.text.lower() == checkforShortcut[ 0 ]:
                         # They match, change the value to True
-                        newCheckForShortcuts.append( ( checkforShortcut[ 0 ], checkforShortcut[ 1 ], checkforShortcut[ 2 ], "True" ) )
+                        newCheckForShortcuts.append( ( checkforShortcut[ 0 ], checkforShortcut[ 1 ], "True" ) )
                     else:
                         newCheckForShortcuts.append( checkforShortcut )
                 self.checkForShortcuts = newCheckForShortcuts
