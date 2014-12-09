@@ -1,4 +1,4 @@
-v0.4.3 (Unreleased development release)
+v0.4.4
 - [phate89] Use files.getDirectory to list playlists
 - Just Select method - option to show 'None'
 - New management dialog button 311 - select from defined thumbnails

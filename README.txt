@@ -1,7 +1,7 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (development version 0.4.3)
+What's New for Skinners (version 0.4.4 - current Repo release)
 -----------------------
 
  - Just Select method - option to show a 'None' option, which will reset all skin labels passed in. See "Advanced Usage.txt", section "Just Select Shortcuts"
@@ -11,7 +11,7 @@ What's New for Skinners (development version 0.4.3)
  - Advice change - hasSubmenu cannot be relied upon to indicate there are no visible items, there may still be invisible items.
  
 
-What's New for Skinners (version 0.4.2 - current Repo release)
+What's New for Skinners (version 0.4.2 - previous release)
 -----------------------
 
  - Ability to skip warning when resetting all shortcuts. See "Resetting all shortcuts", below
