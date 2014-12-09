@@ -320,7 +320,17 @@ When using the script to provide the whole menu, you can specify shortcuts that 
 Note, the type will be set to the id of your skin (skin.name) to indicate that it is specific to the skin.
 
 
-7. Override label of available shortcuts
+7. Check for shortcut in menu system
+
+You can ask the script to check whether a shortcut with a given action is present within the menus it builds. It will then set a skin boolean based on whether it appears or not.
+
+<checkforshortcut property="[propertyName]">[action]</checkforshortcut>
+
+[propertyName] - The name of the skin boolean that will be set or cleared, dependant on existance of action
+[action] - The action to check for
+
+
+8. Override label of available shortcuts
 
 If you want to provide a different label for the list of available shortcuts in the management dialog, you can specify this here.
 
@@ -342,7 +352,7 @@ Please note - you can ONLY override shortcuts in the following groups: Common, X
 You can NOT override the labels for user's own defined custom video nodes.
 
 
-8. Custom shortcut properties
+9. Custom shortcut properties
 
 If you are using Skin Shortcuts to set custom properties for shortcuts, you can set defaults for these items:
 
@@ -368,7 +378,7 @@ If you are using Skin Shortcuts to set these properties, then you must also set 
 </overrides>
 
 
-9. Overriding settings labels
+10. Overriding settings labels
 
 When using Skin Shortcuts to provide the whole main menu, it can provide a list of controls for your skinsettings.xml to launch the management dialog. You can override the default labels for these controls.
 
@@ -385,7 +395,7 @@ When using Skin Shortcuts to provide the whole main menu, it can provide a list 
 </overrides>
 
 
-10. Warn and confirm user wants to delete shortcut
+11. Warn and confirm user wants to delete shortcut
 
 You can use the overrides.xml to warn the user before they delete any particular shortcut and to give them the chance to cancel, for example to settings.
 
@@ -396,7 +406,7 @@ You can use the overrides.xml to warn the user before they delete any particular
 [action] - The action of the existing shortcut that will trigger this message when the user tries to delete/replace it, or edit its action
 
 
-11. Force Settings Link
+12. Force Settings Link
 
 When using Skin Shortcuts to provide the whole main menu, it is possible for the user to delete the link to settings. This would leave them in a position where they are unable to further edit the menu to put it back.
 
@@ -410,7 +420,7 @@ It is recommended that you provide an alternative access to settings somewhere i
 Please note, this will cause the script to create a shortcut with the action ActivateWindow(Settings) if none exists. It doesn't look for any other settings area links. It also doesn't take into account any overrides or visibility conditions that may be attached to a shortcut.
 
 
-12. Provide available thumbnails
+13. Provide available thumbnails
 
 When using button 311 in the management dialog, you can provide a list of thumbnails the user can choose from for their shortcut.
 

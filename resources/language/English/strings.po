@@ -395,11 +395,11 @@ msgid "Unable to build menu."
 msgstr ""
 
 msgctxt "#32093"
-msgid "Upload debug log to xbmclogs.com?"
+msgid "Upload debug log?"
 msgstr ""
 
 msgctxt "#32094"
-msgid "Install XBMC Log Uploader to easily provide a debug log."
+msgid "Install Log Uploader to easily provide a debug log."
 msgstr ""
 
 msgctxt "#32095"
