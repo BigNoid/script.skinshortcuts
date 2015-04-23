@@ -565,7 +565,15 @@ class XMLFunctions():
         visibility = item.find( "visibility" )
         if visibility is not None:
             xmltree.SubElement( newelement, "visible" ).text = visibility.text
-            
+        
+        #additional onclick (group overrides)
+        onclicks = item.findall( "additional-action" )
+        for onclick in onclicks:
+            onclickelement = xmltree.SubElement( newelement, "onclick" )
+            onclickelement.text = onclick.text
+            if "condition" in onclick.attrib:
+                onclickelement.set( "condition", onclick.attrib.get( "condition" ) )
+        
         # Onclick
         onclicks = item.findall( "override-action" )
         if len( onclicks ) == 0:
