@@ -204,7 +204,6 @@ class DataFunctions():
             # http://forum.kodi.tv/showthread.php?tid=224683
             if skinoverrides != None:
                 allGroupOverrides = skinoverrides.findall( "groupoverride" )
-                groupOverrides = []
                 for override in allGroupOverrides:
                     if override.attrib.get( "group" ) == group:
                         newaction = xmltree.SubElement( node, "additional-action" )
