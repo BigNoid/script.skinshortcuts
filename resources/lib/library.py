@@ -1624,10 +1624,10 @@ class LibraryFunctions():
             availableShortcuts = self.checkForFolder( availableShortcuts )
             
         if showNone is not False:
-            availableShortcuts.insert( 0, self._create(["::NONE::", "None", "", {"icon":"DefaultAddonNone.png"}] ) )
+            availableShortcuts.insert( 0, self._create(["::NONE::", __language__(32053), "", {"icon":"DefaultAddonNone.png"}] ) )
             
         if custom is not False:
-            availableShortcuts.append( self._create(["||CUSTOM||", "Custom shortcut", "", {}] ) )
+            availableShortcuts.append( self._create(["||CUSTOM||", __language__(32024), "", {}] ) )
         
         # Check a shortcut is available
         if len( availableShortcuts ) == 0:
