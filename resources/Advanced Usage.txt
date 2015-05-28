@@ -429,6 +429,12 @@ When using button 311 in the management dialog, you can provide a list of thumbn
 [label] - The name displayed to the user in the select dialog
 [path] - The path to the image. No need to include full path if the thumbnail is included with your skin.
 
+You can set path to the folder that will be displayed by default in the browse dialog:
+
+<thumbnailBrowseDefault>protocol://path/to/folder</thumbnailBrowseDefault>
+
+Works for both (306 and 311) thumbnails management dialogs.
+
 
 Localisation
 ------------
