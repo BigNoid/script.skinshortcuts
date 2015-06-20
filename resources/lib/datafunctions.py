@@ -230,7 +230,7 @@ class DataFunctions():
                     continue
                     
             # Check that any skin-required shortcut matches current skin
-            xmltree.SubElement( node, "additional-properties" ).text = repr( self.checkAdditionalProperties( group, labelID, defaultID, isUserShortcuts ) )
+            xmltree.SubElement( node, "additional-properties" ).text = repr( self.checkAdditionalProperties( group, labelID, defaultID, isUserShortcuts, profileDir ) )
                         
             # Get a skin-overriden icon
             overridenIcon = self._get_icon_overrides( skinoverrides, node.find( "icon" ).text, group, labelID )
@@ -456,13 +456,14 @@ class DataFunctions():
             return pickle.loads( returnData )
 
 
-    def _get_additionalproperties( self ):
+    def _get_additionalproperties( self, profileDir ):
         # Load all saved properties (widgets, backgrounds, custom properties)
             
         currentProperties = []
         defaultProperties = []
         
-        path = os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".properties" )
+        path = os.path.join( profileDir, "addon_data", __addonid__, xbmc.getSkinDir().decode('utf-8') + ".properties" ).encode( "utf-8" )
+        #path = os.path.join( __datapath__ , xbmc.getSkinDir().decode('utf-8') + ".properties" )
         if xbmcvfs.exists( path ):
             # The properties file exists, load from it
             try:
@@ -655,9 +656,9 @@ class DataFunctions():
         return ""
         
         
-    def checkAdditionalProperties( self, group, labelID, defaultID, isUserShortcuts ):
+    def checkAdditionalProperties( self, group, labelID, defaultID, isUserShortcuts, profileDir ):
         # Return any additional properties, including widgets and backgrounds
-        allProperties = self._get_additionalproperties()
+        allProperties = self._get_additionalproperties( profileDir )
         currentProperties = allProperties[1]
         
         returnProperties = []
