@@ -597,10 +597,8 @@ class XMLFunctions():
                             newAction = newAction + "/" + actionPart
                     if len( actionParts ) == 2:
                         onclickelement.text = "ActivateWindow(" + actionParts[0] + "," + newAction + ")"
-                        listproperty = newAction
                     else:
                         onclickelement.text = "ActivateWindow(" + actionParts[0] + "," + newAction + "," + actionParts[2] + ")"
-                        listproperty = newAction + "," + actionParts[2]
                 except:
                     pass
             else:
