@@ -27,6 +27,8 @@ __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shor
 __language__     = sys.modules[ "__main__" ].__language__
 __cwd__          = sys.modules[ "__main__" ].__cwd__
 __xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
+if __xbmcversion__ == "15":
+    __xbmcversion__ = "14"
 
 def log(txt):
     if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
