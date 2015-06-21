@@ -19,7 +19,7 @@ __masterpath__     = os.path.join( xbmc.translatePath( "special://masterprofile/
 __skin__         = xbmc.translatePath( "special://skin/" )    
 __language__     = __addon__.getLocalizedString
 
-import datafunctions
+import datafunctions, template
 DATA = datafunctions.DataFunctions()
 import hashlib, hashlist
 
@@ -66,7 +66,7 @@ class XMLFunctions():
                 else:
                     # Base if off of the master profile
                     dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir ) ).decode( "utf-8" )
-                profilelist.append( [dir, "StringCompare(System.ProfileName," + name.decode( "utf-8" ) + ")"] )
+                profilelist.append( [ dir, "StringCompare(System.ProfileName," + name.decode( "utf-8" ) + ")", name.decode( "utf-8" ) ] )
                 
         else:
             profilelist = [["special://masterprofile", None]]
@@ -280,6 +280,10 @@ class XMLFunctions():
         tree = xmltree.ElementTree( xmltree.Element( "includes" ) )
         root = tree.getroot()
         
+        # Create a Template object and pass it the root
+        Template = template.Template()
+        Template.includes = root
+        
         # Get any shortcuts we're checking for
         self.checkForShortcuts = []
         overridestree = DATA._get_overrides_skin()
@@ -331,7 +335,9 @@ class XMLFunctions():
             # Clear any previous labelID's
             DATA._clear_labelID()
             
+            # Create objects to hold the items
             menuitems = []
+            templateMainMenuItems = xmltree.Element( "includes" )
             
             # If building the main menu, split the mainmenu shortcut nodes into the menuitems list
             if groups == "" or groups.split( "|" )[0] == "mainmenu":
@@ -370,6 +376,7 @@ class XMLFunctions():
                     submenu = item.find( "labelID" ).text
                     mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
                     mainmenuItems.append( mainmenuItemA )
+                    self.buildElement( item, templateMainMenuItems, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
                     if buildMode == "single":
                         mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
                         mainmenuItems.append( mainmenuItemB )
@@ -460,6 +467,9 @@ class XMLFunctions():
                         self.buildElement( submenuItem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", profile[1], itemid = itemidsubmenu, options = options )
                         if buildMode == "single":
                             self.buildElement( submenuItem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                            
+                    # Build the template for the submenu
+                    Template.parseItems( "submenu", count, justmenuTreeA, profile[ 2 ], profile[ 1 ], "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", item )
                         
                     count += 1
 
@@ -494,7 +504,13 @@ class XMLFunctions():
                             xbmc.executebuiltin( "Skin.Reset(%s)" %( checkForShortcut[ 1 ] ) )
                     # Save this to the hashes file, so we can set it on profile changes
                     hashlist.list.append( [ "::SKINBOOL::", [ profile[ 1 ], checkForShortcut[ 1 ], checkForShortcut[ 2 ] ] ] )
+
+            # Build the template for the main menu
+            Template.parseItems( "mainmenu", 0, templateMainMenuItems, profile[ 2 ], profile[ 1 ], "", "", mainmenuID )
                     
+        # Build any 'Other' templates
+        Template.writeOthers()
+        
         progress.update( 100 )
                 
         # Get the skins addon.xml file

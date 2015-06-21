@@ -110,6 +110,14 @@ showNone=[True/False] - Whether you wish to show a 'None' option to reset skin l
 [skinThumbnail] - The skin string the script will write the thumbnail of the selected shortcut to. [OPTIONAL]
 
 
+Templates
+---------
+
+Templates offer an alternative way to build your menu's. Rather than an include being generated for a lists content tag, you can provide a template of one or more controls which will be built individually for each menu.
+
+Using this method means that each submenu, for example, can be contained in its own list and so can have visible/hidden animations, static items, and so on. You can also build additional controls dependant on, and including parameters from, main menu items. See templates.txt for more details.
+
+
 Overrides.xml
 -------------
 
