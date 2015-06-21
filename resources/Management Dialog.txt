@@ -121,3 +121,10 @@ The available shortcuts are grouped into several categories within the managemen
 
 In some use-cases it can be useful to fill shortcut label with widget name when widget is selected (button 309). It can be edited by user (unlike of widget name) and then later shown in skin.
 To do this set window property "useWidgetNameAsLabel" to "true" before button 309 action is done.
+
+
+10. Set multiple widgets
+
+To set additional widgets, first set the window property "widgetID", then send a click to 309. The property will cleared afterwards.
+
+The widget, and all relevant properties, will then be accessible via [widgetProperty].[widgetID].
