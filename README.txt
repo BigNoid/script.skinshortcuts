@@ -266,11 +266,11 @@ As Skin Shortcuts will integrate with a Video Node Editor script (for skins wher
 
 For example, a link to movie titles should be:
 
-	<action>ActivateWindow(10025,videodb://movies/titles/,Return)</action>
+	<action>ActivateWindow(10025,videodb://movies/titles/,return)</action>
 	
 rather than
 
-	<action>ActivateWindow(10025,MovieTitles,Return)</action>
+	<action>ActivateWindow(10025,MovieTitles,return)</action>
 	
 This will ensure that any users modifying the default Movies node (for example) will access the content they expect rather than, as video library links provide, all content.
 	
