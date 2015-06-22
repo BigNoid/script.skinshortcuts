@@ -621,7 +621,7 @@ class LibraryFunctions():
             elif nodes[ key ][ 3 ] == "grouped":
                 videos.append( self._create( [ "||FOLDER||%s" % ( nodes[ key ][ 2 ] ), nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
             else:
-                videos.append( self._create( [ "ActivateWindow(10025,%s,Return)" %( nodes[ key ][ 2 ] ) , nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
+                videos.append( self._create( [ "ActivateWindow(10025,%s,return)" %( nodes[ key ][ 2 ] ) , nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
             
         self.addToDictionary( "video", videos )
     
@@ -1327,7 +1327,7 @@ class LibraryFunctions():
                         if item[ "thumbnail" ] is not "":
                             thumb = item[ "thumbnail" ]
                             
-                        listitem = self._create( [ "ActivateWindow(10025,%s,Return)" %( item[ "file" ] ), altLabel, "", {"icon": "DefaultFolder.png", "thumb": thumb} ] )
+                        listitem = self._create( [ "ActivateWindow(10025,%s,return)" %( item[ "file" ] ), altLabel, "", {"icon": "DefaultFolder.png", "thumb": thumb} ] )
 
                         if item[ "file" ].endswith( ".xml/" ) and NODE.isGrouped( item[ "file" ] ):
                             listitem = self._create( [ item[ "file" ], "%s  >" %( item[ "label" ] ), "", {"icon": "DefaultFolder.png", "thumb": thumb} ] )
