@@ -1010,6 +1010,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if controlID == 309:
             # Choose widget
             log( "Choose widget (309)" )
+            currentWindow = xbmcgui.Window( xbmcgui.getCurrentWindowDialogId() )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
@@ -1064,8 +1065,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self._remove_additionalproperty( listitem, "widgetPlaylist" + widgetID )
                 
             else:
-                currentWindow = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
-                
                 if widget[selectedWidget].startswith( "::PLAYLIST::" ):
                     self._add_additionalproperty( listitem, "widget" + widgetID, "Playlist" )
                     self._add_additionalproperty( listitem, "widgetName" + widgetID, widgetName[selectedWidget] )
@@ -1076,15 +1075,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 else:
                     self._add_additionalproperty( listitem, "widgetName" + widgetID, widgetLabel[selectedWidget].replace( " (%s)" %( __language__(32050) ), "" ) )
                     self._add_additionalproperty( listitem, "widget" + widgetID, widget[selectedWidget] )
-                    self._remove_additionalproperty( listitem, "widgetPlaylist" + widgetName )
+                    self._remove_additionalproperty( listitem, "widgetPlaylist" + widgetID )
                     if currentWindow.getProperty( "useWidgetNameAsLabel" ) == "true" and widgetID == "":
                         self._set_label( listitem, widgetLabel[selectedWidget].replace( " (%s)" %( __language__(32050) ), "" ) )
                         currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 
                 if widgetType[ selectedWidget] is not None:
-                    self._add_additionalproperty( listitem, "widgetType" + widgetName, widgetType[ selectedWidget] )
+                    self._add_additionalproperty( listitem, "widgetType" + widgetID, widgetType[ selectedWidget] )
                 else:
-                    self._remove_additionalproperty( listitem, "widgetType" + widgetName )
+                    self._remove_additionalproperty( listitem, "widgetType" + widgetID )
                 
             self.changeMade = True
                 
