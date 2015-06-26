@@ -27,8 +27,6 @@ __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shor
 __language__     = sys.modules[ "__main__" ].__language__
 __cwd__          = sys.modules[ "__main__" ].__cwd__
 __xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
-if __xbmcversion__ == "15":
-    __xbmcversion__ = "14"
 
 def log(txt):
     if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
@@ -153,7 +151,8 @@ class LibraryFunctions():
                         group += 1
                         continue
                 if "version" in node.attrib:
-                    if __xbmcversion__ != node.attrib.get( "version" ):
+                    version = node.attrib.get( "version" )
+                    if __xbmcversion__ != version and DATA.checkVersionEquivalency( version, node.attrib.get( "condition" ), "groupings" ) == False:
                         group += 1
                         continue
                 if count == group:
@@ -193,7 +192,8 @@ class LibraryFunctions():
                     number += 1
                     continue
             if "version" in subnode.attrib:
-                if __xbmcversion__ != subnode.attrib.get( "version" ):
+                version = subnode.attrib.get( "version" )
+                if __xbmcversion__ != version and DATA.checkVersionEquivalency( version, subnode.attrib.get( "condition" ), "groupings" ) == False:
                     number += 1
                     continue
 
@@ -209,7 +209,8 @@ class LibraryFunctions():
                 if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
                     continue
             if "version" in node.attrib:
-                if __xbmcversion__ != node.attrib.get( "version" ):
+                version = node.attrib.get( "version" )
+                if __xbmcversion__ != version and DATA.checkVersionEquivalency( version, node.attrib.get( "condition" ), "groupings" ) == False:
                     continue
             count += 1
             if node.tag == "content":
