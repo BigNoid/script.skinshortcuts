@@ -671,7 +671,14 @@ class DataFunctions():
             if path[ 1 ].endswith( ")" ):
                 path[ 1 ] = path[ 1 ][:-1]
             return NODE.get_visibility( path[ 1 ] )
-            
+
+        # Audio node visibility
+        elif action.startswith( "activatewindow(musiclibrary,musicdb://" ) or action.startswith( "activatewindow(10502,musicdb://" ) or action.startswith( "activatewindow(MusicLibrary,library://music/" ) or action.startswith( "activatewindow(10502,library://music/" ):
+            path = action.split( "," )
+            if path[ 1 ].endswith( ")" ):
+                path[ 1 ] = path[ 1 ][:-1]
+            return NODE.get_visibility( path[ 1 ] )
+        
         return ""
 
 

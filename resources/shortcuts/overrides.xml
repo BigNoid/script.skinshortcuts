@@ -15,9 +15,6 @@
 		<!-- PVR groupings -->
 		<groupEquivalent version="14" condition="PVR.HasTVChannels">All</groupEquivalent>
 		<groupEquivalent version="14" condition="PVR.HasRadioChannels">All</groupEquivalent>
-		
-		<!-- Generic grouping -->
-		<groupEquivalent version="14" condition="">All</groupEquivalent>
 
 		<!-- PVR shortcuts -->
 		<shortcutEquivalent version="14" action="ActivateWindow(TVChannels)">All</shortcutEquivalent>
@@ -31,8 +28,15 @@
 		<shortcutEquivalent version="14" action="ActivateWindow(RadioTimers)">All</shortcutEquivalent>
 		<shortcutEquivalent version="14" action="ActivateWindow(RadioSearch)">All</shortcutEquivalent>
 
-		<!-- Generic shortcut -->
-		<shortcutEquivalent version="14" action="">All</shortcutEquivalent>
+		<!-- Music shortcuts -->
+		<shortcutEquivalent version="13" action="MusicLibrary,Artists,return">14</shortcutEquivalent>
+		<shortcutEquivalent version="13" action="ActivateWindow(MusicLibrary,Albums,return)">14</shortcutEquivalent>
+		<shortcutEquivalent version="13" action="ActivateWindow(MusicLibrary,Songs,return)">14</shortcutEquivalent>
+
+		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://artists/,return)">All</shortcutEquivalent>
+		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://albums/,return)">All</shortcutEquivalent>
+		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://songs/,return)">All</shortcutEquivalent>
+
 	</versionEquivalency>
 
 
