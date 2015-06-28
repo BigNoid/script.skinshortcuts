@@ -1040,6 +1040,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             # If playlists have been enabled for widgets, add them too
             if self.widgetPlaylists:
+                # Ensure playlists are loaded
+                LIBRARY.playlists()
+
+                # Add them
                 for playlist in LIBRARY.widgetPlaylistsList:
                     widget.append( "::PLAYLIST::" + playlist[0] )
                     widgetLabel.append( playlist[1] )
