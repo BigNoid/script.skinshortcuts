@@ -120,7 +120,7 @@ class XMLFunctions():
                         __addon__.setSetting( "enable_logging", "false" )
                         
                     # Offer to upload a debug log
-                    ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), "Unable to build menu", "Upload a debug log to xbmclogs.com?" )
+                    ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), __language__( 32092 ), __language__( 32093 ) )
                     if ret:
                         xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )                    
                         

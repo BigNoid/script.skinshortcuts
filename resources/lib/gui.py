@@ -408,7 +408,72 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # We set this to the default icon, so we need to check if /that/ icon is overriden
             self._get_icon_overrides( listitem, False )
         
-    def _save_shortcuts( self ):
+    def _save_shortcuts( self, weEnabledSystemDebug = False, weEnabledScriptDebug = False ):
+        # Entry point to save shortcuts - we will call the _save_shortcuts_function and, if it
+        # fails, enable debug options (if not enabled) + recreate the error, then offer to upload
+        # debug log (if relevant add-on is installed)
+
+        # Save the shortcuts
+        try:
+            self._save_shortcuts_function()
+            return
+        except:
+            print_exc()
+            log( "Failed to save shortcuts" )
+
+        # We failed to save the shortcuts
+        
+        if weEnabledSystemDebug or weEnabledScriptDebug:
+            # Disable any logging we enabled
+            if weEnabledSystemDebug:
+                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":false} } ' )
+            if weEnabledScriptDebug:
+                __addon__.setSetting( "enable_logging", "false" )
+
+            if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
+                # Offer to upload a debug log
+                ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), __language__( 32097 ), __language__( 32093 ) )
+                if ret:
+                    xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+            else:
+                # Inform user menu couldn't be saved
+                xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__( 32097 ), __language__( 32094 ) )
+
+            # We're done
+            return
+
+        # Enable any debug logging needed                        
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Settings.getSettings", "params": { "filter":{"section":"system", "category":"debug"} } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+        
+        enabledSystemDebug = False
+        enabledScriptDebug = False
+        if json_response.has_key('result') and json_response['result'].has_key('settings') and json_response['result']['settings'] is not None:
+            for item in json_response['result']['settings']:
+                if item["id"] == "debug.showloginfo":
+                    if item["value"] == False:
+                        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":true} } ' )
+                        enabledSystemDebug = True
+        
+        if __addon__.getSetting( "enable_logging" ) != "true":
+            __addon__.setSetting( "enable_logging", "true" )
+            enabledScriptDebug = True
+            
+        if enabledSystemDebug or enabledScriptDebug:
+            # We enabled one or more of the debug options, re-run this function
+            self._save_shortcuts( enabledSystemDebug, enabledScriptDebug )
+        else:
+            if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
+                # Offer to upload a debug log
+                ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), __language__( 32097 ), __language__( 32093 ) )
+                if ret:
+                    xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+            else:
+                # Inform user menu couldn't be saved
+                xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__( 32097 ), __language__( 32094 ) )                 
+
+    def _save_shortcuts_function( self ):
         # Save shortcuts
         if self.changeMade == True:
             log( "Saving changes" )
@@ -1040,6 +1105,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             # If playlists have been enabled for widgets, add them too
             if self.widgetPlaylists:
+                # Ensure playlists are loaded
+                LIBRARY.playlists()
+
+                # Add them
                 for playlist in LIBRARY.widgetPlaylistsList:
                     widget.append( "::PLAYLIST::" + playlist[0] )
                     widgetLabel.append( playlist[1] )

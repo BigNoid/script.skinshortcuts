@@ -1483,8 +1483,8 @@ class LibraryFunctions():
                 windowID = "10502"
                 negative = True
         else:
-            # Pictures                                         Files view            Slideshow
-            userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(108)])
+            # Pictures                                         Files view           Slideshow                     Slideshow (random)                                                             Recursive slideshow             Recursive slideshow (random)    
+            userChoice = dialog.select( __language__(32078), [ __language__(32079), xbmc.getLocalizedString(108), "%s (%s)" %( xbmc.getLocalizedString( 108 ), xbmc.getLocalizedString( 590 ) ), xbmc.getLocalizedString( 361 ), "%s (%s)" %( xbmc.getLocalizedString( 361 ), xbmc.getLocalizedString( 590 ) ) ] )
             if userChoice == -1:
                 return None
             elif userChoice == 0:
@@ -1494,8 +1494,15 @@ class LibraryFunctions():
                 selectedShortcut.setProperty( "Path", newAction )
                 selectedShortcut.setProperty( "displayPath", newAction )
                 return selectedShortcut
-            elif userChoice == 1:
-                newAction = "SlideShow(" + selectedShortcut.getProperty( "location" ) + ")"
+            else:
+                if userChoice == 1:
+                    newAction = "SlideShow(" + selectedShortcut.getProperty( "location" ) + ",notrandom)"
+                elif userChoice == 2:
+                    newAction = "SlideShow(" + selectedShortcut.getProperty( "location" ) + ",random)"
+                elif userChoice == 3:
+                    newAction = "SlideShow(" + selectedShortcut.getProperty( "location" ) + ",recursive,notrandom)"
+                elif userChoice == 4:
+                    newAction = "SlideShow(" + selectedShortcut.getProperty( "location" ) + ",recursive,random)"
                 selectedShortcut.setProperty( "path", newAction )
                 selectedShortcut.setProperty( "displayPath", newAction )
                 return selectedShortcut
