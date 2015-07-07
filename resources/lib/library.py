@@ -27,8 +27,6 @@ __defaultpath__  = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'shor
 __language__     = sys.modules[ "__main__" ].__language__
 __cwd__          = sys.modules[ "__main__" ].__cwd__
 __xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
-if __xbmcversion__ == "15":
-    __xbmcversion__ = "14"
 
 def log(txt):
     if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
@@ -153,7 +151,8 @@ class LibraryFunctions():
                         group += 1
                         continue
                 if "version" in node.attrib:
-                    if __xbmcversion__ != node.attrib.get( "version" ):
+                    version = node.attrib.get( "version" )
+                    if __xbmcversion__ != version and DATA.checkVersionEquivalency( version, node.attrib.get( "condition" ), "groupings" ) == False:
                         group += 1
                         continue
                 if count == group:
@@ -193,7 +192,8 @@ class LibraryFunctions():
                     number += 1
                     continue
             if "version" in subnode.attrib:
-                if __xbmcversion__ != subnode.attrib.get( "version" ):
+                version = subnode.attrib.get( "version" )
+                if __xbmcversion__ != version and DATA.checkVersionEquivalency( version, subnode.attrib.get( "condition" ), "groupings" ) == False:
                     number += 1
                     continue
 
@@ -209,7 +209,8 @@ class LibraryFunctions():
                 if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
                     continue
             if "version" in node.attrib:
-                if __xbmcversion__ != node.attrib.get( "version" ):
+                version = node.attrib.get( "version" )
+                if __xbmcversion__ != version and DATA.checkVersionEquivalency( version, node.attrib.get( "condition" ), "groupings" ) == False:
                     continue
             count += 1
             if node.tag == "content":
@@ -576,15 +577,15 @@ class LibraryFunctions():
             
         # Try loading custom nodes first
         try:
-            if self._parse_videolibrary( "custom" ) == False:
+            if self._parse_libraryNodes( "video", "custom" ) == False:
                 log( "Failed to load custom video nodes" )
-                self._parse_videolibrary( "default" )
+                self._parse_libraryNodes( "video", "default" )
         except:
             log( "Failed to load custom video nodes" )
             print_exc()
             try:
                 # Try loading default nodes
-                self._parse_videolibrary( "default" )
+                self._parse_libraryNodes( "video", "default" )
             except:
                 # Empty library
                 log( "Failed to load default video nodes" )
@@ -592,23 +593,30 @@ class LibraryFunctions():
                 
         self.loadedVideoLibrary = True
         return self.loadedVideoLibrary
-        
-    def _parse_videolibrary( self, type ):
+
+    def _parse_libraryNodes( self, library, type ):
         #items = {"video":[], "movies":[], "tvshows":[], "musicvideos":[], "custom":{}}
         items = {}
 
-        rootdir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" )
+        if library == "video":
+            windowID = "10025"
+            prefix = "library://video"
+        elif library == "music":
+            windowID = "10502"
+            prefix = "library://music"
+
+        rootdir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", library )
         if type == "custom":
-            log('Listing custom video nodes...')
+            log( "Listing custom %s nodes..." %( library ) )
         else:
-            rootdir = os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" )
-            log( "Listing default video nodes..." )
+            rootdir = os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", library )
+            log( "Listing default %s nodes..." %( library ) )
             
-        nodes = NODE.get_video_nodes( rootdir )
+        nodes = NODE.get_nodes( rootdir, prefix )
         if nodes == False or len( nodes ) == 0:
             return False
         
-        videos = []
+        items = []
         
         for key in nodes:
             # 0 = Label
@@ -617,13 +625,13 @@ class LibraryFunctions():
             # 3 = Type
             # 4 = Order
             if nodes[ key ][ 3 ] == "folder":
-                videos.append( self._create( [ "||FOLDER||%s" % ( nodes[ key ][ 2 ] ), nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
+                items.append( self._create( [ "||FOLDER||%s" % ( nodes[ key ][ 2 ] ), nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
             elif nodes[ key ][ 3 ] == "grouped":
-                videos.append( self._create( [ "||FOLDER||%s" % ( nodes[ key ][ 2 ] ), nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
+                items.append( self._create( [ "||FOLDER||%s" % ( nodes[ key ][ 2 ] ), nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
             else:
-                videos.append( self._create( [ "ActivateWindow(10025,%s,return)" %( nodes[ key ][ 2 ] ) , nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
+                items.append( self._create( [ "ActivateWindow(%s,%s,return)" %( windowID, nodes[ key ][ 2 ] ), nodes[ key ][ 0 ], nodes[ key ][ 3 ], { "icon": nodes[ key ][ 1 ] } ] ) )
             
-        self.addToDictionary( "video", videos )
+        self.addToDictionary( library, items )
     
 
     # ============================
@@ -921,37 +929,60 @@ class LibraryFunctions():
             # We're going to populate the list
             self.loadedMusicLibrary = "Loading"
 
-        try:
-            listitems = []
-            log('Listing music library...')
-                        
-            # Music
-            listitems.append( self._create(["ActivateWindow(MusicFiles)", "744", "32019", {"icon": "DefaultFolder.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "15100", "32019", {"icon": "DefaultFolder.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Genres,return)", "135", "32019", {"icon": "DefaultMusicGenres.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Artists,return)", "133", "32019", {"icon": "DefaultMusicArtists.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Albums,return)", "132", "32019", {"icon": "DefaultMusicAlbums.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Songs,return)", "134", "32019", {"icon": "DefaultMusicSongs.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Years,return)", "652", "32019", {"icon": "DefaultMusicYears.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100,return)", "271", "32019", {"icon": "DefaultMusicTop100.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Songs,return)", "10504", "32019", {"icon": "DefaultMusicTop100Songs.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Albums,return)", "10505", "32019", {"icon": "DefaultMusicTop100Albums.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "359", "32019", {"icon": "DefaultMusicRecentlyAdded.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "517", "32019", {"icon": "DefaultMusicRecentlyPlayed.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "136", "32019", {"icon": "DefaultMusicPlaylists.png"} ] ) )
-            
-            # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
-            if self.loadedUPNP == False:
-                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
-                self.loadedUPNP = True
+        if int( __xbmcversion__ ) >= 15:
+            # Isengard or later - load audio nodes
+            # Try loading custom nodes first
+            try:
+                if self._parse_libraryNodes( "music", "custom" ) == False:
+                    log( "Failed to load custom music nodes" )
+                    self._parse_libraryNodes( "music", "default" )
+            except:
+                log( "Failed to load custom music nodes" )
+                print_exc()
+                try:
+                    # Try loading default nodes
+                    self._parse_libraryNodes( "music", "default" )
+                except:
+                    # Empty library
+                    log( "Failed to load default music nodes" )
+                    print_exc()
+                    
+            self.loadedMusicLibrary = True
+            return self.loadedMusicLibrary
+
+        else:
+            # Gotham or earlier - load static entries
+            try:
+                listitems = []
+                log('Listing music library...')
+                            
+                # Music
+                listitems.append( self._create(["ActivateWindow(MusicFiles)", "744", "32019", {"icon": "DefaultFolder.png"} ]) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "15100", "32019", {"icon": "DefaultFolder.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Genres,return)", "135", "32019", {"icon": "DefaultMusicGenres.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Artists,return)", "133", "32019", {"icon": "DefaultMusicArtists.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Albums,return)", "132", "32019", {"icon": "DefaultMusicAlbums.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Songs,return)", "134", "32019", {"icon": "DefaultMusicSongs.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Years,return)", "652", "32019", {"icon": "DefaultMusicYears.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100,return)", "271", "32019", {"icon": "DefaultMusicTop100.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Songs,return)", "10504", "32019", {"icon": "DefaultMusicTop100Songs.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Albums,return)", "10505", "32019", {"icon": "DefaultMusicTop100Albums.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "359", "32019", {"icon": "DefaultMusicRecentlyAdded.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "517", "32019", {"icon": "DefaultMusicRecentlyPlayed.png"} ] ) )
+                listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "136", "32019", {"icon": "DefaultMusicPlaylists.png"} ] ) )
                 
-            self.addToDictionary( "music", listitems )
-        except:
-            log( "Failed to load music library" )
+                # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
+                if self.loadedUPNP == False:
+                    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
+                    self.loadedUPNP = True
+                    
+                self.addToDictionary( "music", listitems )
+            except:
+                log( "Failed to load music library" )
             print_exc()
 
-        self.loadedMusicLibrary = True
-        return self.loadedMusicLibrary
+            self.loadedMusicLibrary = True
+            return self.loadedMusicLibrary
     
     def librarysources( self ):
         if self.loadedLibrarySources == True:

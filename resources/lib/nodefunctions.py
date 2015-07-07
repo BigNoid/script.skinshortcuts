@@ -58,27 +58,27 @@ class NodeFunctions():
     # Functions used by library.py to list nodes #
     ##############################################
         
-    def get_video_nodes( self, path ):
+    def get_nodes( self, path, prefix ):
         dirs, files = xbmcvfs.listdir( path )
         nodes = {}
         
         try:
             for dir in dirs:
-                self.parse_node( os.path.join( path, dir ), dir, nodes )
+                self.parse_node( os.path.join( path, dir ), dir, nodes, prefix )
             for file in files:
-                self.parse_view( os.path.join( path, file.decode( "utf-8" ) ), nodes, origPath = "library://video/%s" % (file ) )
+                self.parse_view( os.path.join( path, file.decode( "utf-8" ) ), nodes, origPath = "%s/%s" % ( prefix, file ), prefix = prefix )
         except:
             print_exc()
             return False
         
         return nodes
         
-    def parse_node( self, node, dir, nodes ):
+    def parse_node( self, node, dir, nodes, prefix ):
         # If the folder we've been passed contains an index.xml, send that file to be processed
         if xbmcvfs.exists( os.path.join( node, "index.xml" ) ):
-            self.parse_view( os.path.join( node, "index.xml" ), nodes, True, "library://video/%s/" % (dir), node )
+            self.parse_view( os.path.join( node, "index.xml" ), nodes, True, "%s/%s/" % ( prefix, dir ), node, prefix = prefix )
     
-    def parse_view( self, file, nodes, isFolder = False, origFolder = None, origPath = None ):
+    def parse_view( self, file, nodes, isFolder = False, origFolder = None, origPath = None, prefix = None ):
         if not isFolder and file.endswith( "index.xml" ):
             return
         try:
@@ -130,14 +130,20 @@ class NodeFunctions():
             print_exc()
             
     def isGrouped( self, path ):        
-        customPath = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" ) )[:-1]
-        defaultPath = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" ) )[:-1]
+        customPathVideo = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" ) )[:-1]
+        defaultPathVideo = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" ) )[:-1]
+        customPathAudio = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "music" ) )[:-1]
+        defaultPathAudio = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "music" ) )[:-1]
         
-        if xbmcvfs.exists( customPath ):
-            path = customPath
-        elif xbmcvfs.exists( defaultPath ):
-            path = defaultPath
-        else:
+        paths = [ customPathVideo, defaultPathVideo, customPathAudio, defaultPathAudio ]
+        foundPath = False
+
+        for tryPath in paths:
+            if xbmcvfs.exists( tryPath ):
+                path = tryPath
+                foundPath = True
+                break
+        if foundPath == False:
             return False
         
         # Open the file
@@ -153,14 +159,23 @@ class NodeFunctions():
                 return True
         except:
             return False
+
+    #####################################
+    # Function used by DataFunctions.py #
+    #####################################
             
     def get_visibility( self, path ):
         path = path.replace( "videodb://", "library://video/" )
+        path = path.replace( "musicdb://", "library://music/" )
         
         customPath = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" ) ) + "index.xml"
+        customPath = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "music" ) ) + "index.xml"
         customFile = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "video" ) )[:-1] + ".xml"
+        customFile = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", "music" ) )[:-1] + ".xml"
         defaultPath = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" ) ) + "index.xml"
+        defaultPath = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "music" ) ) + "index.xml"
         defaultFile = path.replace( "library://video", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "video" ) )[:-1] + ".xml"
+        defaultFile = path.replace( "library://music", os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", "music" ) )[:-1] + ".xml"
         
         # Check whether the node exists - either as a parent node (with an index.xml) or a view node (append .xml)
         # in first custom video nodes, then default video nodes

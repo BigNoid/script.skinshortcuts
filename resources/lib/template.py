@@ -53,7 +53,6 @@ class Template():
         if self.includes is None or self.tree is None:
             return
             
-        log( repr( profile ) )
         if profile == "test":
             pass
             

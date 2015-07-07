@@ -1492,6 +1492,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if listitem.getProperty( "defaultID" ):
             listitemCopy.setProperty( "defaultID", listitem.getProperty( "defaultID" ) )
+        elif listitem.getProperty( "labelID" ):
+            listitemCopy.setProperty( "defaultID", listitem.getProperty( "labelID" ) )
         else:
             listitemCopy.setProperty( "defaultID", DATA._get_labelID( DATA.local( listitem.getProperty( "localizedString" ) )[3],  listitem.getProperty( "path" ), True ) )
             

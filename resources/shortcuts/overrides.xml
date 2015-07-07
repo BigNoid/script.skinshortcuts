@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
+	<versionEquivalency>
+		<!-- Handle groupings/shortcuts with version information, by specifying which other versions of
+		Kodi they are compatible with
+		
+		<equivalent version="14">All</equivalent>
+			- Valid on all versions of Kodi 14+
+
+		<equivalent version="14">16</equivalent>
+			- Valid on Kodi versions between 14 and 16 inclusive
+
+		-->
+		
+		<!-- PVR groupings -->
+		<groupEquivalent version="14" condition="PVR.HasTVChannels">All</groupEquivalent>
+		<groupEquivalent version="14" condition="PVR.HasRadioChannels">All</groupEquivalent>
+
+		<!-- PVR shortcuts -->
+		<shortcutEquivalent version="14" action="ActivateWindow(TVChannels)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(TVGuide)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(TVRecordings)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(TVTimers)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(TVSearch)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(RadioChannels)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(RadioGuide)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(RadioRecordings)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(RadioTimers)">All</shortcutEquivalent>
+		<shortcutEquivalent version="14" action="ActivateWindow(RadioSearch)">All</shortcutEquivalent>
+
+		<!-- Music shortcuts -->
+		<shortcutEquivalent version="13" action="MusicLibrary,Artists,return">14</shortcutEquivalent>
+		<shortcutEquivalent version="13" action="ActivateWindow(MusicLibrary,Albums,return)">14</shortcutEquivalent>
+		<shortcutEquivalent version="13" action="ActivateWindow(MusicLibrary,Songs,return)">14</shortcutEquivalent>
+
+		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://artists/,return)">All</shortcutEquivalent>
+		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://albums/,return)">All</shortcutEquivalent>
+		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://songs/,return)">All</shortcutEquivalent>
+
+	</versionEquivalency>
+
+
 	<flatgroupings>
 		<node label="32029">
 			<content>common</content>
