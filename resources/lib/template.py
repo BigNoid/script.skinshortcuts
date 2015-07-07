@@ -344,7 +344,10 @@ class Template():
                     continue
                     
                 # We've matched a property :)
-                properties[ name ] = property.text
+                if property.text:
+                    properties[ name ] = property.text
+                else:
+                    properties[ name ] = elem.text
                 break
         
         return properties
@@ -388,14 +391,14 @@ class Template():
                 tree.insert( index, newElement )
             
             # <tag>$skinshortcuts[var]</tag> -> <tag>[value]</tag>
-            if elem.text is not None and elem.text.startswith( "$skinshortcuts[" ) and elem.text[ 15:-1 ] in properties:
+            if elem.text is not None and elem.text.startswith( "$SKINSHORTCUTS[" ) and elem.text[ 15:-1 ] in properties:
                 # Replace the text with the property value
                 elem.text = properties[ elem.text[ 15:-1 ] ]
             
             # <tag attrib="$skinshortcuts[var]" /> -> <tag attrib="[value]" />
             for attrib in elem.attrib:
                 value = elem.attrib.get( attrib )
-                if value.startswith( "$skinshortcuts[" ) and value[ 15:-1 ] in properties:
+                if value.startswith( "$SKINSHORTCUTS[" ) and value[ 15:-1 ] in properties:
                     elem.set( attrib, properties[ value[ 15:-1 ] ] )
             
             # <skinshortcuts>visible</skinshortcuts> -> <visible>[condition]</visible>
