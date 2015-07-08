@@ -122,9 +122,9 @@ Property elements let you include a custom property in your template, dependant 
 [tag] - [Optional] The main menu must have an element with this tag
 [attributeName]|[attributeValue] - [Optional] The element must have an attribute with the name [attributeName] and the value [attributeValue]
 [textValue] - [Optional] The elment must have this value
-[propertyValue] - What you are setting the property to
+[propertyValue] - [Optional] What you are setting the property to. If ommitted (e.g. a <property /> element), the propertyName will be set to the current text value of the matching property.
 
-To access the property, include $skinshortcuts[propertyName] in either an attribute or as the value of an element.
+To access the property, include $SKINSHORTCUTS[propertyName] in either an attribute or as the value of an element.
 
 For example, the content of a widget list could be set as follows
 
@@ -133,7 +133,7 @@ For example, the content of a widget list could be set as follows
 
 And then the content of a list within your Other template could be filled as
 
-<content>$skinshortcuts[widgetContent]</content>
+<content>$SKINSHORTCUTS[widgetContent]</content>
 
 
 A Simple Example
@@ -148,6 +148,8 @@ As no include attribute is provided for the mainmenu or submenu elements, they a
 The Other template for the widgets specifies an include attribute of "widget", and so are included with
 
 <include>skinshortcuts-template-widget</include>
+
+There is then an additional widget include for playlists, though it uses the same include attribute of "widget" and so is included into the skin with the same <include /> as the other widgets
 
 <template>
 	<mainmenu>
@@ -206,7 +208,25 @@ The Other template for the widgets specifies an include attribute of "widget", a
 				<focusedlayout>
 					<include>mediaFocusedLayout</include>
 				</focusedlayout>
-				<content>$skinshortcuts[content]</content>
+				<content>$SKINSHORTCUTS[content]</content>
+			</control>
+		</controls>
+	</other>
+
+	<other include="widget">
+		<condition tag="property" attribute="name|widet">Playlist</condition>
+		<property name="content" tag="property" attribute="name|widgetPlaylist" />
+		<controls>
+			<control type="list" id="9002">
+				<skinshortcuts>visibility</skinshortcuts>
+				<include>mediaList</include>
+				<layout>
+					<include>mediaLayoutPlaylist</include>
+				</layout>
+				<focusedlayout>
+					<include>mediaFocusedLayoutPlaylist</include>
+				</focusedlayout>
+				<content>$SKINSHORTCUTS[content]</content>
 			</control>
 		</controls>
 	</other>
