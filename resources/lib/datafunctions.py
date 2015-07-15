@@ -939,6 +939,49 @@ class DataFunctions():
             text = text.replace('-', separator)
 
         return text
+
+    # ----------------------------------------------------------------
+    # --- Functions that should get their own module in the future ---
+    # --- (when xml building functions are revamped/simplified) ------
+    # ----------------------------------------------------------------
+
+    def getListProperty( self, onclick ):
+        # For ActivateWindow elements, extract the path property
+        if onclick.startswith( "ActivateWindow" ):
+            # An ActivateWindow - Let's start by removing the 'ActivateWindow(' and the ')'
+            listProperty = onclick
+            # Handle (the not uncommon) situation where the trailing ')' has been forgotten
+            if onclick.endswith( ")" ):
+                listProperty = onclick[ :-1 ]
+            listProperty = listProperty.split( "(", 1 )[ 1 ]
+
+            # Split what we've got left on commas
+            listProperty = listProperty.split( "," )
+
+            # Get the part of the onclick that we're actually interested in
+            if len( listProperty ) == 1:
+                # 'elementWeWant'
+                return listProperty[ 0 ]
+            elif len( listProperty ) == 2 and listProperty[ 1 ].lower().replace( " ", "" ) == "return":
+                # 'elementWeWant' 'return'
+                return listProperty[ 0 ]
+            elif len( listProperty ) == 2:
+                # 'windowToActivate' 'elementWeWant'
+                return listProperty[ 1 ]
+            elif len( listProperty ) == 3:
+                # 'windowToActivate' 'elementWeWant' 'return'
+                return listProperty[ 1 ]
+            else:
+                # Situation we haven't anticipated - log the issue and return original onclick
+                log( "Unable to get 'list' property for shortcut %s" %( onclick ) )
+                return onclick
+        else:
+            # Not an 'ActivateWindow' - return the onclick
+            return onclick
+
+# ------------------------------------------------
+# --- Functions to update old .shortcuts files ---
+# ------------------------------------------------
         
 class UpgradeFunctions():
     def __init__(self):

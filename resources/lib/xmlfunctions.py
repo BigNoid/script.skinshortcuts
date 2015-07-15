@@ -625,30 +625,10 @@ class XMLFunctions():
             pathelement.set( "name", "path" )
             pathelement.text = onclickelement.text
             
-            # Also add it as a list property
-            # this will add the real path (without activatewindow) as a property for dynamic listings
-            libPath = onclickelement.text
-            
-            if "$INFO[Window" in libPath:
-                #is this action a window prop ?
-                win = xbmcgui.Window( 10000 )
-                libPath = libPath.replace("$INFO[Window(Home).Property(", "")
-                libPath = libPath.replace(")]", "")
-                libPath = win.getProperty(libPath)    
-            if "$VAR" in libPath:
-                #is this action a skin variable?
-                libPath = xbmc.getInfoLabel(libPath)
-            
-            #only proceed if we have a valid content path
-            if ("," in libPath and ":" in libPath):
-                libPath = libPath.split(",",1)[1]
-                libPath = libPath.replace(",return","")
-                libPath = libPath.replace(", return","")
-                libPath = libPath.replace(")","")
-                libPath = libPath.replace("\"","")
-                pathelement = xmltree.SubElement( newelement, "property" )
-                pathelement.set( "name", "list" )
-                pathelement.text = libPath
+            # Get 'list' property (the action property of an ActivateWindow shortcut)
+            listElement = xmltree.SubElement( newelement, "property" )
+            listElement.set( "name", "list" )
+            listElement.text = DATA.getListProperty( onclickelement.text )
                 
             if onclick.text == "ActivateWindow(Settings)":
                 self.hasSettings = True
