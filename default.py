@@ -147,6 +147,8 @@ class Main:
                     xbmc.executebuiltin( "Skin.Reset(" + self.THUMBNAIL + ")" )
                 if self.THUMBNAIL is not None:
                     xbmc.executebuiltin( "Skin.Reset(" + self.THUMBNAIL + ")" )
+                if self.LIST is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.LIST + ")" )
                     
         if self.TYPE=="addNode":
             # We've been sent a node from plugin.program.video.node.editor
