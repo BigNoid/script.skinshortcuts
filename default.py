@@ -133,6 +133,8 @@ class Main:
                     xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "icon" ) + ")" )
                 if self.THUMBNAIL is not None and selectedShortcut.getProperty( "thumbnail" ):
                     xbmc.executebuiltin( "Skin.SetString(" + self.THUMBNAIL + "," + selectedShortcut.getProperty( "thumbnail" ) + ")" )
+                if self.LIST is not None:
+                    xbmc.executebuiltin( "Skin.SetString(" + self.LIST + "," + DATA.getListProperty( path ) + ")" )
             elif selectedShortcut is not None and selectedShortcut.getLabel() == "::NONE::":
                 # Clear the skin strings
                 if self.LABEL is not None:
@@ -198,6 +200,7 @@ class Main:
         self.ACTION = params.get( "skinAction", None )
         self.SHORTCUTTYPE = params.get( "skinType", None )
         self.THUMBNAIL = params.get( "skinThumbnail", None )
+        self.LIST = params.get( "skinList", None )
         self.GROUPING = params.get( "grouping", None )
         self.CUSTOM = params.get( "custom", "False" )
         self.NONE = params.get( "showNone", "False" )
