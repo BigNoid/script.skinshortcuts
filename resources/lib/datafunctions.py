@@ -474,48 +474,84 @@ class DataFunctions():
         # Load skin defaults (in case we need them...)
         tree = self._get_overrides_skin()
         if tree is not None:
-            for elemSearch in [["widget", tree.findall( "widgetdefault" )], ["background", tree.findall( "backgrounddefault" )], ["custom", tree.findall( "propertydefault" )] ]:
+            for elemSearch in [["widget", tree.findall( "widgetdefault" )], ["widget:node", tree.findall( "widgetdefaultnode" )], ["background", tree.findall( "backgrounddefault" )], ["custom", tree.findall( "propertydefault" )] ]:
                 for elem in elemSearch[1]:
+                    # Get labelID and defaultID
+                    labelID = elem.attrib.get( "labelID" )
+                    defaultID = labelID
+                    if "defaultID" in elem.attrib:
+                        defaultID = elem.attrib.get( "defaultID" )
+
                     if elemSearch[0] == "custom":
                         # Custom property
                         if "group" not in elem.attrib:
-                            defaultProperties.append( ["mainmenu", elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, elem.attrib.get( 'defaultID' ) ] )
+                            defaultProperties.append( ["mainmenu", labelID, elem.attrib.get( 'property' ), elem.text, defaultID ] )
                         else:
-                            defaultProperties.append( [elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elem.attrib.get( 'property' ), elem.text, elem.attrib.get( 'defaultID' ) ] )
+                            defaultProperties.append( [elem.attrib.get( "group" ), labelID, elem.attrib.get( 'property' ), elem.text, defaultID ] )
                     else:
                         # Widget or background
                         if "group" not in elem.attrib:
-                            defaultProperties.append( [ "mainmenu", elem.attrib.get( 'labelID' ), elemSearch[0], elem.text, elem.attrib.get( 'defaultID' ) ] )
+                            defaultProperties.append( [ "mainmenu", labelID, elemSearch[ 0 ].split( ":" )[ 0 ], elem.text, defaultID ] )
                             
                             if elemSearch[ 0 ] == "background":
                                 # Get and set the background name
                                 backgroundName = self._getBackgroundName( elem.text )
                                 if backgroundName is not None:
-                                    defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "backgroundName", backgroundName, elem.attrib.get( 'defaultID' ) ] )
+                                    defaultProperties.append( [ "mainmenu", labelID, "backgroundName", backgroundName, defaultID ] )
                                 
                             if elemSearch[0] == "widget":
                                 # Get and set widget type and name
                                 widgetDetails = self._getWidgetNameAndType( elem.text )
                                 if widgetDetails is not None:
-                                    defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0], elem.attrib.get( 'defaultID' ) ] )
-                                    if widgetDetails[1] is not None:
-                                        defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1], elem.attrib.get( 'defaultID' ) ] )
+                                    defaultProperties.append( [ "mainmenu", labelID, "widgetName", widgetDetails[ "name" ], defaultID ] )
+                                    if "type" in widgetDetails:
+                                        defaultProperties.append( [ "mainmenu", labelID, "widgetType", widgetDetails[ "type" ], defaultID ] )
+                                    if "path" in widgetDetails:
+                                        defaultProperties.append( [ "mainmenu", labelID, "widgetPath", widgetDetails[ "path" ], defaultID ] )
+                                    if "target" in widgetDetails:
+                                        defaultProperties.append( [ "mainmenu", labelID, "widgetTarget", widgetDetails[ "target" ], defaultID ] )
+
+                            if elemSearch[0] == "widget:node":
+                                # Set all widget properties from the default
+                                if "label" in elem.attrib:
+                                    defaultProperties.append( [ "mainmenu", labelID, "widgetName", elem.attrib.get( "label" ), defaultID ] )
+                                if "type" in elem.attrib:
+                                    defaultProperties.append( [ "mainmenu", labelID, "widgetType", elem.attrib.get( "type" ), defaultID ] )
+                                if "path" in elem.attrib:
+                                    defaultProperties.append( [ "mainmenu", labelID, "widgetPath", elem.attrib.get( "path" ), defaultID ] )
+                                if "target" in elem.attrib:
+                                    defaultProperties.append( [ "mainmenu", labelID, "widgetTarget", elem.attrib.get( "target" ), defaultID ] )
                         else:
-                            defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( 'labelID' ), elemSearch[0], elem.text, elem.attrib.get( 'defaultID' ) ] )
+                            defaultProperties.append( [ elem.attrib.get( "group" ), labelID, elemSearch[ 0 ].split( ":" )[ 0 ], elem.text, defaultID ] )
                             
                             if elemSearch[ 0 ] == "background":
                                 # Get and set the background name
                                 backgroundName = self._getBackgroundName( elem.text )
                                 if backgroundName is not None:
-                                    defaultProperties.append( [ "mainmenu", elem.attrib.get( "labelID" ), "backgroundName", backgroundName, elem.attrib.get( 'defaultID' ) ] )
+                                    defaultProperties.append( [ "mainmenu", labelID, "backgroundName", backgroundName, defaultID ] )
                             
                             if elemSearch[0] == "widget":
                                 # Get and set widget type and name
                                 widgetDetails = self._getWidgetNameAndType( elem.text )
                                 if widgetDetails is not None:
-                                    defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetName", widgetDetails[0], elem.attrib.get( 'defaultID' ) ] )
-                                    if widgetDetails[1] is not None:
-                                        defaultProperties.append( [ elem.attrib.get( "group" ), elem.attrib.get( "labelID" ), "widgetType", widgetDetails[1], elem.attrib.get( 'defaultID' ) ] )                
+                                    defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetName", widgetDetails[ "name" ], defaultID ] )
+                                    if "type" in widgetDetails:
+                                        defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetType", widgetDetails[ "type" ], defaultID ] )
+                                    if "path" in widgetDetails:
+                                        defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetPath", widgetDetails[ "path" ], defaultID ] )
+                                    if "target" in widgetDetails:
+                                        defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetTarget", widgetDetails[ "target" ], defaultID ] )
+
+                            if elemSearch[ 0 ] == "widget:node":
+                                # Set all widget properties from the default
+                                if "label" in elem.attrib:
+                                    defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetName", elem.attrib.get( "label" ), defaultID ] )
+                                if "type" in elem.attrib:
+                                    defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetType", elem.attrib.get( "type" ), defaultID ] )
+                                if "path" in elem.attrib:
+                                    defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetPath", elem.attrib.get( "path" ), defaultID ] )
+                                if "target" in elem.attrib:
+                                    defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetTarget", elem.attrib.get( "target" ), defaultID ] )
                                         
         returnVal = [currentProperties, defaultProperties]
         return returnVal
@@ -528,12 +564,15 @@ class DataFunctions():
         if tree is not None:
             for elem in tree.findall( "widget" ):
                 if elem.text == widgetID:
+                    widgetInfo = { "name": elem.attrib.get( "label" ) }
                     if "type" in elem.attrib:
-                        returnList = [elem.attrib.get( "label" ), elem.attrib.get( "type" )]
-                    else:
-                        returnList = [ elem.attrib.get( "label" ), None ]
-                    self.widgetNameAndType[ widgetID ] = returnList
-                    return returnList
+                        widgetInfo[ "type" ] = elem.attrib.get( "type" )
+                    if "path" in elem.attrib:
+                        widgetInfo[ "path" ] = elem.attrib.get( "path" )
+                    if "target" in elem.attrib:
+                        widgetInfo[ "target" ] = elem.attrib.get( "target" )
+                    self.widgetNameAndType[ widgetID ] = widgetInfo
+                    return widgetInfo
                         
         self.widgetNameAndType[ widgetID ] = None
         return None

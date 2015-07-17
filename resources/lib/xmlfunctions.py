@@ -4,6 +4,7 @@ import xbmc, xbmcgui, xbmcvfs, xbmcaddon
 import xml.etree.ElementTree as xmltree
 from xml.sax.saxutils import escape as escapeXML
 import copy
+import ast
 from traceback import print_exc
 from unicodeutils import try_decode
 
@@ -187,7 +188,7 @@ class XMLFunctions():
 
 
         try:
-            hashes = eval( xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ) ).read() )
+            hashes = ast.literal_eval( xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ) ).read() )
         except:
             # There is no hash list, return True
             log( "No hash list" )
@@ -236,12 +237,16 @@ class XMLFunctions():
                         else:
                             xbmc.executebuiltin( "Skin.Reset(%s)" %( hash[ 1 ][ 1 ] ) )
                 else:
-                    hasher = hashlib.md5()
-                    hasher.update( xbmcvfs.File( hash[0] ).read() )
-                    if hasher.hexdigest() != hash[1]:
-                        log( "Hash does not match on file " + hash[0] )
-                        log( "(" + hash[1] + " > " + hasher.hexdigest() + ")" )
-                        return True
+                    try:
+                        hasher = hashlib.md5()
+                        hasher.update( xbmcvfs.File( hash[0] ).read() )
+                        if hasher.hexdigest() != hash[1]:
+                            log( "Hash does not match on file " + hash[0] )
+                            log( "(" + hash[1] + " > " + hasher.hexdigest() + ")" )
+                            return True
+                    except:
+                        log( "Unable to generate hash for %s" %( hash[ 0 ] ) )
+                        log( "(%s > ?)" %( hash[ 1 ] ) )
             else:
                 if xbmcvfs.exists( hash[0] ):
                     log( "File now exists " + hash[0] )
@@ -310,6 +315,7 @@ class XMLFunctions():
         submenuNodes = {}
         
         for profile in profilelist:
+            log( "Building menu for profile %s" %( profile[ 2 ] ) )
             # Load profile details
             profileDir = profile[0]
             profileVis = profile[1]
@@ -732,7 +738,16 @@ class XMLFunctions():
                         if "clonebackgrounds" in options:
                             if property[0] == "background" or property[0] == "backgroundName" or property[0] == "backgroundPlaylist" or property[0] == "backgroundPlaylistName":
                                 self.MAINBACKGROUND[ property[0] ] = property[1]
-                                
+
+                    # For backwards compatibility, save widgetPlaylist as widgetPath too
+                    if property[ 0 ] == "widgetPlaylist":
+                        additionalproperty = xmltree.SubElement( newelement, "property" )
+                        additionalproperty.set( "name", "widgetPath" )
+                        try:
+                            additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
+                        except:
+                            additionalproperty.text = DATA.local( property[1] )[1]
+
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
         if groupName != "mainmenu":
             if "clonewidgets" in options and len( self.MAINWIDGET ) is not 0:

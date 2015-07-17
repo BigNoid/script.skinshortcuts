@@ -27,6 +27,8 @@ class Template():
         templatepath = os.path.join( __skinpath__ , "template.xml" )
         try:
             self.tree = xmltree.parse( templatepath )
+
+            log( "Loaded template.xml file")
             
             # Add the template.xml to the hash file
             self._save_hash( templatepath, xbmcvfs.File( templatepath ).read() )
@@ -62,27 +64,28 @@ class Template():
         else:
             template = self.findSubmenu( menuName, level )
             
-        if template is None:
-            # There is no template for this
-            return
+        if template is not None:
+            # Found a template - let's build it
+            if menuType == "mainmenu":
+                log( "Main menu template found" )
+            else:
+                log( " - Submenu template found" )
+        
+            # We need to check that the relevant includes existing
+            # First, the overarching include
+            includeName = "skinshortcuts-template"
+            if "include" in template.attrib:
+                includeName += "-%s" %( template.attrib.get( "include" ) )
             
-        log( " - Template found" )
-        
-        # We need to check that the relevant includes existing
-        # First, the overarching include
-        includeName = "skinshortcuts-template"
-        if "include" in template.attrib:
-            includeName += "-%s" %( template.attrib.get( "include" ) )
-        
-        treeRoot = self.getInclude( self.includes, includeName, profileVisibility, profile )
-        includeTree = self.getInclude( self.includes, includeName + "-%s" %( profile ), None, None )
-        
-        # Now replace all <skinshortcuts> elements with correct data
-        self.replaceElements( template, visibilityCondition, profileVisibility, items )
-        
-        # Add the template to the includes
-        for child in template.find( "controls" ):
-            includeTree.append( child )
+            treeRoot = self.getInclude( self.includes, includeName, profileVisibility, profile )
+            includeTree = self.getInclude( self.includes, includeName + "-%s" %( profile ), None, None )
+            
+            # Now replace all <skinshortcuts> elements with correct data
+            self.replaceElements( template, visibilityCondition, profileVisibility, items )
+            
+            # Add the template to the includes
+            for child in template.find( "controls" ):
+                includeTree.append( child )
             
         # Now we want to see if any of the main menu items match a template
         if menuType != "mainmenu":
@@ -100,7 +103,7 @@ class Template():
             
             # Now find a matching template - if one matches, it will be saved to be processed
             # at the end (when we have all visibility conditions)
-            template = self.findOther( item, profile, profileVisibility, visibilityCondition )
+            self.findOther( item, profile, profileVisibility, visibilityCondition )
                     
     def writeOthers( self ):
         # This will write any 'other' elements we have into the includes file
@@ -203,20 +206,47 @@ class Template():
         
     def findOther( self, item, profile, profileVisibility, visibilityCondition ):
         # Find a template matching the item we have been passed
+        foundTemplateIncludes = []
         for elem in self.tree.findall( "other" ):
+            # Check that we don't already have a template for this include
+            includeName = None
+            if "include" in elem.attrib:
+                includeName = elem.attrib.get( "include" )
+            if includeName in foundTemplateIncludes:
+                continue
+
             template = copy.deepcopy( elem )
-            match = True
+            matched = True
+
+            # Check whether the skinner has set the match type (whether all conditions need to match, or any)
+            matchType = "all"
+            matchElem = template.find( "match" )
+            if matchElem is not None:
+                matchType = matchElem.text.lower()
+                if matchType not in [ "any", "all" ]:
+                    log( "Invalid <match /> element in template" )
+                    matchType = "all"
+                elif matchType == "any":
+                    matched = False
             
             # Check the conditions
             for condition in template.findall( "condition" ):
-                if match == False:
-                    break
-                if self.checkCondition( condition, item ) == False:
-                    match = False
-                    break
+                if matchType == "all":
+                    if matched == False:
+                        break
+                    if self.checkCondition( condition, item ) == False:
+                        matched = False
+                        break
+                else:
+                    if matched == True:
+                        break
+                    if self.checkCondition( condition, item ) == True:
+                        matched = True
+                        break
+
                 
             # If the conditions didn't match, we're done here
-            if match == False:
+            if matched == False:
                 continue
                 
             # All the rules matched, so next we'll get any properties
@@ -229,7 +259,7 @@ class Template():
             
             # Now we need to check if we've already got a template identical to this
             textVersion = None
-            match = False
+            foundInPrevious = False
             for previous in self.finalize:
                 # If we haven't already, convert our new template to a string
                 if textVersion is None:
@@ -262,20 +292,25 @@ class Template():
                     xmltree.SubElement( newElement, "visible" ).text = visibilityCondition
                     
                     # And we're done
-                    return previous
-                    
-            # We don't have this template saved, so add our profile details to it
-            newElement = xmltree.SubElement( template, "skinshortcuts-profile" )
-            newElement.set( "profile", profile )
-            newElement.set( "visible", profileVisibility )
-            
-            # Save the visibility condition
-            xmltree.SubElement( newElement, "visible" ).text = visibilityCondition
-            
-            # Add it to our finalize list
-            self.finalize.append( template )
-            
-            return template
+                    foundTemplateIncludes.append( includeName )
+                    foundInPrevious = True
+
+            if foundInPrevious == False:
+                # We don't have this template saved, so add our profile details to it
+                newElement = xmltree.SubElement( template, "skinshortcuts-profile" )
+                newElement.set( "profile", profile )
+                newElement.set( "visible", profileVisibility )
+                
+                # Save the visibility condition
+                xmltree.SubElement( newElement, "visible" ).text = visibilityCondition
+                
+                # Add it to our finalize list
+                self.finalize.append( template )
+
+                # Add that we've found a template for this include
+                foundTemplateIncludes.append( includeName )
+
+                log( " - Other template found" )
             
     def checkCondition( self, condition, items ):
         # Check if a particular condition is matched for an 'other' template
@@ -300,7 +335,7 @@ class Template():
                     # This property doesn't match
                     continue
                     
-            if item.text != condition.text:
+            if condition.text is not None and item.text != condition.text:
                 # This property doesn't match
                 continue
             
@@ -314,22 +349,27 @@ class Template():
         properties = {}
         for property in elem.findall( "property" ):
             value = None
-            if "name" not in property.attrib or "tag" not in property.attrib or property.attrib.get( "name" ) in properties:
-                # Name and tag both required, so pass on this
-                # (or we've already got a property with this name)
+            if "name" not in property.attrib or property.attrib.get( "name" ) in properties:
+                # Name attrib required, or we've already got a property with this name
                 continue
-            else:
-                name = property.attrib.get( "name" )
+            name = property.attrib.get( "name" )
+            if "tag" in property.attrib:
                 tag = property.attrib.get( "tag" )
-            if "attribute" in property.attrib and "value" not in property.attrib:
-                # Attribute requires a value, so pass on this
+            else:
+                # No tag property, so this will always match (so let's just use it!)
+                if property.text:
+                    properties[ name ] = property.text
+                else:
+                    properties[ name ] = ""
                 continue
+
+            if "attribute" in property.attrib and "value" not in property.attrib:
+                attrib = property.attrib.get( "attribute" ).split( "|" )
             else:
                 attrib = property.attrib.get( "attribute" ).split( "|" )
                 value = property.attrib.get( "value" )
                 
             # Let's get looking for any items that match
-            matched = False
             for item in items.findall( tag ):
                 if attrib is not None:
                     if attrib[ 0 ] not in item.attrib:
@@ -338,6 +378,10 @@ class Template():
                     if attrib[ 1 ] != item.attrib.get( attrib[ 0 ] ):
                         # The attributes value doesn't match
                         continue
+
+                if not item.text:
+                    # The item doesn't have a value to match
+                    continue
                         
                 if value is not None and item.text != value:
                     # The value doesn't match
@@ -347,7 +391,7 @@ class Template():
                 if property.text:
                     properties[ name ] = property.text
                 else:
-                    properties[ name ] = elem.text
+                    properties[ name ] = item.text
                 break
         
         return properties
@@ -391,15 +435,29 @@ class Template():
                 tree.insert( index, newElement )
             
             # <tag>$skinshortcuts[var]</tag> -> <tag>[value]</tag>
-            if elem.text is not None and elem.text.startswith( "$SKINSHORTCUTS[" ) and elem.text[ 15:-1 ] in properties:
-                # Replace the text with the property value
-                elem.text = properties[ elem.text[ 15:-1 ] ]
+            # <tag>$skinshortcuts[var]</tag> -> <tag><include>[includeName]</include></tag> (property = $INCLUDE[includeName])
+            if elem.text is not None and elem.text.startswith( "$SKINSHORTCUTS[" ):
+                newValue = ""
+                if elem.text[ 15:-1 ] in properties:
+                    newValue = properties[ elem.text[ 15:-1 ] ]
+                if newValue.startswith( "$INCLUDE[" ):
+                    # Remove text property
+                    elem.text = ""
+                    # Add include element
+                    includeElement = xmltree.SubElement( elem, "include" )
+                    includeElement.text = newValue[ 9:-1 ]
+                else:
+                    # Replace the text with the property value
+                    elem.text = newValue
             
             # <tag attrib="$skinshortcuts[var]" /> -> <tag attrib="[value]" />
             for attrib in elem.attrib:
                 value = elem.attrib.get( attrib )
                 if value.startswith( "$SKINSHORTCUTS[" ) and value[ 15:-1 ] in properties:
-                    elem.set( attrib, properties[ value[ 15:-1 ] ] )
+                    newValue = ""
+                    if value[ 15:-1 ] in properties:
+                        newValue = properties[ value[ 15:-1 ] ]
+                    elem.set( attrib, newValue )
             
             # <skinshortcuts>visible</skinshortcuts> -> <visible>[condition]</visible>
             # <skinshortcuts>items</skinshortcuts> -> <item/><item/>...
