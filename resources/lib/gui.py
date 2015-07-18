@@ -627,20 +627,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                 newtree.write( target, encoding="utf-8" )
                                 log( "### Copying " + path[0] + " > " + target )
                             break
-                            
-                        elif xbmcvfs.exists( path[0].replace( ".DATA.xml", ".shortcuts" ) ):
-                            # An original .shortcuts file exists
-                            
-                            # Copy a default shortcuts file to the target path
-                            xbmcvfs.copy( path[0].replace( ".DATA.xml", ".shortcuts" ), target.replace( ".DATA.xml", ".shortcuts" ) )
-                            
-                            # Upgrade the default shortcuts file
-                            datafunctions.UpgradeFunctions().upgrade_file( target.replace( ".DATA.xml", ".shortcuts" ) )
-                            datafunctions.UpgradeFunctions().upgrade_xmlfile( target.replace( ".DATA.xml", ".shortcuts" ) )
-                            
-                            # Delete the backup file
-                            xbmcvfs.delete( target.replace( ".DATA.xml", ".shortcuts.backup" ) )
-                            break
                         
                 labelIDChanges.pop( 0 )
                 
@@ -705,6 +691,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Load skin overrides
         tree = DATA._get_overrides_skin()
+        if tree is None:
+            return
                 
         # Should we allow the user to select a playlist as a widget...
         elem = tree.find('widgetPlaylists')
@@ -714,51 +702,49 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.widgetPlaylistsType = elem.attrib.get( "type" )
                 
         # Get backgrounds
-        if tree is not None:
-            elems = tree.findall('background')
-            for elem in elems:
-                if "condition" in elem.attrib:
-                    if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
-                        continue
-                
-                if elem.text.startswith("||BROWSE||"):
-                    #we want to include images from a VFS path...
-                    images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
-                    for image in images:
-                        self.backgrounds.append( [image[0], image[1] ] )
-                        self.backgroundsPretty[image[0]] = image[1]  
-                else:
-                    self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-                    self.backgroundsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
-                
-            # Should we allow the user to browse for background images...
-            elem = tree.find('backgroundBrowse')
-            if elem is not None and elem.text == "True":
-                self.backgroundBrowse = True
-                if "default" in elem.attrib:
-                    self.backgroundBrowseDefault = elem.attrib.get( "default" )
+        elems = tree.findall('background')
+        for elem in elems:
+            if "condition" in elem.attrib:
+                if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                    continue
+            
+            if elem.text.startswith("||BROWSE||"):
+                #we want to include images from a VFS path...
+                images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
+                for image in images:
+                    self.backgrounds.append( [image[0], image[1] ] )
+                    self.backgroundsPretty[image[0]] = image[1]  
+            else:
+                self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+                self.backgroundsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
+            
+        # Should we allow the user to browse for background images...
+        elem = tree.find('backgroundBrowse')
+        if elem is not None and elem.text == "True":
+            self.backgroundBrowse = True
+            if "default" in elem.attrib:
+                self.backgroundBrowseDefault = elem.attrib.get( "default" )
 
         # Get thumbnails
-        if tree is not None:
-            elems = tree.findall('thumbnail')
-            for elem in elems:
-                if "condition" in elem.attrib:
-                    if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
-                        continue
-                        
-                if elem.text.startswith("||BROWSE||"):
-                    #we want to include images from a VFS path...
-                    images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
-                    for image in images:
-                        self.thumbnails.append( [image[0], image[1] ] )
-                        self.thumbnailsPretty[image[0]] = image[1]
-                else:
-                    self.thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-                    self.thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
-            
-            elem = tree.find("thumbnailBrowseDefault")
-            if elem is not None and len(elem.text) > 0:
-                self.thumbnailBrowseDefault = elem.text
+        elems = tree.findall('thumbnail')
+        for elem in elems:
+            if "condition" in elem.attrib:
+                if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                    continue
+                    
+            if elem.text.startswith("||BROWSE||"):
+                #we want to include images from a VFS path...
+                images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
+                for image in images:
+                    self.thumbnails.append( [image[0], image[1] ] )
+                    self.thumbnailsPretty[image[0]] = image[1]
+            else:
+                self.thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+                self.thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
+        
+        elem = tree.find("thumbnailBrowseDefault")
+        if elem is not None and len(elem.text) > 0:
+            self.thumbnailBrowseDefault = elem.text
 
                 
     # ========================

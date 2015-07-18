@@ -52,20 +52,6 @@ class Main:
         self._parse_argv()
         self.WINDOW = xbmcgui.Window(10000)    
         
-        # --- UPGRADE ---
-        if __addon__.getSetting( "upgraded_labels" ) != "true":
-            datafunctions.UpgradeFunctions().upgrade_labels()
-            __addon__.setSetting("upgraded_labels", "true")
-            log( "### Upgraded labels" )
-        if __addon__.getSetting( "upgraded_xml" ) != "true":
-            datafunctions.UpgradeFunctions().upgrade_toxml()
-            __addon__.setSetting("upgraded_xml", "true")
-            log( "### Upgraded file format" )
-        if __addon__.getSetting( "upgraded_labelID" ) != "true":
-            datafunctions.UpgradeFunctions().upgrade_addon_labelID()
-            __addon__.setSetting("upgraded_labelID", "true" )
-            log( "### Upgraded labelID" )
-        
         # Create data and master paths if not exists
         if not xbmcvfs.exists(__datapath__):
             xbmcvfs.mkdir(__datapath__)
@@ -87,15 +73,6 @@ class Main:
             xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Player.Open", "params": { "item": {"channelid": ' + self.CHANNEL + '} } }')
         if self.TYPE=="manage":
             self._manage_shortcuts( self.GROUP, self.DEFAULTGROUP, self.NOLABELS, self.GROUPNAME )
-        #if self.TYPE=="list":
-        #    self._check_Window_Properties()
-        #    self._list_shortcuts( self.GROUP )
-        #if self.TYPE=="submenu":
-        #    self._check_Window_Properties()
-        #    self._list_submenu( self.MENUID, self.LEVEL )
-        if self.TYPE=="settings":
-            self._check_Window_Properties()
-            self._manage_shortcut_links() 
             
         if self.TYPE=="hidesubmenu":
             self._hidesubmenu( self.MENUID )
@@ -186,12 +163,9 @@ class Main:
         self.PATH = params.get( "path", "" )
         self.MENUID = params.get( "mainmenuID", "0" )
         self.NEXTACTION = params.get( "action", "0" )
-        self.LEVEL = params.get( "level", "" )
         self.LEVELS = params.get( "levels", "0" )
-        self.CUSTOMID = params.get( "customid", "" )
         self.MODE = params.get( "mode", None )
         self.CHANNEL = params.get( "channel", None )
-        self.LABELID = params.get( "labelid", None )
         
         # Properties when using LIBRARY._displayShortcuts
         self.LABEL = params.get( "skinLabel", None )
@@ -199,7 +173,6 @@ class Main:
         self.SHORTCUTTYPE = params.get( "skinType", None )
         self.THUMBNAIL = params.get( "skinThumbnail", None )
         self.LIST = params.get( "skinList", None )
-        self.GROUPING = params.get( "grouping", None )
         self.CUSTOM = params.get( "custom", "False" )
         self.NONE = params.get( "showNone", "False" )
         
@@ -207,16 +180,6 @@ class Main:
         self.OPTIONS = params.get( "options", "" ).split( "|" )
         self.WARNING = params.get( "warning", None )
         self.DEFAULTGROUP = params.get( "defaultGroup", None )
-        
-    def _check_Window_Properties( self ):
-        # Check if the user has changed skin or profile
-        if self.WINDOW.getProperty("skinsettings-currentSkin-Path") and self.WINDOW.getProperty("skinsettings-currentProfile-Path"):
-            if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir().encode( 'utf-8' ) or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__.encode( 'utf-8' ):
-                self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
-                self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
-        else:
-            self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
-            self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
     
     
     # -----------------
@@ -257,142 +220,7 @@ class Main:
         homeWindow.clearProperty( "skinshortcutsCustomProperties" )        
         homeWindow.clearProperty( "skinshortcutsBackgrounds" )        
         
-
-    def _list_shortcuts( self, group ):
-        log( "### Listing shortcuts for group " + group )
-        if group == "":
-            log( "### - NO GROUP PASSED")
-            # Return an empty list
-            xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-            return None
         
-        # Load shortcuts and overrides
-        listitems = DATA._get_shortcuts( group )
-        saveItems = []
-        
-        i = 0
-        
-        DATA._clear_labelID()
-        
-        for item in listitems:
-            i += 1
-            # Generate a listitem
-            action = item[4].encode( "utf-8" )
-            if urllib.unquote( action ).startswith( "pvr-channel://" ):
-                log( " Changed action" )
-                action = urllib.quote( "RunScript(script.skinshortcuts,type=launchpvr&channel=" + urllib.unquote( action ).replace( "pvr-channel://", "" ) + ")" )
-            
-            log( " - " + item[0] + " (" + action + ")" )
-            
-            path = sys.argv[0].decode( 'utf-8' ) + "?type=launch&path=" + action + "&group=" + self.GROUP
-            
-            listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
-            listitem.setProperty( 'IsPlayable', 'True')
-            if group == "mainmenu":
-                listitem.setProperty( "labelID", DATA._get_labelID( item[5] ).encode('utf-8') )
-            listitem.setProperty( "action", urllib.unquote( action ) )
-            listitem.setProperty( "group", group )
-            listitem.setProperty( "path", path )
-            
-            # Set an additional property to use for inbuilt submenu visibility
-            listitem.setProperty( "submenuVisibility", str( i ) )
-            
-            # Localize label2 (type of shortcut)
-            if not item[1].find( "::SCRIPT::" ) == -1:
-                listitem.setLabel2( __language__( int( item[1][10:] ) ) )
-                            
-            # Add additional properties
-            if len( item[6] ) != 0:
-                repr( item[6] )
-                for property in item[6]:
-                    listitem.setProperty( property[0], property[1] )
-                    log( " - Additional Property: " + property[0] + " = " + property[1] )
-            
-            saveItems.append( ( path, listitem ) )
-
-        # Return the list
-        xbmcplugin.addDirectoryItems( handle=int(sys.argv[1]), items=saveItems )
-        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-        
-                
-    def _list_submenu( self, mainmenuID, levelInt ):
-        log( "### Listing submenu group " + mainmenuID )
-        if mainmenuID == "0":
-            log( "### - NO MAIN MENU ID PASSED")
-            # Return an empty list
-            xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-            return None
-            
-        fullMenu = True
-        mainmenuListItems = []
-        if self.GROUP:
-            # Retrieve passed main menu items
-            groups = self.GROUP.split( ",")
-            for group in groups:
-                mainmenuListItems.append( group )
-            fullMenu = False
-        else:
-            # Load shortcuts for the main menu
-            mainmenuListItems = DATA._get_shortcuts( "mainmenu" )
-            
-        saveItems = []
-        
-        i = 0
-        
-        for mainmenuItem in mainmenuListItems:
-            i += 1
-            # Load menu for each labelID
-            mainmenuLabelID = mainmenuItem
-            if fullMenu == True:
-                mainmenuLabelID = mainmenuItem[5].encode( 'utf-8' )
-                
-            if levelInt == "":
-                listitems = DATA._get_shortcuts( mainmenuLabelID )
-            else:
-                listitems = DATA._get_shortcuts( mainmenuLabelID + "." + levelInt )
-            for item in listitems:
-                action = item[4].encode( "utf-8" )
-                if urllib.unquote( action ).startswith( "pvr-channel://" ):
-                    log( " Changed action" )
-                    action = urllib.quote( "RunScript(script.skinshortcuts,type=launchpvr&channel=" + urllib.unquote( action ).replace( "pvr-channel://", "" ) + ")" )
-                
-                log( " - " + item[0] + " (" + action + ")" )
-                
-                path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + action + "&group=" + mainmenuLabelID.decode('utf-8')
-                
-                listitem = xbmcgui.ListItem(label=item[0], label2=item[1], iconImage=item[2], thumbnailImage=item[3])
-                
-                listitem.setProperty('IsPlayable', 'True')
-                listitem.setProperty( "labelID", item[5].encode('utf-8') )
-                listitem.setProperty( "action", urllib.unquote( action ) )
-                listitem.setProperty( "group", mainmenuLabelID.decode('utf-8') )
-                listitem.setProperty( "path", path )
-                
-                if fullMenu == True:
-                    listitem.setProperty( "node.visible", "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + str( i ) + ")" )
-                else:
-                    listitem.setProperty( "node.visible", "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + mainmenuLabelID + ")" )
-                
-                # Localize label2 (type of shortcut)
-                if not listitem.getLabel2().find( "::SCRIPT::" ) == -1:
-                    listitem.setLabel2( __language__( int( listitem.getLabel2()[10:] ) ) )
-                
-                # Add additional properties
-                if len( item[6] ) != 0:
-                    for property in item[6]:
-                        if property[0] == "node.visible":
-                            listitem.setProperty( property[0], listitem.getProperty( "node.visible" ) + " + [" + property[1] + "]" )
-                        else:
-                            listitem.setProperty( property[0], property[1] )
-                            log( " - Additional Property: " + property[0] + " = " + property[1] )
-                
-                saveItems.append( ( path, listitem ) )
-        
-        # Return the list
-        xbmcplugin.addDirectoryItems( handle=int(sys.argv[1]), items=saveItems )
-        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-    
-
     def _reset_all_shortcuts( self ):
         log( "### Resetting all shortcuts" )
         log( repr( self.WARNING) )
@@ -422,120 +250,8 @@ class Main:
         
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )   
-        
     
-    # ----------------
-    # SKINSETTINGS.XML
-    # ----------------
-    
-    def _manage_shortcut_links ( self ):
-        log( "### Generating list for skin settings" )
-        pathAddition = ""
-        
-        # Create link to manage main menu
-        if self.LEVEL == "":
-            path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=mainmenu&nolabels=" + self.NOLABELS + ")" )
-            displayLabel = self._get_customised_settings_string("main")
-            listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
-            listitem.setProperty('isPlayable', 'False')
-            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem, isFolder=False)
-        else:
-            pathAddition = "." + self.LEVEL
-        
-        # Set path based on user defined mainmenu, then skin-provided, then script-provided
-        if xbmcvfs.exists( os.path.join( __datapath__ , "mainmenu.shortcuts" ) ):
-            # User defined shortcuts
-            path = os.path.join( __datapath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __skinpath__ , "mainmenu.shortcuts" ) ):
-            # Skin-provided defaults
-            path = os.path.join( __skinpath__ , "mainmenu.shortcuts" )
-        elif xbmcvfs.exists( os.path.join( __defaultpath__ , "mainmenu.shortcuts" ) ):
-            # Script-provided defaults
-            path = os.path.join( __defaultpath__ , "mainmenu.shortcuts" )
-        else:
-            # No custom shortcuts or defaults available
-            path = ""
-            
-        if not path == "":
-            try:
-                # Try loading shortcuts
-                file = xbmcvfs.File( path )
-                loaditems = eval( file.read() )
-                file.close()
-                
-                listitems = []
-                
-                for item in loaditems:
-                    itemEncoded = item[0].encode( 'utf-8' )
-                    path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + itemEncoded + pathAddition + "&nolabels=" + self.NOLABELS + ")" )
-                    
-                    # Get localised label
-                    if not item[0].find( "::SCRIPT::" ) == -1:
-                        localLabel = __language__(int( item[0][10:] ) )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][10:] ).encode("ascii", "xmlcharrefreplace") + pathAddition + "&nolabels=" + self.NOLABELS + ")" )
-                    elif not item[0].find( "::LOCAL::" ) == -1:
-                        localLabel = xbmc.getLocalizedString(int( item[0][9:] ) )
-                        path = sys.argv[0].decode('utf-8') + "?type=launch&path=" + urllib.quote( "RunScript(script.skinshortcuts,type=manage&group=" + self.createNiceName( item[0][9:] ).encode("ascii", "xmlcharrefreplace") + pathAddition + "&nolabels=" + self.NOLABELS + ")" )
-                    else:
-                        localLabel = item[0]
-                        
-                    # Get display label
-                    displayLabel = self._get_customised_settings_string("submenu").replace("::MENUNAME::", localLabel)
-                    
-                    #listitem = xbmcgui.ListItem(label=__language__(32036) + item[0], label2="", iconImage="", thumbnailImage="")
-                    listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="", thumbnailImage="")
-                    listitem.setProperty('isPlayable', 'True')
-                        
-                    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
-
-            except:
-                print_exc()
-                log( "### ERROR could not load file %s" % path )
-        
-        # Add a link to reset all shortcuts
-        if self.LEVEL == "":
-            path = sys.argv[0].decode('utf-8') + "?type=resetall"
-            displayLabel = self._get_customised_settings_string("reset")
-            listitem = xbmcgui.ListItem(label=displayLabel, label2="", iconImage="DefaultShortcut.png", thumbnailImage="DefaultShortcut.png")
-            listitem.setProperty('isPlayable', 'True')
-            xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=path, listitem=listitem)
-        
-        # Save the list
-        xbmcplugin.endOfDirectory(handle=int(sys.argv[1]))
-    
-    
-    def _get_customised_settings_string( self, group ):
-        # This function will return the customised settings string for the given group
-        tree = DATA._get_overrides_skin()
-        if tree is not None:
-            elems = tree.findall('settingslabel')
-            for elem in elems:
-                if elem is not None and elem.attrib.get( 'type' ) == group:
-                    if self.LEVEL != "":
-                        if elem.attrib.get( 'level' ) == self.LEVEL:
-                            if elem.text.isdigit():
-                                return xbmc.getLocalizedString( int( elem.text ) )
-                            else:
-                                return elem.text
-                    else:
-                        if 'level' not in elem.attrib:
-                            if elem.text.isdigit():
-                                return xbmc.getLocalizedString( int( elem.text ) )
-                            else:
-                                return elem.text
-                                
-        # If we get here, no string has been specified in overrides.xml
-        if group == "main":
-            return __language__(32035)
-        elif group == "submenu" and self.LEVEL == "":
-            return __language__(32036)
-        elif group == "submenu" and self.LEVEL != "":
-            return "::MENUNAME::"
-        elif group == "reset":
-            return __language__(32037)
-        return "::MENUNAME::"
-                            
-    
+    # Functions for providing whoe menu in single list
     def _hidesubmenu( self, menuid ):
         count = 0
         while xbmc.getCondVisibility( "!IsEmpty(Container(" + menuid + ").ListItem(" + str( count ) + ").Property(isSubmenu))" ):
