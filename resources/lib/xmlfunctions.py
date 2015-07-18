@@ -3,6 +3,7 @@ import os, sys, datetime, unicodedata, re
 import xbmc, xbmcgui, xbmcvfs, xbmcaddon
 import xml.etree.ElementTree as xmltree
 from xml.sax.saxutils import escape as escapeXML
+import copy
 from traceback import print_exc
 
 if sys.version_info < (2, 7):
@@ -363,29 +364,38 @@ class XMLFunctions():
             itemidmainmenu = 0
             percent = profilePercent / len( menuitems )
             
-            mainmenuItems = []
-            
             i = 0
             for item in menuitems:
                 i += 1
                 itemidmainmenu += 1
                 progress.update( ( profilePercent * profileCount) + percent * i )
-                # If this is a main menu item...
                 submenuDefaultID = None
+
                 if not isinstance( item, basestring ):
+                    # This is a main menu item (we know this because it's an element, not a string)
                     submenu = item.find( "labelID" ).text
-                    mainmenuItemA = self.buildElement( item, mainmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
-                    mainmenuItems.append( mainmenuItemA )
-                    self.buildElement( item, templateMainMenuItems, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
+
+                    # Build the menu item
+                    menuitem = self.buildElement( item, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
+
+                    # Add the menu item to the various includes, retaining a reference to them
+                    mainmenuItemA = copy.deepcopy( menuitem )
+                    mainmenuTree.append( mainmenuItemA )
+
                     if buildMode == "single":
-                        mainmenuItemB = self.buildElement( item, allmenuTree, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
-                        mainmenuItems.append( mainmenuItemB )
+                        mainmenuItemB = copy.deepcopy( menuitem )
+                        allmenuTree.append( mainmenuItemB )
+
+                    templateMainMenuItems.append( copy.deepcopy( menuitem ) )
+
+                    # Get submenu defaultID
                     submenuDefaultID = item.find( "defaultID" ).text
                 else:
+                    # It's an additional menu, so get its labelID
                     submenu = DATA._get_labelID( item, None )
                     
                 # Build the submenu
-                count = 0
+                count = 0 # Used to keep track of additional submenu
                 for submenuTree in submenuTrees:
                     submenuVisibilityName = submenu
                     if count == 1:
@@ -394,9 +404,10 @@ class XMLFunctions():
                         submenu = submenu[:-1] + str( count )
                         submenuVisibilityName = submenu[:-2]
                         
+                    # Get the tree's we're going to write the menu to
                     if submenu in submenuNodes:
                         justmenuTreeA = submenuNodes[ submenu ][ 0 ]
-                        justmenuTreeB = submenuNodes[ submenu ] [ 1 ]
+                        justmenuTreeB = submenuNodes[ submenu ][ 1 ]
                     else:
                         # Create these nodes
                         justmenuTreeA = xmltree.SubElement( root, "include" )
@@ -409,6 +420,7 @@ class XMLFunctions():
                         
                     itemidsubmenu = 0
                     
+                    # Get the shortcuts for the submenu
                     if count == 0:
                         submenudata = DATA._get_shortcuts( submenu, submenuDefaultID, True, profile[0] )
                     else:
@@ -459,14 +471,30 @@ class XMLFunctions():
                                 newonclick = xmltree.SubElement( mainmenuItemB, "onclick" )
                                 newonclick.text = "SetProperty(submenuVisibility," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ",10000)"
                     
-                    # Build the submenu
+                    # Build the submenu items
                     for submenuItem in submenuitems:
                         itemidsubmenu += 1
-                        self.buildElement( submenuItem, submenuTree, submenu, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", profile[1], itemid = itemidsubmenu, options = options )
-                        self.buildElement( submenuItem, justmenuTreeA, submenu, None, profile[1], itemid = itemidsubmenu, options = options )
-                        self.buildElement( submenuItem, justmenuTreeB, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                        # Build the item without any visibility conditions
+                        menuitem = self.buildElement( submenuItem, submenu, None, profile[1], itemid = itemidsubmenu, options = options )
+                        isSubMenuElement = xmltree.SubElement( menuitem, "property" )
+                        isSubMenuElement.set( "name", "isSubmenu" )
+                        isSubMenuElement.text = "True"
+
+                        # Add it, with appropriate visibility conditions, to the various submenu includes
+                        justmenuTreeA.append( copy.deepcopy( menuitem ) )
+
+                        menuitemCopy = copy.deepcopy( menuitem )
+                        visibilityElement = menuitemCopy.find( "visible" )
+                        visibilityElement.text += " + [%s]" %( "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
+                        justmenuTreeB.append( menuitemCopy )
+
                         if buildMode == "single":
-                            self.buildElement( submenuItem, allmenuTree, submenu, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", profile[1], itemid = itemidsubmenu, options = options )
+                            submenu.append( copy.deepcopy( menuitemCopy ) )
+
+                        menuitemCopy = copy.deepcopy( menuitem )
+                        visibilityElement = menuitemCopy.find( "visible" )
+                        visibilityElement.text += " + [%s]" %( "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
+                        submenuTree.append( menuitemCopy )
                             
                     # Build the template for the submenu
                     Template.parseItems( "submenu", count, justmenuTreeA, profile[ 2 ], profile[ 1 ], "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", item )
@@ -546,10 +574,10 @@ class XMLFunctions():
         file.close
         
         
-    def buildElement( self, item, Tree, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1, options=[] ):
+    def buildElement( self, item, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1, options=[] ):
         # This function will build an element for the passed Item in
-        # the passed Tree
-        newelement = xmltree.SubElement( Tree, "item" )
+        newelement = xmltree.Element( "item" )
+
         if itemid is not -1:
             newelement.set( "id", str( itemid ) )
             
