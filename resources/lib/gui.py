@@ -492,7 +492,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for listitem in self.allListItems:
                 
                 # If the item has a label...
-                if listitem.getLabel() != __language__(32013):
+                if listitem.getLabel().decode('utf-8') != __language__(32013):
                     # Generate labelID, and mark if it has changed
                     labelID = listitem.getProperty( "labelID" )
                     newlabelID = labelID
