@@ -709,7 +709,10 @@ class XMLFunctions():
                             xbmc.executebuiltin( "Skin.SetString(skinshortcuts-widget-" + str( self.widgetCount ) + "," + property[ 1 ] + ")" )
                             self.widgetCount += 1
                     elif property[0] == "background":
-                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
+                        try:
+                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
+                        except UnicodeEncodeError:							
+                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1].encode('utf-8') + ")" )
                         
                     # If this is the main menu, and we're cloning widgets or backgrounds...
                     if groupName == "mainmenu":
