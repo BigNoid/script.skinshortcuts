@@ -473,6 +473,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Inform user menu couldn't be saved
                 xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__( 32097 ), __language__( 32094 ) )                 
 
+    def _try_decode(self, text, encoding="utf-8"):
+        try:
+            return text.decode(encoding)
+        except:
+            return text
+            
     def _save_shortcuts_function( self ):
         # Save shortcuts
         if self.changeMade == True:
@@ -522,21 +528,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
                     # Icon and thumbnail
                     if listitem.getProperty( "untranslatedIcon" ):
-                        xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "untranslatedIcon" )
+                        icon = listitem.getProperty( "untranslatedIcon" )
                     else:
                         if listitem.getProperty( "original-icon" ):
-                            xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "original-icon" )
+                            icon = listitem.getProperty( "original-icon" )
                         else:
-                            xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "icon" )
-                        
-                    xmltree.SubElement( shortcut, "thumb" ).text = listitem.getProperty( "thumbnail" )
+                            icon = listitem.getProperty( "icon" )
+                            
+                    xmltree.SubElement( shortcut, "icon" ).text = self._try_decode(icon)
+                    xmltree.SubElement( shortcut, "thumb" ).text = self._try_decode(listitem.getProperty( "thumbnail" ))
                     
                     # Action
-                    try:
-                        action = listitem.getProperty( "path" ).decode( "utf-8" )
-                    except:
-                        action = listitem.getProperty( "path" )
-                    xmltree.SubElement( shortcut, "action" ).text = action
+                    xmltree.SubElement( shortcut, "action" ).text = self._try_decode(listitem.getProperty( "path" ))
                     
                     # Visible
                     if listitem.getProperty( "visible-condition" ):
