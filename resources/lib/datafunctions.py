@@ -3,7 +3,6 @@ import os, sys, datetime, unicodedata, re, types
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
 import hashlib, hashlist
-import cPickle as pickle
 from xml.dom.minidom import parse
 from traceback import print_exc
 from htmlentitydefs import name2codepoint
@@ -50,7 +49,10 @@ def log(txt):
     
 class DataFunctions():
     def __init__(self):
-        pass
+        self.overrides = {}
+
+        self.widgetNameAndType = {}
+        self.backgroundName = {}
         
     
     def _get_labelID( self, labelID, action, getDefaultID = False, includeAddOnID = True ):
@@ -387,92 +389,64 @@ class DataFunctions():
 
         
     def _get_overrides_script( self ):
-        # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-script-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-script" ) == __defaultpath__:
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-script", __defaultpath__ )
-            overridepath = os.path.join( __defaultpath__ , "overrides.xml" )
-            try:
-                tree = xmltree.parse( overridepath )
-                self._save_hash( overridepath, xbmcvfs.File( overridepath ).read() )
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-script-data", pickle.dumps( tree ) )
-                return tree
-            except:
-                if xbmcvfs.exists( overridepath ):
-                    # Unable to parse script overrides.xml
-                    log( "Unable to parse script overrides.xml. Invalid xml?" )
-                    self._save_hash( overridepath, xbmcvfs.File( overridePath ).read() )
-                else:
-                    # No script overrides.xml
-                    self._save_hash( overridepath, None )
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-script-data", "No overrides" )
-                return None
-   
-        # Return the overrides
-        returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-script-data" )
-        if returnData == "No overrides":
-            return None
-        else:
-            return pickle.loads( returnData )
+        # Get overrides.xml provided by script
+        if "script" in self.overrides:
+            return self.overrides[ "script" ]
 
+        overridePath = os.path.join( __defaultpath__, "overrides.xml" )
+        try:
+            tree = xmltree.parse( overridePath )
+            self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            self.overrides[ "script" ] = tree
+            return tree
+        except:
+            if xbmcvfs.exists( overridePath ):
+                log( "Unable to parse script overrides.xml. Invalid xml?" )
+                self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            else:
+                self._save_hash( overridePath, None )
+            self.overrides[ "script" ] = None
+            return None
 
     def _get_overrides_skin( self ):
-        # If we haven't already loaded skin overrides, or if the skin has changed, load the overrides file
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin" ) == __skinpath__:
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin", __skinpath__ )
-            overridepath = os.path.join( __skinpath__ , "overrides.xml" )
-            try:
-                tree = xmltree.parse( overridepath )
-                self._save_hash( overridepath, xbmcvfs.File( overridepath ).read() )
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", pickle.dumps( tree ) )
-                return tree
-            except:
-                if xbmcvfs.exists( overridepath ):
-                    # Unable to parse skin overrides.xml
-                    log( "Unable to parse skin overrides.xml. Invalid xml?" )
-                    self._save_hash( overridepath, xbmcvfs.File( overridePath ).read() )
-                else:
-                    # No skin overrides.xml
-                    self._save_hash( overridepath, None )
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-skin-data", "No overrides" )
-                return None
-   
-        # Return the overrides
-        returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-skin-data" )
-        if returnData == "No overrides":
-            return None
-        else:
-            return pickle.loads( returnData )
+        # Get overrides.xml provided by skin 
+        if "skin" in self.overrides:
+            return self.overrides[ "skin" ]
 
+        overridePath = os.path.join( __skinpath__, "overrides.xml" )
+        try:
+            tree = xmltree.parse( overridePath )
+            self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            self.overrides[ "skin" ] = tree
+            return tree
+        except:
+            if xbmcvfs.exists( overridePath ):
+                log( "Unable to parse skin overrides.xml. Invalid xml?" )
+                self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            else:
+                self._save_hash( overridePath, None )
+            self.overrides[ "skin" ] = None
+            return None
 
     def _get_overrides_user( self, profileDir = "special://profile" ):
-        # If we haven't already loaded user overrides
-        profileDir = profileDir.encode( "utf-8" )
-        if not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" + profileDir ) or not xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user" + profileDir ) == __profilepath__:
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user" + profileDir, profileDir )
-            overridepath = os.path.join( profileDir , "overrides.xml" )
-            try:
-                tree = xmltree.parse( overridepath )
-                self._save_hash( overridepath, xbmcvfs.File( overridepath ).read() )
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data" + profileDir, pickle.dumps( tree ) )
-                return tree
-            except:
-                if xbmcvfs.exists( overridepath ):
-                    # Unable to parse user overrides.xml
-                    log( "Unable to parse user overrides.xml. Invalid xml?" )
-                    self._save_hash( overridepath, xbmcvfs.File( overridePath ).read() )
-                else:
-                    # No user overrides.xml
-                    self._save_hash( overridepath, None )
-                self._save_hash( overridepath, None )
-                xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-overrides-user-data" + profileDir, "No overrides" )
-                return None
-                
-        # Return the overrides
-        returnData = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-overrides-user-data" + profileDir )
-        if returnData == "No overrides":
+        # Get overrides.xml provided by user
+        if "user" in self.overrides:
+            return self.overrides[ "user" ]
+
+        overridePath = os.path.join( profileDir, "overrides.xml" )
+        try:
+            tree = xmltree.parse( overridePath )
+            self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            self.overrides[ "user" ] = tree
+            return tree
+        except:
+            if xbmcvfs.exists( overridePath ):
+                log( "Unable to parse user overrides.xml. Invalid xml?" )
+                self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            else:
+                self._save_hash( overridePath, None )
+            self.overrides[ "user" ] = None
             return None
-        else:
-            return pickle.loads( returnData )
 
 
     def _get_additionalproperties( self, profileDir ):
@@ -549,24 +523,36 @@ class DataFunctions():
         return returnVal
         
     def _getWidgetNameAndType( self, widgetID ):
+        if widgetID in self.widgetNameAndType:
+            return self.widgetNameAndType[ widgetID ]
+
         tree = self._get_overrides_skin()
         if tree is not None:
             for elem in tree.findall( "widget" ):
                 if elem.text == widgetID:
                     if "type" in elem.attrib:
-                        return [elem.attrib.get( "label" ), elem.attrib.get( "type" )]
+                        returnList = [elem.attrib.get( "label" ), elem.attrib.get( "type" )]
                     else:
-                        return [ elem.attrib.get( "label" ), None ]
+                        returnList = [ elem.attrib.get( "label" ), None ]
+                    self.widgetNameAndType[ widgetID ] = returnList
+                    return returnList
                         
+        self.widgetNameAndType[ widgetID ] = None
         return None
         
     def _getBackgroundName( self, backgroundID ):
+        if backgroundID in self.backgroundName:
+            return self.backgroundName[ backgroundID ]
+
         tree = self._get_overrides_skin()
         if tree is not None:
             for elem in tree.findall( "background" ):
                 if elem.text == backgroundID:
-                    return elem.attrib.get( "label" )
+                    returnString = elem.attrib.get( "label" )
+                    self.backgroundName[ backgroundID ] = returnString
+                    return returnString
                         
+        self.backgroundName[ backgroundID ] = None
         return None
                 
     def _reset_backgroundandwidgets( self ):

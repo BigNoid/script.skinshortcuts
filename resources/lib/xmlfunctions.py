@@ -91,16 +91,6 @@ class XMLFunctions():
             log( "Failed to write menu" )
             print_exc()
             complete = False
-            
-        
-        # Clear window properties for overrides, widgets, backgrounds, properties
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script-data" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin-data" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user-data" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
         
         # Mark that we're no longer running, clear the progress dialog
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-isrunning" )
@@ -539,7 +529,7 @@ class XMLFunctions():
         # Build any 'Other' templates
         Template.writeOthers()
         
-        progress.update( 100 )
+        progress.update( 100, message = __language__( 32098 ) )
                 
         # Get the skins addon.xml file
         addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")

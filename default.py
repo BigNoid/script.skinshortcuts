@@ -105,13 +105,6 @@ class Main:
         if self.TYPE=="shortcuts":
             # We're just going to choose a shortcut, and save its details to the given
             # skin labels
-            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script" )
-            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script-data" )
-            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
-            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin-data" )
-            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user" )
-            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user-data" )
-            xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
             
             selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM, showNone = self.NONE )
             
@@ -216,7 +209,6 @@ class Main:
         # Check if the user has changed skin or profile
         if self.WINDOW.getProperty("skinsettings-currentSkin-Path") and self.WINDOW.getProperty("skinsettings-currentProfile-Path"):
             if self.WINDOW.getProperty("skinsettings-currentSkin-Path") != xbmc.getSkinDir().encode( 'utf-8' ) or self.WINDOW.getProperty("skinsettings-currentProfile-Path") != __profilepath__.encode( 'utf-8' ):
-                self.reset_window_properties()
                 self.WINDOW.setProperty("skinsettings-currentSkin-Path", xbmc.getSkinDir() )
                 self.WINDOW.setProperty("skinsettings-currentProfile-Path", __profilepath__ )
         else:
@@ -422,9 +414,6 @@ class Main:
         
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )   
-            
-            # Reset all window properties (so menus will be reloaded)
-            self.reset_window_properties()
         
     
     # ----------------
@@ -539,34 +528,6 @@ class Main:
         return "::MENUNAME::"
                             
     
-    def reset_window_properties( self ):
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
-        #xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-mainmenu" )
-        #listitems = DATA._get_shortcuts( "mainmenu" )
-        #for item in listitems:
-        #    # Get labelID so we can check shortcuts for this menu item
-        #    groupName = item[0].replace(" ", "").lower().encode('utf-8')
-        #    
-        #    # Localize strings
-        #    if not item[0].find( "::SCRIPT::" ) == -1:
-        #        groupName = DATA.createNiceName( item[0][10:] ).encode('utf-8')
-        #    elif not item[0].find( "::LOCAL::" ) == -1:
-        #        groupName = DATA.createNiceName( item[0][9:] ).encode('utf-8')
-        #        
-        #    # Clear the property
-        #    xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName )
-        #    
-        #    # Clear any additional submenus
-        #    i = 0
-        #    finished = False
-        #    while finished == False:
-        #        i = i + 1
-        #        if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-" + groupName + "." + str( i ) ):
-        #            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + groupName + "." + str( i ) )
-        #        else:
-        #            finished = True
-                    
     def _hidesubmenu( self, menuid ):
         count = 0
         while xbmc.getCondVisibility( "!IsEmpty(Container(" + menuid + ").ListItem(" + str( count ) + ").Property(isSubmenu))" ):
