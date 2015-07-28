@@ -8,6 +8,7 @@ from xml.dom.minidom import parse
 from traceback import print_exc
 from htmlentitydefs import name2codepoint
 from unidecode import unidecode
+from unicodeutils import try_decode
 
 import nodefunctions
 NODE = nodefunctions.NodeFunctions()
@@ -137,10 +138,7 @@ class DataFunctions():
             paths = [userShortcuts, skinShortcuts, defaultShortcuts ]
         
         for path in paths:
-            try:
-                path = path.decode( "utf-8" )
-            except:
-                pass
+            path = try_decode( path )
                 
             tree = None
             altPath = path.replace( ".DATA.xml", ".shortcuts" )
@@ -809,10 +807,7 @@ class DataFunctions():
         if data is None:
             return ["","","",""]
         
-        try:
-            data = data.decode( "utf-8" )
-        except:
-            pass
+        data = try_decode( data )
 
         skinid = None
         lasttranslation = None
@@ -1107,10 +1102,8 @@ class UpgradeFunctions():
             actionTree = xmltree.SubElement( root, "shortcut" )
             
             # Action
-            try:
-                action = urllib.unquote( shortcut[4] ).decode( "utf-8" )
-            except:
-                action = urllib.unquote( shortcut[4] )
+            action = try_decode( urllib.unquote( shortcut[4] ) )
+
             xmltree.SubElement( actionTree, "action" ).text = action
             
             # Label and label2, defaultID
@@ -1119,15 +1112,8 @@ class UpgradeFunctions():
             xmltree.SubElement( actionTree, "defaultID" ).text = DataFunctions()._get_labelID( DataFunctions().local( shortcut[0] )[3], action, True )
             
             # Icon and thumbnail
-            try:
-                xmltree.SubElement( actionTree, "icon" ).text = shortcut[2].decode( "utf-8" )
-            except:
-                xmltree.SubElement( actionTree, "icon" ).text = shortcut[2] 
-                
-            try:
-                xmltree.SubElement( actionTree, "thumb" ).text = shortcut[3].decode( "utf-8" )
-            except:
-                xmltree.SubElement( actionTree, "thumb" ).text = shortcut[3]
+            xmltree.SubElement( actionTree, "icon" ).text = try_decode( shortcut[2] )
+            xmltree.SubElement( actionTree, "thumb" ).text = try_decode( shortcut[3] )
             
             # mixedVersion will be True if we're upgrading a skin's defaults
             if mixedVersion == True:
