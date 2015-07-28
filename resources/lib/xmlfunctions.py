@@ -696,10 +696,7 @@ class XMLFunctions():
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0].decode( "utf-8" ) )
-                    try:
-                        additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
-                    except:
-                        additionalproperty.text = DATA.local( property[1] )[1]
+                    additionalproperty.text = DATA.local( property[1] )[1]
                         
                     # If this is a widget or background, set a skin setting to say it's enabled
                     if property[0] == "widget":
