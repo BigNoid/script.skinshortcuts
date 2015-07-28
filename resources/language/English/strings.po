@@ -413,3 +413,7 @@ msgstr ""
 msgctxt "#32097"
 msgid "Unable to save menu"
 msgstr ""
+
+msgctxt "#32098"
+msgid "Writing menu..."
+msgstr ""

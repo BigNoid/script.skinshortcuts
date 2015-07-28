@@ -73,13 +73,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         log( 'Management module loaded' )
         
     def onInit( self ):
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-script-data" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-skin-data" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-overrides-user-data" )
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsAdditionalProperties" )
         if self.group == '':
             self._close()
         else:
