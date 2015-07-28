@@ -985,7 +985,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             oldlabelID = listitem.getProperty( "labelID" )
             
             # If the item is blank, set the current label to empty
-            if label == __language__(32013):
+            if label.decode('utf-8') == __language__(32013):
                 label = ""
                 
             # Get new label from keyboard dialog
