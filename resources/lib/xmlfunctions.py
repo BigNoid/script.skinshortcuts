@@ -5,6 +5,7 @@ import xml.etree.ElementTree as xmltree
 from xml.sax.saxutils import escape as escapeXML
 import copy
 from traceback import print_exc
+from unicodeutils import try_decode
 
 if sys.version_info < (2, 7):
     import simplejson
@@ -691,10 +692,7 @@ class XMLFunctions():
         # Group name
         group = xmltree.SubElement( newelement, "property" )
         group.set( "name", "group" )
-        try:
-            group.text = groupName.decode( "utf-8" )
-        except:
-            group.text = groupName
+        group.text = try_decode( groupName )
 
         if groupName == "mainmenu":
             self.MAINWIDGET = {}
@@ -707,17 +705,11 @@ class XMLFunctions():
             for property in properties:
                 if property[0] == "node.visible":
                     visibleProperty = xmltree.SubElement( newelement, "visible" )
-                    try:
-                        visibleProperty.text = property[1].decode( "utf-8" )
-                    except:
-                        visibleProperty.text = property[1]
+                    visibleProperty.text = try_decode( property[1] )                    
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0].decode( "utf-8" ) )
-                    try:
-                        additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
-                    except:
-                        additionalproperty.text = DATA.local( property[1] )[1]
+                    additionalproperty.text = DATA.local( property[1] )[1]
                         
                     # If this is a widget or background, set a skin setting to say it's enabled
                     if property[0] == "widget":
@@ -727,7 +719,10 @@ class XMLFunctions():
                             xbmc.executebuiltin( "Skin.SetString(skinshortcuts-widget-" + str( self.widgetCount ) + "," + property[ 1 ] + ")" )
                             self.widgetCount += 1
                     elif property[0] == "background":
-                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
+                        try:
+                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
+                        except UnicodeEncodeError:							
+                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1].encode('utf-8') + ")" )
                         
                     # If this is the main menu, and we're cloning widgets or backgrounds...
                     if groupName == "mainmenu":
@@ -744,18 +739,12 @@ class XMLFunctions():
                 for key in self.MAINWIDGET:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
-                    try:
-                        additionalproperty.text = self.MAINWIDGET[ key ].decode( "utf-8" )
-                    except:
-                        additionalproperty.text = self.MAINWIDGET[ key ]
+                    additionalproperty.text = try_decode( self.MAINWIDGET[ key ] )
             if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) is not 0:
                 for key in self.MAINBACKGROUND:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
-                    try:
-                        additionalproperty.text = DATA.local( self.MAINBACKGROUND[ key ].decode( "utf-8" ) )[1]
-                    except:
-                        additionalproperty.text = DATA.local( self.MAINBACKGROUND[ key ] )[1]
+                    additionalproperty.text = DATA.local( self.MAINBACKGROUND[ key ] )[1]
 
         propertyPatterns = self.getPropertyPatterns(labelID.text, groupName)
         if len(propertyPatterns) > 0:

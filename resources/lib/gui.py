@@ -6,7 +6,7 @@ from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
 import thread
 from traceback import print_exc
-from unidecode import unidecode
+from unicodeutils import try_decode
 import random
 
 import datafunctions
@@ -465,7 +465,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             else:
                 # Inform user menu couldn't be saved
                 xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__( 32097 ), __language__( 32094 ) )                 
-
+            
     def _save_shortcuts_function( self ):
         # Save shortcuts
         if self.changeMade == True:
@@ -485,15 +485,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for listitem in self.allListItems:
                 
                 # If the item has a label...
-                if listitem.getLabel().decode('utf-8') != __language__(32013):
+                if try_decode( listitem.getLabel() ) != __language__(32013):
                     # Generate labelID, and mark if it has changed
                     labelID = listitem.getProperty( "labelID" )
                     newlabelID = labelID
+
                     # defaultID
-                    try:
-                        defaultID = listitem.getProperty( "defaultID" ).decode( "utf-8" )
-                    except:
-                        defaultID = listitem.getProperty( "defaultID" )
+                    defaultID = try_decode( listitem.getProperty( "defaultID" ) )
                     
                     localizedString = listitem.getProperty( "localizedString" )
                     if localizedString is None or localizedString == "":
@@ -515,21 +513,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
                     # Icon and thumbnail
                     if listitem.getProperty( "untranslatedIcon" ):
-                        xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "untranslatedIcon" )
+                        icon = listitem.getProperty( "untranslatedIcon" )
                     else:
                         if listitem.getProperty( "original-icon" ):
-                            xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "original-icon" )
+                            icon = listitem.getProperty( "original-icon" )
                         else:
-                            xmltree.SubElement( shortcut, "icon" ).text = listitem.getProperty( "icon" )
-                        
-                    xmltree.SubElement( shortcut, "thumb" ).text = listitem.getProperty( "thumbnail" )
+                            icon = listitem.getProperty( "icon" )
+                            
+                    xmltree.SubElement( shortcut, "icon" ).text = try_decode( icon )
+                    xmltree.SubElement( shortcut, "thumb" ).text = try_decode( listitem.getProperty( "thumbnail" ) )
                     
                     # Action
-                    try:
-                        action = listitem.getProperty( "path" ).decode( "utf-8" )
-                    except:
-                        action = listitem.getProperty( "path" )
-                    xmltree.SubElement( shortcut, "action" ).text = action
+                    xmltree.SubElement( shortcut, "action" ).text = try_decode( listitem.getProperty( "path" ) )
                     
                     # Visible
                     if listitem.getProperty( "visible-condition" ):
@@ -546,11 +541,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Save the shortcuts
             DATA.indent( root )
             path = os.path.join( __datapath__ , DATA.slugify( self.group ) + ".DATA.xml" )
-            
-            try:
-                path = path.decode( "utf-8" )
-            except:
-                pass
+            path = try_decode( path )
             
             tree.write( path.replace( ".shortcuts", ".DATA.xml" ), encoding="UTF-8"  )
             
@@ -587,20 +578,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".DATA,xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"]]
                         target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" )
                         
-                    try:
-                        target = target.decode( "utf-8" )
-                    except:
-                        pass
+                    target = try_decode( target )
                     
                     for path in paths:
-                        try:
-                            path[ 0 ] = path[ 0 ].decode( "utf-8" )
-                        except:
-                            pass
-                        try:
-                            path[ 1 ] = path[ 1 ].decode( "utf-8" )
-                        except:
-                            pass
+                        path[0] = try_decode( path[0] )
+                        path[1] = try_decode( path[1] )
                             
                         if path[1] == "New":
                             tree = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
@@ -975,7 +957,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             oldlabelID = listitem.getProperty( "labelID" )
             
             # If the item is blank, set the current label to empty
-            if label == __language__(32013):
+            if try_decode( label ) == __language__(32013):
                 label = ""
                 
             # Get new label from keyboard dialog
@@ -1026,15 +1008,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             keyboard.doModal()
             
             if ( keyboard.isConfirmed() ):
-                try:
-                    action = keyboard.getText().decode( "utf-8" )
-                except:
-                    action = keyboard.getText()
+                action = try_decode( keyboard.getText() )
+
                 if action == "":
                     action = "noop"
                     
                 # Check that a change was really made
-                if action == listitem.getProperty( "path" ):
+                if action == try_decode( listitem.getProperty( "path" ) ):
                     return
             else:
                 return
