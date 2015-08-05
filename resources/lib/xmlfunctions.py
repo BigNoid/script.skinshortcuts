@@ -476,15 +476,15 @@ class XMLFunctions():
 
                         menuitemCopy = copy.deepcopy( menuitem )
                         visibilityElement = menuitemCopy.find( "visible" )
-                        visibilityElement.text += " + [%s]" %( "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
+                        visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
                         justmenuTreeB.append( menuitemCopy )
 
                         if buildMode == "single":
-                            submenu.append( copy.deepcopy( menuitemCopy ) )
+                            allmenuTree.append( copy.deepcopy( menuitemCopy ) )
 
                         menuitemCopy = copy.deepcopy( menuitem )
                         visibilityElement = menuitemCopy.find( "visible" )
-                        visibilityElement.text += " + [%s]" %( "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
+                        visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
                         submenuTree.append( menuitemCopy )
                             
                     # Build the template for the submenu
