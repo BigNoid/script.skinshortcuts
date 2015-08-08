@@ -1649,7 +1649,7 @@ class LibraryFunctions():
 # === COMMON SELECT SHORTCUT METHOD ===
 # =====================================
 
-    def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None, showNone = False ):
+    def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None, showNone = False, currentAction = "" ):
         # This function allows the user to select a shortcut
         
         # If group is empty, start background loading of shortcuts
@@ -1731,7 +1731,7 @@ class LibraryFunctions():
                    
             elif path == "||CUSTOM||":
                 # Let the user type a command
-                keyboard = xbmc.Keyboard( "", __language__(32027), False )
+                keyboard = xbmc.Keyboard( currentAction, __language__(32027), False )
                 keyboard.doModal()
                 
                 if ( keyboard.isConfirmed() ):

@@ -519,7 +519,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             icon = listitem.getProperty( "original-icon" )
                         else:
                             icon = listitem.getProperty( "icon" )
-                            
+                        
                     xmltree.SubElement( shortcut, "icon" ).text = try_decode( icon )
                     xmltree.SubElement( shortcut, "thumb" ).text = try_decode( listitem.getProperty( "thumbnail" ) )
                     
@@ -1002,21 +1002,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             action = listitem.getProperty( "path" )
             if action == "noop":
                 action = ""
-                
-            # Get new action from keyboard dialog
-            keyboard = xbmc.Keyboard( action, xbmc.getLocalizedString(528), False )
-            keyboard.doModal()
             
-            if ( keyboard.isConfirmed() ):
-                action = try_decode( keyboard.getText() )
-
-                if action == "":
-                    action = "noop"
-                    
-                # Check that a change was really made
-                if action == try_decode( listitem.getProperty( "path" ) ):
-                    return
-            else:
+            selectedShortcut = LIBRARY.selectShortcut(custom = True, currentAction = listitem.getProperty("path")) 
+            if selectedShortcut:
+                if selectedShortcut.getProperty( "path" ):
+                    action = try_decode(selectedShortcut.getProperty( "path" ))
+            
+            if listitem.getProperty( "path" ) == action:
                 return
                 
             self.changeMade = True
