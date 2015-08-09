@@ -417,3 +417,11 @@ msgstr ""
 msgctxt "#32098"
 msgid "Writing menu..."
 msgstr ""
+
+msgctxt "#32099"
+msgid "Widget"
+msgstr ""
+
+msgctxt "#32100"
+msgid "Use as widget"
+msgstr ""

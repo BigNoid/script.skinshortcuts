@@ -72,6 +72,7 @@ The <controls /> element must be included. Put your gui xml within.
 
 <other include="[include]">
 	<condition />
+	<match />
 	<property />
 	<controls>
 		<your>
@@ -87,22 +88,25 @@ The <controls /> element must be included. Put your gui xml within.
 
 [include] - [Optional] The name of the include this will be added to, appended to skinshortcuts-templates-. If ommitted, it will be added to skinshortcuts-template
 <condition /> - [Optional] See 3.1
-<property /> - [Optional] See 3.2
+<match /> - [Optional] See 3.2
+<property /> - [Optional] See 3.3
 <skinshortcuts>visibility</skinshortcuts> - This will be replaced with a visibility condition based on the focus of the main menu
 %skinshortcuts[propertyName] - This will be replaced by the value of a matched <property /> element
 
 The <controls /> element must be included. Put your gui xml within.
 
+One Other template will be built for each main menu item per [include]. Use different [include]'s to build multiple Other templates.
+
 
 3.1 Condition elements
 
-Condition elements are used to decide whether an Other template should be built, dependant on the items in the main menu. You may use multiple Condition elements - the template will only be built if they all match.
+Condition elements are used to decide whether an Other template should be built, dependant on the items in the main menu. You may use multiple Condition elements - unless you specify a <match /> element, the template will only be built if they all match.
 
 <condition tag="[tag]" attribute="[attributeName]|[attributeValue]">[textValue]</condition>
 
 [tag] - The main menu must have an element with this tag
 [attributeName]|[attributeValue] - [Optional] The element must have an attribute with the name [attributeName] and the value [attributeValue]
-[textValue] - The element must have this value
+[textValue] - [Optional] The element must have this value
 
 For example, to match against the following element in a main menu item:
 
@@ -112,11 +116,25 @@ The <condition /> would be
 <condition tag="property" attribute="name|widgetType">myWidgetGrouping</condition>
 
 
-3.2 Property elements
+3.2 Match element
+
+If you are using multiple condition elements, you can include a match element to speicify whether any or all of the conditions must be met for the template to be built
+
+<match>[any/all]</match>
+
+[any/all] - set as 'any' for the template to be built if any of the conditions match
+          - set as 'all' for the temlate to be built if all of the conditions match (default behaviour)
+
+e.g.
+
+<match>any</match>
+
+
+3.3 Property elements
 
 Property elements let you include a custom property in your template, dependant on the items in the main menu. You may include mutliple <property /> elements which set the same property - the first one matched will be used.
 
-<property name="[propertyName]" tag="[tag] attribute="[attributeName]|[attributeValue]" value="[textValue]">[propertyValue]</property>
+<property name="[propertyName]" tag="[tag]" attribute="[attributeName]|[attributeValue]" value="[textValue]">[propertyValue]</property>
 
 [name] - The name of the property you are setting
 [tag] - [Optional] The main menu must have an element with this tag
@@ -124,16 +142,39 @@ Property elements let you include a custom property in your template, dependant 
 [textValue] - [Optional] The elment must have this value
 [propertyValue] - [Optional] What you are setting the property to. If ommitted (e.g. a <property /> element), the propertyName will be set to the current text value of the matching property.
 
+You can also set a property directly to the value of a element within a main menu item:
+
+<property name="[propertyName]" tag="[tag]" attribute="[attributeName|attributeValue" />
+
+[name] - The name of the property you are setting
+[tag] - The main menu must have an element with this tag
+[attributeName]|[attributeValue] The element must have an attribute with the name [attributeName] and the value [attributeValue]
+
+If none of the <property /> elements match, the property will be an empty string. You can set an alternative fallback value by including the following as the final element in a list of <property />'s
+
+<property name="[propertyName]">[propertyValue]</property>
+
+[name] - The name of the property you are setting
+[propertyValue] - What you are setting the property to
+
 To access the property, include $SKINSHORTCUTS[propertyName] in either an attribute or as the value of an element.
 
 For example, the content of a widget list could be set as follows
 
 <property name="widgetContent" tag="property" attribute="name|widget" value="RecentMovies">plugin://service.library.data.provider?type=recentmovies&amp;reload=$INFO[Window.Property(recentmovies)]</property>
 <property name="widgetContent" tag="property" attribute="name|widget" value="RecentAlbums">plugin://service.library.data.provider?type=recentalbums&amp;reload=$INFO[Window.Property(recentalbums)]</property>
+<property name="widgetContent" tag="property" attribute="name|widget" />
+<property name="widgetContent">My fallback value</property>
 
 And then the content of a list within your Other template could be filled as
 
 <content>$SKINSHORTCUTS[widgetContent]</content>
+
+Alternatively, the property can be set to $INCLUDE[includeName], in which case the above example will be written as:
+
+<content>
+	<include>[includeName]</include>
+</content>
 
 
 A Simple Example
@@ -194,10 +235,21 @@ There is then an additional widget include for playlists, though it uses the sam
 	</submenu>
 	
 	<other include="widget">
+		<!-- Match our custom widgets with a widgetType of media, or a node with mediaType of movies or tvshows -->
 		<condition tag="property" attribute="name|widgetType">media</condition>
+		<condition tag="property" attribute="name|widgetType">movies</condition>
+		<condition tag="property" attribute="name|widgetType">tvshows</condition>
+		<match>any</match>
+
+		<!-- For our custom widgets, set the content property to the correct path of the plugin providing the widget -->
 		<property name="content" tag="property" attribute="name|widget" value="movies">plugin://service.library.data.provider?type=recentmovies&amp;reload=$INFO[Window.Property(recentmovies)]</property>
 		<property name="content" tag="property" attribute="name|widget" value="tv">plugin://service.library.data.provider?type=recommendedepisodes&amp;reload=$INFO[Window.Property(recommendedepisodes)]</property>
 		<property name="content" tag="property" attribute="name|widget" value="albums">plugin://service.library.data.provider?type=randomalbums&amp;reload=$INFO[Window.Property(randomalbums)]</property>
+		<property name="content" tag="property" attribute="name|widget" />
+
+		<!-- For nodes, set the content property to the value of widgetPath -->
+		<property name="content" tag="property" attribute="name|widgetPath" />
+
 		<controls>
 			<control type="list" id="9002">
 				<skinshortcuts>visibility</skinshortcuts>

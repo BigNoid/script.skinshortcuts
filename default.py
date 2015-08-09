@@ -106,7 +106,10 @@ class Main:
             # We're just going to choose a shortcut, and save its details to the given
             # skin labels
             
-            selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM, showNone = self.NONE )
+            if self.GROUPING is not None:
+                selectedShortcut = LIBRARY.selectShortcut( "", grouping = self.GROUPING, custom = self.CUSTOM, showNone = self.NONE )
+            else:
+                selectedShortcut = LIBRARY.selectShortcut( "", custom = self.CUSTOM, showNone = self.NONE )
             
             # Now set the skin strings
             if selectedShortcut is not None and selectedShortcut.getProperty( "Path" ):
