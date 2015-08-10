@@ -254,6 +254,8 @@ class LibraryFunctions():
                 if "widget" in node.attrib:
                     # This is a widget shortcut, so add the relevant widget information
                     shortcutItem.setProperty( "widget", node.attrib.get( "widget" ) )
+                    shortcutItem.setProperty( "widgetName", node.attrib.get( "label" ) )
+                    shortcutItem.setProperty( "widgetPath", node.text )
                     if "widgetType" in node.attrib:
                         shortcutItem.setProperty( "widgetType", node.attrib.get( "widgetType" ) )
                     else:
@@ -262,11 +264,6 @@ class LibraryFunctions():
                         shortcutItem.setProperty( "widgetTarget", node.attrib.get( "widgetTarget" ) )
                     else:
                         shortcutItem.setProperty( "widgetTarget", "" )
-                    if "widgetName" in node.attrib:
-                        shortcutItem.setProperty( "widgetName", node.attrib.get( "label" ) )
-                    else:
-                        shortcutItem.setProperty( "widgetName", "" )
-                    shortcutItem.setProperty( "widgetPath", node.text )
                 returnList.append( shortcutItem )
                 #returnList.append( self._create( [node.text, node.attrib.get( "label" ), node.attrib.get( "type" ), {"icon": node.attrib.get( "icon" )}] ) )
             if node.tag == "node" and flat == False:
@@ -1438,7 +1435,6 @@ class LibraryFunctions():
             # The list is currently being populated, wait and then return it
             for i in range( 0, 20 ):
                 xbmc.sleep( 100 )
-                count += 1
                 if self.loadedWidgets is True:
                     return self.loadedWidgets
         else:
