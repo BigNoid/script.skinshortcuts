@@ -237,20 +237,25 @@ class Main:
                     xbmc.executebuiltin( singleAction )
         
     
-    def _manage_shortcuts( self, group, defaultGroup, nolabels, groupname ):            
+    def _manage_shortcuts( self, group, defaultGroup, nolabels, groupname ):
+        homeWindow = xbmcgui.Window( 10000 )
+        if homeWindow.getProperty( "skinshortcuts-loading" ):
+            return
+
+        homeWindow.setProperty( "skinshortcuts-loading", "True" )
         import gui
         ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group, defaultGroup=defaultGroup, nolabels=nolabels, groupname=groupname )
         ui.doModal()
         del ui
         
         # Update home window property (used to automatically refresh type=settings)
-        xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
+        homeWindow.setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )
         
         # Clear window properties for this group, and for backgrounds, widgets, properties
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-" + group )        
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsWidgets" )        
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsCustomProperties" )        
-        xbmcgui.Window( 10000 ).clearProperty( "skinshortcutsBackgrounds" )        
+        homeWindow.clearProperty( "skinshortcuts-" + group )        
+        homeWindow.clearProperty( "skinshortcutsWidgets" )        
+        homeWindow.clearProperty( "skinshortcutsCustomProperties" )        
+        homeWindow.clearProperty( "skinshortcutsBackgrounds" )        
         
 
     def _list_shortcuts( self, group ):
