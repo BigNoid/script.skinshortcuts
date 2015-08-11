@@ -649,6 +649,8 @@ class DataFunctions():
             return "Library.HasContent(TVShows)"
         elif action.startswith( "activatewindow(videos,musicvideo" ):
             return "Library.HasContent(MusicVideos)"
+        elif action.startswith( "activatewindow(musiclibrary,addons" ):
+            return ""
         elif action.startswith( "activatewindow(musiclibrary,musicvideo" ):
             return "Library.HasContent(MusicVideos)"
         elif action.startswith( "activatewindow(videos,recentlyaddedmusicvideos" ):

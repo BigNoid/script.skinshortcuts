@@ -261,6 +261,13 @@ class Template():
             textVersion = None
             foundInPrevious = False
             for previous in self.finalize:
+                # Check that the previous template uses the same include
+                includeNameCheck = includeName
+                if includeName is None:
+                    includeNameCheck = "NONE"
+                if previous.find( "skinshortcuts-includeName" ).text != includeNameCheck:
+                    continue
+                    
                 # If we haven't already, convert our new template to a string
                 if textVersion is None:
                     textVersion = xmltree.tostring( template.find( "controls" ), encoding='utf8' )
@@ -300,9 +307,15 @@ class Template():
                 newElement = xmltree.SubElement( template, "skinshortcuts-profile" )
                 newElement.set( "profile", profile )
                 newElement.set( "visible", profileVisibility )
-                
+
                 # Save the visibility condition
                 xmltree.SubElement( newElement, "visible" ).text = visibilityCondition
+
+                newElement = xmltree.SubElement( template, "skinshortcuts-includeName" )
+                if includeName is None:
+                    newElement.text = "NONE"
+                else:
+                    newElement.text = includeName
                 
                 # Add it to our finalize list
                 self.finalize.append( template )

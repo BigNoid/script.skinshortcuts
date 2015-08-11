@@ -198,6 +198,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 except:
                     pass
 
+            # Clear window property indicating we're loading
+            xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-loading" )
+
 
                 
     # ======================
@@ -1406,6 +1409,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if controlID == 405 or controlID == 406 or controlID == 407 or controlID == 408 or controlID == 409 or controlID == 410:
             # Launch management dialog for submenu
+            if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-loading" ):
+                return
+
             log( "Launching management dialog for submenu/additional menu (" + str( controlID ) + ")" )
             
             # Get the group we're about to edit
@@ -1457,6 +1463,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.currentWindow.clearProperty( "overrideName" )
                 
             # Execute the script
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-loading", "True" )
             self.currentWindow.setProperty( "additionalDialog", "True" )
             import gui
             ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=launchGroup, defaultGroup=launchDefaultGroup, nolabels=self.nolabels, groupname=groupName )
