@@ -1005,7 +1005,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 selectedShortcut = LIBRARY.selectShortcut(custom = True, currentAction = listitem.getProperty("path")) 
 
             if selectedShortcut:
-                if selectedShortcut.getProperty( "path" ):
+                if selectedShortcut.getProperty( "chosenPath" ):
+                    action = try_decode( selectedShortcut.getProperty( "chosenPath" ) )
+                elif selectedShortcut.getProperty( "path" ):
                     action = try_decode(selectedShortcut.getProperty( "path" ))
             
             if listitem.getProperty( "path" ) == action:
