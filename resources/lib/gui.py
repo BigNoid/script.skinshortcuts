@@ -813,7 +813,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
                 # False: Display
                 # True: Play
-                if userchoice == False:
+                if not userchoice:
                     listitemCopy.setProperty( "path", selectedItem.getProperty( "action-show" ) )
                     listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-show" ) )
                 else:

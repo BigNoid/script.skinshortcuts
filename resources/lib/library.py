@@ -2037,7 +2037,7 @@ class LibraryFunctions():
                     userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
                     # False: Display
                     # True: Play
-                    if userchoice is False:
+                    if not userchoice:
                         selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
                     else:
                         selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-play" ) )
