@@ -745,7 +745,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
     # === GUI INTERACTIONS ===
     # ========================
 
-    
     def onClick(self, controlID):
         if controlID == 102:
             # Move to previous type of shortcuts
@@ -1170,8 +1169,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self._set_label( listitem, selectedShortcut.getProperty( ( "widgetName" ) ) )
                     self.currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 self.changeMade = True
-
-                
+       
         if controlID == 310:
             # Choose background
             log( "Choose background (310)" )
@@ -1343,9 +1341,27 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.currentWindow.clearProperty( "custom-grouping" )
             else:
                 selectedShortcut = LIBRARY.selectShortcut()
-
+            
+            
+                    
             if selectedShortcut is not None:
                 listitemCopy = self._duplicate_listitem( selectedShortcut, self.getControl( 211 ).getListItem( num ) )
+                
+                #set default background for this item (if any)
+                defaultBackground = self.find_defaultBackground( listitemCopy.getProperty( "labelID" ), listitemCopy.getProperty( "defaultID" ) )
+                if defaultBackground:
+                    self._add_additionalproperty( listitemCopy, "background", defaultBackground["path"] )
+                    self._add_additionalproperty( listitemCopy, "backgroundName", defaultBackground["label"] )
+            
+                
+                #set default background for this item (if any)
+                defaultWidget = self.find_defaultWidget( listitemCopy.getProperty( "labelID" ), listitemCopy.getProperty( "defaultID" ) )
+                if defaultWidget:
+                    self._add_additionalproperty( listitemCopy, "widget", defaultWidget["path"] )
+                    self._add_additionalproperty( listitemCopy, "widgetName", defaultWidget["label"] )
+                    self._add_additionalproperty( listitemCopy, "widgetType", defaultWidget["type"] )
+                
+                
                 if selectedShortcut.getProperty( "chosenPath" ):
                     listitemCopy.setProperty( "path", selectedShortcut.getProperty( "chosenPath" ) )
                     listitemCopy.setProperty( "displayPath", selectedShortcut.getProperty( "chosenPath" ) )
@@ -1616,7 +1632,35 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return dialog.yesno( heading, message )
                 
         return True
+    
+    def find_defaultBackground( self, labelID, defaultID ):
+        # This function finds the default background, including properties
+        result = {}
+        defaultBackground = self.find_default( "background", labelID, defaultID )
+        if defaultBackground:
+            for key in self.backgrounds:
+                if defaultBackground == key[ 0 ]:
+                    result["path"] = key[ 0 ]
+                    result["label"] = key[ 1 ]
         
+        return result
+
+    def find_defaultWidget( self, labelID, defaultID ):
+        # This function finds the default widget, including properties
+        result = {}
+        defaultWidget = self.find_default( "widget", labelID, defaultID )
+        if defaultWidget:
+            for key in LIBRARY.dictionaryGroupings[ "widgets-classic" ]:
+                if key[0] == defaultWidget:
+                    result["path"] = key[ 0 ]
+                    result["label"] = key[ 1 ]
+                    result["type"] = key[ 2 ]
+                    break
+                else:
+                    widgetLabel.append( key[1] )
+        
+        return result
+       
     def find_default( self, backgroundorwidget, labelID, defaultID ):
         # This function finds the id of an items default background or widget
         tree = DATA._get_overrides_skin()
