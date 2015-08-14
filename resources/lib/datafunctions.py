@@ -777,10 +777,11 @@ class DataFunctions():
             # currentProperty[2] = Property name
             # currentProperty[3] = Property value
             # currentProperty[4] = defaultID
-            if labelID and currentProperty[1] and currentProperty[0] == group and currentProperty[1] == labelID:
+            if labelID is not None and currentProperty[0] == group and currentProperty[1] == labelID:
                 returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
-            if defaultID and currentProperty[4] and currentProperty[0] == group and currentProperty[4] == defaultID:
-                returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
+            if len( currentProperty ) is not 4:
+                if defaultID is not None and currentProperty[0] == group and currentProperty[4] == defaultID:
+                    returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
                 
         return returnProperties
             
