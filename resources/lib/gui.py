@@ -730,6 +730,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if tree is not None:
             elems = tree.findall('thumbnail')
             for elem in elems:
+                if "condition" in elem.attrib:
+                    if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                        continue
                 self.thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
                 self.thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
             
@@ -1203,18 +1206,23 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         backgroundLabel.append( key[1].replace( "::PLAYLIST::", playlist[1] ) )
                         backgroundPretty.append( LIBRARY._create(["", key[1].replace( "::PLAYLIST::", playlist[1] ), "", {}] ) )
                 else:
-                    background.append( key[0] )     
+                    background.append( key[0] )
+                    virtualImage = None
+                    if key[0].startswith("$INFO") or key[0].startswith("$VAR"):
+                        virtualImage = key[0].replace("$INFO[","").replace("$VAR[","").replace("]","")
+                        virtualImage = xbmc.getInfoLabel(virtualImage)
+
                     log( repr( defaultBackground ) + " : " + repr( key[ 0 ] ) )
                     if defaultBackground == key[ 0 ]:
                         backgroundLabel.append( key[1] + " (%s)" %( __language__(32050) ) )
-                        if xbmc.skinHasImage( key[ 0 ] ) == True:
+                        if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
                             usePrettyDialog = True
                             backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", { "icon": "DefaultFile.png", "thumb": key[ 0 ] } ] ) )
                         else:
                             backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", {} ] ) )
                     else:
                         backgroundLabel.append( key[1] )
-                        if xbmc.skinHasImage( key[ 0 ] ) == True:
+                        if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
                             usePrettyDialog = True
                             backgroundPretty.append( LIBRARY._create(["", key[ 1 ], "", { "icon": "DefaultFile.png", "thumb": key[ 0 ] } ] ) )
                         else:
@@ -1286,7 +1294,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Generate list of thumbnails for the dialog
             for key in self.thumbnails:
                 log( repr( key[ 0 ] ) + " " + repr( key[ 1 ] ) )
-                thumbnail.append( key[0] )            
+                thumbnail.append( key[0] )
                 thumbnailLabel.append( LIBRARY._create(["", key[ 1 ], "", {"icon": key[ 0 ] }] ) )
             
             # Show the dialog
