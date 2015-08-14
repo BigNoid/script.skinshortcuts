@@ -219,11 +219,10 @@ class DataFunctions():
             xmltree.SubElement( node, "labelID" ).text = labelID
             
             # If there's no defaultID, set it to the labelID
-            defaultID = node.find( "defaultID" )
-            if defaultID == None:
-                xmltree.SubElement( node, "defaultID" ).text = labelID
-            else:
-                defaultID = defaultID.text
+            defaultID = labelID
+            if node.find( "defaultID" ):
+                defaultID = node.find( "defaultID" ).text
+            xmltree.SubElement( node, "defaultID" ).text = defaultID
             
             # Check that any version node matches current XBMC version
             version = node.find( "version" )
@@ -778,11 +777,10 @@ class DataFunctions():
             # currentProperty[2] = Property name
             # currentProperty[3] = Property value
             # currentProperty[4] = defaultID
-            if labelID is not None and currentProperty[0] == group and currentProperty[1] == labelID:
+            if labelID and currentProperty[1] and currentProperty[0] == group and currentProperty[1] == labelID:
                 returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
-            if len( currentProperty ) is not 4:
-                if defaultID is not None and currentProperty[0] == group and currentProperty[4] == defaultID:
-                    returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
+            if defaultID and currentProperty[4] and currentProperty[0] == group and currentProperty[4] == defaultID:
+                returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
                 
         return returnProperties
             
