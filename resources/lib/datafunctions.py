@@ -220,7 +220,7 @@ class DataFunctions():
             
             # If there's no defaultID, set it to the labelID
             defaultID = labelID
-            if node.find( "defaultID" ):
+            if node.find( "defaultID" ) is not None:
                 defaultID = node.find( "defaultID" ).text
             xmltree.SubElement( node, "defaultID" ).text = defaultID
             
