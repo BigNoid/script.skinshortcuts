@@ -263,8 +263,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.getControl( 211 ).addItems( listitems )
         if focus is not None:
             self.getControl( 211 ).selectItem( focus )
-            
-        
+              
     def _parse_shortcut( self, item ):
         # Parse a shortcut node
         localLabel = DATA.local( item.find( "label" ).text )
@@ -298,9 +297,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Set the action
         action = item.find( "action" ).text
+        self._add_additionalproperty( listitem, "translatedPath", action )
         if "special://skin/" in action:
             translate = xbmc.translatePath( "special://skin/" ).decode( "utf-8" )
             action = action.replace( "special://skin/", translate )
+        
         listitem.setProperty( "path", action )
         listitem.setProperty( "displayPath", action )
         
@@ -336,7 +337,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if additionalProperties is not None:
             listitem.setProperty( "additionalListItemProperties", additionalProperties.text )
             for property in eval( additionalProperties.text ):
-                listitem.setProperty( property[0], DATA.local( property[1] )[2] )
+                if property[1].startswith("$"):
+                    #Translate some listItem properties if needed so they're displayed correctly in the gui
+                    listitem.setProperty(property[0],xbmc.getInfoLabel(property[1]))
+                else:
+                    listitem.setProperty( property[0], DATA.local( property[1] )[2] )
                 
                 # if this is backgroundName or backgroundPlaylistName, keep them so we can localise them properly
                 if property[0] == "backgroundName":
@@ -349,7 +354,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitem.setProperty( "backgroundName", DATA.local( backgroundName )[2].replace( "::PLAYLIST::", backgroundPlaylistName ) )
         else:
             listitem.setProperty( "additionalListItemProperties", "[]" )
-        
+                
         return [ isVisible, listitem ]
 
     def _get_icon_overrides( self, listitem, setToDefault = True ):
@@ -1343,9 +1348,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 selectedShortcut = LIBRARY.selectShortcut()
             
             
-                    
             if selectedShortcut is not None:
                 listitemCopy = self._duplicate_listitem( selectedShortcut, self.getControl( 211 ).getListItem( num ) )
+                
+                #add a translated version of the path as property
+                self._add_additionalproperty( listitemCopy, "translatedPath", selectedShortcut.getProperty( "path" ) )
                 
                 #set default background for this item (if any)
                 defaultBackground = self.find_defaultBackground( listitemCopy.getProperty( "labelID" ), listitemCopy.getProperty( "defaultID" ) )
@@ -1353,14 +1360,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self._add_additionalproperty( listitemCopy, "background", defaultBackground["path"] )
                     self._add_additionalproperty( listitemCopy, "backgroundName", defaultBackground["label"] )
             
-                
-                #set default background for this item (if any)
+                #set default widget for this item (if any)
                 defaultWidget = self.find_defaultWidget( listitemCopy.getProperty( "labelID" ), listitemCopy.getProperty( "defaultID" ) )
                 if defaultWidget:
                     self._add_additionalproperty( listitemCopy, "widget", defaultWidget["path"] )
                     self._add_additionalproperty( listitemCopy, "widgetName", defaultWidget["label"] )
                     self._add_additionalproperty( listitemCopy, "widgetType", defaultWidget["type"] )
-                
                 
                 if selectedShortcut.getProperty( "chosenPath" ):
                     listitemCopy.setProperty( "path", selectedShortcut.getProperty( "chosenPath" ) )
@@ -1584,16 +1589,20 @@ class GUI( xbmcgui.WindowXMLDialog ):
         properties = []
         if listitem.getProperty( "additionalListItemProperties" ):
             properties = eval( listitem.getProperty( "additionalListItemProperties" ) )
-        
+                
         foundProperty = False
         for property in properties:
             if property[0] == propertyName:
                 foundProperty = True
                 property[1] = DATA.local( propertyValue )[0]
-                listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
                 
         if foundProperty == False:
             properties.append( [propertyName, DATA.local( propertyValue )[0] ] )
+        
+        #translate any INFO labels (if needed) so they will be displayed correctly in the gui
+        if propertyValue.startswith("$"):
+            listitem.setProperty( propertyName, xbmc.getInfoLabel(propertyValue) )
+        else:
             listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
             
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
@@ -1656,13 +1665,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     result["label"] = key[ 1 ]
                     result["type"] = key[ 2 ]
                     break
-                else:
-                    widgetLabel.append( key[1] )
         
         return result
        
     def find_default( self, backgroundorwidget, labelID, defaultID ):
         # This function finds the id of an items default background or widget
+        
+        if not labelID:
+            labelID = defaultID
+        
         tree = DATA._get_overrides_skin()
         if tree is not None:
             if backgroundorwidget == "background":
@@ -1672,6 +1683,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
             if elems is not None:
                 for elem in elems:
+                    print elem.attrib.get( "labelID" )
                     if elem.attrib.get( "labelID" ) == labelID or elem.attrib.get( "defaultID" ) == defaultID:
                         if "group" in elem.attrib:
                             if elem.attrib.get( "group" ) == self.group:
