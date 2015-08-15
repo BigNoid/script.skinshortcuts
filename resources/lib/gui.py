@@ -1347,7 +1347,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             else:
                 selectedShortcut = LIBRARY.selectShortcut()
             
-            
             if selectedShortcut is not None:
                 listitemCopy = self._duplicate_listitem( selectedShortcut, self.getControl( 211 ).getListItem( num ) )
                 

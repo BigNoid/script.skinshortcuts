@@ -648,14 +648,18 @@ class XMLFunctions():
                 onclickelement.text = onclick.text
                 
             # Also add it as a path property
-            pathelement = xmltree.SubElement( newelement, "property" )
-            pathelement.set( "name", "path" )
-            pathelement.text = onclickelement.text
+            if not newelement.findall(".//property[@name='path']"):
+                # we only add the path property if there isn't already one in the list because it has to be unique in Kodi lists
+                pathelement = xmltree.SubElement( newelement, "property" )
+                pathelement.set( "name", "path" )
+                pathelement.text = onclickelement.text
             
             # Get 'list' property (the action property of an ActivateWindow shortcut)
-            listElement = xmltree.SubElement( newelement, "property" )
-            listElement.set( "name", "list" )
-            listElement.text = DATA.getListProperty( onclickelement.text )
+            if not newelement.findall(".//property[@name='list']"):
+                # we only add the list property if there isn't already one in the list because it has to be unique in Kodi lists
+                listElement = xmltree.SubElement( newelement, "property" )
+                listElement.set( "name", "list" )
+                listElement.text = DATA.getListProperty( onclickelement.text )
                 
             if onclick.text == "ActivateWindow(Settings)":
                 self.hasSettings = True

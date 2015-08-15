@@ -267,7 +267,8 @@ class DataFunctions():
                                 checkGroup = elem.attrib.get( "group" )
 
                             # If the action and (if provided) the group match...
-                            if elem.attrib.get( "action" ) == action.text and (checkGroup == None or checkGroup == group):
+                            # OR if we have a global override specified
+                            if (elem.attrib.get( "action" ) == action.text and (checkGroup == None or checkGroup == group)) or (elem.attrib.get( "action" ) == "globaloverride" and checkGroup == group):
                                 # Check the XBMC version matches
                                 if "version" in elem.attrib:
                                     if elem.attrib.get( "version" ) != __xbmcversion__:
@@ -283,17 +284,23 @@ class DataFunctions():
                                 # Get the new action
                                 for actions in elem.findall( "action" ):
                                     newaction = xmltree.SubElement( node, "override-action" )
-                                    newaction.text = actions.text
+                                    if actions.text == "::ACTION::":
+                                        newaction.text = action.text
+                                    else:
+                                        newaction.text = actions.text
                                     if overrideVisibility is not None:
                                         newaction.set( "condition", overrideVisibility )
                                         
                                 # If there's no action, and there is a visibility condition
                                 if len( elem.findall( "action" ) ) == 0:
                                     newaction = xmltree.SubElement( node, "override-action" )
-                                    newaction.text = action.text
+                                    if actions.text == "::ACTION::":
+                                        newaction.text = action.text
+                                    else:
+                                        newaction.text = actions.text
                                     if overrideVisibility is not None:
                                         newaction.set( "condition", overrideVisibility )
-                                    
+                       
             # Get visibility condition of any skin-provided shortcuts
             if hasOverriden == False and skinoverrides is not None:
                 for elem in skinoverrides.findall( "shortcut" ):
@@ -779,7 +786,7 @@ class DataFunctions():
             # currentProperty[4] = defaultID
             if labelID is not None and currentProperty[0] == group and currentProperty[1] == labelID:
                 returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
-            if len( currentProperty ) is not 4:
+            elif len( currentProperty ) is not 4:
                 if defaultID is not None and currentProperty[0] == group and currentProperty[4] == defaultID:
                     returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
                 

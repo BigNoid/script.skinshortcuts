@@ -153,6 +153,43 @@ IMPORTANT: User choice MUST be respected when overriding actions. That is to say
 Users can also provide an overrides.xml file to override actions in special://profile/
 
 
+1.1 Override the action for all menu items in a menu (global override)
+
+It is possible to override all shortcuts in the list with a custom action. 
+This can be usefull for example when you want to launch something in your skin when a shortcut is pressed when a specific condition is applies.
+In that case you need to set the action to "globaloverride" and you need to specify the group to which the override applies.
+
+For example:
+
+<override action="globaloverride" group="mainmenu">
+	<condition>![Skin.HasSetting(OpenSubMenuOnClick) + IntegerGreaterThan(Container(4444).NumItems,0)]</condition>
+	<action>::ACTION::</action>
+</override>
+<override action="globaloverride" group="mainmenu">
+	<condition>[Skin.HasSetting(OpenSubMenuOnClick) + IntegerGreaterThan(Container(4444).NumItems,0)]</condition>
+	<action>SetFocus(4444)</action>
+</override>
+
+The above example changes the action to focus the submenu if the skinsetting OpenSubMenuOnClick is true.
+If the OpenSubMenuOnClick setting is false it will use the default action for the shortcut based (note that ::ACTION:: fill in the original action of the shortcut at buildtime)
+
+
+1.2 Add a supplemental action to all shortcuts in a menu.
+
+It is possible to supply an additional onclick action for all shortcuts in the list.
+Note that this doesn't override the action, it just adds an additional action to the menu item.
+
+<groupoverride group="[GroupName]" condition="[Boolean condition]">[command]</groupoverride>
+
+Important note: If you are using skinshortcuts to provide the powermenu (DialogButtonMenu.xml) in your skin, 
+you MUST use this feature from Kodi Isengard (15) and higher. 
+This is because of a change in that dialog that requires you to first close the dialog before launching any other windows.
+
+Example (assuming the name of your powermenu is powermenu):
+<groupoverride group="powermenu" condition="Window.IsActive(DialogButtonMenu.xml)">Close</groupoverride>
+
+
+
 2. Overriding icons
 
 The script tries to provide reasonable default images for all shortcuts, with a fallback on "DefaultShortcut.png", however you may wish to override images to specific ones provided by your skin.
