@@ -1362,10 +1362,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 #set default widget for this item (if any)
                 defaultWidget = self.find_defaultWidget( listitemCopy.getProperty( "labelID" ), listitemCopy.getProperty( "defaultID" ) )
                 if defaultWidget:
-                    self._add_additionalproperty( listitemCopy, "widget", defaultWidget["path"] )
-                    self._add_additionalproperty( listitemCopy, "widgetName", defaultWidget["label"] )
+                    self._add_additionalproperty( listitemCopy, "widget", defaultWidget["widget"] )
+                    self._add_additionalproperty( listitemCopy, "widgetName", defaultWidget["name"] )
                     self._add_additionalproperty( listitemCopy, "widgetType", defaultWidget["type"] )
-                
+                    self._add_additionalproperty( listitemCopy, "widgetPath", defaultWidget["path"] )
+                    self._add_additionalproperty( listitemCopy, "widgetTarget", defaultWidget["target"] )
+                        
                 if selectedShortcut.getProperty( "chosenPath" ):
                     listitemCopy.setProperty( "path", selectedShortcut.getProperty( "chosenPath" ) )
                     listitemCopy.setProperty( "displayPath", selectedShortcut.getProperty( "chosenPath" ) )
@@ -1656,37 +1658,54 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def find_defaultWidget( self, labelID, defaultID ):
         # This function finds the default widget, including properties
         result = {}
-        defaultWidget = self.find_default( "widget", labelID, defaultID )
-        if defaultWidget:
+        
+        #first look for any widgetdefaultnodes
+        defaultWidget = self.find_default( "widgetdefaultnode", labelID, defaultID )
+        if defaultWidget is not None:
+            print defaultWidget
+            result["path"] = defaultWidget.get( "path" )
+            result["name"] = defaultWidget.get( "label" )
+            result["widget"] = defaultWidget.text
+            result["type"] = defaultWidget.get( "type" )
+            result["target"] = defaultWidget.get( "target" )
+        else:
+            #find any classic widgets
+            defaultWidget = self.find_default( "widget", labelID, defaultID )
             for key in LIBRARY.dictionaryGroupings[ "widgets-classic" ]:
                 if key[0] == defaultWidget:
-                    result["path"] = key[ 0 ]
-                    result["label"] = key[ 1 ]
+                    result["widget"] = key[ 0 ]
+                    result["name"] = key[ 1 ]
                     result["type"] = key[ 2 ]
+                    result["path"] = key[ 3 ]
+                    result["target"] = key[ 5 ]
                     break
-        
         return result
        
     def find_default( self, backgroundorwidget, labelID, defaultID ):
         # This function finds the id of an items default background or widget
         
-        if not labelID:
+        if labelID == None:
             labelID = defaultID
         
         tree = DATA._get_overrides_skin()
         if tree is not None:
             if backgroundorwidget == "background":
                 elems = tree.getroot().findall( "backgrounddefault" )
+            elif backgroundorwidget == "widgetdefaultnode":
+                elems = tree.getroot().findall( "widgetdefaultnode" )
             else:
                 elems = tree.getroot().findall( "widgetdefault" )
                 
             if elems is not None:
                 for elem in elems:
-                    print elem.attrib.get( "labelID" )
                     if elem.attrib.get( "labelID" ) == labelID or elem.attrib.get( "defaultID" ) == defaultID:
                         if "group" in elem.attrib:
                             if elem.attrib.get( "group" ) == self.group:
-                                return elem.text
+                                if backgroundorwidget == "widgetdefaultnode":
+                                    #if it's a widgetdefaultnode, return the whole element
+                                    return elem
+                                else:
+                                    return elem.text
                             else:
                                 continue
                         else:
