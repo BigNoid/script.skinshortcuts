@@ -1,6 +1,6 @@
 # coding=utf-8
 import os, sys, datetime, unicodedata
-import xbmc, xbmcgui, xbmcvfs#, urllib
+import xbmc, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
 from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
@@ -720,9 +720,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if "condition" in elem.attrib:
                     if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
                         continue
-
-                self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-                self.backgroundsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
+                
+                if elem.text.startswith("||BROWSE||"):
+                    #we want to include images from a VFS path...
+                    images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
+                    for image in images:
+                        self.backgrounds.append( [image[0], image[1] ] )
+                        self.backgroundsPretty[image[0]] = image[1]  
+                else:
+                    self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+                    self.backgroundsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
                 
             # Should we allow the user to browse for background images...
             elem = tree.find('backgroundBrowse')
@@ -738,8 +745,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if "condition" in elem.attrib:
                     if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
                         continue
-                self.thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-                self.thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
+                        
+                if elem.text.startswith("||BROWSE||"):
+                    #we want to include images from a VFS path...
+                    images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
+                    for image in images:
+                        self.thumbnails.append( [image[0], image[1] ] )
+                        self.thumbnailsPretty[image[0]] = image[1]
+                else:
+                    self.thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+                    self.thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
             
             elem = tree.find("thumbnailBrowseDefault")
             if elem is not None and len(elem.text) > 0:
@@ -1653,7 +1668,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         defaultBackground = self.find_default( "background", labelID, defaultID )
         if defaultBackground:
             for key in self.backgrounds:
+                print key
                 if defaultBackground == key[ 0 ]:
+                    result["path"] = key[ 0 ]
+                    result["label"] = key[ 1 ]
+                elif defaultBackground == key[ 1 ]:
                     result["path"] = key[ 0 ]
                     result["label"] = key[ 1 ]
         
@@ -1666,7 +1685,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         #first look for any widgetdefaultnodes
         defaultWidget = self.find_default( "widgetdefaultnode", labelID, defaultID )
         if defaultWidget is not None:
-            print defaultWidget
             result["path"] = defaultWidget.get( "path" )
             result["name"] = defaultWidget.get( "label" )
             result["widget"] = defaultWidget.text

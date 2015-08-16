@@ -1586,7 +1586,7 @@ class LibraryFunctions():
                 #some special code for smart shortcuts in script.skin.helper.service
                 elif item.get("title",None) == "smartshortcut":
 
-                    smartShortCutsData = simplejson.loads(item.get("mpaa"))                  
+                    smartShortCutsData = eval(item.get("mpaa"))                  
                     thumb = smartShortCutsData["background"]
                     
                     listitem = self._create( [ item[ "file" ], altLabel, "", {"icon": item.get("icon"), "thumb": thumb} ] )
@@ -1596,16 +1596,16 @@ class LibraryFunctions():
                         properties.append( [key, value ] )
                     listitem.setProperty( "smartShortcutProperties", repr( properties ) )
                     listitem.setProperty( "untranslatedIcon", thumb )
-                    
-                    
                     listitem.setProperty( "widget", "addon" )
                     listitem.setProperty( "widgetName", item["label"] )
-                    listitem.setProperty( "widgetType", "movies" )
-                    listitem.setProperty( "widgetTarget", "video" )
-                    listitem.setProperty( "widgetPath", item[ "file" ] )
-                    
+                    listitem.setProperty( "widgetType", smartShortCutsData["type"] )
+                    if smartShortCutsData["type"] == "music" or smartShortCutsData["type"] == "artists" or smartShortCutsData["type"] == "albums":
+                        listitem.setProperty( "widgetTarget", "music" )
+                    else:
+                        listitem.setProperty( "widgetTarget", "video" )
+                    listitem.setProperty( "widgetPath", smartShortCutsData["list"] )
                     listings.append( self._get_icon_overrides( tree, listitem, "" ) )
-                
+                    
                 else:
                     # Process this as a plugin
                     if item["filetype"] == "directory":
@@ -1954,6 +1954,31 @@ class LibraryFunctions():
             DATA.indent( tree.getroot() )
             tree.write( filename.replace( ".xsp", "-randomversion.xsp" ), encoding="utf-8" )
 
+    def getImagesFromVfsPath(self, path):
+        #this gets images from a vfs path to be used as backgrounds or icons
+        images = []
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "art", "file", "fanart"], "directory": "' + path + '", "media": "files" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+        if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files']:
+            json_result = json_response['result']['files']
+            for item in json_result:
+                label = item["label"]
+                image = None
+                if item.has_key("art"):
+                    if item["art"].has_key("fanart"):
+                        image = item["art"]["fanart"]
+                if item.get("file",None).lower().endswith(".jpg") or item.get("file",None).lower().endswith(".png"):
+                    image = item["file"]
+                    label = label.replace(".jpg","").replace(".png","")
+                if image:
+                    image = urllib.unquote(image).decode('utf8')
+                    if "$INFO" in image:
+                        image = image.replace("image://","")
+                        if image.endswith("/"):
+                            image = image[:-1]
+                    images.append( [image, label ] )
+        return images
 # =====================================
 # === COMMON SELECT SHORTCUT METHOD ===
 # =====================================
