@@ -1353,6 +1353,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 #add a translated version of the path as property
                 self._add_additionalproperty( listitemCopy, "translatedPath", selectedShortcut.getProperty( "path" ) )
                 
+                if selectedShortcut.getProperty( "smartShortcutProperties" ):
+                    for listitemProperty in eval( selectedShortcut.getProperty( "smartShortcutProperties" ) ):
+                        self._add_additionalproperty( listitemCopy, listitemProperty[0], listitemProperty[1] )
+                               
                 #set default background for this item (if any)
                 defaultBackground = self.find_defaultBackground( listitemCopy.getProperty( "labelID" ), listitemCopy.getProperty( "defaultID" ) )
                 if defaultBackground:

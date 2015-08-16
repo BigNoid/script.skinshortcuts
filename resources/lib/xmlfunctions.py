@@ -604,6 +604,50 @@ class XMLFunctions():
         defaultID.text = item.find( "defaultID" ).text
         defaultID.set( "name", "defaultID" )
         
+        # Additional properties
+        properties = eval( item.find( "additional-properties" ).text )
+        if len( properties ) != 0:
+            repr( properties )
+            for property in properties:
+                if property[0] == "node.visible":
+                    visibleProperty = xmltree.SubElement( newelement, "visible" )
+                    visibleProperty.text = try_decode( property[1] )                    
+                else:
+                    additionalproperty = xmltree.SubElement( newelement, "property" )
+                    additionalproperty.set( "name", property[0].decode( "utf-8" ) )
+                    additionalproperty.text = DATA.local( property[1] )[1]
+                        
+                    # If this is a widget or background, set a skin setting to say it's enabled
+                    if property[0] == "widget":
+                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-widget-" + property[1] + ")" )
+                        # And if it's the main menu, list it
+                        if groupName == "mainmenu":
+                            xbmc.executebuiltin( "Skin.SetString(skinshortcuts-widget-" + str( self.widgetCount ) + "," + property[ 1 ] + ")" )
+                            self.widgetCount += 1
+                    elif property[0] == "background":
+                        try:
+                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
+                        except UnicodeEncodeError:							
+                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1].encode('utf-8') + ")" )
+                        
+                    # If this is the main menu, and we're cloning widgets or backgrounds...
+                    if groupName == "mainmenu":
+                        if "clonewidgets" in options:
+                            if property[0] == "widget" or property[0] == "widgetName" or property[0] == "widgetType" or property[0] == "widgetPlaylist":
+                                self.MAINWIDGET[ property[0] ] = property[1]
+                        if "clonebackgrounds" in options:
+                            if property[0] == "background" or property[0] == "backgroundName" or property[0] == "backgroundPlaylist" or property[0] == "backgroundPlaylistName":
+                                self.MAINBACKGROUND[ property[0] ] = property[1]
+
+                    # For backwards compatibility, save widgetPlaylist as widgetPath too
+                    if property[ 0 ] == "widgetPlaylist":
+                        additionalproperty = xmltree.SubElement( newelement, "property" )
+                        additionalproperty.set( "name", "widgetPath" )
+                        try:
+                            additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
+                        except:
+                            additionalproperty.text = DATA.local( property[1] )[1]
+        
         # Primary visibility
         visibility = item.find( "visibility" )
         if visibility is not None:
@@ -710,50 +754,6 @@ class XMLFunctions():
             self.MAINWIDGET = {}
             self.MAINBACKGROUND = {}
         
-        # Additional properties
-        properties = eval( item.find( "additional-properties" ).text )
-        if len( properties ) != 0:
-            repr( properties )
-            for property in properties:
-                if property[0] == "node.visible":
-                    visibleProperty = xmltree.SubElement( newelement, "visible" )
-                    visibleProperty.text = try_decode( property[1] )                    
-                else:
-                    additionalproperty = xmltree.SubElement( newelement, "property" )
-                    additionalproperty.set( "name", property[0].decode( "utf-8" ) )
-                    additionalproperty.text = DATA.local( property[1] )[1]
-                        
-                    # If this is a widget or background, set a skin setting to say it's enabled
-                    if property[0] == "widget":
-                        xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-widget-" + property[1] + ")" )
-                        # And if it's the main menu, list it
-                        if groupName == "mainmenu":
-                            xbmc.executebuiltin( "Skin.SetString(skinshortcuts-widget-" + str( self.widgetCount ) + "," + property[ 1 ] + ")" )
-                            self.widgetCount += 1
-                    elif property[0] == "background":
-                        try:
-                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1] + ")" )
-                        except UnicodeEncodeError:							
-                            xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1].encode('utf-8') + ")" )
-                        
-                    # If this is the main menu, and we're cloning widgets or backgrounds...
-                    if groupName == "mainmenu":
-                        if "clonewidgets" in options:
-                            if property[0] == "widget" or property[0] == "widgetName" or property[0] == "widgetType" or property[0] == "widgetPlaylist":
-                                self.MAINWIDGET[ property[0] ] = property[1]
-                        if "clonebackgrounds" in options:
-                            if property[0] == "background" or property[0] == "backgroundName" or property[0] == "backgroundPlaylist" or property[0] == "backgroundPlaylistName":
-                                self.MAINBACKGROUND[ property[0] ] = property[1]
-
-                    # For backwards compatibility, save widgetPlaylist as widgetPath too
-                    if property[ 0 ] == "widgetPlaylist":
-                        additionalproperty = xmltree.SubElement( newelement, "property" )
-                        additionalproperty.set( "name", "widgetPath" )
-                        try:
-                            additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
-                        except:
-                            additionalproperty.text = DATA.local( property[1] )[1]
-
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
         if groupName != "mainmenu":
             if "clonewidgets" in options and len( self.MAINWIDGET ) is not 0:

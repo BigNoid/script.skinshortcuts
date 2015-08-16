@@ -1326,8 +1326,7 @@ class LibraryFunctions():
                             if item['thumbnail'] != "":
                                 thumb = item[ 'thumbnail' ]
                             else:   
-                                thumb = None
-                                
+                                thumb = None  
                             listitem = self._create([path, item['name'], shortcutType, {"icon": "DefaultAddon.png", "thumb": thumb} ])
 
                             # If this is a plugin, mark that we can browse it
@@ -1532,7 +1531,7 @@ class LibraryFunctions():
         dialog.create( dialogLabel, __language__( 32063 ) )
         
         #we retrieve a whole bunch of properties, needed to guess the content type properly
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail", "episode", "showtitle", "season", "album", "artist", "imdbnumber", "firstaired", "mpaa", "trailer", "studio"], "directory": "' + location + '", "media": "files" } }')
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail", "episode", "showtitle", "season", "album", "artist", "imdbnumber", "firstaired", "mpaa", "trailer", "studio", "art"], "directory": "' + location + '", "media": "files" } }')
         json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = simplejson.loads(json_query)
             
@@ -1581,8 +1580,32 @@ class LibraryFunctions():
                         listitem.setProperty( "widgetType", widgetType )
                         listitem.setProperty( "widgetTarget", widgetTarget )
                         listitem.setProperty( "widgetPath", item[ "file" ] )
-                        
+
                         listings.append( self._get_icon_overrides( tree, listitem, "" ) )
+                
+                #some special code for smart shortcuts in script.skin.helper.service
+                elif item.get("title",None) == "smartshortcut":
+
+                    smartShortCutsData = simplejson.loads(item.get("mpaa"))                  
+                    thumb = smartShortCutsData["background"]
+                    
+                    listitem = self._create( [ item[ "file" ], altLabel, "", {"icon": item.get("icon"), "thumb": thumb} ] )
+                    # add all passed properties to the gui to set default background, widget etc.
+                    properties = []
+                    for key, value in smartShortCutsData.iteritems():
+                        properties.append( [key, value ] )
+                    listitem.setProperty( "smartShortcutProperties", repr( properties ) )
+                    listitem.setProperty( "untranslatedIcon", thumb )
+                    
+                    
+                    listitem.setProperty( "widget", "addon" )
+                    listitem.setProperty( "widgetName", item["label"] )
+                    listitem.setProperty( "widgetType", "movies" )
+                    listitem.setProperty( "widgetTarget", "video" )
+                    listitem.setProperty( "widgetPath", item[ "file" ] )
+                    
+                    listings.append( self._get_icon_overrides( tree, listitem, "" ) )
+                
                 else:
                     # Process this as a plugin
                     if item["filetype"] == "directory":
@@ -1702,7 +1725,7 @@ class LibraryFunctions():
                 thumbnail.pop()
                 return self.explorer( history, history[ len( history ) -1 ], label, thumbnail, itemType, isWidget = isWidget )
                 
-            elif selectedAction.startswith( "ActivateWindow(" ):
+            elif selectedAction.startswith( "ActivateWindow(" ) or selectedAction.startswith( "$INFO" ):
                 # The user wants to create a shortcut to a specific shortcut listed
                 listitem = listings[ selectedItem ]
 
