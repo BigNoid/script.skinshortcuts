@@ -1668,7 +1668,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         defaultBackground = self.find_default( "background", labelID, defaultID )
         if defaultBackground:
             for key in self.backgrounds:
-                print key
                 if defaultBackground == key[ 0 ]:
                     result["path"] = key[ 0 ]
                     result["label"] = key[ 1 ]
