@@ -692,14 +692,14 @@ class XMLFunctions():
                 onclickelement.text = onclick.text
                 
             # Also add it as a path property
-            if not newelement.findall(".//property[@name='path']"):
+            if not self.propertyExists( "path", newelement ):
                 # we only add the path property if there isn't already one in the list because it has to be unique in Kodi lists
                 pathelement = xmltree.SubElement( newelement, "property" )
                 pathelement.set( "name", "path" )
                 pathelement.text = onclickelement.text
             
             # Get 'list' property (the action property of an ActivateWindow shortcut)
-            if not newelement.findall(".//property[@name='list']"):
+            if not self.propertyExists( "list", newelement ):
                 # we only add the list property if there isn't already one in the list because it has to be unique in Kodi lists
                 listElement = xmltree.SubElement( newelement, "property" )
                 listElement.set( "name", "list" )
@@ -818,6 +818,14 @@ class XMLFunctions():
                 propertyReplacements.append(("::%s::" % subElement.tag, subElement.text))
 
         return propertyReplacements
+
+
+    def propertyExists( self, propertyName, element ):
+        for item in element.findall( "property" ):
+            if propertyName in item.attrib:
+                return True
+        return False
+
 
       
     def findIncludePosition( self, list, item ):
