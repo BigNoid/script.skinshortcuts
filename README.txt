@@ -98,19 +98,13 @@ Replace 9000 with the ID of the list you are using for the mainmenu. If you are 
 
 2. Let users manage their main menu and sub-menu shortcuts
  
-The script can provide a list of controls for your overrides.xml to let the user manage both main menu and sub-menu.
-  
-Uses new method of filling the contents of a list in Gotham. In the list where you want these controls to appear, put the following in the <content> tag:
-  
-	plugin://script.skinshortcuts?type=settings&amp;property=$INFO[Window(10000).Property("skinshortcuts")]
-	
-Alternatively, you can create a button with the following onclick method:
+Create a button with the following onclick method:
 
 	RunScript(script.skinshortcuts,type=manage&amp;group=mainmenu)
 	
-Then, within the management dialog, provide a button with the id 405 to let the user manage sub-menus. You must use this method if you want to provide more than one sub-menu.
+Then, within the management dialog, provide a button with the id 405 to let the user manage sub-menus.
 
-If using the second method, you may also want to provide a reset button, with the following in the onclick method:
+You may also want to provide a reset button, with the following in the onclick method:
 
 	RunScript(script.skinshortcuts,type=resetall)
  
@@ -145,7 +139,7 @@ Same as the method above, except you need to include the &amp;group= parameter t
 	
 To the let user manage shortcuts in these additional groups
 
-	RunScript(script.skinshortcuts, type=manage&amp;group=[groupname])
+	RunScript(script.skinshortcuts,type=manage&amp;group=[groupname])
 	
 And to display them:
 
@@ -258,7 +252,7 @@ The file format is simple enough:
 	</shortcut>
 </shortcuts
 
-If you want to provide a default which links to a playlist you include with your skin, then make sure the .shortcuts file uses the special protocol (e.g. special://skin/) as the URI to it. The script will replace this with a localised version, so that the playlist link will continue to work even if the user switches to another skin supporting skin shortcuts.
+If you want to provide a default which links to a playlist you include with your skin, then make sure the .DATA.xml file uses the special protocol (e.g. special://skin/) as the URI to it. The script will replace this with a localised version, so that the playlist link will continue to work even if the user switches to another skin supporting skin shortcuts.
 
 Particularly when setting defaults for the main menu, you may wish to include the <defaultID> element. This will set the [groupname] of the submenu's .DATA.xml file. (e.g. defaultID of tvshows -> tvshows.DATA.xml). Please note, any defaultID must follow the standard rules - all lowercase, all english characters, no spaces.
 
