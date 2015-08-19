@@ -160,6 +160,7 @@ class Main:
         
         self.GROUP = params.get( "group", "" )
         self.GROUPNAME = params.get( "groupname", None )
+        self.GROUPING = params.get( "grouping", None )
         self.PATH = params.get( "path", "" )
         self.MENUID = params.get( "mainmenuID", "0" )
         self.NEXTACTION = params.get( "action", "0" )
