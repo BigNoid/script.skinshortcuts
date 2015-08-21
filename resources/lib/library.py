@@ -7,6 +7,7 @@ from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
 from unidecode import unidecode
+from unicodeutils import try_decode
 import datafunctions, nodefunctions
 DATA = datafunctions.DataFunctions()
 NODE = nodefunctions.NodeFunctions()
@@ -1500,9 +1501,9 @@ class LibraryFunctions():
         widgetType = None
         addonType = None
 
-        dialogLabel = label[0].replace( "  >", "" )
+        dialogLabel = try_decode( label[0] ).replace( "  >", "" )
         if len( label ) != 1:
-            dialogLabel = label[0].replace( "  >", "" ) + " - " + label[ len( label ) - 1 ].replace( "  >", "" )
+            dialogLabel = try_decode( label[0] ).replace( "  >", "" ) + " - " + try_decode( label[ -1 ] ).replace( "  >", "" )
 
         listings = []
         
@@ -1574,7 +1575,7 @@ class LibraryFunctions():
                             listitem = self._create( [ item[ "file" ], "%s  >" %( item[ "label" ] ), "", {"icon": "DefaultFolder.png", "thumb": thumb} ] )
 
                         # Add widget properties
-                        widgetName = label[0].replace( "  >", "" ) + " - " + item[ "label" ]
+                        widgetName = try_decode(label[0]).replace( "  >", "" ) + " - " + item[ "label" ]
                         listitem.setProperty( "widget", "Library" )
                         listitem.setProperty( "widgetName", widgetName )
                         listitem.setProperty( "widgetType", widgetType )
