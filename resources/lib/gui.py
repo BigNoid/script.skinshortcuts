@@ -337,7 +337,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if additionalProperties is not None:
             listitem.setProperty( "additionalListItemProperties", additionalProperties.text )
             for property in eval( additionalProperties.text ):
-                if property[1].startswith("$"):
+                if property[1].startswith("$") and not property[ 1 ].startswith( "$SKIN" ):
                     #Translate some listItem properties if needed so they're displayed correctly in the gui
                     listitem.setProperty(property[0],xbmc.getInfoLabel(property[1]))
                 else:
@@ -1606,10 +1606,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             properties.append( [propertyName, DATA.local( propertyValue )[0] ] )
         
         #translate any INFO labels (if needed) so they will be displayed correctly in the gui
-        if propertyValue.startswith("$"):
-            listitem.setProperty( propertyName, xbmc.getInfoLabel(propertyValue) )
-        else:
-            listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
+        if propertyValue:
+            if propertyValue.startswith("$") and not propertyValue.startswith( "$SKIN" ):
+                listitem.setProperty( propertyName, xbmc.getInfoLabel(propertyValue) )
+            else:
+                listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
             
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
         
