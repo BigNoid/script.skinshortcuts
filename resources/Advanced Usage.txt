@@ -602,6 +602,19 @@ For Just Select, see the documentation on the Just Select Shortcut method, above
 Note, widget-groupings is handled differently from all other groupings in that the user won't ever get a prompt about what they want to do with the shortcut they selected (no prompt about whether to play or display a playlist, for example) - it will always default to displaying the shortcut in the library.
 
 
+16. Conditional group overrides
+
+This will let you add an additional action on a per-menu base. For example to close all dialogs first before opening any additional windows on a modal dialog like DialogButtonMenu.xml
+
+Usage:
+
+Add an extra entry in your skin's overrides.xml file:
+
+<groupoverride group="powermenu" condition="Window.IsActive(DialogButtonMenu.xml)">Close</groupoverride>
+
+group is the name of the menugroup, for example mainmenu or powermenu etc.
+
+
 Localisation
 ------------
 

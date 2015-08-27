@@ -1,27 +1,16 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.4.4 - current Repo release)
+What's New for Skinners (version 0.5.2 - beta release)
 -----------------------
 
- - Just Select method - option to show a 'None' option, which will reset all skin labels passed in. See "Advanced Usage.txt", section "Just Select Shortcuts"
- - Ability to specify available thumbnails for user to choose from with new button 311. See "Advanced Usage.txt", section "Overrides.xml", part 13 and "Management Dialog.txt"
- - Ability to specify conditions for widgets and thumbnails to determine if they are available for selection. See "Advanced Usage.txt", section "Overrides.xml", parts 3 and 4
- - Ability to set skin boolean based on inclusion of a shortcut with a specified action. See "Advanced Usage.txt", section "Overrides.xml", part 7
- - Advice change - hasSubmenu cannot be relied upon to indicate there are no visible items, there may still be invisible items.
- 
-
-What's New for Skinners (version 0.4.2 - previous release)
------------------------
-
- - Ability to skip warning when resetting all shortcuts. See "Resetting all shortcuts", below
- - Ability to set default backgrounds and widgets based on defaultID. See "Advanced Usage.txt", section "Overrides.xml", parts 3 and 4
- - Ability to define a default path when browsing for backgrounds. See "Advanced Usage.txt", section "Overrides.xml", part 3
- - Skin properties set for each background and widget that is active. See "Advanced Usage.txt", sections "Managing Custom Backgrounds" and "Managing Widgets".
- - Window property set when management dialog for submenu/additional menu is launched. See "Management Dialog.txt", part 6
- - Advice change - consider providing a defaultID in your default shortcuts. See "Providing default shortcuts", below.
- - Advice change - use video node links, rather than library links, in your default shortcuts. See "Providing default shortcuts" below; and "Advanced Usage.txt", section "Overrides.xml", part 1.
- - Shortcuts with a <visible/> element will not only show in management dialog if this property evaluates to true. Though they won't be visible in the management dialog, they will not be removed from the menu, but will move to the end of the menu.
+ - Add additional actions on a per-menu basis - see "Advanced Usage.txt", section "Overrides.xml", part 16
+ - Ability to define default folder for thumbnail selection - see "Advanced Usage.txt", section "Overrides.xml", part 13
+ - Custom properties based on patterns - see "Advanced Usage.txt", section "Overrides.xml", part 14
+ - Ability to build skin xml elements for menu or other items based off of menu items from templates - see "Templates.txt"
+ - New widget selection with option to choose from library nodes, add-on nodes, playlists and sources - see "Advanced Usage.txt", section "Overrides.xml", part 4
+ - Ability to specify which grouping of available shortcuts will be able to be selected by user - see "Advanced Usage.txt", section "Overrides.xml", part 15
+ - Ability to provide a global override - see "Advanced Usage.txt", section "Overrides.xml", part 1.1
  
  
 With Thanks - Because their names don't deserve to be at the bottom :)
