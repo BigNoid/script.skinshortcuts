@@ -1,4 +1,4 @@
-v0.5.2 (beta)
+v0.5.3
 - [HitcherUK] Add shutdown timer functions
 - Support for conditional group overrides
 - [bambi73] Add default thumbnail browse option
