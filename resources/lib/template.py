@@ -12,7 +12,7 @@ __xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 __skinpath__     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 
 def log(txt):
-    if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
+    if __addon__.getSetting( "enable_logging" ) == "true":
         try:
             if isinstance (txt,str):
                 txt = txt.decode('utf-8')

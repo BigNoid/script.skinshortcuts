@@ -37,7 +37,7 @@ if not xbmcvfs.exists(__datapath__):
     xbmcvfs.mkdir(__datapath__)
 
 def log(txt):
-    if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
+    if __addon__.getSetting( "enable_logging" ) == "true":
         try:
             if isinstance (txt,str):
                 txt = txt.decode('utf-8')

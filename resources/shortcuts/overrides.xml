@@ -28,15 +28,6 @@
 		<shortcutEquivalent version="14" action="ActivateWindow(RadioTimers)">All</shortcutEquivalent>
 		<shortcutEquivalent version="14" action="ActivateWindow(RadioSearch)">All</shortcutEquivalent>
 
-		<!-- Music shortcuts -->
-		<shortcutEquivalent version="13" action="MusicLibrary,Artists,return">14</shortcutEquivalent>
-		<shortcutEquivalent version="13" action="ActivateWindow(MusicLibrary,Albums,return)">14</shortcutEquivalent>
-		<shortcutEquivalent version="13" action="ActivateWindow(MusicLibrary,Songs,return)">14</shortcutEquivalent>
-
-		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://artists/,return)">All</shortcutEquivalent>
-		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://albums/,return)">All</shortcutEquivalent>
-		<shortcutEquivalent version="15" action="ActivateWindow(MusicLibrary,musicdb://songs/,return)">All</shortcutEquivalent>
-
 	</versionEquivalency>
 
 
@@ -50,16 +41,11 @@
 		<node label="32031">
 			<content>music</content>
 		</node>
-		<node label="32017" condition="System.GetBool(pvrmanager.enabled)" version="13">
-			<content>pvr</content>
-			<content>pvr-tv</content>
-			<content>pvr-radio</content>
-		</node>
-		<node label="32017" condition="PVR.HasTVChannels" version="14">
+		<node label="32017" condition="PVR.HasTVChannels">
 			<content>pvr</content>
 			<content>pvr-tv</content>
 		</node>
-		<node label="32087" condition="PVR.HasRadioChannels" version="14">
+		<node label="32087" condition="PVR.HasRadioChannels">
 			<content>radio</content>
 			<content>pvr-radio</content>
 		</node>

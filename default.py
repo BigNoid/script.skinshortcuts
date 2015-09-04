@@ -40,7 +40,7 @@ LIBRARY = library.LibraryFunctions()
 hashlist = []
 
 def log(txt):
-    if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
+    if __addon__.getSetting( "enable_logging" ) == "true":
         if isinstance (txt,str):
             txt = txt.decode('utf-8')
         message = u'%s: %s' % (__addonid__, txt)

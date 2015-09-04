@@ -30,7 +30,7 @@ __cwd__          = sys.modules[ "__main__" ].__cwd__
 __xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
 def log(txt):
-    if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
+    if __addon__.getSetting( "enable_logging" ) == "true":
         try:
             if isinstance (txt,str):
                 txt = txt.decode('utf-8')
@@ -739,12 +739,9 @@ class LibraryFunctions():
         listitems.append( self._create(["ActivateWindow(Videos,videodb://movies/titles/,return)", "342", "32034", {"icon": "DefaultMovies.png"} ]) )
         listitems.append( self._create(["ActivateWindow(Videos,videodb://tvshows/titles/,return)", "20343", "32034", {"icon": "DefaultTVShows.png"} ]) )
 
-        if __xbmcversion__ == "13":
-            listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
-        else:
-            listitems.append( self._create(["ActivateWindow(TVGuide)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(RadioGuide)", "32087", "32034", {"icon": "DefaultTVShows.png"} ]) )
-            
+        listitems.append( self._create(["ActivateWindow(TVGuide)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(RadioGuide)", "32087", "32034", {"icon": "DefaultTVShows.png"} ]) )
+        
         listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
         listitems.append( self._create(["ActivateWindow(Videos,videodb://musicvideos/titles/,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
@@ -800,20 +797,12 @@ class LibraryFunctions():
         listitems.append( self._create(["Mastermode", "20045", "32054", {} ]) )
         
         listitems.append( self._create(["RipCD", "600", "32054", {} ]) )
-        
-        if __xbmcversion__ == "13":
-            listitems.append( self._create(["UpdateLibrary(video)", "32046", "32054", {} ]) )
-            listitems.append( self._create(["UpdateLibrary(music)", "32047", "32054", {} ]) )
-        else:
-            listitems.append( self._create(["UpdateLibrary(video,,true)", "32046", "32054", {} ]) )
-            listitems.append( self._create(["UpdateLibrary(music,,true)", "32047", "32054", {} ]) )
-        
-        if __xbmcversion__ == "13":
-            listitems.append( self._create(["CleanLibrary(video)", "32055", "32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(music)", "32056", "32054", {} ]) )
-        else:
-            listitems.append( self._create(["CleanLibrary(video,true)", "32055", "32054", {} ]) )
-            listitems.append( self._create(["CleanLibrary(music,true)", "32056", "32054", {} ]) )
+
+        listitems.append( self._create(["UpdateLibrary(video,,true)", "32046", "32054", {} ]) )
+        listitems.append( self._create(["UpdateLibrary(music,,true)", "32047", "32054", {} ]) )
+
+        listitems.append( self._create(["CleanLibrary(video,true)", "32055", "32054", {} ]) )
+        listitems.append( self._create(["CleanLibrary(music,true)", "32056", "32054", {} ]) )
         
         self.addToDictionary( "commands", listitems )
             
@@ -875,25 +864,14 @@ class LibraryFunctions():
             log('Listing pvr library...')
             
             # PVR
-            if __xbmcversion__ == "13":
-                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,32,0 ,11,0)", "19023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,33,0 ,12,0)", "19024", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,31,0 ,10,0)", "19069", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,34,0 ,13,0)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindowAndFocus(MyPVR,35,0 ,14,0)", "32023", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-
-                listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["PlayPvrRadio", "32067", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-            else:
-                listitems.append( self._create(["ActivateWindow(TVChannels)", "19019", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindow(TVGuide)", "22020", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindow(TVRecordings)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindow(TVTimers)", "19040", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["ActivateWindow(TVSearch)", "137", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                
-                listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-                listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(TVChannels)", "19019", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(TVGuide)", "22020", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(TVRecordings)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(TVTimers)", "19040", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["ActivateWindow(TVSearch)", "137", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            
+            listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+            listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
 
             self.addToDictionary( "pvr", listitems )            
             
