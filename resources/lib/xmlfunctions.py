@@ -27,7 +27,7 @@ DATA = datafunctions.DataFunctions()
 import hashlib, hashlist
 
 def log(txt):
-    if __xbmcversion__ == "13" or __addon__.getSetting( "enable_logging" ) == "true":
+    if __addon__.getSetting( "enable_logging" ) == "true":
         if isinstance (txt,str):
             txt = txt.decode('utf-8')
         message = u'%s: %s' % (__addonid__, txt)
@@ -104,51 +104,54 @@ class XMLFunctions():
             # Menu is built, reload the skin
             xbmc.executebuiltin( "XBMC.ReloadSkin()" )
         else:
-            # Menu couldn't be built - if the user has script.xbmc.debug.log offer to upload a debug log
-            if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
-                # If we enabled debug logging
-                if weEnabledSystemDebug or weEnabledScriptDebug:
-                    # Disable any logging we enabled
-                    if weEnabledSystemDebug:
-                        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":false} } ' )
-                    if weEnabledScriptDebug:
-                        __addon__.setSetting( "enable_logging", "false" )
-                        
-                    # Offer to upload a debug log
+            # Menu couldn't be built - generate a debug log
+        
+            # If we enabled debug logging
+            if weEnabledSystemDebug or weEnabledScriptDebug:
+                # Disable any logging we enabled
+                if weEnabledSystemDebug:
+                    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":false} } ' )
+                if weEnabledScriptDebug:
+                    __addon__.setSetting( "enable_logging", "false" )
+                    
+                # Offer to upload a debug log
+                if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
                     ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), __language__( 32092 ), __language__( 32093 ) )
                     if ret:
-                        xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )                    
-                        
+                        xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
                 else:
-                    # Enable any debug logging needed                        
-                    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Settings.getSettings", "params": { "filter":{"section":"system", "category":"debug"} } }')
-                    json_query = unicode(json_query, 'utf-8', errors='ignore')
-                    json_response = simplejson.loads(json_query)
+                    xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__( 32092 ), __language__( 32094 ) )
                     
-                    enabledSystemDebug = False
-                    enabledScriptDebug = False
-                    if json_response.has_key('result') and json_response['result'].has_key('settings') and json_response['result']['settings'] is not None:
-                        for item in json_response['result']['settings']:
-                            if item["id"] == "debug.showloginfo":
-                                if item["value"] == False:
-                                    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":true} } ' )
-                                    enabledSystemDebug = True
+            else:
+                # Enable any debug logging needed                        
+                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Settings.getSettings", "params": { "filter":{"section":"system", "category":"debug"} } }')
+                json_query = unicode(json_query, 'utf-8', errors='ignore')
+                json_response = simplejson.loads(json_query)
+                
+                enabledSystemDebug = False
+                enabledScriptDebug = False
+                if json_response.has_key('result') and json_response['result'].has_key('settings') and json_response['result']['settings'] is not None:
+                    for item in json_response['result']['settings']:
+                        if item["id"] == "debug.showloginfo":
+                            if item["value"] == False:
+                                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":true} } ' )
+                                enabledSystemDebug = True
+                
+                if __addon__.getSetting( "enable_logging" ) != "true":
+                    __addon__.setSetting( "enable_logging", "true" )
+                    enabledScriptDebug = True
                     
-                    if __addon__.getSetting( "enable_logging" ) != "true":
-                        __addon__.setSetting( "enable_logging", "true" )
-                        enabledScriptDebug = True
-                        
-                    if enabledSystemDebug or enabledScriptDebug:
-                        # We enabled one or more of the debug options, re-run this function
-                        self.buildMenu( mainmenuID, groups, numLevels, buildMode, options, enabledSystemDebug, enabledScriptDebug )
-                    else:
-                        # Debug logging already enabled - offer to upload a debug log
+                if enabledSystemDebug or enabledScriptDebug:
+                    # We enabled one or more of the debug options, re-run this function
+                    self.buildMenu( mainmenuID, groups, numLevels, buildMode, options, enabledSystemDebug, enabledScriptDebug )
+                else:
+                    # Offer to upload a debug log
+                    if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
                         ret = xbmcgui.Dialog().yesno( __addon__.getAddonInfo( "name" ), __language__( 32092 ), __language__( 32093 ) )
                         if ret:
-                            xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )                    
-                            
-            else:
-                xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__( 32092 ), __language__( 32094 ) )
+                            xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+                    else:
+                        xbmcgui.Dialog().ok( __addon__.getAddonInfo( "name" ), __language__( 32092 ), __language__( 32094 ) )
         
     def shouldwerun( self, profilelist ):
         try:
