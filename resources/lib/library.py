@@ -1300,7 +1300,6 @@ class LibraryFunctions():
                         if item['enabled'] == True:                            
                             path = "RunAddOn(" + item['addonid'].encode('utf-8') + ")"
                             action = None
-
                             thumb = "DefaultAddon.png"
                             if item['thumbnail'] != "":
                                 thumb = item[ 'thumbnail' ]
@@ -1365,7 +1364,12 @@ class LibraryFunctions():
                     if provides is None:
                         return None
                     return provides.text.split( " " )
-
+                elif "point" in extension.attrib and extension.attrib.get( "point" ) == "xbmc.python.script":
+                    # Script entry points should be treated as executable
+                    provides = extension.find( "provides" )
+                    if provides is None:
+                        return None
+                    return provides.text.split( " " )
 
         except:
             return None
