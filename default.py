@@ -176,6 +176,14 @@ class Main:
         self.LIST = params.get( "skinList", None )
         self.CUSTOM = params.get( "custom", "False" )
         self.NONE = params.get( "showNone", "False" )
+        if self.CUSTOM == "True" or self.CUSTOM == "true":
+            self.CUSTOM = True
+        else:
+            self.CUSTOM = False
+        if self.NONE == "True" or self.NONE == "true":
+            self.NONE = True
+        else:
+            self.NONE = False
         
         self.NOLABELS = params.get( "nolabels", "false" ).lower()
         self.OPTIONS = params.get( "options", "" ).split( "|" )
