@@ -1383,28 +1383,32 @@ class LibraryFunctions():
             # if it's missing it means this is a main directory listing and no need to scan the underlying listitems.
             return None
 
+        if not item.has_key("showtitle") and not item.has_key("artist"):
+            #these properties are only returned in the json response if we're looking at actual file content...
+            # if it's missing it means this is a main directory listing and no need to scan the underlying listitems.
+            return "files"
         if not item.has_key("showtitle") and item.has_key("artist"):
             ##### AUDIO ITEMS ####
-            if item["artist"][0] == item["title"]:
+            if item["type"] == "artist" or item["artist"][0] == item["title"]:
                 return "artists"
-            elif item["album"] == item["title"]:
+            elif item["type"] == "album" or item["album"] == item["title"]:
                 return "albums"
-            elif (item["type"] == "song" or (item["artist"] and item["album"])):
+            elif (item["type"] == "song" and not "play_album" in item["file"]) or (item["artist"] and item["album"]):
                 return "songs"
         else:    
             ##### VIDEO ITEMS ####
             if (item["showtitle"] and not item["artist"]):
                 #this is a tvshow, episode or season...
-                if (item["season"] > -1 and item["episode"] == -1):
+                if item["type"] == "season" or (item["season"] > -1 and item["episode"] == -1):
                     return "seasons"
-                elif item["season"] > -1 and item["episode"] > -1:
+                elif item["type"] == "episode" or item["season"] > -1 and item["episode"] > -1:
                     return "episodes"
                 else:
                     return "tvshows"
             elif (item["artist"]):
-                #this is a musicvideo!
+                #this is a musicvideo
                 return "musicvideos"
-            elif (item["imdbnumber"] or item["mpaa"] or item["trailer"] or item["studio"]):
+            elif item["type"] == "movie" or item["imdbnumber"] or item["mpaa"] or item["trailer"] or item["studio"]:
                 return "movies"
 
         return None
@@ -1582,7 +1586,7 @@ class LibraryFunctions():
                     listitem.setProperty( "widget", "addon" )
                     listitem.setProperty( "widgetName", item["label"] )
                     listitem.setProperty( "widgetType", smartShortCutsData["type"] )
-                    if smartShortCutsData["type"] == "music" or smartShortCutsData["type"] == "artists" or smartShortCutsData["type"] == "albums":
+                    if smartShortCutsData["type"] == "music" or smartShortCutsData["type"] == "artists" or smartShortCutsData["type"] == "albums" or smartShortCutsData["type"] == "songs":
                         listitem.setProperty( "widgetTarget", "music" )
                     else:
                         listitem.setProperty( "widgetTarget", "video" )
