@@ -79,7 +79,7 @@ The <controls /> element must be included. Put your gui xml within.
 			<kodi>
 				<controls and="tags">
 					<skinshortcuts>visibility</skinshortcuts>
-					<custom tag="$skinshortcuts[propertyName]">$skinshortcuts[propertyName]</custom>
+					<custom tag="$SKINSHORTCUTS[propertyName]">$SKINSHORTCUTS[propertyName]</custom>
 				</controls
 			</kodi>
 		</your>
@@ -91,7 +91,7 @@ The <controls /> element must be included. Put your gui xml within.
 <match /> - [Optional] See 3.2
 <property /> - [Optional] See 3.3
 <skinshortcuts>visibility</skinshortcuts> - This will be replaced with a visibility condition based on the focus of the main menu
-%skinshortcuts[propertyName] - This will be replaced by the value of a matched <property /> element
+$SKINSHORTCUTS[propertyName] - This will be replaced by the value of a matched <property /> element
 
 The <controls /> element must be included. Put your gui xml within.
 

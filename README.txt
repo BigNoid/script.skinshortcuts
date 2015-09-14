@@ -1,7 +1,12 @@
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
-What's New for Skinners (version 0.5.3)
+What's New for Skinners (version 0.5.4 - git version)
+-----------------------
+
+- Ability to include multiple $SKINSHORTCUT[] elements and other text in an element
+
+What's New for Skinners (version 0.5.3 - repo version)
 -----------------------
 
  - Add additional actions on a per-menu basis - see "Advanced Usage.txt", section "Overrides.xml", part 16
