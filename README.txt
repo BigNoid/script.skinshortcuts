@@ -5,6 +5,7 @@ What's New for Skinners (version 0.5.4 - git version)
 -----------------------
 
 - Ability to include multiple $SKINSHORTCUT[] elements and other text in an element
+- New <content>addon-program-plugin</content> for groupings and related widget-selection support
 
 What's New for Skinners (version 0.5.3 - repo version)
 -----------------------

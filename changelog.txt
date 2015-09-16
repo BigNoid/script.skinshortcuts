@@ -1,5 +1,6 @@
 v0.5.4
 - Template improvements
+- Widget selection improvements
 
 v0.5.3
 - [HitcherUK] Add shutdown timer functions
