@@ -343,7 +343,7 @@ widgetPath - The path to the playlist
 
 widget - Addon
 widgetName - The name of the add-on + the selected node (if available)
-widgetType - Either 'video', 'audio' or 'picture', or a best-guess at the type of content provided
+widgetType - Either 'video', 'audio', 'picture' or 'program', or a best-guess at the type of content provided
 widgetPath - The path to the selected node
 
 4.5 Skin widgets
