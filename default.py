@@ -122,34 +122,6 @@ class Main:
                     xbmc.executebuiltin( "Skin.Reset(" + self.THUMBNAIL + ")" )
                 if self.LIST is not None:
                     xbmc.executebuiltin( "Skin.Reset(" + self.LIST + ")" )
-                    
-        if self.TYPE=="addNode":
-            # We've been sent a node from plugin.program.video.node.editor
-            targetDir = "library://video" + self.OPTIONS[ 0 ]
-            
-            icon = "DefaultShortcut.png"
-            if self.OPTIONS[ 2 ] != "None":
-                icon = self.OPTIONS[ 2 ].decode( "utf-8" )
-            
-            result = nodefunctions.NodeFunctions().addNodeToMenu( targetDir, urllib.unquote( self.OPTIONS[ 1 ] ).decode( "utf-8" ), icon, DATA )
-            
-            if result == False:
-                # The item failed to add to the menu
-                xbmcgui.dialog().ok( __addon__.getAddonInfo( "name" ), __language__(32091) )
-
-        if self.TYPE=="addMusicNode":
-            # We've been sent a node from plugin.program.video.node.editor
-            targetDir = "library://music" + self.OPTIONS[ 0 ]
-            
-            icon = "DefaultShortcut.png"
-            if self.OPTIONS[ 2 ] != "None":
-                icon = self.OPTIONS[ 2 ].decode( "utf-8" )
-            
-            result = nodefunctions.NodeFunctions().addNodeToMenu( targetDir, urllib.unquote( self.OPTIONS[ 1 ] ).decode( "utf-8" ), icon, DATA, isVideo = False )
-            
-            if result == False:
-                # The item failed to add to the menu
-                xbmcgui.dialog().ok( __addon__.getAddonInfo( "name" ), __language__(32091) )
                 
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
