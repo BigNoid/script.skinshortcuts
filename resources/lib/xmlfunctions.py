@@ -706,7 +706,7 @@ class XMLFunctions():
                 # we only add the list property if there isn't already one in the list because it has to be unique in Kodi lists
                 listElement = xmltree.SubElement( newelement, "property" )
                 listElement.set( "name", "list" )
-                listElement.text = DATA.getListProperty( onclickelement.text )
+                listElement.text = DATA.getListProperty( onclickelement.text.replace('"','') )
                 
             if onclick.text == "ActivateWindow(Settings)":
                 self.hasSettings = True
