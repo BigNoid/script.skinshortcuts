@@ -1,6 +1,12 @@
-v0.5.4
+v0.6.1
 - Template improvements
 - Widget selection improvements
+
+v0.6.0
+- Version bump for Isengard repo.
+
+v0.5.4
+- Rollback for Helix repo - fixes incompatiblitly with some Helix skins.
 
 v0.5.3
 - [HitcherUK] Add shutdown timer functions
