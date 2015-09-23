@@ -1226,14 +1226,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         backgroundLabel.append( key[1] + " (%s)" %( __language__(32050) ) )
                         if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
                             usePrettyDialog = True
-                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", { "icon": "DefaultFile.png", "thumb": key[ 0 ] } ] ) )
+                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", { "icon":  key[ 0 ] } ] ) )
                         else:
                             backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", {} ] ) )
                     else:
                         backgroundLabel.append( key[1] )
                         if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
                             usePrettyDialog = True
-                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ], "", { "icon": "DefaultFile.png", "thumb": key[ 0 ] } ] ) )
+                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ], "", { "icon": key[ 0 ] } ] ) )
                         else:
                             backgroundPretty.append( LIBRARY._create(["", key[ 1 ], "", {} ] ) )
             
