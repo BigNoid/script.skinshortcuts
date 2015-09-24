@@ -67,6 +67,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.widgetPlaylistsType = None
         
         self.allListItems = []
+
+        # Additional button ID's we'll handle for setting custom properties
+        self.customPropertyButtons = {}
         
         self.changeMade = False
         
@@ -84,6 +87,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Load widget and background names
             self._load_widgetsbackgrounds()
+
+            # Load additional button ID's we'll handle for custom properties
+            self._load_customPropertyButtons()
 
             # Load current shortcuts
             self.load_shortcuts()
@@ -746,6 +752,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if elem is not None and len(elem.text) > 0:
             self.thumbnailBrowseDefault = elem.text
 
+    def _load_customPropertyButtons( self ):
+        # Load a list of addition button IDs we'll handle for setting additional properties
+
+        # Load skin overrides
+        tree = DATA._get_overrides_skin()
+        if tree is None:
+            return
+
+        for elem in tree.findall( "propertySettings" ):
+            if "buttonID" in elem.attrib and "property" in elem.attrib:
+                self.customPropertyButtons[ int( elem.attrib.get( "buttonID" ) ) ] = elem.attrib.get( "property" )
                 
     # ========================
     # === GUI INTERACTIONS ===
@@ -1388,9 +1405,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.allListItems[ orderIndex ] = listitemCopy
                 self._display_listitems( num )
                     
-        if controlID == 404:
+        if controlID == 404 or controlID in self.customPropertyButtons:
             # Set custom property
-            log( "Setting custom property (404)" )
+            log( "Setting custom property (%s)" %( str( controlID ) ) )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
@@ -1416,36 +1433,101 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self._add_additionalproperty( listitem, propertyName, propertyValue )
                     self.changeMade = True
 
-            elif self.currentWindow.getProperty( "chooseProperty" ):
-                propertyName = self.currentWindow.getProperty( "chooseProperty" )
+            elif controlID != 404 or self.currentWindow.getProperty( "chooseProperty" ):
+                if controlID == 404:
+                    # Button 404, so we get the property from the window property
+                    propertyName = self.currentWindow.getProperty( "chooseProperty" )
+                    self.currentWindow.clearProperty( "chooseProperty" )
+                else:
+                    # Custom button, so we get the property from the dictionary
+                    propertyName = self.customPropertyButtons[ controlID ]
+
+                # Get the overrides
+                tree = DATA._get_overrides_skin()
+
+                # Set options
+                dialogTitle = __language__(32101)
+                showNone = True
+                imageBrowse = False
+                browseSingle = False
+                browseMulti = False
+                for elem in tree.findall( "propertySettings" ):
+                    # Get property settings based on property value matching
+                    if "property" in elem.attrib and elem.attrib.get( "property" ) == propertyName:
+                        if "title" in elem.attrib:
+                            dialogTitle = elem.attrib.get( "title" )
+                        if "showNone" in elem.attrib and elem.attrib.get( "showNone" ).lower() == "false":
+                            showNone = False
+                        if "imageBrowse" in elem.attrib and elem.attrib.get( "imageBrowse" ).lower() == "true":
+                            imageBrowse = True
+
+
                 # Create lists for the select dialog
-                property = [""]
-                propertyLabel = ["None"]
+                property = []
+                propertyLabel = []
+
+                if showNone:
+                    # Add a 'None' option to the list
+                    property.append( "" )
+                    propertyLabel.append( __language__(32053) )
+                if imageBrowse:
+                    # Add browse single/multi options to the list
+                    property.extend( [ "", "" ] )
+                    propertyLabel.extend( [ __language__(32051), __language__(32052) ] )
                 
                 # Get all the skin-defined properties
-                tree = DATA._get_overrides_skin()
                 for elem in tree.findall( "property" ):
                     if "property" in elem.attrib and elem.attrib.get( "property" ) == propertyName:
+                        if "condition" in elem.attrib and not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                            continue
                         foundProperty = elem.text
                         property.append( foundProperty )
-                        propertyLabel.append( DATA.local( foundProperty )[2] )
+                        if "label" in elem.attrib:
+                            labelValue = elem.attrib.get( "label" )
+                            if labelValue.startswith( "$INFO" ) or labelValue.startswith( "$VAR" ):
+                                propertyLabel.append( xbmc.getInfoLabel( labelValue ) )
+                            else:
+                                propertyLabel.append( DATA.local( labelValue )[ 2 ] )
+                        else:
+                            propertyLabel.append( DATA.local( foundProperty )[2] )
                 
                 # Show the dialog
-                selectedProperty = xbmcgui.Dialog().select( "Choose property", propertyLabel )
+                selectedProperty = xbmcgui.Dialog().select( dialogTitle, propertyLabel )
                 
                 if selectedProperty == -1:
                     # User cancelled
                     return
-                elif selectedProperty == 0:
+                elif selectedProperty == 0 and showNone:
                     # User selected no property
                     self.changeMade = True
                     self._remove_additionalproperty( listitem, propertyName )
+                elif ( selectedProperty == 0 and not showNone and imageBrowse ) or ( selectedProperty == 1 and showNone and imageBrowse ):
+                    # User has selected to browse for a single image
+                    browseSingle = True
+                elif ( selectedProperty == 1 and not showNone and imageBrowse ) or ( selectedProperty == 2 and showNone and imageBrowse ):
+                    # User has selected to browse for a multi-image
+                    browseMulti = True
                 else:
                     self.changeMade = True
                     self._add_additionalproperty( listitem, propertyName, property[ selectedProperty ] )
+
+                if browseSingle or browseMulti:
+                    # User has chosen to browse for an image/folder
+                    imagedialog = xbmcgui.Dialog()
+                    if browseSingle: # Single image
+                        custom_image = imagedialog.browse( 2 , xbmc.getLocalizedString(1030), 'files', '', True, False, None )
+                    else: # Multi-image
+                        custom_image = imagedialog.browse( 0 , xbmc.getLocalizedString(1030), 'files', '', True, False, None )
+                    
+                    if custom_image:
+                        self.changeMade = True
+                        self._add_additionalproperty( listitem, propertyName, custom_image )
+                    else:
+                        # User cancelled
+                        return
                 
             else:
-                # The customProperty value needs to be set, so return
+                # The customProperty or chooseProperty window properties needs to be set, so return
                 self.currentWindow.clearProperty( "customValue" )
                 return
             

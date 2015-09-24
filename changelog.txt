@@ -1,6 +1,7 @@
 v0.6.1
 - Template improvements
 - Widget selection improvements
+- Custom property selection improvements
 
 v0.6.0
 - Version bump for Isengard repo.

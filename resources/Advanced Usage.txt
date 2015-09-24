@@ -448,27 +448,43 @@ You can NOT override the labels for user's own defined custom video nodes.
 
 9. Custom shortcut properties
 
-If you are using Skin Shortcuts to set custom properties for shortcuts, you can set defaults for these items:
+You can use skin shortcuts to add a custom property to any shortcut. For setting the property to a specific value, see Management Dialog.txt (button 404). To allow the user to select from a preset range of options, or to allow them to browse an image, you must define the options in your overrides.
+
+<propertySettings property="[Property]" buttonID="[buttonID]" title="[Dialog title]" showNone="[True/False]" imageBrowse="[True/False]" />
+
+[Property] - The property of the shortcut that will be set
+[buttonID] - [Optional] The ID of the button that will be used to set this property. If ommitted, you must use the window property 'chooseProperty' and send a click to 404
+[Dialog title] - [Optional] The title of the dialog that will be shown to the user
+[True/False] - [Optional] A boolean indicating whether a None option will be shown, and whether the user will be able to browse for an image or folder of images
+
+Note:- showNone defaults to True, imageBrowse defaults to False
+
+You can then define multiple options for the user to be able to select from:-
+
+	<property property="[Property]" label="[label]" condition="[condition]">[Property Value]</property>
+
+[Property] - The property of the shortcut that will be set
+[label] - [Optional] The label that will be displayed to the user. If ommitted, the [Property value] will be used.
+[condition] - [Optional] A Kodi boolean condition that must evaluate to True for the property to be shown to the user
+[Property Value] - The default value of the property
+
+You can set a shortcut to have a custom property by default with the propertydefault elements:-
 
 	<propertydefault labelID="[LabelID]" group="[GroupName]" property="[Property]">[Property Value]</propertydefault>
 	
 [labelID] - The labelID you are providing a default for.
 [GroupName] - [Optional] The group that the labelID must be in, for example "movies". If omitted, the property will be apply to items in the main menu.
-[Property] - The string used to identify the property
+[Property] - The property of the shortcut that will be set
 [Property Value] - The default value of the property
 
-If you are using Skin Shortcuts to set these properties, then you must also set the available options:
-
-	<property property="[Property]">[Property Value]</property>
-
-[Property] - The string used to identify the property
-[Property Value] - The default value of the property
+If you haven't specified a buttonID, then to display the options to the user set the window property chooseProperty to the [Property] you want to set, and send a click to 404
 
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
-	<propertydefault labelID="movies" property="description">Browse your movies</propertydefault>
-	<property property="description">Browse you movies</property>
-	<property property="description">31234</property>	
+	<propertySettings property="description" title="Choose a description" showNone="True" imageBrowse="False" />
+	<propertydefault labelID="movies" property="description">browseMovies</propertydefault>
+	<property property="description" label="Browse your movies">browseMovies</property>
+	<property property="description" label="31234">browseTVShows</property>
 </overrides>
 
 

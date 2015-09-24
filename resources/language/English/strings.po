@@ -425,3 +425,7 @@ msgstr ""
 msgctxt "#32100"
 msgid "Use as widget"
 msgstr ""
+
+msgctxt "#32101"
+msgid "Choose property"
+msgstr ""
