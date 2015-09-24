@@ -1034,12 +1034,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
             else:
                 selectedShortcut = LIBRARY.selectShortcut(custom = True, currentAction = listitem.getProperty("path")) 
 
-            if selectedShortcut:
-                if selectedShortcut.getProperty( "chosenPath" ):
-                    action = try_decode( selectedShortcut.getProperty( "chosenPath" ) )
-                elif selectedShortcut.getProperty( "path" ):
-                    action = try_decode(selectedShortcut.getProperty( "path" ))
+            if not selectedShortcut:
+                # User cancelled
+                return
+
+            if selectedShortcut.getProperty( "chosenPath" ):
+                action = try_decode( selectedShortcut.getProperty( "chosenPath" ) )
+            elif selectedShortcut.getProperty( "path" ):
+                action = try_decode(selectedShortcut.getProperty( "path" ))
             
+            if action == "":
+                action = "noop"
+
             if listitem.getProperty( "path" ) == action:
                 return
                 
