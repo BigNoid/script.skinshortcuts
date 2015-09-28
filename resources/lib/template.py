@@ -376,6 +376,11 @@ class Template():
                     properties[ name ] = ""
                 continue
 
+            if tag.lower() == "mainmenuid":
+                # Special case for the ID of the main menu item
+                properties[ name ] = items.attrib.get( "id" )
+                continue
+
             if "attribute" in property.attrib and "value" not in property.attrib:
                 attrib = property.attrib.get( "attribute" ).split( "|" )
             else:
