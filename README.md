@@ -12,6 +12,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 - New <content>addon-program-plugin</content> for groupings and related widget-selection support
 - More options for setting a custom property - [Read More](./resources/docs/advanced/Custom shortcut properties.md#set-options)
 - New 'Just Select Widget' method - [Read More](./resources/docs/advanced/Just Select.md#just-select-widgets)
+- Behaviour change - skin will now ask users to edit widgetName after setting widget. [Read how to prevent](./resources/docs/advanced/Managing widgets.md#prevent-user-editing-widgetname).
 
 #### Version 0.6.0 - repo version
 

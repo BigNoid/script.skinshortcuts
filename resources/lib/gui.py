@@ -65,6 +65,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.backgroundBrowseDefault = None
         self.widgetPlaylists = False
         self.widgetPlaylistsType = None
+        self.widgetRename = True
         
         self.allListItems = []
 
@@ -752,6 +753,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if elem is not None and len(elem.text) > 0:
             self.thumbnailBrowseDefault = elem.text
 
+        # Should we allow the user to rename a widget?
+        elems = tree.find( "widgetRename" )
+        if elem and elem.text.lower() == "false":
+            self.widgetRename = False
+
     def _load_customPropertyButtons( self ):
         # Load a list of addition button IDs we'll handle for setting additional properties
 
@@ -1182,9 +1188,23 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Let user choose widget
             selectedShortcut = LIBRARY.selectShortcut( grouping = "widget", showNone = True )
 
-            if selectedShortcut is not None and selectedShortcut.getProperty( "Path" ):
+            if selectedShortcut is None:
+                # User cancelled
+                return
+
+            if selectedShortcut.getProperty( "Path" ):
+                # User has chosen a widget
+
+                # Let user edit widget title, if they want & skin hasn't disabled it
+                widgetName = selectedShortcut.getProperty( "widgetName" )
+                if self.widgetRename:
+                    keyboard = xbmc.Keyboard( widgetName, xbmc.getLocalizedString(16105), False )
+                    keyboard.doModal()
+                    if ( keyboard.isConfirmed() ) and keyboard.getText != "":
+                        widgetName = keyboard.getText()
+                
                 self._add_additionalproperty( listitem, "widget" + widgetID, selectedShortcut.getProperty( "widget" ) )
-                self._add_additionalproperty( listitem, "widgetName" + widgetID, selectedShortcut.getProperty( "widgetName" ) )
+                self._add_additionalproperty( listitem, "widgetName" + widgetID, widgetName )
                 self._add_additionalproperty( listitem, "widgetType" + widgetID, selectedShortcut.getProperty( "widgetType" ) )
                 self._add_additionalproperty( listitem, "widgetTarget" + widgetID, selectedShortcut.getProperty( "widgetTarget" ) )
                 self._add_additionalproperty( listitem, "widgetPath" + widgetID, selectedShortcut.getProperty( "widgetPath" ) )
@@ -1193,7 +1213,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self.currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 self.changeMade = True
 
-            elif selectedShortcut is not None:
+            else:
+                # User has selected 'None'
                 self._remove_additionalproperty( listitem, "widget" + widgetID )
                 self._remove_additionalproperty( listitem, "widgetName" + widgetID )
                 self._remove_additionalproperty( listitem, "widgetType" + widgetID )
