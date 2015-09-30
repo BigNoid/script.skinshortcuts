@@ -71,6 +71,14 @@ All widget properties for the additional widget will be suffixed with `.[widgetI
 <onclick>SendClick(312)</onclick>
 ```
 
+## Prevent user editing widgetName
+
+By default, when using gui 312 to select a widget, Skin Shortcuts will show a keyboard dialog after the widget has been selected so that the user can edit the widgetName property.
+
+If your skin doesn't show the widgetName property, you can disable this function by including the following in the skins [overrides.xml](./overrides.md) file:-
+
+`<widgetRename>False</widgetRename>`
+
 ## Returned properties
 
 For every widget that is selected, five properties will be added to the menu item. For widgets you have defined, or for defaults set via `<widgetdefaultnode />`, they will be the values you have defined.
