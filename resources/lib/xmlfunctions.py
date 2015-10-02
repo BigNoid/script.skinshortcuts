@@ -337,6 +337,9 @@ class XMLFunctions():
 
             # Clear any previous labelID's
             DATA._clear_labelID()
+
+            # Clear any additional properties, which may be for a different profile
+            DATA.currentProperties = None
             
             # Create objects to hold the items
             menuitems = []

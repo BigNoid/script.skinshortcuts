@@ -176,6 +176,10 @@ Alternatively, the property can be set to $INCLUDE[includeName], in which case t
 	<include>[includeName]</include>
 </content>
 
+You can also retrieve the id of the main menu item and place it into a property:-
+
+<property name="[propertyName]" tag="mainmenuid" />
+
 
 A Simple Example
 ----------------
