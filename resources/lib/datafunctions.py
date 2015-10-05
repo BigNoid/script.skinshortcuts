@@ -521,6 +521,8 @@ class DataFunctions():
 
                             if elemSearch[0] == "widget:node":
                                 # Set all widget properties from the default
+                                if elem.text:
+                                    self.defaultProperties.append( [ "mainmenu", labelID, "widget", elem.attrib.get( "label" ), defaultID ] )
                                 if "label" in elem.attrib:
                                     self.defaultProperties.append( [ "mainmenu", labelID, "widgetName", elem.attrib.get( "label" ), defaultID ] )
                                 if "type" in elem.attrib:
