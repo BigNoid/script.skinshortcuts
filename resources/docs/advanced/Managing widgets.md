@@ -58,6 +58,8 @@ Be careful when setting defaults to library nodes - if the user has customised t
 
 To let the user select a widget, include button 312 in your [Management Dialog](../started/Management Dialog.md).
 
+You can also use the [Just Select](./Just Select.md#just-select-widgets) method to let the user select a widget and save its properties to skin strings.
+
 #### Let the user select additional widgets
 
 You may wish to let the user have more than one widget per menu item. In this case, set the window property `widgetID` to a unique identifier for your additional widget, then send a click to 312.
