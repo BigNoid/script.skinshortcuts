@@ -122,6 +122,59 @@ class Main:
                     xbmc.executebuiltin( "Skin.Reset(" + self.THUMBNAIL + ")" )
                 if self.LIST is not None:
                     xbmc.executebuiltin( "Skin.Reset(" + self.LIST + ")" )
+
+        if self.TYPE=="widgets":
+            # We're just going to choose a widget, and save its details to the given
+            # skin labels
+            
+            if self.GROUPING:
+                if self.GROUPING.lower() == "default":
+                    selectedShortcut = LIBRARY.selectShortcut( "", custom = False, showNone = self.NONE )    
+                else:
+                    selectedShortcut = LIBRARY.selectShortcut( "", grouping = self.GROUPING, custom = False, showNone = self.NONE )
+            else:
+                selectedShortcut = LIBRARY.selectShortcut( "", grouping = "widget", custom = False, showNone = self.NONE )
+            
+            # Now set the skin strings
+            if selectedShortcut is not None and selectedShortcut.getProperty( "Path" ):
+                if self.WIDGET:
+                    if selectedShortcut.getProperty( "widget" ):
+                        xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGET, selectedShortcut.getProperty( "widget" ) ) )
+                    else:
+                        xbmc.executebuiltin( "Skin.Reset(%s)" %( self.WIDGET ) )
+                if self.WIDGETTYPE:
+                    if selectedShortcut.getProperty( "widgetType" ):
+                        xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETTYPE, selectedShortcut.getProperty( "widgetType" ) ) )
+                    else:
+                        xbmc.executebuiltin( "Skin.Reset(%s)" %( self.WIDGETTYPE ) )
+                if self.WIDGETNAME:
+                    if selectedShortcut.getProperty( "widgetName" ):
+                        xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETNAME, selectedShortcut.getProperty( "widgetName" ) ) )
+                    else:
+                        xbmc.executebuiltin( "Skin.Reset(%s)" %( self.WIDGETNAME ) )
+                if self.WIDGETTARGET:
+                    if selectedShortcut.getProperty( "widgetTarget" ):
+                        xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETTARGET, selectedShortcut.getProperty( "widgetTarget" ) ) )
+                    else:
+                        xbmc.executebuiltin( "Skin.Reset(%s)" %( self.WIDGETTARGET ) )
+                if self.WIDGETPATH:
+                    if selectedShortcut.getProperty( "widgetPath" ):
+                        xbmc.executebuiltin( "Skin.SetString(%s,%s)" %( self.WIDGETPATH, urllib.unquote( selectedShortcut.getProperty( "widgetPath" ) ) ) )
+                    else:
+                        xbmc.executebuiltin( "Skin.Reset(%s)" %( self.WIDGETPATH ) )
+
+            elif selectedShortcut is not None and selectedShortcut.getLabel() == "::NONE::":
+                # Clear the skin strings
+                if self.WIDGET is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.WIDGET + ")" )
+                if self.WIDGETTYPE is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.WIDGETTYPE + " )" )
+                if self.WIDGETNAME is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.WIDGETNAME + ")" )
+                if self.WIDGETTARGET is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.WIDGETTARGET + ")" )
+                if self.WIDGETPATH is not None:
+                    xbmc.executebuiltin( "Skin.Reset(" + self.WIDGETPATH + ")" )
                 
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
@@ -162,6 +215,13 @@ class Main:
         self.LIST = params.get( "skinList", None )
         self.CUSTOM = params.get( "custom", "False" )
         self.NONE = params.get( "showNone", "False" )
+
+        self.WIDGET = params.get( "skinWidget", None )
+        self.WIDGETTYPE = params.get( "skinWidgetType", None )
+        self.WIDGETNAME = params.get( "skinWidgetName", None )
+        self.WIDGETTARGET = params.get( "skinWidgetTarget", None )
+        self.WIDGETPATH = params.get( "skinWidgetPath", None )
+
         if self.CUSTOM == "True" or self.CUSTOM == "true":
             self.CUSTOM = True
         else:

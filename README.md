@@ -11,6 +11,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Ability to assign menu item ID to a property when using templates
 - New <content>addon-program-plugin</content> for groupings and related widget-selection support
 - More options for setting a custom property - [Read More](./resources/docs/advanced/Custom shortcut properties.md#set-options)
+- New 'Just Select Widget' method - [Read More](./resources/docs/advanced/Just Select.md#just-select-widgets)
 
 #### Version 0.6.0 - repo version
 
