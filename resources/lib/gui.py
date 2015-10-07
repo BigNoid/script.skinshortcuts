@@ -783,7 +783,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             self._display_shortcuts()
 
-        if controlID == 103:
+        elif controlID == 103:
             # Move to next type of shortcuts
             self.shortcutgroup = self.shortcutgroup + 1
             if self.shortcutgroup > LIBRARY.flatGroupingsCount():
@@ -791,7 +791,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             self._display_shortcuts()
             
-        if controlID == 111:
+        elif controlID == 111:
             # User has selected an available shortcut they want in their menu
             log( "Select shortcut (111)" )
             listControl = self.getControl( 211 )
@@ -866,7 +866,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Display list items
             self._display_listitems( focus = itemIndex )
         
-        if controlID == 301:
+        elif controlID == 301:
             # Add a new item
             log( "Add item (301)" )
             self.changeMade = True
@@ -882,7 +882,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set focus
             listControl.selectItem( listControl.size() -1 )
         
-        if controlID == 302:
+        elif controlID == 302:
             # Delete an item
             log( "Delete item (302)" )
             self.changeMade = True
@@ -902,7 +902,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.allListItems.pop( orderIndex )
             self._display_listitems( num )
             
-        if controlID == 303:
+        elif controlID == 303:
             # Move item up in list
             log( "Move up (303)" )
             listControl = self.getControl( 211 )
@@ -936,7 +936,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Display the updated order
             self._display_listitems( itemIndex - 1 )
             
-        if controlID == 304:
+        elif controlID == 304:
             # Move item down in list
             log( "Move down (304)" )
             listControl = self.getControl( 211 )
@@ -972,7 +972,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Display the updated order
             self._display_listitems( itemIndex + 1 )
 
-        if controlID == 305:
+        elif controlID == 305:
             # Change label
             log( "Change label (305)" )
             listControl = self.getControl( 211 )
@@ -999,7 +999,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.changeMade = True
             self._set_label( listitem, label )
 
-        if controlID == 306:
+        elif controlID == 306:
             # Change thumbnail
             log( "Change thumbnail (306)" )
             listControl = self.getControl( 211 )
@@ -1014,8 +1014,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.changeMade = True
                 listitem.setThumbnailImage( custom_thumbnail )
                 listitem.setProperty( "thumbnail", custom_thumbnail )
+            else:
+                return
             
-        if controlID == 307:
+        elif controlID == 307:
             # Change Action
             log( "Change action (307)" )
             listControl = self.getControl( 211 )
@@ -1064,7 +1066,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setLabel2( __language__(32024) )
             listitem.setProperty( "shortcutType", "32024" )
             
-        if controlID == 308:
+        elif controlID == 308:
             # Reset shortcuts
             log( "Reset shortcuts (308)" )
             self.changeMade = True
@@ -1081,7 +1083,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # previously saved user shortcuts
             self.load_shortcuts( False )
                 
-        if controlID == 309:
+        elif controlID == 309:
             # Choose widget
             log( "Warning: Deprecated control 309 (Choose widget) selected")
             listControl = self.getControl( 211 )
@@ -1160,14 +1162,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         self._set_label( listitem, widgetLabel[selectedWidget].replace( " (%s)" %( __language__(32050) ), "" ) )
                         self.currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 
-                if widgetType[ selectedWidget] is not None:
+                if widgetType[ selectedWidget ] is not None:
                     self._add_additionalproperty( listitem, "widgetType" + widgetID, widgetType[ selectedWidget] )
                 else:
                     self._remove_additionalproperty( listitem, "widgetType" + widgetID )
                 
             self.changeMade = True
 
-        if controlID == 312:
+        elif controlID == 312:
             # Alternative widget select
             log( "Choose widget (312)" )
             listControl = self.getControl( 211 )
@@ -1224,8 +1226,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self._set_label( listitem, selectedShortcut.getProperty( ( "widgetName" ) ) )
                     self.currentWindow.clearProperty( "useWidgetNameAsLabel" )
                 self.changeMade = True
+
+                return
        
-        if controlID == 310:
+        elif controlID == 310:
             # Choose background
             log( "Choose background (310)" )
             listControl = self.getControl( 211 )
@@ -1265,7 +1269,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         virtualImage = key[0].replace("$INFO[","").replace("$VAR[","").replace("]","")
                         virtualImage = xbmc.getInfoLabel(virtualImage)
 
-                    log( repr( defaultBackground ) + " : " + repr( key[ 0 ] ) )
                     if defaultBackground == key[ 0 ]:
                         backgroundLabel.append( key[1] + " (%s)" %( __language__(32050) ) )
                         if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
@@ -1299,6 +1302,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self._remove_additionalproperty( listitem, "backgroundName" )
                 self._remove_additionalproperty( listitem, "backgroundPlaylist" )
                 self._remove_additionalproperty( listitem, "backgroundPlaylistName" )
+                return
 
             elif self.backgroundBrowse == True and (selectedBackground == 1 or selectedBackground == 2):
                 # User has chosen to browse for an image/folder
@@ -1334,7 +1338,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             self.changeMade = True
         
-        if controlID == 311:
+        elif controlID == 311:
             # Choose thumbnail
             log( "Choose thumbnail (311)" )
             listControl = self.getControl( 211 )
@@ -1382,7 +1386,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitem.setProperty( "thumbnail", thumbnail[ selectedThumbnail ] )
             self.changeMade = True
         
-        if controlID == 401:
+        elif controlID == 401:
             # Select shortcut
             log( "Select shortcut (401)" )
             num = self.getControl( 211 ).getSelectedPosition()
@@ -1431,9 +1435,78 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 self.allListItems[ orderIndex ] = listitemCopy
                 self._display_listitems( num )
+            else:
+                return
+
+        elif controlID == 405 or controlID == 406 or controlID == 407 or controlID == 408 or controlID == 409 or controlID == 410:
+            # Launch management dialog for submenu
+            if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-loading" ):
+                return
+
+            log( "Launching management dialog for submenu/additional menu (" + str( controlID ) + ")" )
+            
+            # Get the group we're about to edit
+            launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
+            launchDefaultGroup = self.getControl( 211 ).getSelectedItem().getProperty( "defaultID" )
+            groupName = self.getControl( 211 ).getSelectedItem().getLabel()
+            
+            if launchDefaultGroup == None:
+                launchDefaultGroup = ""
+                            
+            # If the labelID property is empty, we need to generate one
+            if launchGroup is None or launchGroup == "":
+                DATA._clear_labelID()
+                num = self.getControl( 211 ).getSelectedPosition()
+                orderIndex = self.getControl( 211 ).getListItem( num )
+                
+                # Get the labelID's of all other menu items
+                for listitem in self.allListItems:
+                    if listitem != orderIndex:
+                        DATA._get_labelID( listitem.getProperty( "labelID" ), listitem.getProperty( "path" ) )
+                
+                # Now generate labelID for this menu item, if it doesn't have one
+                labelID = self.getControl( 211 ).getListItem( num ).getProperty( "localizedString" )
+                if labelID is None or labelID == "":
+                    launchGroup = DATA._get_labelID( self.getControl( 211 ).getListItem( num ).getLabel(), self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
+                else:
+                    launchGroup = DATA._get_labelID( labelID, self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
+                self.getControl( 211 ).getListItem( num ).setProperty( "labelID", launchGroup )                                        
+            
+            # Check if we're launching a specific additional menu
+            if controlID == 406:
+                launchGroup = launchGroup + ".1"
+            elif controlID == 407:
+                launchGroup = launchGroup + ".2"
+            elif controlID == 408:
+                launchGroup = launchGroup + ".3"
+            elif controlID == 409:
+                launchGroup = launchGroup + ".4"
+            elif controlID == 410:
+                launchGroup = launchGroup + ".5"
+            # Check if 'level' property has been set
+            elif self.currentWindow.getProperty("level"):
+                launchGroup = launchGroup + "." + self.currentWindow.getProperty("level")
+                self.currentWindow.clearProperty("level")
+                
+            # Check if 'groupname' property has been set
+            if self.currentWindow.getProperty( "overrideName" ):
+                groupName = self.currentWindow.getProperty( "overrideName" )
+                self.currentWindow.clearProperty( "overrideName" )
+                
+            # Execute the script
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-loading", "True" )
+            self.currentWindow.setProperty( "additionalDialog", "True" )
+            import gui
+            ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=launchGroup, defaultGroup=launchDefaultGroup, nolabels=self.nolabels, groupname=groupName )
+            ui.doModal()
+            del ui
+            self.currentWindow.clearProperty( "additionalDialog" )
+
                     
         if controlID == 404 or controlID in self.customPropertyButtons:
             # Set custom property
+            # We do this last so that, if the skinner has specified a default Skin Shortcuts control is used to set the
+            # property, that is completed before we get here.
             log( "Setting custom property (%s)" %( str( controlID ) ) )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
@@ -1558,69 +1631,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.currentWindow.clearProperty( "customValue" )
                 return
             
-        if controlID == 405 or controlID == 406 or controlID == 407 or controlID == 408 or controlID == 409 or controlID == 410:
-            # Launch management dialog for submenu
-            if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-loading" ):
-                return
-
-            log( "Launching management dialog for submenu/additional menu (" + str( controlID ) + ")" )
-            
-            # Get the group we're about to edit
-            launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
-            launchDefaultGroup = self.getControl( 211 ).getSelectedItem().getProperty( "defaultID" )
-            groupName = self.getControl( 211 ).getSelectedItem().getLabel()
-            
-            if launchDefaultGroup == None:
-                launchDefaultGroup = ""
-                            
-            # If the labelID property is empty, we need to generate one
-            if launchGroup is None or launchGroup == "":
-                DATA._clear_labelID()
-                num = self.getControl( 211 ).getSelectedPosition()
-                orderIndex = self.getControl( 211 ).getListItem( num )
-                
-                # Get the labelID's of all other menu items
-                for listitem in self.allListItems:
-                    if listitem != orderIndex:
-                        DATA._get_labelID( listitem.getProperty( "labelID" ), listitem.getProperty( "path" ) )
-                
-                # Now generate labelID for this menu item, if it doesn't have one
-                labelID = self.getControl( 211 ).getListItem( num ).getProperty( "localizedString" )
-                if labelID is None or labelID == "":
-                    launchGroup = DATA._get_labelID( self.getControl( 211 ).getListItem( num ).getLabel(), self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
-                else:
-                    launchGroup = DATA._get_labelID( labelID, self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
-                self.getControl( 211 ).getListItem( num ).setProperty( "labelID", launchGroup )                                        
-            
-            # Check if we're launching a specific additional menu
-            if controlID == 406:
-                launchGroup = launchGroup + ".1"
-            elif controlID == 407:
-                launchGroup = launchGroup + ".2"
-            elif controlID == 408:
-                launchGroup = launchGroup + ".3"
-            elif controlID == 409:
-                launchGroup = launchGroup + ".4"
-            elif controlID == 410:
-                launchGroup = launchGroup + ".5"
-            # Check if 'level' property has been set
-            elif self.currentWindow.getProperty("level"):
-                launchGroup = launchGroup + "." + self.currentWindow.getProperty("level")
-                self.currentWindow.clearProperty("level")
-                
-            # Check if 'groupname' property has been set
-            if self.currentWindow.getProperty( "overrideName" ):
-                groupName = self.currentWindow.getProperty( "overrideName" )
-                self.currentWindow.clearProperty( "overrideName" )
-                
-            # Execute the script
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-loading", "True" )
-            self.currentWindow.setProperty( "additionalDialog", "True" )
-            import gui
-            ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=launchGroup, defaultGroup=launchDefaultGroup, nolabels=self.nolabels, groupname=groupName )
-            ui.doModal()
-            del ui
-            self.currentWindow.clearProperty( "additionalDialog" )
 
 
 
