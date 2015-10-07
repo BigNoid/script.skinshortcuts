@@ -5,6 +5,7 @@ v0.6.1
 - Fix properties being applied to wrong profile
 - Just Select Widget method
 - [aqab0N] Unicode fix
+- Ability to restore deleted shortcut via 308
 
 v0.6.0
 - Version bump for Isengard repo.

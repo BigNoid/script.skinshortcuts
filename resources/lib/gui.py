@@ -1065,19 +1065,73 @@ class GUI( xbmcgui.WindowXMLDialog ):
         elif controlID == 308:
             # Reset shortcuts
             log( "Reset shortcuts (308)" )
-            self.changeMade = True
-            
-            # Delete any auto-generated source playlists
-            for x in range(0, self.getControl( 211 ).size()):
-                LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
 
-            self.getControl( 211 ).reset()
+            # Ask the user if they want to restore a shortcut, or reset to skin defaults
+            response = xbmcgui.Dialog().select( __language__(32102), [ __language__(32103), __language__(32104) ] )
             
-            self.allListItems = []
-            
-            # Call the load shortcuts function, but add that we don't want
-            # previously saved user shortcuts
-            self.load_shortcuts( False )
+            if response == -1:
+                # User cancelled
+                return
+
+            elif response == 0:
+                # We're going to restore a particular shortcut
+                restorePretty = []
+                restoreItems = []
+
+                # Save the labelID list from DATA
+                originalLabelIDList = DATA.labelIDList
+                DATA.labelIDList = []
+
+                # Get a list of all shortcuts that were originally in the menu and restore labelIDList
+                DATA._clear_labelID()
+                shortcuts = DATA._get_shortcuts( self.group, defaultGroup = self.defaultGroup, defaultsOnly = True )
+                DATA.labelIDList = originalLabelIDList
+
+                for shortcut in shortcuts.getroot().findall( "shortcut" ):
+                    # Parse the shortcut
+                    item = self._parse_shortcut( shortcut )
+
+                    # Check if a shortcuts labelID is already in the list
+                    if item[1].getProperty( "labelID" ) not in DATA.labelIDList:
+                        restorePretty.append( LIBRARY._create(["", item[ 1 ].getLabel(), item[1].getLabel2(), { "icon": item[1].getProperty( "icon" ) }] ) )
+                        restoreItems.append( item[1] )
+
+                if len( restoreItems ) == 0:
+                    xbmcgui.Dialog().ok( __language__(32103), __language__(32105) )
+                    return
+
+                # Let the user select a shortcut to restore
+                w = library.ShowDialog( "DialogSelect.xml", __cwd__, listing=restorePretty, windowtitle=__language__(32103) )
+                w.doModal()
+                restoreShortcut = w.result
+                del w
+
+                if restoreShortcut == -1:
+                    # User cancelled
+                    return
+
+                # We now have our shortcut to return. Add it to self.allListItems and labelID list
+                self.allListItems.append( restoreItems[ restoreShortcut ] )
+                DATA.labelIDList.append( restoreItems[ restoreShortcut ].getProperty( "labelID" ) )
+
+                self.changeMade = True
+                self._display_listitems()
+
+            else:
+                # We're going to reset all the shortcuts
+                self.changeMade = True
+                
+                # Delete any auto-generated source playlists
+                for x in range(0, self.getControl( 211 ).size()):
+                    LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
+
+                self.getControl( 211 ).reset()
+                
+                self.allListItems = []
+                
+                # Call the load shortcuts function, but add that we don't want
+                # previously saved user shortcuts
+                self.load_shortcuts( False )
                 
         elif controlID == 309:
             # Choose widget
