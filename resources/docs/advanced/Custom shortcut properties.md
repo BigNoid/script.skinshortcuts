@@ -65,4 +65,10 @@ If using a `<propertySettings />` you can define the ID of the button that will 
 
 Otherwise, you need to include button 404 in your Management Dialog, then set the window property `chooseProperty` to the `[Property]` you want to set, and send a click to 404.
 
+## Notes
+
+When using `<propertySettings />`, it's possible to set the `buttonID` to the same ID as one of the inbuilt control ID's used by Skin Shortcuts Management Dialog.
+
+In this case, the property select dialog will be shown to the user after the normal action associated with that button has completed. However, the property select dialog will *not* show if the user cancels, or if they select a 'None' option provided by the default control.
+
 ***Quick links*** - [Readme](../../../README.md) - [Getting Started](../started/Getting Started.md) - [Advanced Usage](./Advanced Usage.md)
