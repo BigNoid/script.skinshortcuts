@@ -364,12 +364,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         return [ isVisible, listitem ]
 
-    def _get_icon_overrides( self, listitem, setToDefault = True ):
+    def _get_icon_overrides( self, listitem, setToDefault = True, labelID = None ):
         # Start by getting the labelID
-        labelID = listitem.getProperty( "localizedString" )
-        if labelID == None or labelID == "":
-            labelID = listitem.getLabel()
-        labelID = DATA._get_labelID( labelID, listitem.getProperty( "path" ) )
+        if not labelID:
+            labelID = listitem.getProperty( "localizedString" )
+            if labelID == None or labelID == "":
+                labelID = listitem.getLabel()
+            labelID = DATA._get_labelID( labelID, listitem.getProperty( "path" ) )
         
         # Retrieve icon
         icon = listitem.getProperty( "icon" )
@@ -421,7 +422,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if setDefault == True and setToDefault == True:
             # We set this to the default icon, so we need to check if /that/ icon is overriden
-            self._get_icon_overrides( listitem, False )
+            self._get_icon_overrides( listitem, False, labelID )
         
     def _save_shortcuts( self, weEnabledSystemDebug = False, weEnabledScriptDebug = False ):
         # Entry point to save shortcuts - we will call the _save_shortcuts_function and, if it
