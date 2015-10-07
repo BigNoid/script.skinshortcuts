@@ -15,6 +15,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Behaviour change - skin will now ask users to edit widgetName after setting widget. [Read how to prevent](./resources/docs/advanced/Managing widgets.md#prevent-user-editing-widgetname)
 - Ability to use a Management Dialog buttonID to set custom property. [Read More](./resources/docs/advanced/Custom shortcut properties.md#notes)
 - Label change - GUI 308's label (32028) has changed from "Reset shortcuts" to "Restore shortcuts" to highlight additional functionality
+- Remove requirement to include an `<action>` element and the `group=` attribute in a global action override.
 
 #### Version 0.6.0 - repo version
 
