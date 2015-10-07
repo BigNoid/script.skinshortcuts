@@ -4,6 +4,7 @@ v0.6.1
 - Custom property selection improvements
 - Fix properties being applied to wrong profile
 - Just Select Widget method
+- [aqab0N] Unicode fix
 
 v0.6.0
 - Version bump for Isengard repo.
