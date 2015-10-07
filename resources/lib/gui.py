@@ -7,6 +7,8 @@ from xml.sax.saxutils import escape as escapeXML
 import thread
 from traceback import print_exc
 from unicodeutils import try_decode
+import calendar
+from time import gmtime, strftime
 import random
 
 import datafunctions
@@ -1490,10 +1492,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         elif controlID == 405 or controlID == 406 or controlID == 407 or controlID == 408 or controlID == 409 or controlID == 410:
             # Launch management dialog for submenu
-            if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-loading" ):
+            if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-loading" ) and int( calendar.timegm( gmtime() ) ) - int( xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-loading" ) ) <= 5:
                 return
 
             log( "Launching management dialog for submenu/additional menu (" + str( controlID ) + ")" )
+            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-loading", str( calendar.timegm( gmtime() ) ) )
             
             # Get the group we're about to edit
             launchGroup = self.getControl( 211 ).getSelectedItem().getProperty( "labelID" )
@@ -1544,7 +1547,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.currentWindow.clearProperty( "overrideName" )
                 
             # Execute the script
-            xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-loading", "True" )
             self.currentWindow.setProperty( "additionalDialog", "True" )
             import gui
             ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=launchGroup, defaultGroup=launchDefaultGroup, nolabels=self.nolabels, groupname=groupName )
