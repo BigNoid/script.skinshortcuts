@@ -506,8 +506,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             for listitem in self.allListItems:
                 
-                # If the item has a label...
-                if try_decode( listitem.getLabel() ) != __language__(32013):
+                # If the item has a label or an action...
+                if try_decode( listitem.getLabel() ) != __language__(32013) or listitem.getProperty( "path" ) != "noop":
                     # Generate labelID, and mark if it has changed
                     labelID = listitem.getProperty( "labelID" )
                     newlabelID = labelID
@@ -1022,11 +1022,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             log( "Change action (307)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
-
-            # If no label, redirect click to 401 (Select Shortcut)
-            if try_decode( listitem.getLabel() ) == __language__(32013):
-                self.onClick( 401 )
-                return
             
             if self.warnonremoval( listitem ) == False:
                 return
