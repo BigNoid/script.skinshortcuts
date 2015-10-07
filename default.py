@@ -7,6 +7,7 @@ import cProfile
 import pstats
 import random
 import time
+import calendar
 from time import gmtime, strftime
 from datetime import datetime
 from traceback import print_exc
@@ -50,7 +51,7 @@ class Main:
     # MAIN ENTRY POINT
     def __init__(self):
         self._parse_argv()
-        self.WINDOW = xbmcgui.Window(10000)    
+        self.WINDOW = xbmcgui.Window(10000)
         
         # Create data and master paths if not exists
         if not xbmcvfs.exists(__datapath__):
@@ -257,10 +258,10 @@ class Main:
     
     def _manage_shortcuts( self, group, defaultGroup, nolabels, groupname ):
         homeWindow = xbmcgui.Window( 10000 )
-        if homeWindow.getProperty( "skinshortcuts-loading" ):
+        if homeWindow.getProperty( "skinshortcuts-loading" ) and int( calendar.timegm( gmtime() ) ) - int( homeWindow.getProperty( "skinshortcuts-loading" ) ) <= 5:
             return
 
-        homeWindow.setProperty( "skinshortcuts-loading", "True" )
+        homeWindow.setProperty( "skinshortcuts-loading", str( calendar.timegm( gmtime() ) ) )
         import gui
         ui= gui.GUI( "script-skinshortcuts.xml", __cwd__, "default", group=group, defaultGroup=defaultGroup, nolabels=nolabels, groupname=groupname )
         ui.doModal()
