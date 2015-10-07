@@ -18,12 +18,13 @@ To set the property to a specific value, include button 404 in your [Management 
 
 The available options the user will be able to choose from are defined in the skins [overrides.xml](./overrides.md) file.
 
-`<property property="[Property]" label="[label]" condition="[condition]">[Property Value]</property>`
+`<property property="[Property]" label="[label]" icon="[icon]" condition="[condition]">[Property Value]</property>`
 
 | Property | Optional | Description |
 | :------: | :------: | ----------- |
 | `[Property]` | | The property of the shortcut that will be set |
 | `[label]` | Yes | The label that will be displayed to the user. If ommitted, the [Property value] will be used. |
+| `[icon]` | Yes | The icon that will be displayed to the user |
 | `[condition]` | Yes | A Kodi boolean condition that must evaluate to True for the property to be shown to the user |
 | `[Property Value]` | | The value that will be set to the property |
 
