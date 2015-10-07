@@ -1508,6 +1508,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             propertyName = ""
             propertyValue = ""
+
+            usePrettyDialog = False
             
             # Retrieve the custom property
             if self.currentWindow.getProperty( "customProperty" ):
@@ -1560,15 +1562,18 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Create lists for the select dialog
                 property = []
                 propertyLabel = []
+                propertyPretty = []
 
                 if showNone:
                     # Add a 'None' option to the list
                     property.append( "" )
                     propertyLabel.append( __language__(32053) )
+                    propertyPretty.append( LIBRARY._create(["", __language__(32053), "", { "icon": "DefaultAddonNone.png" }] ) )
                 if imageBrowse:
                     # Add browse single/multi options to the list
                     property.extend( [ "", "" ] )
                     propertyLabel.extend( [ __language__(32051), __language__(32052) ] )
+                    propertyPretty.extend( [ LIBRARY._create(["", __language__(32051), "", { "icon": "DefaultFile.png" }] ), LIBRARY._create(["", __language__(32052), "", { "icon": "DefaultFolder.png" }] ) ] )
                 
                 # Get all the skin-defined properties
                 for elem in tree.findall( "property" ):
@@ -1577,17 +1582,32 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             continue
                         foundProperty = elem.text
                         property.append( foundProperty )
+                        if "icon" in elem.attrib:
+                            usePrettyDialog = True
+                            iconImage = { "icon": elem.attrib.get( "icon" ) }
+                        else:
+                            iconImage = {}
+
                         if "label" in elem.attrib:
                             labelValue = elem.attrib.get( "label" )
                             if labelValue.startswith( "$INFO" ) or labelValue.startswith( "$VAR" ):
                                 propertyLabel.append( xbmc.getInfoLabel( labelValue ) )
+                                propertyPretty.append( LIBRARY._create( [ "", xbmcgui.getInfoLabel( labelValue ), "", iconImage ] ) )
                             else:
                                 propertyLabel.append( DATA.local( labelValue )[ 2 ] )
+                                propertyPretty.append( LIBRARY._create( [ "", labelValue, "", iconImage ] ) )
                         else:
                             propertyLabel.append( DATA.local( foundProperty )[2] )
+                            propertyPretty.append( LIBRARY._create( [ "", foundProperty, "", iconImage ] ) )
                 
                 # Show the dialog
-                selectedProperty = xbmcgui.Dialog().select( dialogTitle, propertyLabel )
+                if usePrettyDialog:
+                    w = library.ShowDialog( "DialogSelect.xml", __cwd__, listing=propertyPretty, windowtitle=dialogTitle )
+                    w.doModal()
+                    selectedProperty = w.result
+                    del w
+                else:
+                    selectedProperty = xbmcgui.Dialog().select( dialogTitle, propertyLabel )
                 
                 if selectedProperty == -1:
                     # User cancelled
