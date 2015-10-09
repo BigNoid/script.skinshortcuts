@@ -50,6 +50,14 @@ For example:
 The above example changes the action to focus the submenu if the skinsetting OpenSubMenuOnClick is true.
 If the OpenSubMenuOnClick setting is false it will use the default action for the shortcut.
 
+#### Notes
+
+If you do not specify a `group=` element, the override will be applied to all shortcuts in all menus.
+
+If you do not specify an `<action>` element, the original action will be run.
+
+You can include multiple `<action>` elements. If you want to run the original command as one of them, use `<action>::ACTION::</action>`.
+
 ## Add a supplemental action to all shortcuts in a menu.
 
 It is possible to supply an additional onclick action for all shortcuts in the list.
