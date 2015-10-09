@@ -4,7 +4,7 @@ Skin Shortcuts has the ability to build the entire menu - main menu and submenus
 
 #### Adjust the build line
 
-First, you need to tell Skin Shortcuts to build the vertical menu include, by adding `&amp;mode=single` to the build line.
+First, you need to tell Skin Shortcuts to build the vertical menu include, by adding `&amp;mode=buildsingle`
 
 #### Include the vertical menu
 
