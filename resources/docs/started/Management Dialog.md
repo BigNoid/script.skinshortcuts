@@ -26,7 +26,7 @@ Where [groupname] is the identified of the menu you wish to edit. To edit the ma
 | 305 | Button | 32025 | Change shortcut label |
 | 306 | Button | 32026 | Browse for thumbnail |
 | 307 | Button | 32027 | Change shortcut action |
-| 308 | Button | 32028 | Reset shortcuts |
+| 308 | Button | 32028 | Restore shortcuts |
 | 310 | Button | 32045 | Change background |
 | 311 | Button | | Select skin-provided thumbnail |
 | 312 | Button | 32044 | Change widget (See "Advanced Usage") |

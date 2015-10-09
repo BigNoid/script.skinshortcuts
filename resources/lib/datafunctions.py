@@ -263,7 +263,7 @@ class DataFunctions():
 
                             # If the action and (if provided) the group match...
                             # OR if we have a global override specified
-                            if (elem.attrib.get( "action" ) == action.text and (checkGroup == None or checkGroup == group)) or (elem.attrib.get( "action" ) == "globaloverride" and checkGroup == group):
+                            if ( elem.attrib.get( "action" ) == action.text and ( checkGroup is None or checkGroup == group ) ) or ( elem.attrib.get( "action" ) == "globaloverride" and ( checkGroup is None or checkGroup == group ) ):
                                 # Check the XBMC version matches
                                 if "version" in elem.attrib:
                                     if elem.attrib.get( "version" ) != __xbmcversion__:
@@ -285,14 +285,11 @@ class DataFunctions():
                                         newaction.text = actions.text
                                     if overrideVisibility is not None:
                                         newaction.set( "condition", overrideVisibility )
-                                        
-                                # If there's no action, and there is a visibility condition
+
+                                # Add visibility if no action specified
                                 if len( elem.findall( "action" ) ) == 0:
                                     newaction = xmltree.SubElement( node, "override-action" )
-                                    if actions.text == "::ACTION::":
-                                        newaction.text = action.text
-                                    else:
-                                        newaction.text = actions.text
+                                    newaction.text = action.text
                                     if overrideVisibility is not None:
                                         newaction.set( "condition", overrideVisibility )
                        
