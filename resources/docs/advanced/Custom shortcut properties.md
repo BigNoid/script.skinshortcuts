@@ -18,13 +18,12 @@ To set the property to a specific value, include button 404 in your [Management 
 
 The available options the user will be able to choose from are defined in the skins [overrides.xml](./overrides.md) file.
 
-`<property property="[Property]" label="[label]" icon="[icon]" condition="[condition]">[Property Value]</property>`
+`<property property="[Property]" label="[label]" condition="[condition]">[Property Value]</property>`
 
 | Property | Optional | Description |
 | :------: | :------: | ----------- |
 | `[Property]` | | The property of the shortcut that will be set |
 | `[label]` | Yes | The label that will be displayed to the user. If ommitted, the [Property value] will be used. |
-| `[icon]` | Yes | The icon that will be displayed to the user |
 | `[condition]` | Yes | A Kodi boolean condition that must evaluate to True for the property to be shown to the user |
 | `[Property Value]` | | The value that will be set to the property |
 
@@ -65,11 +64,5 @@ These will be applied when the user first switches to your skin, or when they re
 If using a `<propertySettings />` you can define the ID of the button that will allow the user to select the custom property. Just include a button with the ID you specify in your Management Dialog..
 
 Otherwise, you need to include button 404 in your Management Dialog, then set the window property `chooseProperty` to the `[Property]` you want to set, and send a click to 404.
-
-## Notes
-
-When using `<propertySettings />`, it's possible to set the `buttonID` to the same ID as one of the inbuilt control ID's used by Skin Shortcuts Management Dialog.
-
-In this case, the property select dialog will be shown to the user after the normal action associated with that button has completed. However, the property select dialog will *not* show if the user cancels, or if they select a 'None' option provided by the default control.
 
 ***Quick links*** - [Readme](../../../README.md) - [Getting Started](../started/Getting Started.md) - [Advanced Usage](./Advanced Usage.md)
