@@ -287,9 +287,9 @@ class DataFunctions():
                                         newaction.set( "condition", overrideVisibility )
 
                                 # Add visibility if no action specified
-                                if len( actions ) == 0:
+                                if len( elem.findall( "action" ) ) == 0:
                                     newaction = xmltree.SubElement( node, "override-action" )
-                                    newaction.text == action.text
+                                    newaction.text = action.text
                                     if overrideVisibility is not None:
                                         newaction.set( "condition", overrideVisibility )
                        
