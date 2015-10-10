@@ -1252,6 +1252,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Let user edit widget title, if they want & skin hasn't disabled it
                 widgetName = selectedShortcut.getProperty( "widgetName" )
                 if self.widgetRename:
+                    if widgetName.startswith("$"): widgetName = xbmc.getInfoLabel(widgetName)
                     keyboard = xbmc.Keyboard( widgetName, xbmc.getLocalizedString(16105), False )
                     keyboard.doModal()
                     if ( keyboard.isConfirmed() ) and keyboard.getText != "":
