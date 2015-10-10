@@ -46,7 +46,7 @@ To let the user select a background, include button 310 in your [Management Dial
 
 ## Set submenu background to mainmenu background
 
-It may be advantageous for your submenu items to have the same background property as your main menu items. In which case, include `&amp;options=clonebackgrounds` in your build command.
+It may be advantageous for your submenu items to have the same background property as your main menu items. In which case, include `&amp;options=clonebackgrounds` in your build command. If you want to clone *all* the properties from the main menu item, use `&amp;options=cloneproperties`
 
 Multiple options can be separated with a pipe - | - symbol.
 

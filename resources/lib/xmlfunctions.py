@@ -37,6 +37,7 @@ class XMLFunctions():
     def __init__(self):
         self.MAINWIDGET = {}
         self.MAINBACKGROUND = {}
+        self.MAINPROPERTIES = {}
         self.hasSettings = False
         self.widgetCount = 1
 
@@ -611,6 +612,12 @@ class XMLFunctions():
         defaultID = xmltree.SubElement( newelement, "property" )
         defaultID.text = item.find( "defaultID" ).text
         defaultID.set( "name", "defaultID" )
+
+        # Clear cloned options if main menu
+        if groupName == "mainmenu":
+            self.MAINWIDGET = {}
+            self.MAINBACKGROUND = {}
+            self.MAINPROPERTIES = {}
         
         # Additional properties
         properties = eval( item.find( "additional-properties" ).text )
@@ -638,14 +645,18 @@ class XMLFunctions():
                         except UnicodeEncodeError:							
                             xbmc.executebuiltin( "Skin.SetBool(skinshortcuts-background-" + property[1].encode('utf-8') + ")" )
                         
-                    # If this is the main menu, and we're cloning widgets or backgrounds...
+                    # If this is the main menu, and we're cloning widgets, backgrounds or properties...
                     if groupName == "mainmenu":
                         if "clonewidgets" in options:
-                            if property[0] == "widget" or property[0] == "widgetName" or property[0] == "widgetType" or property[0] == "widgetPlaylist":
+                            widgetProperties = [ "widget", "widgetName", "widgetType", "widgetTarget", "widgetPath", "widgetPlaylist" ]
+                            if property[0] in widgetProperties:
                                 self.MAINWIDGET[ property[0] ] = property[1]
                         if "clonebackgrounds" in options:
-                            if property[0] == "background" or property[0] == "backgroundName" or property[0] == "backgroundPlaylist" or property[0] == "backgroundPlaylistName":
+                            backgroundProperties = [ "background", "backgroundName", "backgroundPlaylist", "backgroundPlaylistName" ]
+                            if property[0] in backgroundProperties:
                                 self.MAINBACKGROUND[ property[0] ] = property[1]
+                        if "cloneproperties" in options:
+                            self.MAINPROPERTIES[ property[0] ] = property[1]
 
                     # For backwards compatibility, save widgetPlaylist as widgetPath too
                     if property[ 0 ] == "widgetPlaylist":
@@ -757,10 +768,6 @@ class XMLFunctions():
         group = xmltree.SubElement( newelement, "property" )
         group.set( "name", "group" )
         group.text = try_decode( groupName )
-
-        if groupName == "mainmenu":
-            self.MAINWIDGET = {}
-            self.MAINBACKGROUND = {}
         
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
         if groupName != "mainmenu":
@@ -774,6 +781,11 @@ class XMLFunctions():
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
                     additionalproperty.text = DATA.local( self.MAINBACKGROUND[ key ] )[1]
+            if "cloneproperties" in options and len( self.MAINPROPERTIES ) is not 0:
+                for key in self.MAINPROPERTIES:
+                    additionalproperty = xmltree.SubElement( newelement, "property" )
+                    additionalproperty.set( "name", key )
+                    additionalproperty.text = DATA.local( self.MAINPROPERTIES[ key ] )[1]
 
         propertyPatterns = self.getPropertyPatterns(labelID.text, groupName)
         if len(propertyPatterns) > 0:
