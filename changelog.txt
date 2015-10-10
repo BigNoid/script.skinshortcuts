@@ -1,4 +1,4 @@
-v0.6.2
+v0.6.3
 - Template improvements
 - Widget selection improvements
 - Custom property selection improvements
@@ -7,6 +7,7 @@ v0.6.2
 - [aqab0N] Unicode fix
 - Ability to restore deleted shortcut via 308
 - Global override adjustments
+- Fix clonebackground/clonewidgets; add cloneproperties
 
 v0.6.0
 - Version bump for Isengard repo.

@@ -71,6 +71,14 @@ All widget properties for the additional widget will be suffixed with `.[widgetI
 <onclick>SendClick(312)</onclick>
 ```
 
+## Set submenu widget to mainmenu widget
+
+It may be advantageous for your submenu items to have the same widget properties as your main menu items. In which case, include `&amp;options=clonewidgets` in your build command. Please note, this will only clone the default widget, not any additional widgets you define.
+
+If you want to clone *all* the properties from the main menu item, use `&amp;options=cloneproperties`
+
+Multiple options can be separated with a pipe - | - symbol.
+
 ## Prevent user editing widgetName
 
 By default, when using gui 312 to select a widget, Skin Shortcuts will show a keyboard dialog after the widget has been selected so that the user can edit the widgetName property.
