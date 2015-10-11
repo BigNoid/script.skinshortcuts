@@ -1092,6 +1092,7 @@ class LibraryFunctions():
             paths = [['special://videoplaylists/','32004','VideoLibrary'], ['special://musicplaylists/','32005','MusicLibrary'], ["special://skin/playlists/",'32059',None], ["special://skin/extras/",'32059',None]]
             for path in paths:
                 count = 0
+                if not xbmcvfs.exists(path[0]): continue
                 for root, subdirs, files in kodiwalk( path[0], stringForce = "special://skin/" ):
                     for file in files:
                         playlist = file['path']
