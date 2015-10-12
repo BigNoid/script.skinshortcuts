@@ -45,7 +45,7 @@ class XMLFunctions():
         
         self.checkForShorctcuts = []
         
-    def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options, weEnabledSystemDebug = False, weEnabledScriptDebug = False ): 
+    def buildMenu( self, mainmenuID, groups, numLevels, buildMode, options, minitems, weEnabledSystemDebug = False, weEnabledScriptDebug = False ): 
         # Entry point for building includes.xml files
         if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-isrunning" ) == "True":
             return
@@ -90,7 +90,7 @@ class XMLFunctions():
         
         # Write the menus
         try:
-            self.writexml( profilelist, mainmenuID, groups, numLevels, buildMode, progress, options )
+            self.writexml( profilelist, mainmenuID, groups, numLevels, buildMode, progress, options, minitems )
             complete = True
         except:
             log( "Failed to write menu" )
@@ -146,7 +146,7 @@ class XMLFunctions():
                     
                 if enabledSystemDebug or enabledScriptDebug:
                     # We enabled one or more of the debug options, re-run this function
-                    self.buildMenu( mainmenuID, groups, numLevels, buildMode, options, enabledSystemDebug, enabledScriptDebug )
+                    self.buildMenu( mainmenuID, groups, numLevels, buildMode, options, minitems, enabledSystemDebug, enabledScriptDebug )
                 else:
                     # Offer to upload a debug log
                     if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
@@ -270,7 +270,7 @@ class XMLFunctions():
         return False
 
 
-    def writexml( self, profilelist, mainmenuID, groups, numLevels, buildMode, progress, options ): 
+    def writexml( self, profilelist, mainmenuID, groups, numLevels, buildMode, progress, options, minitems ): 
         # Reset the hashlist, add the profile list and script version
         hashlist.list = []
         hashlist.list.append( ["::PROFILELIST::", profilelist] )
@@ -349,11 +349,13 @@ class XMLFunctions():
             templateMainMenuItems = xmltree.Element( "includes" )
             
             # If building the main menu, split the mainmenu shortcut nodes into the menuitems list
+            fullMenu = False
             if groups == "" or groups.split( "|" )[0] == "mainmenu":
                 # Set a skinstring that marks that we're providing the whole menu
                 xbmc.executebuiltin( "Skin.SetBool(SkinShortcuts-FullMenu)" )
                 for node in DATA._get_shortcuts( "mainmenu", None, True, profile[0] ).findall( "shortcut" ):
                     menuitems.append( node )
+                fullMenu = True
             else:
                 # Clear any skinstring marking that we're providing the whole menu
                 xbmc.executebuiltin( "Skin.Reset(SkinShortcuts-FullMenu)" )
@@ -543,7 +545,19 @@ class XMLFunctions():
 
             # Build the template for the main menu
             Template.parseItems( "mainmenu", 0, templateMainMenuItems, profile[ 2 ], profile[ 1 ], "", "", mainmenuID )
-                    
+
+            # If we haven't built enough main menu items, copy the ones we have
+            while itemidmainmenu < minitems and fullMenu and len( mainmenuTree ) != 0:
+                updatedMenuTree = copy.deepcopy( mainmenuTree )
+                for item in updatedMenuTree:
+                    itemidmainmenu += 1
+                    # Update ID
+                    item.set( "id", str( itemidmainmenu ) )
+                    for idElement in item.findall( "property" ):
+                        if idElement.attrib.get( "name" ) == "id":
+                            idElement.text = "$NUM[%s]" %( str( itemidmainmenu ) )
+                    mainmenuTree.append( item )
+                
         # Build any 'Other' templates
         Template.writeOthers()
         
@@ -586,8 +600,12 @@ class XMLFunctions():
         # This function will build an element for the passed Item in
         newelement = xmltree.Element( "item" )
 
+        # Set ID
         if itemid is not -1:
             newelement.set( "id", str( itemid ) )
+        idproperty = xmltree.SubElement( newelement, "property" )
+        idproperty.set( "name", "id" )
+        idproperty.text = "$NUM[%s]" %( str( itemid ) )
             
         # Label and label2
         xmltree.SubElement( newelement, "label" ).text = DATA.local( item.find( "label" ).text )[1]
