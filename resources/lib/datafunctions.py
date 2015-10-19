@@ -279,8 +279,8 @@ class DataFunctions():
                                 # Get the new action
                                 for actions in elem.findall( "action" ):
                                     newaction = xmltree.SubElement( node, "override-action" )
-                                    if actions.text == "::ACTION::":
-                                        newaction.text = action.text
+                                    if "::ACTION::" in actions.text:
+                                        newaction.text = actions.text.replace("::ACTION::",action.text)
                                     else:
                                         newaction.text = actions.text
                                     if overrideVisibility is not None:
