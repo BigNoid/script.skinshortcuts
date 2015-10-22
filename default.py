@@ -65,7 +65,7 @@ class Main:
             xbmcgui.Dialog().ok(__addonname__, line1)
             
         if self.TYPE=="buildxml":
-            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, self.MODE, self.OPTIONS )
+            XML.buildMenu( self.MENUID, self.GROUP, self.LEVELS, self.MODE, self.OPTIONS, self.MINITEMS )
             
         if self.TYPE=="launch":
             xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
@@ -234,6 +234,7 @@ class Main:
         
         self.NOLABELS = params.get( "nolabels", "false" ).lower()
         self.OPTIONS = params.get( "options", "" ).split( "|" )
+        self.MINITEMS = int( params.get( "minitems", "0" ) )
         self.WARNING = params.get( "warning", None )
         self.DEFAULTGROUP = params.get( "defaultGroup", None )
     

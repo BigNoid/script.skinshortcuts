@@ -1359,6 +1359,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self._remove_additionalproperty( listitem, "backgroundName" )
                 self._remove_additionalproperty( listitem, "backgroundPlaylist" )
                 self._remove_additionalproperty( listitem, "backgroundPlaylistName" )
+                self.changeMade = True
                 return
 
             elif self.backgroundBrowse == True and (selectedBackground == 1 or selectedBackground == 2):
