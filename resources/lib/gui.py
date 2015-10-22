@@ -874,17 +874,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
             log( "Add item (301)" )
             self.changeMade = True
             listControl = self.getControl( 211 )
+            num = listControl.getSelectedPosition()
+            orderIndex = int( listControl.getListItem( num ).getProperty( "skinshortcuts-orderindex" ) ) + 1
             
             listitem = xbmcgui.ListItem( __language__(32013) )
             listitem.setProperty( "Path", 'noop' )
             
             # Add new item to both displayed list and list kept in memory
-            self.allListItems.append( listitem )
-            self._display_listitems( listControl.size() )
+            self.allListItems.insert( orderIndex, listitem )
+            self._display_listitems( num + 1 )
             
-            # Set focus
-            listControl.selectItem( listControl.size() -1 )
-        
         elif controlID == 302:
             # Delete an item
             log( "Delete item (302)" )
