@@ -5,7 +5,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 ## What's New for Skinners
 
-#### Version 0.6.3 - git version
+#### Version 0.6.4 - git version
 
 - Ability to include multiple $SKINSHORTCUT[] elements and other text in an element when using templates
 - Ability to assign menu item ID to a property when using templates

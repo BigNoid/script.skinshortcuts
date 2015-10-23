@@ -1,8 +1,4 @@
 v0.6.4
-[tomer953] Remove requirement for ::ACTION:: in action override to be the only text in element
-[tomer953] Management dialog - Insert new menu in the current location instead of add them at the end
-
-v0.6.3
 - Template improvements
 - Widget selection improvements
 - Custom property selection improvements
@@ -12,6 +8,9 @@ v0.6.3
 - Ability to restore deleted shortcut via 308
 - Global override adjustments
 - Fix clonebackground/clonewidgets; add cloneproperties
+- [tomer953] Remove requirement for ::ACTION:: in action override to be the only text in element
+- [tomer953] Management dialog - Insert new menu in the current location instead of add them at the end
+- Minor bug fixes
 
 v0.6.0
 - Version bump for Isengard repo.

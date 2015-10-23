@@ -197,6 +197,8 @@ class DataFunctions():
                     
             # Get the action
             action = node.find( "action" )
+            if not action.text:
+                action.text = "noop"
             
             # group overrides: add an additional onclick action for a particular menu
             # this will allow you to close a modal dialog before calling any other window
