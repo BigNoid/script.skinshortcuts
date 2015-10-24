@@ -84,4 +84,11 @@ You will likely also want to limit some controls to just the main menu. The visi
 
 If you wish to display a different label for control 500 when editing a submenu or additional menu, set the window property 'overrideName' before sending a click to 405-410
 
+#### Always reset shortcuts with GUI 308
+
+By default, GUI 308 offers the user the choice to either restore a default shortcut that the skin provides for the menu, or to reset all shortcuts in the currently edited menu to the skin defaults. You can choose to only provide one or the other of the options via [the skins overrides.xml file](../advanced/overrides.md) by including one of the following:-
+
+`<alwaysRestore>True</alwaysRestore>` - gui 308 will automatically show the restore a shortcut dialog
+`<alwaysReset>True</alwaysReset>` - gui 308 will automatically reset all shortcuts to skin defaults
+
 ***Quick links*** - [Readme](../../../README.md) - [Getting Started](./Getting Started.md) - [Advanced Usage](../advanced/Advanced Usage.md)
