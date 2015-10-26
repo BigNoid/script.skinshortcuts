@@ -1,4 +1,4 @@
-#Skin Shortcuts - 0.6.3
+#Skin Shortcuts - 0.6.4
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
@@ -14,7 +14,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 - New 'Just Select Widget' method - [Read More](./resources/docs/advanced/Just Select.md#just-select-widgets)
 - Behaviour change - skin will now ask users to edit widgetName after setting widget. [Read how to prevent](./resources/docs/advanced/Managing widgets.md#prevent-user-editing-widgetname)
 - Ability to use a Management Dialog buttonID to set custom property. [Read More](./resources/docs/advanced/Custom shortcut properties.md#notes)
-- Label change - GUI 308's label (32028) has changed from "Reset shortcuts" to "Restore shortcuts" to highlight additional functionality
+- Label change - GUI 308's label (32028) has changed from "Reset shortcuts" to "Restore shortcuts" to highlight additional functionality. [Read how to override](./resources/docs/started/Management Dialog.md#always-reset-shortcuts-with-gui-308)
 - Remove requirement to include an `<action>` element and the `group=` attribute in a global action override.
 
 #### Version 0.6.0 - repo version

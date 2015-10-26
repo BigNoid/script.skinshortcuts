@@ -68,6 +68,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.widgetPlaylists = False
         self.widgetPlaylistsType = None
         self.widgetRename = True
+
+        # Has skin overriden GUI 308
+        self.alwaysReset = False
+        self.alwaysRestore = False
         
         self.allListItems = []
 
@@ -89,7 +93,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 xbmcgui.Window( self.window_id ).setProperty( 'groupDisplayName', self.groupname )
             
             # Load widget and background names
-            self._load_widgetsbackgrounds()
+            self._load_overrides()
 
             # Load additional button ID's we'll handle for custom properties
             self._load_customPropertyButtons()
@@ -692,8 +696,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             print_exc()
             log( "### ERROR could not save file %s" % __datapath__ )                
     
-    def _load_widgetsbackgrounds( self ):
-        # Pre-load widget, background and thumbnail options provided by skin
+    def _load_overrides( self ):
+        # Load various overrides from the skin, most notably backgrounds and thumbnails
         self.backgrounds = []
         self.backgroundsPretty = {}
         self.thumbnails = []
@@ -757,9 +761,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.thumbnailBrowseDefault = elem.text
 
         # Should we allow the user to rename a widget?
-        elems = tree.find( "widgetRename" )
+        elem = tree.find( "widgetRename" )
         if elem and elem.text.lower() == "false":
             self.widgetRename = False
+
+        # Does the skin override GUI 308?
+        elem = tree.find( "alwaysReset" )
+        if elem is not None and elem.text.lower() == "true":
+            self.alwaysReset = True
+        elem = tree.find( "alwaysRestore" )
+        if elem is not None and elem.text.lower() == "true":
+            self.alwaysRestore = True
 
     def _load_customPropertyButtons( self ):
         # Load a list of addition button IDs we'll handle for setting additional properties
@@ -1068,7 +1080,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
             log( "Reset shortcuts (308)" )
 
             # Ask the user if they want to restore a shortcut, or reset to skin defaults
-            response = xbmcgui.Dialog().select( __language__(32102), [ __language__(32103), __language__(32104) ] )
+            if self.alwaysReset:
+                # The skin has disable the restore function, so set response as if user has chose the reset to
+                # defaults option
+                response = 1
+            elif self.alwaysRestore:
+                # The skin has disabled the reset function, so set response as if the user has chosen to restore
+                # a skin-default shortcut
+                response = 0
+            else:
+                # No skin override, so let user decide to restore or reset
+                response = xbmcgui.Dialog().select( __language__(32102), [ __language__(32103), __language__(32104) ] )
             
             if response == -1:
                 # User cancelled
