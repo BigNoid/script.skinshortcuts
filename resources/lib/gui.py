@@ -1276,7 +1276,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if widgetName.startswith("$"):
                         widgetTempName = xbmc.getInfoLabel(widgetName)
                     else:
-                        widgetTempName = widgetName
+                        widgetTempName = DATA.local( widgetName )[2]
                     keyboard = xbmc.Keyboard( widgetTempName, xbmc.getLocalizedString(16105), False )
                     keyboard.doModal()
                     if ( keyboard.isConfirmed() ) and keyboard.getText != "":
