@@ -11,6 +11,7 @@ v0.6.4
 - [tomer953] Remove requirement for ::ACTION:: in action override to be the only text in element
 - [tomer953] Management dialog - Insert new menu in the current location instead of add them at the end
 - Minor bug fixes
+- [tomer953] RTL Support - reverse string before inserting them to the keyboard dialog as a workaround to a kodi bug.
 
 v0.6.0
 - Version bump for Isengard repo.
