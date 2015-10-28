@@ -48,6 +48,14 @@ def log(txt):
         except:
             pass
 
+def is_hebrew(text):
+    if type(text) != unicode:
+        text = text.decode('utf-8')
+    for chr in text:
+        if ord(chr) >= 1488 and ord(chr) <= 1514:
+            return True
+    return False
+
 class GUI( xbmcgui.WindowXMLDialog ):
     def __init__( self, *args, **kwargs ):
         self.group = kwargs[ "group" ]
@@ -1001,6 +1009,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 label = ""
                 
             # Get new label from keyboard dialog
+            if is_hebrew(label):
+                label = label.decode('utf-8')[::-1]
             keyboard = xbmc.Keyboard( label, xbmc.getLocalizedString(528), False )
             keyboard.doModal()
             if ( keyboard.isConfirmed() ):
@@ -1277,6 +1287,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         widgetTempName = xbmc.getInfoLabel(widgetName)
                     else:
                         widgetTempName = DATA.local( widgetName )[2]
+                    if is_hebrew(widgetTempName):
+                        widgetTempName = widgetTempName[::-1]
                     keyboard = xbmc.Keyboard( widgetTempName, xbmc.getLocalizedString(16105), False )
                     keyboard.doModal()
                     if ( keyboard.isConfirmed() ) and keyboard.getText != "":
