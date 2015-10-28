@@ -770,7 +770,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Should we allow the user to rename a widget?
         elem = tree.find( "widgetRename" )
-        if elem and elem.text.lower() == "false":
+        if elem is not None and elem.text.lower() == "false":
             self.widgetRename = False
 
         # Does the skin override GUI 308?
