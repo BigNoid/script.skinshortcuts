@@ -296,22 +296,20 @@ class DataFunctions():
                                         newaction.set( "condition", overrideVisibility )
                        
             # Get visibility condition of any skin-provided shortcuts
-            if hasOverriden == False and skinoverrides is not None:
-                for elem in skinoverrides.findall( "shortcut" ):
-                    if elem.text == action.text and "condition" in elem.attrib:
-                        if visibilityNode == None:
-                            xmltree.SubElement( node, "visibility" ).text = elem.attrib.get( "condition" )
-                        else:
-                            visibilityNode.text = "[" + visibilityNode.text + "] + [" + elem.attrib.get( "condition" ) + "]"
+            for elem in skinoverrides.findall( "shortcut" ):
+                if elem.text == action.text and "condition" in elem.attrib:
+                    if visibilityNode == None:
+                        xmltree.SubElement( node, "visibility" ).text = elem.attrib.get( "condition" )
+                    else:
+                        visibilityNode.text = "[" + visibilityNode.text + "] + [" + elem.attrib.get( "condition" ) + "]"
                             
             # Get any visibility conditions in the .DATA.xml file
-            if hasOverriden == False:
-                additionalVisibility = node.find( "visible" )
-                if additionalVisibility is not None:
-                    if visibilityNode == None:
-                        xmltree.SubElement( node, "visibility" ).text = additionalVisibility.text
-                    else:
-                        visibilityNode.text = "[" + visibilityNode.text + "] + [" + additionalVisibility.text + "]"
+            additionalVisibility = node.find( "visible" )
+            if additionalVisibility is not None:
+                if visibilityNode == None:
+                    xmltree.SubElement( node, "visibility" ).text = additionalVisibility.text
+                else:
+                    visibilityNode.text = "[" + visibilityNode.text + "] + [" + additionalVisibility.text + "]"
         
         return tree
         
