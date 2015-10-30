@@ -5,7 +5,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 ## What's New for Skinners
 
-#### Version 0.6.5 - git version
+#### Version 0.6.5 - repo version
 
 - Ability to include multiple $SKINSHORTCUT[] elements and other text in an element when using templates
 - Ability to assign menu item ID to a property when using templates
@@ -17,16 +17,6 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Label change - GUI 308's label (32028) has changed from "Reset shortcuts" to "Restore shortcuts" to highlight additional functionality. [Read how to override](./resources/docs/started/Management Dialog.md#always-reset-shortcuts-with-gui-308)
 - Remove requirement to include an `<action>` element and the `group=` attribute in a global action override.
 - Behaviour change - when overriding actions, any action specified in the .DATA.xml file or by an additional shortcut will still by applied to the shortcut 
-
-#### Version 0.6.0 - repo version
-
- - Add additional actions on a per-menu basis
- - Ability to define default folder for thumbnail selection
- - Custom properties based on patterns
- - Ability to build skin xml elements for menu or other items based off of menu items from templates
- - New widget selection with option to choose from library nodes, add-on nodes, playlists and sources
- - Ability to specify which grouping of available shortcuts will be able to be selected by user
- - Ability to provide a global override
  
 ## With Thanks - Because their names don't deserve to be at the bottom :)
 
