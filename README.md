@@ -1,11 +1,11 @@
-#Skin Shortcuts - 0.6.4
+#Skin Shortcuts - 0.6.5
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
-#### Version 0.6.4 - git version
+#### Version 0.6.5 - git version
 
 - Ability to include multiple $SKINSHORTCUT[] elements and other text in an element when using templates
 - Ability to assign menu item ID to a property when using templates
@@ -16,6 +16,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Ability to use a Management Dialog buttonID to set custom property. [Read More](./resources/docs/advanced/Custom shortcut properties.md#notes)
 - Label change - GUI 308's label (32028) has changed from "Reset shortcuts" to "Restore shortcuts" to highlight additional functionality. [Read how to override](./resources/docs/started/Management Dialog.md#always-reset-shortcuts-with-gui-308)
 - Remove requirement to include an `<action>` element and the `group=` attribute in a global action override.
+- Behaviour change - when overriding actions, any action specified in the .DATA.xml file or by an additional shortcut will still by applied to the shortcut 
 
 #### Version 0.6.0 - repo version
 
