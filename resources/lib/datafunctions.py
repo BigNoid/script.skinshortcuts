@@ -296,12 +296,13 @@ class DataFunctions():
                                         newaction.set( "condition", overrideVisibility )
                        
             # Get visibility condition of any skin-provided shortcuts
-            for elem in skinoverrides.findall( "shortcut" ):
-                if elem.text == action.text and "condition" in elem.attrib:
-                    if visibilityNode == None:
-                        xmltree.SubElement( node, "visibility" ).text = elem.attrib.get( "condition" )
-                    else:
-                        visibilityNode.text = "[" + visibilityNode.text + "] + [" + elem.attrib.get( "condition" ) + "]"
+            if skinoverrides:
+                for elem in skinoverrides.findall( "shortcut" ):
+                    if elem.text == action.text and "condition" in elem.attrib:
+                        if not visibilityNode:
+                            xmltree.SubElement( node, "visibility" ).text = elem.attrib.get( "condition" )
+                        else:
+                            visibilityNode.text = "[" + visibilityNode.text + "] + [" + elem.attrib.get( "condition" ) + "]"
                             
             # Get any visibility conditions in the .DATA.xml file
             additionalVisibility = node.find( "visible" )
