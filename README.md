@@ -1,11 +1,11 @@
-#Skin Shortcuts - 0.6.5
+#Skin Shortcuts - 0.6.6
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
-#### Version 0.6.5 - repo version
+#### Version 0.6.6 - repo version
 
 - Ability to include multiple $SKINSHORTCUT[] elements and other text in an element when using templates
 - Ability to assign menu item ID to a property when using templates
