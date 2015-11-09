@@ -153,4 +153,16 @@ For example, the list used to display movie content may look like this:-
 
 When upgrading from the previous Skin Shortcuts implementation (gui button 309), due to the additional properties that the new method returns, there is no upgrade path implemented. This means users will need to reset their widgets.
 
+#### Default Widgets from Skin Helper Service
+
+Skin Shortcuts own widgets groupings provides a 'Default Widgets' node (or the option to install the 'Default Widgets' node) which is powered by the Skin Helper Service, and lets the user choose from widgets provided by the Skin Helper Service itself, the Library Data Provider script, the Extended Info script and the Smart(ish) Widgets script.
+
+To allow the user the chance to install aditional widget providers when browsing the 'Default Widgets', Skin Shortcuts enables the 'Get More...' button of the select dialog and manages installation of the additional widget providers. If you are customising how the widgets presented by Skin Helper Service are displayed, you may wish to remove this link. This is done by including the following in the skins [overrides.xml](./overrides.md) file:-
+
+`<defaultwidgetsGetMore>False</defaultwidgetsGetMore>`
+
+Additionally, when customising the widget groupings, you can enable the button for any node by including the attribute installWidget with the value True:-
+
+`<node label="My widgets" installWidget="True">`
+
 ***Quick links*** - [Readme](../../../README.md) - [Getting Started](../started/Getting Started.md) - [Advanced Usage](./Advanced Usage.md)

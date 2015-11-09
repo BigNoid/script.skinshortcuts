@@ -7,7 +7,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 #### Version 0.6.7 - git version
 
-No changes for skinners as yet
+- Ability for users to install additional widget providers - [Read More on customising when this is available to users](./resources/docs/advanced/Managing widgets.md##default-widgets-from-skin-helper-service)
 
 #### Version 0.6.6 - repo version
 

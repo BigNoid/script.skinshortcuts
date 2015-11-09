@@ -125,6 +125,13 @@ class LibraryFunctions():
                 "widgets-classic":[] }
         self.folders = {}
         self.foldersCount = 0
+
+        # Widget providers, for auto-installing
+        self.widgetProviders = [ [ "service.library.data.provider", None, "Library Data Provider" ], 
+                [ "script.extendedinfo", None, "ExtendedInfo Script" ], 
+                [ "service.smartish.widgets", "Skin.HasSetting(enable.smartish.widgets)", "Smart(ish) Widgets" ] ]
+        self.allowWidgetInstall = False
+        self.skinhelperWidgetInstall = True
         
         self.useDefaultThumbAsIcon = None
         
@@ -188,6 +195,10 @@ class LibraryFunctions():
                     if __xbmcversion__ != version and DATA.checkVersionEquivalency( version, node.attrib.get( "condition" ), "groupings" ) == False:
                         group += 1
                         continue
+                if "installWidget" in node.attrib and node.attrib.get( "installWidget" ).lower() == "true":
+                    self.installWidget = True
+                else:
+                    self.installWidget = False
                 if count == group:
                     # We found it :)
                     return( node.attrib.get( "label" ), self.buildNodeListing( node, True ) )
@@ -205,6 +216,7 @@ class LibraryFunctions():
             # Heirachical groupings
             if group == "":
                 # We're going to get the root nodes
+                self.installWidget = False
                 windowTitle = __language__(32048)
                 if grouping == "widget":
                     windowTitle = __language__(32044)
@@ -232,6 +244,12 @@ class LibraryFunctions():
                 if __xbmcversion__ != version and DATA.checkVersionEquivalency( version, subnode.attrib.get( "condition" ), "groupings" ) == False:
                     number += 1
                     continue
+            if "installWidget" in subnode.attrib and subnode.attrib.get( "installWidget" ).lower() == "true":
+                log( "Enable install widget" )
+                self.installWidget = True
+            else:
+                log( "Disable install widget" )
+                self.installWidget = False
 
             if count == number:
                 label = DATA.local( subnode.attrib.get( "label" ) )[2]
@@ -950,7 +968,7 @@ class LibraryFunctions():
             # The list is currently being populated, wait and then return it
             for i in ( 0, 20 ):
                 xbmc.sleep( 100 )
-                if loadedMusicLibrary is True:
+                if self.loadedMusicLibrary is True:
                     return self.loadedMusicLibrary
         else:
             # We're going to populate the list
@@ -1619,12 +1637,18 @@ class LibraryFunctions():
         dialog.close()
 
         # Show select dialog
-        w = ShowDialog( "DialogSelect.xml", __cwd__, listing=listings, windowtitle=dialogLabel )
+        getMore = self._allow_install_widget_provider( location, isWidget )
+        w = ShowDialog( "DialogSelect.xml", __cwd__, listing=listings, windowtitle=dialogLabel, getmore=getMore )
         w.doModal()
         selectedItem = w.result
         del w
+
+        if selectedItem == -2:
+            # Get more button
+            log( "Selected get more button" )
+            return self._explorer_install_widget_provider( history, history[ len( history ) -1 ], label, thumbnail, itemType, isWidget )
         
-        if selectedItem != -1:
+        elif selectedItem != -1:
             selectedAction = listings[ selectedItem ].getProperty( "path" )
             if selectedAction == "::UP::":
                 # User wants to go out of explorer, back to selectShortcut
@@ -1745,6 +1769,96 @@ class LibraryFunctions():
                 label.append( listings[ selectedItem ].getLabel() )
                 thumbnail.append( listings[ selectedItem ].getProperty( "thumbnail" ) )
                 return self.explorer( history, selectedAction, label, thumbnail, itemType, isWidget = isWidget )
+
+
+    # ================================
+    # === INSTALL WIDGET PROVIDERS ===
+    # ================================
+
+    def _explorer_install_widget_provider( self, history, location, label, thumbnail, itemType, isWidget ):
+        # CALLED FROM EXPLORER FUNCTION
+        # The user has clicked the 'Get More...' button to install additional widget providers
+        providerList = []
+        providerLabel = []
+
+        # Get widget providers available for install
+        for widgetProvider in self.widgetProviders:
+            if widgetProvider[ 1 ] is None or xbmc.getCondVisibility( widgetProvider[ 1 ] ):
+                if not xbmc.getCondVisibility( "System.HasAddon(%s)" %( widgetProvider[ 0 ] ) ):
+                    providerList.append( widgetProvider[ 0 ] )
+                    providerLabel.append( widgetProvider[ 2 ] )
+
+        # Ask user to select widget provider to install
+        selectedProvider = xbmcgui.Dialog().select( __language__(32106), providerLabel )
+
+        if selectedProvider != -1:
+            # User has selected a widget provider for us to install
+            self._install_widget_provider( providerList[ selectedProvider ] )
+
+        # Return to where we were
+        return self.explorer( history, history[ len( history ) -1 ], label, thumbnail, itemType, isWidget = isWidget )
+
+    def _select_install_widget_provider( self, group, grouping, custom, showNone, currentAction ):
+        # CALLED FROM SELECT FUNCTION
+        # The user has clicked the 'Get More...' button to install additional widget providers
+        providerList = []
+        providerLabel = []
+
+        # Get widget providers available for install
+        for widgetProvider in self.widgetProviders:
+            if widgetProvider[ 1 ] is None or xbmc.getCondVisibility( widgetProvider[ 1 ] ):
+                if not xbmc.getCondVisibility( "System.HasAddon(%s)" %( widgetProvider[ 0 ] ) ):
+                    providerList.append( widgetProvider[ 0 ] )
+                    providerLabel.append( widgetProvider[ 2 ] )
+
+        # Ask user to select widget provider to install
+        selectedProvider = xbmcgui.Dialog().select( __language__(32106), providerLabel )
+
+        if selectedProvider != -1:
+            # User has selected a widget provider for us to install
+            self._install_widget_provider( providerList[ selectedProvider ] )
+
+        # Return to where we were
+        return self.selectShortcut( group = group, grouping = grouping, custom = custom, showNone = showNone, currentAction = currentAction )
+        return self.explorer( history, history[ len( history ) -1 ], label, thumbnail, itemType, isWidget = isWidget )
+
+    def _allow_install_widget_provider( self, location, isWidget, nodeAllows = None ):
+        # This function checks whether the 'Get More...' button should be enabled to install
+        # additional widget providers
+
+        # Check we're browsing widgets
+        if not isWidget:
+            return False
+
+        # Check whether we're in skin.helper.service's widgets
+        if location is not None and ("script.skin.helper.service" not in location or self.skinhelperWidgetInstall == False):
+            return False
+
+        # OR check whether node has enabled widget browsing
+        if nodeAllows is not None and nodeAllows == False:
+            return False
+
+        # Check whether the user has the various widget providers installed
+        for widgetProvider in self.widgetProviders:
+            if widgetProvider[ 1 ] is None or xbmc.getCondVisibility( widgetProvider[ 1 ] ):
+                if not xbmc.getCondVisibility( "System.HasAddon(%s)" %( widgetProvider[ 0 ] ) ):
+                    # The user doesn't have this widget provider installed
+                    return True
+
+        # User has all widget providers installed
+        return False
+
+    def _install_widget_provider( self, provider ):
+        xbmc.executebuiltin( "RunPlugin(plugin://%s)" %( provider ) )
+
+        xbmc.sleep(500)
+        while xbmc.getCondVisibility( "Window.IsActive(DialogYesNo.xml)" ):
+            xbmc.sleep( 500 )
+
+        # Stage 2 - progress dialog
+        xbmc.sleep( 500 )
+        while xbmc.getCondVisibility( "Window.IsActive(DialogProgress.xml)" ):
+            xbmc.sleep( 500 )
     
     # ======================
     # === AUTO-PLAYLISTS ===
@@ -1981,6 +2095,7 @@ class LibraryFunctions():
                             image = image[:-1]
                     images.append( [image, label ] )
         return images
+
 # =====================================
 # === COMMON SELECT SHORTCUT METHOD ===
 # =====================================
@@ -2014,11 +2129,17 @@ class LibraryFunctions():
             availableShortcuts.insert( 0, self._create( ["::BACK::", "..", "", {}] ) )
 
         # Show select dialog
+        getMore = self._allow_install_widget_provider( None, isWidget, self.allowWidgetInstall )
         w = ShowDialog( "DialogSelect.xml", __cwd__, listing=availableShortcuts, windowtitle=windowTitle )
         w.doModal()
         number = w.result
         del w
         
+        if number == -2:
+            # Get more button
+            log( "Selected get more button" )
+            return self._select_install_widget_provider( group, grouping, custom, showNone, currentAction )
+
         if number != -1:
             selectedShortcut = availableShortcuts[ number ]
             path = selectedShortcut.getProperty( "Path" )
@@ -2091,6 +2212,14 @@ class LibraryFunctions():
                         selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
                     else:
                         selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-play" ) )
+
+            elif path.startswith ( "::INSTALL::" ):
+                # Try to automatically install an addon
+                self._install_widget_provider( path.replace( "::INSTALL::", "" ) )
+
+                # Re-call this function
+                return self.selectShortcut( group = group, grouping = grouping, custom = custom, showNone = showNone, currentAction = currentAction )
+
                    
             elif path == "||CUSTOM||":
                 # Let the user type a command
@@ -2130,6 +2259,7 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
         xbmcgui.WindowXMLDialog.__init__( self )
         self.listing = kwargs.get( "listing" )
         self.windowtitle = kwargs.get( "windowtitle" )
+        self.getmore = kwargs.get( "getmore" )
         self.result = -1
 
     def onInit(self):
@@ -2140,7 +2270,10 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
             print_exc()
             self.fav_list = self.getControl(3)
 
-        self.getControl(5).setVisible(False)
+        if self.getmore == True:
+            self.getControl(5).setLabel(xbmc.getLocalizedString(21452))
+        else:
+            self.getControl(5).setVisible(False)
         self.getControl(1).setLabel(self.windowtitle)
 
         for item in self.listing :
@@ -2156,7 +2289,9 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
             self.close()
 
     def onClick(self, controlID):
-        if controlID == 6 or controlID == 3:
+        if controlID == 5:
+            self.result = -2
+        elif controlID == 6 or controlID == 3:
             num = self.fav_list.getSelectedPosition()
             self.result = num
         else:
