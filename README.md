@@ -1,9 +1,13 @@
-#Skin Shortcuts - 0.6.6
+#Skin Shortcuts - 0.6.7
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
+
+#### Version 0.6.7 - git version
+
+No changes for skinners as yet
 
 #### Version 0.6.6 - repo version
 

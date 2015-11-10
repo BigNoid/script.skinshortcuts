@@ -1,3 +1,6 @@
+v0.6.7
+- Enable 'Get More...' installation of widget providers
+
 v0.6.6
 - Template improvements
 - Widget selection improvements
