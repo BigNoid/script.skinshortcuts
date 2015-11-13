@@ -781,6 +781,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if elem is not None and elem.text.lower() == "true":
             self.alwaysRestore = True
 
+        # Do we enable 'Get More...' button when browsing Skin Helper widgets
+        elem = tree.find( "defaultwidgetsGetMore" )
+        if elem is not None and elem.text.lower() == "false":
+            LIBRARY.skinhelperWidgetInstall = False
+
     def _load_customPropertyButtons( self ):
         # Load a list of addition button IDs we'll handle for setting additional properties
 

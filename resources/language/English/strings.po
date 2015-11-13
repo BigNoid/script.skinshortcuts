@@ -445,3 +445,11 @@ msgstr ""
 msgctxt "#32105"
 msgid "There are no shortcuts to restore for this menu"
 msgstr ""
+
+msgctxt "#32106"
+msgid "Install widget provider"
+msgstr ""
+
+msgctxt "#32107"
+msgid "Enable default widgets"
+msgstr ""
