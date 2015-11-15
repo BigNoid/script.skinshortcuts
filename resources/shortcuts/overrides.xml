@@ -28,6 +28,10 @@
 		<shortcutEquivalent version="14" action="ActivateWindow(RadioTimers)">All</shortcutEquivalent>
 		<shortcutEquivalent version="14" action="ActivateWindow(RadioSearch)">All</shortcutEquivalent>
 
+		<!-- Music Files -->
+		<shortcutEquivalent version="13" action="ActivateWindow(MusicFiles)">15</shortcutEquivalent>
+		<shortcutEquivalent version="16" action="ActivateWindow(Music,Files,Return)">All</shortcutEquivalent>
+
 	</versionEquivalency>
 
 

@@ -8,6 +8,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 #### Version 0.6.7 - git version
 
 - Ability for users to install additional widget providers - [Read More on customising when this is available to users](./resources/docs/advanced/Managing widgets.md##default-widgets-from-skin-helper-service)
+- Jarvis changes to music shortcuts - Please be aware that the shortcuts used to access various areas of the music library have changed. Skin Shortcuts will do its best to update any actions to the Jarvis version when the menu is built, but if this doesn't work (or if you are using the 'Just Select' method) the user may need to reset the action for these shortcuts.
 
 #### Version 0.6.6 - repo version
 

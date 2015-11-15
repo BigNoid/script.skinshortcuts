@@ -634,34 +634,49 @@ class DataFunctions():
             return item.lower( ).replace( " ", "" )
             
     def checkVisibility ( self, action ):
-        action = action.lower().replace( " ", "" )
-        
         # Return whether mainmenu items should be displayed
-        if action == "activatewindow(weather)":
-            return "!IsEmpty(Weather.Plugin)"
-        elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ):
-            return "system.getbool(pvrmanager.enabled)"
-        elif action.startswith( "activatewindow(videos,movie" ):
-            return "Library.HasContent(Movies)"
-        elif action.startswith( "activatewindow(videos,recentlyaddedmovies" ):
-            return "Library.HasContent(Movies)"
-        elif action.startswith( "activatewindow(videos,tvshow" ) or action.startswith( "activatewindow(videos,tvshow" ):
-            return "Library.HasContent(TVShows)"
-        elif action.startswith( "activatewindow(videos,recentlyaddedepisodes" ):
-            return "Library.HasContent(TVShows)"
-        elif action.startswith( "activatewindow(videos,musicvideo" ):
-            return "Library.HasContent(MusicVideos)"
+        action = action.lower().replace( " ", "" )
+
+        # Video node visibility
+        if action.startswith( "activatewindow(videos,videodb://" ) or action.startswith( "activatewindow(10025,videodb://" ) or action.startswith( "activatewindow(videos,library://video/" ) or action.startswith( "activatewindow(10025,library://video/" ):
+            path = action.split( "," )
+            if path[ 1 ].endswith( ")" ):
+                path[ 1 ] = path[ 1 ][:-1]
+            return NODE.get_visibility( path[ 1 ] )
+
+        # Audio node visibility - Isengard and earlier
+        elif action.startswith( "activatewindow(musiclibrary,musicdb://" ) or action.startswith( "activatewindow(10502,musicdb://" ) or action.startswith( "activatewindow(musiclibrary,library://music/" ) or action.startswith( "activatewindow(10502,library://music/" ):
+            path = action.split( "," )
+            if path[ 1 ].endswith( ")" ):
+                path[ 1 ] = path[ 1 ][:-1]
+            return NODE.get_visibility( path[ 1 ] )
+
+        # Audio node visibility - Additional checks for Jarvis and later
+        # (Note when cleaning up in the future, some of the Isengard checks - those with window 10502 - are still valid...)
+        elif action.startswith( "activatewindow(music,musicdb://" ) or action.startswith( "activatewindow(music,library://music/" ):
+            path = action.split( "," )
+            if path[ 1 ].endswith( ")" ):
+                path[ 1 ] = path[ 1 ][:-1]
+            return NODE.get_visibility( path[ 1 ] )
+
+        # Isengard and earlier music library
         elif action.startswith( "activatewindow(musiclibrary,addons" ):
             return ""
         elif action.startswith( "activatewindow(musiclibrary,musicvideo" ):
             return "Library.HasContent(MusicVideos)"
-        elif action.startswith( "activatewindow(videos,recentlyaddedmusicvideos" ):
-            return "Library.HasContent(MusicVideos)"
         elif action.startswith( "activatewindow(musiclibrary," ):
             return "Library.HasContent(Music)"
-        elif action == "xbmc.playdvd()":
-            return "System.HasMediaDVD"
-            
+
+        # Jarvis and later music library
+        elif action.startswith( "activatewindow(music,addons" ) or action.startswith( "activatewindow(music,files" ):
+            return ""
+        elif action.startswith( "activatewindow(music,musicvideo" ):
+            return "Library.HasContent(MusicVideos)"
+        elif action == "activatewindow(music)" or action.startswith( "activatewindow(music,root" ):
+            return ""
+        elif action.startswith( "activatewindow(music,"):
+            return "Library.HasContent(Music)"
+
         # Power menu visibilities
         elif action == "quit()" or action == "quit":
             return "System.ShowExitButton"
@@ -685,27 +700,33 @@ class DataFunctions():
             return "System.HasShutdown +!System.IsInhibit"
         elif action == "inhibitidleshutdown(false)":
             return "System.HasShutdown + System.IsInhibit"
-            
-        # New Helix visibility conditions
+
+        # General visibilities
+        elif action == "activatewindow(weather)":
+            return "!IsEmpty(Weather.Plugin)"
+        elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ):
+            return "system.getbool(pvrmanager.enabled)"
         elif action.startswith( "activatewindow(tv" ):
             return "PVR.HasTVChannels"
         elif action.startswith( "activatewindow(radio" ):
             return "PVR.HasRadioChannels"
+        elif action.startswith( "activatewindow(videos,movie" ):
+            return "Library.HasContent(Movies)"
+        elif action.startswith( "activatewindow(videos,recentlyaddedmovies" ):
+            return "Library.HasContent(Movies)"
+        elif action.startswith( "activatewindow(videos,tvshow" ) or action.startswith( "activatewindow(videos,tvshow" ):
+            return "Library.HasContent(TVShows)"
+        elif action.startswith( "activatewindow(videos,recentlyaddedepisodes" ):
+            return "Library.HasContent(TVShows)"
+        elif action.startswith( "activatewindow(videos,musicvideo" ):
+            return "Library.HasContent(MusicVideos)"
+        elif action.startswith( "activatewindow(videos,recentlyaddedmusicvideos" ):
+            return "Library.HasContent(MusicVideos)"
+        elif action == "xbmc.playdvd()":
+            return "System.HasMediaDVD"
+        elif action.startswith( "activatewindow(eventlog" ):
+            return "system.getbool(eventlog.enabled)"
             
-        # Video node visibility
-        elif action.startswith( "activatewindow(videos,videodb://" ) or action.startswith( "activatewindow(10025,videodb://" ) or action.startswith( "activatewindow(Videos,library://video/" ) or action.startswith( "activatewindow(10025,library://video/" ):
-            path = action.split( "," )
-            if path[ 1 ].endswith( ")" ):
-                path[ 1 ] = path[ 1 ][:-1]
-            return NODE.get_visibility( path[ 1 ] )
-
-        # Audio node visibility
-        elif action.startswith( "activatewindow(musiclibrary,musicdb://" ) or action.startswith( "activatewindow(10502,musicdb://" ) or action.startswith( "activatewindow(MusicLibrary,library://music/" ) or action.startswith( "activatewindow(10502,library://music/" ):
-            path = action.split( "," )
-            if path[ 1 ].endswith( ")" ):
-                path[ 1 ] = path[ 1 ][:-1]
-            return NODE.get_visibility( path[ 1 ] )
-        
         return ""
 
 
@@ -1002,3 +1023,16 @@ class DataFunctions():
         else:
             # Not an 'ActivateWindow' - return the onclick
             return onclick
+
+    def upgradeAction( self, action ):
+        # This function looks for actions used in a previous version of Kodi, and upgrades them to the current action
+
+        # Jarvis music changes
+        if action.lower() == "activatewindow(musicfiles)" and int( __xbmcversion__ ) >= 16:
+            return "ActivateWindow(Music,Files,Return)"
+
+        if action.lower().startswith("activatewindow(musiclibrary") and int( __xbmcversion__ ) >= 16:
+            return "ActivateWindow(Music," + action.split( ",", 1 )[ 1 ]
+
+        # No matching upgrade
+        return action
