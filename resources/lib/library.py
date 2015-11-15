@@ -215,15 +215,15 @@ class LibraryFunctions():
         trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
         nodes = None
         for tree in trees:
-            if tree is not None:
-                if flat:
-                    nodes = tree.find( "flatgroupings" )
-                    if nodes is not None:
-                        nodes = nodes.findall( "node" )
-                elif grouping is None:
-                    nodes = tree.find( "groupings" )
-                else:
-                    nodes = tree.find( "%s-groupings" %( grouping ) )
+            if flat:
+                nodes = tree.find( "flatgroupings" )
+                if nodes is not None:
+                    nodes = nodes.findall( "node" )
+            elif grouping is None:
+                nodes = tree.find( "groupings" )
+            else:
+                nodes = tree.find( "%s-groupings" %( grouping ) )
+                
             if nodes is not None:
                 break                
                 
@@ -383,8 +383,6 @@ class LibraryFunctions():
             
         # Check for any icon overrides for these items
         tree = DATA._get_overrides_skin()
-        if tree is None:
-            return items
             
         for item in items:
             item = self._get_icon_overrides( tree, item, content )
@@ -465,10 +463,6 @@ class LibraryFunctions():
         # This function adds content to the dictionaryGroupings - including
         # adding any skin-provided shortcuts to the group
         tree = DATA._get_overrides_skin()
-        if tree is None:
-            # There are no overrides to check for extra shortcuts
-            self.dictionaryGroupings[ group ] = content
-            return
             
         # Search for skin-provided shortcuts for this group
         originalGroup = group
@@ -608,17 +602,14 @@ class LibraryFunctions():
         if self.useDefaultThumbAsIcon is None:
             # Retrieve the choice from the overrides.xml
             tree = DATA._get_overrides_skin()
-            if tree is None:
+            node = tree.getroot().find( "useDefaultThumbAsIcon" )
+            if node is None:
                 self.useDefaultThumbAsIcon = False
             else:
-                node = tree.getroot().find( "useDefaultThumbAsIcon" )
-                if node is None:
-                    self.useDefaultThumbAsIcon = False
+                if node.text.lower() == "true":
+                    self.useDefaultThumbAsIcon = True
                 else:
-                    if node.text.lower() == "true":
-                        self.useDefaultThumbAsIcon = True
-                    else:
-                        self.useDefaultThumbAsIcon = False
+                    self.useDefaultThumbAsIcon = False
             
         usedDefaultThumbAsIcon = False
         if self.useDefaultThumbAsIcon == True and thumbnail is not None:            
@@ -1278,39 +1269,38 @@ class LibraryFunctions():
         
         # Load skin overrides
         tree = DATA._get_overrides_skin()
-        if tree is not None:
-            elems = tree.getroot().findall( "widget" )
-            for elem in elems:
-                widgetType = None
-                widgetPath = None
-                widgetTarget = None
-                widgetIcon = ""
-                if "type" in elem.attrib:
-                    widgetType = elem.attrib.get( "type" )
-                if "condition" in elem.attrib:
-                    if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
-                        continue
-                if "path" in elem.attrib:
-                    widgetPath = elem.attrib.get( "path" )
-                if "target" in elem.attrib:
-                    widgetTarget = elem.attrib.get( "target" )
-                if "icon" in elem.attrib:
-                    widgetIcon = elem.attrib.get( "icon" )
+        elems = tree.getroot().findall( "widget" )
+        for elem in elems:
+            widgetType = None
+            widgetPath = None
+            widgetTarget = None
+            widgetIcon = ""
+            if "type" in elem.attrib:
+                widgetType = elem.attrib.get( "type" )
+            if "condition" in elem.attrib:
+                if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                    continue
+            if "path" in elem.attrib:
+                widgetPath = elem.attrib.get( "path" )
+            if "target" in elem.attrib:
+                widgetTarget = elem.attrib.get( "target" )
+            if "icon" in elem.attrib:
+                widgetIcon = elem.attrib.get( "icon" )
 
-                # Save widget for button 309
-                self.dictionaryGroupings[ "widgets-classic" ].append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], widgetType, widgetPath, widgetIcon, widgetTarget ] )
+            # Save widget for button 309
+            self.dictionaryGroupings[ "widgets-classic" ].append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], widgetType, widgetPath, widgetIcon, widgetTarget ] )
 
-                # Save widgets for button 312
-                listitem = self._create( [ elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], "::SCRIPT::32099", {"icon": widgetIcon } ] )
-                listitem.setProperty( "widget", elem.text )
-                listitem.setProperty( "widgetName", DATA.local( elem.attrib.get( 'label' ) )[2] )
-                if widgetType is not None:
-                    listitem.setProperty( "widgetType", widgetType )
-                if widgetPath is not None:
-                    listitem.setProperty( "widgetPath", widgetPath )
-                if widgetTarget is not None:
-                    listitem.setProperty( "widgetTarget", widgetTarget )
-                listitems.append( listitem )
+            # Save widgets for button 312
+            listitem = self._create( [ elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], "::SCRIPT::32099", {"icon": widgetIcon } ] )
+            listitem.setProperty( "widget", elem.text )
+            listitem.setProperty( "widgetName", DATA.local( elem.attrib.get( 'label' ) )[2] )
+            if widgetType is not None:
+                listitem.setProperty( "widgetType", widgetType )
+            if widgetPath is not None:
+                listitem.setProperty( "widgetPath", widgetPath )
+            if widgetTarget is not None:
+                listitem.setProperty( "widgetTarget", widgetTarget )
+            listitems.append( listitem )
 
         self.addToDictionary( "widgets", listitems )
         

@@ -292,12 +292,11 @@ class XMLFunctions():
         # Get any shortcuts we're checking for
         self.checkForShortcuts = []
         overridestree = DATA._get_overrides_skin()
-        if overridestree is not None:
-            checkForShorctcutsOverrides = overridestree.getroot().findall( "checkforshortcut" )
-            for checkForShortcutOverride in checkForShorctcutsOverrides:
-                if "property" in checkForShortcutOverride.attrib:
-                    # Add this to the list of shortcuts we'll check for
-                    self.checkForShortcuts.append( ( checkForShortcutOverride.text.lower(), checkForShortcutOverride.attrib.get( "property" ), "False" ) )
+        checkForShorctcutsOverrides = overridestree.getroot().findall( "checkforshortcut" )
+        for checkForShortcutOverride in checkForShorctcutsOverrides:
+            if "property" in checkForShortcutOverride.attrib:
+                # Add this to the list of shortcuts we'll check for
+                self.checkForShortcuts.append( ( checkForShortcutOverride.text.lower(), checkForShortcutOverride.attrib.get( "property" ), "False" ) )
         
         mainmenuTree = xmltree.SubElement( root, "include" )
         mainmenuTree.set( "name", "skinshortcuts-mainmenu" )
@@ -514,22 +513,21 @@ class XMLFunctions():
             if self.hasSettings == False:
                 # Check if the overrides asks for a forced settings...
                 overridestree = DATA._get_overrides_skin()
-                if overridestree is not None:
-                    forceSettings = overridestree.getroot().find( "forcesettings" )
-                    if forceSettings is not None:
-                        # We want a settings option to be added
+                forceSettings = overridestree.getroot().find( "forcesettings" )
+                if forceSettings is not None:
+                    # We want a settings option to be added
+                    newelement = xmltree.SubElement( mainmenuTree, "item" )
+                    xmltree.SubElement( newelement, "label" ).text = "$LOCALIZE[10004]"
+                    xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
+                    xmltree.SubElement( newelement, "onclick" ).text = "ActivateWindow(settings)" 
+                    xmltree.SubElement( newelement, "visible" ).text = profile[1]
+                    
+                    if buildMode == "single":
                         newelement = xmltree.SubElement( mainmenuTree, "item" )
                         xmltree.SubElement( newelement, "label" ).text = "$LOCALIZE[10004]"
                         xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
                         xmltree.SubElement( newelement, "onclick" ).text = "ActivateWindow(settings)" 
                         xmltree.SubElement( newelement, "visible" ).text = profile[1]
-                        
-                        if buildMode == "single":
-                            newelement = xmltree.SubElement( mainmenuTree, "item" )
-                            xmltree.SubElement( newelement, "label" ).text = "$LOCALIZE[10004]"
-                            xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
-                            xmltree.SubElement( newelement, "onclick" ).text = "ActivateWindow(settings)" 
-                            xmltree.SubElement( newelement, "visible" ).text = profile[1]
                             
             if len( self.checkForShortcuts ) != 0:
                 # Add a value to the variable for all checkForShortcuts
@@ -825,22 +823,21 @@ class XMLFunctions():
         overrides = DATA._get_overrides_skin()
         propertyPatterns = {}
         
-        if overrides is not None:
-            propertyPatternElements = overrides.getroot().findall("propertypattern")
-            for propertyPatternElement in propertyPatternElements:
-                propertyName = propertyPatternElement.get("property")
-                propertyGroup = propertyPatternElement.get("group")
+        propertyPatternElements = overrides.getroot().findall("propertypattern")
+        for propertyPatternElement in propertyPatternElements:
+            propertyName = propertyPatternElement.get("property")
+            propertyGroup = propertyPatternElement.get("group")
+          
+            if not propertyName or not propertyGroup or propertyGroup != group or not propertyPatternElement.text:
+                continue
               
-                if not propertyName or not propertyGroup or propertyGroup != group or not propertyPatternElement.text:
-                    continue
-                  
-                propertyLabelID = propertyPatternElement.get("labelID")
-                if not propertyLabelID:
-                    if propertyName not in propertyPatterns:
-                        propertyPatterns[propertyName] = [propertyPatternElement.text, False]
-                elif propertyLabelID == labelID:
-                    if propertyName not in propertyPatterns or propertyPatterns[propertyName][1] == False:
-                        propertyPatterns[propertyName] = [propertyPatternElement.text, True]
+            propertyLabelID = propertyPatternElement.get("labelID")
+            if not propertyLabelID:
+                if propertyName not in propertyPatterns:
+                    propertyPatterns[propertyName] = [propertyPatternElement.text, False]
+            elif propertyLabelID == labelID:
+                if propertyName not in propertyPatterns or propertyPatterns[propertyName][1] == False:
+                    propertyPatterns[propertyName] = [propertyPatternElement.text, True]
 
         return propertyPatterns
     
