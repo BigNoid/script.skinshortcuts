@@ -211,7 +211,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     log( "No widget button on GUI (id 401)" )
                     
             # Load library shortcuts in thread
-            thread.start_new_thread( LIBRARY.loadLibrary, () )
+            thread.start_new_thread( LIBRARY.loadAllLibrary, () )
             
             if has111:
                 try:
@@ -1178,7 +1178,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem = listControl.getSelectedItem()
 
             # Check that widgets have been loaded
-            LIBRARY.widgets()
+            LIBRARY.loadLibrary( "widgets" )
             
             # If we're setting for an additional widget, get it's number
             widgetID = ""
@@ -1207,7 +1207,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # If playlists have been enabled for widgets, add them too
             if self.widgetPlaylists:
                 # Ensure playlists are loaded
-                LIBRARY.playlists()
+                LIBRARY.loadLibrary( "playlists" )
 
                 # Add them
                 for playlist in LIBRARY.widgetPlaylistsList:
@@ -1273,7 +1273,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             defaultWidget = self.find_default( "widget", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
 
             # Ensure widgets are loaded
-            LIBRARY.widgets()
+            LIBRARY.loadLibrary( "widgets" )
 
             # Let user choose widget
             selectedShortcut = LIBRARY.selectShortcut( grouping = "widget", showNone = True )

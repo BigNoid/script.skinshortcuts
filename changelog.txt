@@ -1,5 +1,6 @@
 v0.6.7
 - Enable 'Get More...' installation of widget providers
+- Cleanup
 
 v0.6.6
 - Template improvements
