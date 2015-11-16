@@ -589,7 +589,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
             # Save the shortcuts
             DATA.indent( root )
-            path = os.path.join( __datapath__ , DATA.slugify( self.group ) + ".DATA.xml" )
+            path = os.path.join( __datapath__ , DATA.slugify( self.group, True ) + ".DATA.xml" )
             path = try_decode( path )
             
             tree.write( path.replace( ".shortcuts", ".DATA.xml" ), encoding="UTF-8"  )
@@ -621,11 +621,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Make the change (0 - the main sub-menu, 1-5 - additional submenus )
                 for i in range( 0, 6 ):
                     if i == 0:
-                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( defaultIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( defaultIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [None, "New"]]
-                        target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + ".DATA.xml" ).encode( "utf-8" )
+                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom, True ) + ".DATA.xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( defaultIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( defaultIDFrom ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [None, "New"]]
+                        target = os.path.join( __datapath__, DATA.slugify( labelIDTo, True ) + ".DATA.xml" ).encode( "utf-8" )
                     else:
-                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom ) + "." + str( i ) + ".DATA,xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"]]
-                        target = os.path.join( __datapath__, DATA.slugify( labelIDTo ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" )
+                        paths = [[os.path.join( __datapath__, DATA.slugify( labelIDFrom, True ) + "." + str( i ) + ".DATA,xml" ).encode( "utf-8" ), "Move"], [os.path.join( __skinpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( __defaultpath__, DATA.slugify( defaultIDFrom ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"]]
+                        target = os.path.join( __datapath__, DATA.slugify( labelIDTo, True ) + "." + str( i ) + ".DATA.xml" ).encode( "utf-8" )
                         
                     target = try_decode( target )
                     
@@ -636,14 +636,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         if path[1] == "New":
                             tree = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
                             tree.write( target, encoding="UTF-8"  )
+                            log( "Creating empty file - %s" %( target ) )
                             break
                             
                         elif xbmcvfs.exists( path[0] ):
                             # The XML file exists
                             if path[1] == "Move":
-                                # Move the original to the target path
-                                log( "### Moving " + path[0] + " > " + target )
-                                xbmcvfs.rename( path[0], target )
+                                if path[0] != target:
+                                    # Move the original to the target path
+                                    log( "Moving " + path[0] + " > " + target )
+                                    xbmcvfs.rename( path[0], target )
                             else:
                                 # We're copying the file (actually, we'll re-write the file without
                                 # any LOCKED elements)
@@ -652,14 +654,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                     searchNode = newnode.find( "locked" )
                                     if searchNode is not None:
                                         newnode.remove( searchNode )
-                                    #searchNode = newnode.find( "defaultID" )
-                                    #if searchNode is not None:
-                                    #    newnode.remove( searchNode )
                                         
                                 # Write it to the target
                                 DATA.indent( newtree.getroot() )
                                 newtree.write( target, encoding="utf-8" )
-                                log( "### Copying " + path[0] + " > " + target )
+                                log( "Copying " + path[0] + " > " + target )
                             break
                         
                 labelIDChanges.pop( 0 )
@@ -1122,7 +1121,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 response = 0
             else:
                 # No skin override, so let user decide to restore or reset
-                response = xbmcgui.Dialog().select( __language__(32102), [ __language__(32103), __language__(32104) ] )
+                if not DATA.checkIfMenusShared():
+                    # Also offer to import from another skin
+                    response = xbmcgui.Dialog().select( __language__(32102), [ __language__(32103), __language__(32104), "Import from compatible skin" ] )
+                else:
+                    response = xbmcgui.Dialog().select( __language__(32102), [ __language__(32103), __language__(32104) ] )
             
             if response == -1:
                 # User cancelled
@@ -1172,7 +1175,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.changeMade = True
                 self._display_listitems()
 
-            else:
+            elif response == 1:
                 # We're going to reset all the shortcuts
                 self.changeMade = True
                 
@@ -1187,6 +1190,40 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Call the load shortcuts function, but add that we don't want
                 # previously saved user shortcuts
                 self.load_shortcuts( False )
+
+            else:
+                # We're going to offer to import menus from another compatible skin
+                skinList, sharedFiles = DATA.getSharedSkinList()
+                
+                if len( skinList ) == 0:
+                    xbmcgui.Dialog().ok( __language__(32110), __language__(32109) )
+                    return
+
+                # Let the user select a shortcut to restore
+                importMenu = xbmcgui.Dialog().select( __language__(32110), skinList )
+
+                if importMenu == -1:
+                    # User cancelled
+                    return
+
+                # Delete any auto-generated source playlists
+                for x in range(0, self.getControl( 211 ).size()):
+                    LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
+
+                if importMenu == 0 and not len( sharedFiles ) == 0:
+                    # User has chosen to import the shared menu
+                    DATA.importSkinMenu( sharedFiles )
+                else:
+                    # User has chosen to import from a particular skin
+                    DATA.importSkinMenu( DATA.getFilesForSkin( skinList[ importMenu ] ), skinList[ importMenu ] )
+
+                self.getControl( 211 ).reset()
+                
+                self.allListItems = []
+                
+                # Call the load shortcuts function
+                self.load_shortcuts( True )
+
                 
         elif controlID == 309:
             # Choose widget

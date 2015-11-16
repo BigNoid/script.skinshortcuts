@@ -24,7 +24,6 @@ __language__     = __addon__.getLocalizedString
 
 import datafunctions, template
 DATA = datafunctions.DataFunctions()
-NODE = nodefunctions.NodeFunctions()
 import hashlist
 
 def log(txt):
@@ -203,10 +202,6 @@ class XMLFunctions():
             log( "No hash list" )
             print_exc()
             return True
-
-        # We're not going to check for this, but we want the context_menu setting saved to a skin string
-        log( repr( __addon__.getSetting( "context_menu" ) ) )
-        xbmc.executebuiltin( "Skin.SetString(skinshortcuts-contextmenu,%s)" % ( __addon__.getSetting( "context_menu" ) ) )
         
         checkedXBMCVer = False
         checkedSkinVer = False
@@ -250,6 +245,11 @@ class XMLFunctions():
                     checkedPVRVis = True
                     if __addon__.getSetting( "donthidepvr" ) != hash[1]:
                         log( "PVR visibility setting has changed" )
+                elif hash[0] == "::SHARED::":
+                    # Check whether shared-menu setting has changed
+                    checkedSharedMenu = True
+                    if __addon__.getSetting( "shared_menu" ) != hash[1]:
+                        log( "Shared menu setting has changed" )
                         return True
                 elif hash[0] == "::LANGUAGE::":
                     # We no longer need to rebuild on a system language change
@@ -291,7 +291,7 @@ class XMLFunctions():
         
         # If the skin or script version, or profile list, haven't been checked, we need to rebuild the menu 
         # (most likely we're running an old version of the script)
-        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False or checkedPVRVis == False:
+        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False or checkedPVRVis == False or checkedSharedMenu == False:
             return True
         
             
@@ -308,6 +308,8 @@ class XMLFunctions():
         if int( __xbmcversion__ ) <= 15:
             hashlist.list.append( ["::MUSICCONTENT::", xbmc.getCondVisibility( "Library.HasContent(Music)" ) ] )
         hashlist.list.append( ["::HIDEPVR::",  __addon__.getSetting( "donthidepvr" )] )
+        hashlist.list.append( ["::SHARED::", __addon__.getSetting( "shared_menu" )] )
+        hashlist.list.append( ["::SKINDIR::", xbmc.getSkinDir()] )
         
         # Clear any skin settings for backgrounds and widgets
         DATA._reset_backgroundandwidgets()
@@ -384,12 +386,14 @@ class XMLFunctions():
             if groups == "" or groups.split( "|" )[0] == "mainmenu":
                 # Set a skinstring that marks that we're providing the whole menu
                 xbmc.executebuiltin( "Skin.SetBool(SkinShortcuts-FullMenu)" )
+                hashlist.list.append( ["::FULLMENU::", "True"] )
                 for node in DATA._get_shortcuts( "mainmenu", None, True, profile[0] ).findall( "shortcut" ):
                     menuitems.append( node )
                 fullMenu = True
             else:
                 # Clear any skinstring marking that we're providing the whole menu
                 xbmc.executebuiltin( "Skin.Reset(SkinShortcuts-FullMenu)" )
+                hashlist.list.append( ["::FULLMENU::", "False"] )
                     
             # If building specific groups, split them into the menuitems list
             count = 0

@@ -302,7 +302,6 @@ class Main:
         
     def _reset_all_shortcuts( self ):
         log( "### Resetting all shortcuts" )
-        log( repr( self.WARNING) )
         dialog = xbmcgui.Dialog()
         
         shouldRun = None
@@ -314,18 +313,31 @@ class Main:
             shouldRun = dialog.yesno( __language__( 32037 ), __language__( 32038 ) )
         
         if shouldRun:
+            isShared = DATA.checkIfMenusShared()
+            log( repr( isShared ) )
             for files in xbmcvfs.listdir( __datapath__ ):
                 # Try deleting all shortcuts
                 if files:
                     for file in files:
-                        if file != "settings.xml":
+                        deleteFile = False
+                        if file == "settings.xml":
+                            continue
+                        if isShared:
+                            deleteFile = True
+                        elif file.startswith( xbmc.getSkinDir() ) and ( file.endswith( ".properties" ) or file.endswith( ".DATA.xml" ) ):
+                            deleteFile = True
+
+                        #if file != "settings.xml" and ( not isShared or file.startswith( "%s-" %( xbmc.getSkinDir() ) ) ) or file == "%s.properties" %( xbmc.getSkinDir() ):
+                        if deleteFile:
                             file_path = os.path.join( __datapath__, file.decode( 'utf-8' ) ).encode( 'utf-8' )
                             if xbmcvfs.exists( file_path ):
                                 try:
                                     xbmcvfs.delete( file_path )
                                 except:
                                     print_exc()
-                                    log( "### ERROR could not delete file %s" % file[0] )
+                                    log( "### ERROR could not delete file %s" % file )
+                        else:
+                            log( "Not deleting file %s" %[ file ] )
         
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )   
