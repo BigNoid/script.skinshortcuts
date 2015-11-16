@@ -111,8 +111,7 @@ class XMLFunctions():
             if weEnabledSystemDebug or weEnabledScriptDebug:
                 # Disable any logging we enabled
                 if weEnabledSystemDebug:
-                    xbmc.executebuiltin( "ToggleDebug" )
-                    # json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":false} } ' )
+                    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":false} } ' )
                 if weEnabledScriptDebug:
                     __addon__.setSetting( "enable_logging", "false" )
                     
@@ -137,7 +136,7 @@ class XMLFunctions():
                     for item in json_response['result']['settings']:
                         if item["id"] == "debug.showloginfo":
                             if item["value"] == False:
-                                xbmc.executebuiltin( "ToggleDebug" )
+                                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":true} } ' )
                                 enabledSystemDebug = True
 
                 if __addon__.getSetting( "enable_logging" ) != "true":
