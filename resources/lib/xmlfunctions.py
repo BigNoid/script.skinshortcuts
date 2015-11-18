@@ -702,6 +702,10 @@ class XMLFunctions():
             
         for onclick in onclicks:
             onclickelement = xmltree.SubElement( newelement, "onclick" )
+
+            # Updrage action if necessary
+            onclick.text = DATA.upgradeAction( onclick.text )
+
             # PVR Action
             if onclick.text.startswith( "pvr-channel://" ):
                 # PVR action

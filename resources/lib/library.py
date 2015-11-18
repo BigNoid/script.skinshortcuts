@@ -297,10 +297,8 @@ class LibraryFunctions():
                     number += 1
                     continue
             if "installWidget" in subnode.attrib and subnode.attrib.get( "installWidget" ).lower() == "true":
-                log( "Enable install widget" )
                 self.installWidget = True
             else:
-                log( "Disable install widget" )
                 self.installWidget = False
 
             if count == number:
@@ -776,6 +774,9 @@ class LibraryFunctions():
         listitems.append( self._create(["ActivateWindow(RadioGuide)", "32087", "32034", {"icon": "DefaultTVShows.png"} ]) )
         
         listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
+        listitems.append( self._create(["PlayerControl(PartyMode)", "589", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
+        listitems.append( self._create(["PlayerControl(PartyMode(Video))", "32108", "32034", {"icon": "DefaultMusicVideos.png"} ]) )
+
         listitems.append( self._create(["ActivateWindow(Videos,videodb://musicvideos/titles/,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {} ]) )
@@ -788,6 +789,9 @@ class LibraryFunctions():
         listitems.append( self._create(["ActivateWindow(FileManager)", "7", "32034", {"icon": "DefaultFolder.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(Profiles)", "13200", "32034", {"icon": "UnknownUser.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(SystemInfo)", "10007", "32034", {} ]) )
+
+        if int( __xbmcversion__ ) >= 16:
+            listitems.append( self._create(["ActivateWindow(EventLog,events://,return)", "14111", "32034", {} ]) )            
         
         listitems.append( self._create(["ActivateWindow(Favourites)", "1036", "32034", {} ]) )
             
@@ -1012,6 +1016,8 @@ class LibraryFunctions():
                                     mediaContent = "video"
                                 elif mediaType == "albums" or mediaType == "artists" or mediaType == "songs":
                                     mediaLibrary = "MusicLibrary"
+                                    if __xbmcversion__ >= 16:
+                                        mediaLibrary = "Music"
                                     mediaContent = "music"
                                 
                             if line.tag == "name" and mediaLibrary is not None:
@@ -1019,9 +1025,10 @@ class LibraryFunctions():
                                 if not name:
                                     name = label
                                 # Create a list item
-                                listitem = self._create(["::PLAYLIST::", name, path[1], {"icon": "DefaultPlaylist.png"} ])
+                                listitem = self._create(["::PLAYLIST>%s::" %( mediaLibrary ), name, path[1], {"icon": "DefaultPlaylist.png"} ])
                                 listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
                                 listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist + ",return)".encode( 'utf-8' ) )
+                                listitem.setProperty( "action-party", "PlayerControl(PartyMode(%s))" %( playlist ) )
 
                                 # Add widget information
                                 listitem.setProperty( "widget", "Playlist" )
@@ -2008,11 +2015,12 @@ class LibraryFunctions():
                 else:
                     # Find out what the user wants to do with the source
                     selectedShortcut = self._sourcelink_choice( selectedShortcut )
-            elif path == "::PLAYLIST::" :
+            elif path.startswith( "::PLAYLIST" ):
+                log( "Selected playlist" )
                 if isWidget:
                     # Return actionShow as chosenPath
                     selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
-                else:
+                elif not ">" in path or "VideoLibrary" in path:
                     # Give the user the choice of playing or displaying the playlist
                     dialog = xbmcgui.Dialog()
                     userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
@@ -2022,6 +2030,19 @@ class LibraryFunctions():
                         selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
                     else:
                         selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-play" ) )
+                elif ">" in path:
+                    # Give the user the choice of playing, displaying or party more for the playlist
+                    dialog = xbmcgui.Dialog()
+                    userchoice = dialog.select( __language__( 32060 ), [ __language__( 32061 ), __language__( 32062 ), xbmc.getLocalizedString( 589 ) ] )
+                    # 0 - Display
+                    # 1 - Play
+                    # 2 - Party mode
+                    if not userchoice or userchoice == 0:
+                        selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
+                    elif userchoice == 1:
+                        selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-play" ) )
+                    else:
+                        selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-party" ) )
 
             elif path.startswith ( "::INSTALL::" ):
                 # Try to automatically install an addon
