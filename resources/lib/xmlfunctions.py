@@ -862,7 +862,6 @@ class XMLFunctions():
 
     def propertyExists( self, propertyName, element ):
         for item in element.findall( "property" ):
-            print item.attrib
             if propertyName in item.attrib:
                 return True
         return False
