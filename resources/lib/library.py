@@ -39,39 +39,25 @@ def log(txt):
         except:
             pass
 
-def kodilistdir(path, walkEverything = False, stringForce = False):
+def kodiwalk(path, stringForce = False):
     json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Files.GetDirectory","params":{"directory":"%s","media":"files"},"id":1}' % str(path))
     json_query = unicode(json_query, 'utf-8', errors='ignore')
     json_response = simplejson.loads(json_query)
-    dirs = []
     files = []
     if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
         for item in json_response['result']['files']:
             if item.has_key('file') and item.has_key('filetype') and item.has_key('label'):
-                if item['filetype'] == 'directory' and (walkEverything or ((not item['file'].endswith('.xsp')) and (not item['file'].endswith('.xml/')) and (not item['file'].endswith('.xml')))):
+                if item['filetype'] == 'directory' and ((not item['file'].endswith('.xsp')) and (not item['file'].endswith('.xml/')) and (not item['file'].endswith('.xml'))):
                     if stringForce and item['file'].startswith(stringForce):
-                        dirs.append({'path':xbmc.translatePath(item['file']), 'label':item['label']})
+                        files = files + kodiwalk( xbmc.translatePath( item['file'] ), stringForce )
                     else:
-                        dirs.append({'path':item['file'], 'label':item['label']})
+                        files = files + kodiwalk( item['file'], stringForce )
                 else:
                     if stringForce and item['file'].startswith(stringForce):
                         files.append({'path':xbmc.translatePath(item['file']), 'label':item['label']})
                     else:
                         files.append({'path':item['file'], 'label':item['label']})
-    return [path,dirs,files]
-        
-def kodiwalk(path, walkEverything = False, stringForce = False, paths = None):
-    if paths is None or len(paths) == 0:
-        paths = [kodilistdir(path, walkEverything, stringForce)]
-    else:
-        paths.append( kodilistdir(path, walkEverything, stringForce) )
-    dirs = paths[-1][1]
-    for dir in dirs:
-        if stringForce:
-            return kodiwalk(dir['path'].replace(xbmc.translatePath(stringForce),stringForce).replace('\\','/'), walkEverything, stringForce, paths)
-        else:
-            return kodiwalk(dir['path'], walkEverything, stringForce, paths)
-    return paths
+    return files
 
 class LibraryFunctions():
     def __init__( self, *args, **kwargs ):
@@ -992,73 +978,72 @@ class LibraryFunctions():
     def playlists( self ):
         audiolist = []
         videolist = []
-        paths = [['special://videoplaylists/','32004','VideoLibrary'], ['special://musicplaylists/','32005','MusicLibrary'], ["special://skin/playlists/",'32059',None], ["special://skin/extras/",'32059',None], ["special://skin/extras/playlists/",'32059',None]]
+        paths = [['special://videoplaylists/','32004','VideoLibrary'], ['special://musicplaylists/','32005','MusicLibrary'], ["special://skin/playlists/",'32059',None], ["special://skin/extras/",'32059',None]]
         for path in paths:
             count = 0
             if not xbmcvfs.exists(path[0]): continue
-            for root, subdirs, files in kodiwalk( path[0], stringForce = "special://skin/" ):
-                for file in files:
-                    try:
-                        playlist = file['path']
-                        label = file['label']
-                        playlistfile = xbmc.translatePath( playlist ).decode('utf-8')
-                        mediaLibrary = path[2]
+            for file in kodiwalk( path[0] ):
+                try:
+                    playlist = file['path']
+                    label = file['label']
+                    playlistfile = xbmc.translatePath( playlist ).decode('utf-8')
+                    mediaLibrary = path[2]
+                    
+                    if playlist.endswith( '.xsp' ):
+                        contents = xbmcvfs.File(playlistfile, 'r')
+                        contents_data = contents.read().decode('utf-8')
+                        xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
+                        mediaType = "unknown"
+                        for line in xmldata.getiterator():
+                            if line.tag == "smartplaylist":
+                                mediaType = line.attrib['type']
+                                if mediaType == "movies" or mediaType == "tvshows" or mediaType == "seasons" or mediaType == "episodes" or mediaType == "musicvideos" or mediaType == "sets":
+                                    mediaLibrary = "VideoLibrary"
+                                    mediaContent = "video"
+                                elif mediaType == "albums" or mediaType == "artists" or mediaType == "songs":
+                                    mediaLibrary = "MusicLibrary"
+                                    if __xbmcversion__ >= 16:
+                                        mediaLibrary = "Music"
+                                    mediaContent = "music"
+                                
+                            if line.tag == "name" and mediaLibrary is not None:
+                                name = line.text
+                                if not name:
+                                    name = label
+                                # Create a list item
+                                listitem = self._create(["::PLAYLIST>%s::" %( mediaLibrary ), name, path[1], {"icon": "DefaultPlaylist.png"} ])
+                                listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
+                                listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist + ",return)".encode( 'utf-8' ) )
+                                listitem.setProperty( "action-party", "PlayerControl(PartyMode(%s))" %( playlist ) )
+
+                                # Add widget information
+                                listitem.setProperty( "widget", "Playlist" )
+                                listitem.setProperty( "widgetType", mediaType )
+                                listitem.setProperty( "widgetTarget", mediaContent )
+                                listitem.setProperty( "widgetName", name )
+                                listitem.setProperty( "widgetPath", playlist )
+                                
+                                if mediaLibrary == "VideoLibrary":
+                                    videolist.append( listitem )
+                                else:
+                                    audiolist.append( listitem )
+                                # Save it for the widgets list
+                                self.widgetPlaylistsList.append( [playlist, "(" + __language__( int( path[1] ) ) + ") " + name, name] )
+                                
+                                count += 1
+                                break
+
+                    elif playlist.endswith( '.m3u' ):
+                        name = label
+                        listitem = self._create( ["::PLAYLIST::", name, "32005", {"icon": "DefaultPlaylist.png"} ] )
+                        listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
+                        listitem.setProperty( "action-show", "ActivateWindow(MusicLibrary," + playlist + ",return)".encode( 'utf-8' ) )
                         
-                        if playlist.endswith( '.xsp' ):
-                            contents = xbmcvfs.File(playlistfile, 'r')
-                            contents_data = contents.read().decode('utf-8')
-                            xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
-                            mediaType = "unknown"
-                            for line in xmldata.getiterator():
-                                if line.tag == "smartplaylist":
-                                    mediaType = line.attrib['type']
-                                    if mediaType == "movies" or mediaType == "tvshows" or mediaType == "seasons" or mediaType == "episodes" or mediaType == "musicvideos" or mediaType == "sets":
-                                        mediaLibrary = "VideoLibrary"
-                                        mediaContent = "video"
-                                    elif mediaType == "albums" or mediaType == "artists" or mediaType == "songs":
-                                        mediaLibrary = "MusicLibrary"
-                                        if __xbmcversion__ >= 16:
-                                            mediaLibrary = "Music"
-                                        mediaContent = "music"
-                                    
-                                if line.tag == "name" and mediaLibrary is not None:
-                                    name = line.text
-                                    if not name:
-                                        name = label
-                                    # Create a list item
-                                    listitem = self._create(["::PLAYLIST>%s::" %( mediaLibrary ), name, path[1], {"icon": "DefaultPlaylist.png"} ])
-                                    listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
-                                    listitem.setProperty( "action-show", "ActivateWindow(" + mediaLibrary + "," + playlist + ",return)".encode( 'utf-8' ) )
-                                    listitem.setProperty( "action-party", "PlayerControl(PartyMode(%s))" %( playlist ) )
-
-                                    # Add widget information
-                                    listitem.setProperty( "widget", "Playlist" )
-                                    listitem.setProperty( "widgetType", mediaType )
-                                    listitem.setProperty( "widgetTarget", mediaContent )
-                                    listitem.setProperty( "widgetName", name )
-                                    listitem.setProperty( "widgetPath", playlist )
-                                    
-                                    if mediaLibrary == "VideoLibrary":
-                                        videolist.append( listitem )
-                                    else:
-                                        audiolist.append( listitem )
-                                    # Save it for the widgets list
-                                    self.widgetPlaylistsList.append( [playlist, "(" + __language__( int( path[1] ) ) + ") " + name, name] )
-                                    
-                                    count += 1
-                                    break
-
-                        elif playlist.endswith( '.m3u' ):
-                            name = label
-                            listitem = self._create( ["::PLAYLIST::", name, "32005", {"icon": "DefaultPlaylist.png"} ] )
-                            listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
-                            listitem.setProperty( "action-show", "ActivateWindow(MusicLibrary," + playlist + ",return)".encode( 'utf-8' ) )
-                            
-                            audiolist.append( listitem )
-                            
-                            count += 1
-                    except:
-                        log( "Failed to load playlist: %s" %( file ) )
+                        audiolist.append( listitem )
+                        
+                        count += 1
+                except:
+                    log( "Failed to load playlist: %s" %( file ) )
                         
             log( " - [" + path[0] + "] " + str( count ) + " playlists found" )
         
@@ -1073,25 +1058,24 @@ class LibraryFunctions():
             log('Loading script generated playlists...')
             path = "special://profile/addon_data/" + __addonid__ + "/"
             count = 0
-            for root, subdirs, files in kodiwalk( path ):
-                for file in files:
-                    playlist = file['path']
-                    label = file['label']
-                    playlistfile = xbmc.translatePath( playlist ).decode('utf-8')
-                    
-                    if playlist.endswith( '-randomversion.xsp' ):
-                        contents = xbmcvfs.File(playlistfile, 'r')
-                        contents_data = contents.read().decode('utf-8')
-                        xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
-                        for line in xmldata.getiterator():                               
-                            if line.tag == "name":
-                                    
-                                # Save it for the widgets list
-                                # TO-DO - Localize display name
-                                returnPlaylists.append( [playlist.encode( 'utf-8' ), "(Source) " + name, name] )
+            for file in kodiwalk( path ):
+                playlist = file['path']
+                label = file['label']
+                playlistfile = xbmc.translatePath( playlist ).decode('utf-8')
+                
+                if playlist.endswith( '-randomversion.xsp' ):
+                    contents = xbmcvfs.File(playlistfile, 'r')
+                    contents_data = contents.read().decode('utf-8')
+                    xmldata = xmltree.fromstring(contents_data.encode('utf-8'))
+                    for line in xmldata.getiterator():                               
+                        if line.tag == "name":
                                 
-                                count += 1
-                                break
+                            # Save it for the widgets list
+                            # TO-DO - Localize display name
+                            returnPlaylists.append( [playlist.encode( 'utf-8' ), "(Source) " + name, name] )
+                            
+                            count += 1
+                            break
                         
             log( " - [" + path[0] + "] " + str( count ) + " playlists found" )
             
