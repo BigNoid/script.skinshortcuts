@@ -635,10 +635,12 @@ class XMLFunctions():
             self.MAINPROPERTIES = {}
         
         # Additional properties
+        allProps = []
         properties = eval( item.find( "additional-properties" ).text )
         if len( properties ) != 0:
             repr( properties )
             for property in properties:
+                allProps.append(property[0])
                 if property[0] == "node.visible":
                     visibleProperty = xmltree.SubElement( newelement, "visible" )
                     visibleProperty.text = try_decode( property[1] )                    
@@ -730,14 +732,14 @@ class XMLFunctions():
                 onclickelement.text = onclick.text
                 
             # Also add it as a path property
-            if not self.propertyExists( "path", newelement ):
+            if not self.propertyExists( "path", newelement ) and not "path" in allProps:
                 # we only add the path property if there isn't already one in the list because it has to be unique in Kodi lists
                 pathelement = xmltree.SubElement( newelement, "property" )
                 pathelement.set( "name", "path" )
                 pathelement.text = onclickelement.text
             
             # Get 'list' property (the action property of an ActivateWindow shortcut)
-            if not self.propertyExists( "list", newelement ):
+            if not self.propertyExists( "list", newelement ) and not "list" in allProps:
                 # we only add the list property if there isn't already one in the list because it has to be unique in Kodi lists
                 listElement = xmltree.SubElement( newelement, "property" )
                 listElement.set( "name", "list" )
@@ -860,6 +862,7 @@ class XMLFunctions():
 
     def propertyExists( self, propertyName, element ):
         for item in element.findall( "property" ):
+            print item.attrib
             if propertyName in item.attrib:
                 return True
         return False
