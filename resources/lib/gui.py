@@ -384,7 +384,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             labelID = listitem.getProperty( "localizedString" )
             if labelID == None or labelID == "":
                 labelID = listitem.getLabel()
-            labelID = DATA._get_labelID( labelID, listitem.getProperty( "path" ) )
+            labelID = DATA._get_labelID( DATA.local( labelID )[3], listitem.getProperty( "path" ) )
         
         # Retrieve icon
         icon = listitem.getProperty( "icon" )
@@ -1403,7 +1403,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 else: # Multi-image
                     custom_image = imagedialog.browse( 0 , xbmc.getLocalizedString(1030), 'files', '', True, False, self.backgroundBrowseDefault)
                 
-                if custom_image and custom_image != self.backgroundBrowseDefault:
+                if custom_image:
                     self._add_additionalproperty( listitem, "background", custom_image )
                     self._add_additionalproperty( listitem, "backgroundName", custom_image )
                     self._remove_additionalproperty( listitem, "backgroundPlaylist" )
