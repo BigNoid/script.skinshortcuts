@@ -3,6 +3,7 @@ v0.6.7
 - Return to using json to enable/disable Kodi debug logging
 - Jarvis shortcut changes
 - Load skin-playlists from subdirectories
+- Ability to set custom property fallback value
 - Cleanup
 - Minor fixes
 

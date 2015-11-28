@@ -633,12 +633,14 @@ class XMLFunctions():
             self.MAINWIDGET = {}
             self.MAINBACKGROUND = {}
             self.MAINPROPERTIES = {}
+
+        # Get fallback custom properties
+        foundProperties = []
         
         # Additional properties
         allProps = []
         properties = eval( item.find( "additional-properties" ).text )
         if len( properties ) != 0:
-            repr( properties )
             for property in properties:
                 allProps.append(property[0])
                 if property[0] == "node.visible":
@@ -683,6 +685,14 @@ class XMLFunctions():
                             additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
                         except:
                             additionalproperty.text = DATA.local( property[1] )[1]
+
+        # Add fallback custom property values
+        fallbackProperties = DATA._getCustomPropertyFallbacks( groupName )
+        for key in fallbackProperties:
+            if key not in allProps:
+                additionalproperty = xmltree.SubElement( newelement, "property" )
+                additionalproperty.set( "name", key.decode( "utf-8" ) )
+                additionalproperty.text = DATA.local( fallbackProperties[ key ] )[1]
         
         # Primary visibility
         visibility = item.find( "visibility" )

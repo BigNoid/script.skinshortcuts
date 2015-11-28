@@ -55,6 +55,7 @@ class DataFunctions():
 
         self.widgetNameAndType = {}
         self.backgroundName = {}
+        self.fallbackProperties = {}
 
         self.currentProperties = None
         self.defaultProperties = None
@@ -560,6 +561,17 @@ class DataFunctions():
                                         
         returnVal = [ self.currentProperties, self.defaultProperties ]
         return returnVal
+
+    def _getCustomPropertyFallbacks( self, group ):
+        if group in self.fallbackProperties:
+            return self.fallbackProperties[ group ]
+        propertyFallbacks = {}
+        tree = self._get_overrides_skin()
+        for elem in tree.findall( "propertyfallback" ):
+            if ("group" not in elem.attrib and group == "mainmenu") or elem.attrib.get("group") == "group":
+                propertyFallbacks[ elem.attrib.get( "property" ) ] = elem.text
+        self.fallbackProperties[ group ] = propertyFallbacks
+        return propertyFallbacks
         
     def _getWidgetNameAndType( self, widgetID ):
         if widgetID in self.widgetNameAndType:
