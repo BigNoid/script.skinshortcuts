@@ -712,6 +712,8 @@ class DataFunctions():
             return "System.HasShutdown +!System.IsInhibit"
         elif action == "inhibitidleshutdown(false)":
             return "System.HasShutdown + System.IsInhibit"
+        elif action == "restartapp":
+            return "[System.Platform.Windows | System.Platform.Linux] +! System.Platform.Linux.RaspberryPi"
 
         # General visibilities
         elif action == "activatewindow(weather)":

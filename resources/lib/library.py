@@ -790,6 +790,8 @@ class LibraryFunctions():
         listitems.append( self._create(["ShutDown", "13005", "32054", {} ]) )
         listitems.append( self._create(["PowerDown", "13016", "32054", {} ]) )
         listitems.append( self._create(["Quit", "13009", "32054", {} ]) )
+        if (xbmc.getCondVisibility( "System.Platform.Windows" ) or xbmc.getCondVisibility( "System.Platform.Linux" )) and not xbmc.getCondVisibility( "System.Platform.Linux.RaspberryPi" ):
+            listitems.append( self._create(["RestartApp", "13313", "32054", {} ]) )
         listitems.append( self._create(["Hibernate", "13010", "32054", {} ]) )
         listitems.append( self._create(["Suspend", "13011", "32054", {} ]) )
         listitems.append( self._create(["AlarmClock(shutdowntimer,XBMC.Shutdown())", "19026", "32054", {} ]) )
