@@ -252,15 +252,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Initial properties
         count = 0
+        visible = False
         DATA._clear_labelID()
         listitems = []
-        
-        # If there are no shortcuts, add a blank one
-        if len( self.allListItems ) == 0:
-            listitem = xbmcgui.ListItem( __language__(32013), iconImage = "DefaultShortcut.png" )
-            listitem.setProperty( "Path", 'noop' )
-            listitem.setProperty( "icon", "DefaultShortcut.png" )
-            self.allListItems = [ listitem ]
         
         for listitem in self.allListItems:
             # Get icon overrides
@@ -275,11 +269,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 shouldDisplay = xbmc.getCondVisibility( listitem.getProperty( "visible-condition" ) )
                 
             if shouldDisplay == True:
+                visible = True
                 listitems.append( listitem )
                 
             # Increase our count
             count += 1
-                
+
+        # If there are no shortcuts, add a blank one
+        if visible == False:
+            listitem = xbmcgui.ListItem( __language__(32013), iconImage = "DefaultShortcut.png" )
+            listitem.setProperty( "Path", 'noop' )
+            listitem.setProperty( "icon", "DefaultShortcut.png" )
+            listitem.setProperty( "skinshortcuts-orderindex", str( count ) )
+            listitems.append( listitem )
+            self.allListItems.append( listitem )
+
         self.getControl( 211 ).reset()
         self.getControl( 211 ).addItems( listitems )
         if focus is not None:
