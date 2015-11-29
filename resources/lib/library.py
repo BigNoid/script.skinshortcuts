@@ -1472,7 +1472,7 @@ class LibraryFunctions():
                 listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  >", "" ), label2=localItemType, iconImage="DefaultShortcut.png", thumbnailImage=thumbnail[ len( thumbnail ) - 1 ])
                 
                 # Build the action
-                if itemType == "32010" or itemType == "32014" or itemType == "32069":
+                if itemType in [ "32010", "32014", "32069" ]:
                     action = 'ActivateWindow(10025,"' + location + '",return)'
                     listitem.setProperty( "windowID", "10025" )
                     listitem.setProperty( "widgetType", "video" )
@@ -1493,9 +1493,9 @@ class LibraryFunctions():
                     listitem.setProperty( "widgetName", dialogLabel )
                     listitem.setProperty( "widgetPath", location )
 
-                elif itemType == "32011" or itemType == "32019" or itemType == "32073":
-                    action = 'ActivateWindow(10501,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "10501" )
+                elif itemType in [ "32011", "32019", "32073" ]:
+                    action = 'ActivateWindow(10502,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "10502" )
 
                     # Add widget details
                     listitem.setProperty( "widgetType", "audio" )
@@ -1513,7 +1513,7 @@ class LibraryFunctions():
                     listitem.setProperty( "widgetName", dialogLabel )
                     listitem.setProperty( "widgetPath", location )
 
-                elif itemType == "32012" or itemType == "32089":
+                elif itemType in [ "32012", "32089" ]:
                     action = 'ActivateWindow(10002,"' + location + '",return)'
                     listitem.setProperty( "windowID", "10002" )
 
@@ -1708,7 +1708,7 @@ class LibraryFunctions():
             elif userChoice == 6:
                 mediaType = "musicvideo"
                 negative = True
-        elif windowID == "10501":
+        elif windowID == "10502":
             # Music library                                    Files view           Songs                          Albums                         Mixed                           !Songs               !Albums               !Mixed
             userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(134), xbmc.getLocalizedString(132), xbmc.getLocalizedString(20395), __language__(32084), __language__(32085), __language__(32086) ] )            
             if userChoice == -1:
