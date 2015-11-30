@@ -6,13 +6,14 @@ Skin Shortcuts can be used to let the user select from a wide variety of options
 
 By default, Skin Shortcuts provides a large array of available widgets which can be displayed using the list-filling methods of Kodi. You can define any further widgets in your skins [overrides.xml](./overrides.md) file.
 
-`<widget label="[label]" icon="[icon]" condition="[Condition]" type="[type]" path="[path]" target="[target]">[widgetID]</widget>`
+`<widget label="[label]" icon="[icon]" condition="[Condition]" name="name" type="[type]" path="[path]" target="[target]">[widgetID]</widget>`
 
 | Property | Optional | Description |
 | :------: | :------: | ----------- |
 | `[label]` | | The display name of the widget, to be shown when choosing widgets (can be a localised string) |
 | `[icon]` | Yes | An image provided by your skin to be used when selecting widgets |
 | `[Condition]` | Yes | Boolean condition that must be true for the background to show in the management dialogs Background Select (evaluated when management dialog is loaded) | 
+| `[name]` | Yes | The string that will be assigned to `<property name="widgetName">`. If ommitted, this will be set to the value of `[label]` |
 | `[type]` | Yes | The string that will be assigned to `<property name="widgetType">` |
 | `[path]` | Yes | The string that will be assigned to `<property name="widgetPath">` |
 | `[target]` | Yes | The string that will be assigned to `<property name="widgetTarget">` |

@@ -310,7 +310,10 @@ class LibraryFunctions():
                 if "widget" in node.attrib:
                     # This is a widget shortcut, so add the relevant widget information
                     shortcutItem.setProperty( "widget", node.attrib.get( "widget" ) )
-                    shortcutItem.setProperty( "widgetName", node.attrib.get( "label" ) )
+                    if "widgetName" in node.attrib:
+                        shortcutItem.setProperty( "widgetName", node.attrib.get( "widgetName" ) )
+                    else:
+                        shortcutItem.setProperty( "widgetName", node.attrib.get( "label" ) )
                     shortcutItem.setProperty( "widgetPath", node.text )
                     if "widgetType" in node.attrib:
                         shortcutItem.setProperty( "widgetType", node.attrib.get( "widgetType" ) )
@@ -1271,6 +1274,7 @@ class LibraryFunctions():
             widgetPath = None
             widgetTarget = None
             widgetIcon = ""
+            widgetName = None
             if "type" in elem.attrib:
                 widgetType = elem.attrib.get( "type" )
             if "condition" in elem.attrib:
@@ -1282,6 +1286,8 @@ class LibraryFunctions():
                 widgetTarget = elem.attrib.get( "target" )
             if "icon" in elem.attrib:
                 widgetIcon = elem.attrib.get( "icon" )
+            if "name" in elem.attrib:
+                widgetName = DATA.local( elem.attrib.get( 'name' ) )[2]
 
             # Save widget for button 309
             self.dictionaryGroupings[ "widgets-classic" ].append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], widgetType, widgetPath, widgetIcon, widgetTarget ] )
@@ -1289,7 +1295,10 @@ class LibraryFunctions():
             # Save widgets for button 312
             listitem = self._create( [ elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], "::SCRIPT::32099", {"icon": widgetIcon } ] )
             listitem.setProperty( "widget", elem.text )
-            listitem.setProperty( "widgetName", DATA.local( elem.attrib.get( 'label' ) )[2] )
+            if widgetName is not None:
+                listitem.setProperty( "widgetName", widgetName )
+            else:
+                listitem.setProperty( "widgetName", DATA.local( elem.attrib.get( 'label' ) )[2] )
             if widgetType is not None:
                 listitem.setProperty( "widgetType", widgetType )
             if widgetPath is not None:

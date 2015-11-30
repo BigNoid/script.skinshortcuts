@@ -11,6 +11,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Jarvis changes to music shortcuts - Please be aware that the shortcuts used to access various areas of the music library have changed. Skin Shortcuts will do its best to update any actions to the Jarvis version when the menu is built, but if this doesn't work (or if you are using the 'Just Select' method) the user may need to reset the action for these shortcuts.
 - Skin playlists will now additionally be correctly loaded from subdirectories on all platforms
 - Ability to set a fallback value for a custom property, used if the user hasn't selected a vlue - [Read More](./resources/docs/advanced/Custom shortcut properties.md#for-all-shortcuts-without-a-user-set-property)
+- Ability to set widgetName property separately from label using `<shortcut />` elements in a custom groupings - [Read More](./resources/docs/advanced/Custom groupings.md#shortcut--element---widget) - and when defining available widgets [Read More](./resources/docs/advanced/Managing widgets.md#defining-available-widgets)
 
 #### Version 0.6.6 - repo version
 
