@@ -669,13 +669,13 @@ class XMLFunctions():
                         if "clonewidgets" in options:
                             widgetProperties = [ "widget", "widgetName", "widgetType", "widgetTarget", "widgetPath", "widgetPlaylist" ]
                             if property[0] in widgetProperties:
-                                self.MAINWIDGET[ property[0] ] = property[1]
+                                self.MAINWIDGET[ property[0] ] = DATA.local( property[1] )[ 2 ]
                         if "clonebackgrounds" in options:
                             backgroundProperties = [ "background", "backgroundName", "backgroundPlaylist", "backgroundPlaylistName" ]
                             if property[0] in backgroundProperties:
-                                self.MAINBACKGROUND[ property[0] ] = property[1]
+                                self.MAINBACKGROUND[ property[0] ] = DATA.local( property[1] )[ 2 ]
                         if "cloneproperties" in options:
-                            self.MAINPROPERTIES[ property[0] ] = property[1]
+                            self.MAINPROPERTIES[ property[0] ] = DATA.local( property[1] )[ 2 ]
 
                     # For backwards compatibility, save widgetPlaylist as widgetPath too
                     if property[ 0 ] == "widgetPlaylist":
