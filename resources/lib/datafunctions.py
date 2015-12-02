@@ -568,7 +568,7 @@ class DataFunctions():
         propertyFallbacks = {}
         tree = self._get_overrides_skin()
         for elem in tree.findall( "propertyfallback" ):
-            if ("group" not in elem.attrib and group == "mainmenu") or elem.attrib.get("group") == "group":
+            if ("group" not in elem.attrib and group == "mainmenu") or elem.attrib.get("group") == group:
                 propertyFallbacks[ elem.attrib.get( "property" ) ] = elem.text
         self.fallbackProperties[ group ] = propertyFallbacks
         return propertyFallbacks
