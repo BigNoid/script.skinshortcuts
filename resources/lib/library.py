@@ -1410,7 +1410,7 @@ class LibraryFunctions():
                         properties.append( [key, value ] )
                     listitem.setProperty( "smartShortcutProperties", repr( properties ) )
                     listitem.setProperty( "untranslatedIcon", thumb )
-                    listitem.setProperty( "widget", "addon" )
+                    listitem.setProperty( "widget", smartShortCutsData.get("widget","Addon") )
                     listitem.setProperty( "widgetName", item["label"] )
                     listitem.setProperty( "widgetType", smartShortCutsData["type"] )
                     if smartShortCutsData["type"] == "music" or smartShortCutsData["type"] == "artists" or smartShortCutsData["type"] == "albums" or smartShortCutsData["type"] == "songs":
