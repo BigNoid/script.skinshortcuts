@@ -497,7 +497,12 @@ class XMLFunctions():
                         justmenuTreeB.append( menuitemCopy )
 
                         if buildMode == "single":
-                            allmenuTree.append( copy.deepcopy( menuitemCopy ) )
+                            # Add the property 'submenuVisibility'
+                            allmenuTreeCopy = copy.deepcopy( menuitemCopy )
+                            submenuVisibility = xmltree.SubElement( allmenuTreeCopy, "property" )
+                            submenuVisibility.set( "name", "submenuVisibility" )
+                            submenuVisibility.text = DATA.slugify( submenuVisibilityName, convertInteger=True )
+                            allmenuTree.append( allmenuTreeCopy )
 
                         menuitemCopy = copy.deepcopy( menuitem )
                         visibilityElement = menuitemCopy.find( "visible" )
