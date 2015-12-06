@@ -252,15 +252,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Initial properties
         count = 0
+        visible = False
         DATA._clear_labelID()
         listitems = []
-        
-        # If there are no shortcuts, add a blank one
-        if len( self.allListItems ) == 0:
-            listitem = xbmcgui.ListItem( __language__(32013), iconImage = "DefaultShortcut.png" )
-            listitem.setProperty( "Path", 'noop' )
-            listitem.setProperty( "icon", "DefaultShortcut.png" )
-            self.allListItems = [ listitem ]
         
         for listitem in self.allListItems:
             # Get icon overrides
@@ -275,11 +269,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 shouldDisplay = xbmc.getCondVisibility( listitem.getProperty( "visible-condition" ) )
                 
             if shouldDisplay == True:
+                visible = True
                 listitems.append( listitem )
                 
             # Increase our count
             count += 1
-                
+
+        # If there are no shortcuts, add a blank one
+        if visible == False:
+            listitem = xbmcgui.ListItem( __language__(32013), iconImage = "DefaultShortcut.png" )
+            listitem.setProperty( "Path", 'noop' )
+            listitem.setProperty( "icon", "DefaultShortcut.png" )
+            listitem.setProperty( "skinshortcuts-orderindex", str( count ) )
+            listitems.append( listitem )
+            self.allListItems.append( listitem )
+
         self.getControl( 211 ).reset()
         self.getControl( 211 ).addItems( listitems )
         if focus is not None:
@@ -355,9 +359,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
         additionalProperties = item.find( "additional-properties" )
         backgroundName = None
         backgroundPlaylistName = None
+        foundProperties = []
         if additionalProperties is not None:
             listitem.setProperty( "additionalListItemProperties", additionalProperties.text )
             for property in eval( additionalProperties.text ):
+                foundProperties.append( property[ 0 ] )
                 if property[1].startswith("$") and not property[ 1 ].startswith( "$SKIN" ):
                     #Translate some listItem properties if needed so they're displayed correctly in the gui
                     listitem.setProperty(property[0],xbmc.getInfoLabel(property[1]))
@@ -375,6 +381,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitem.setProperty( "backgroundName", DATA.local( backgroundName )[2].replace( "::PLAYLIST::", backgroundPlaylistName ) )
         else:
             listitem.setProperty( "additionalListItemProperties", "[]" )
+
+        # Add fallback custom property values
+        fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
+        for key in fallbackProperties:
+            if key not in foundProperties:
+                listitem.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
                 
         return [ isVisible, listitem ]
 
@@ -384,7 +396,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             labelID = listitem.getProperty( "localizedString" )
             if labelID == None or labelID == "":
                 labelID = listitem.getLabel()
-            labelID = DATA._get_labelID( labelID, listitem.getProperty( "path" ) )
+            labelID = DATA._get_labelID( DATA.local( labelID )[3], listitem.getProperty( "path" ) )
         
         # Retrieve icon
         icon = listitem.getProperty( "icon" )
@@ -897,8 +909,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
             num = listControl.getSelectedPosition()
             orderIndex = int( listControl.getListItem( num ).getProperty( "skinshortcuts-orderindex" ) ) + 1
             
+            # Set default label and action
             listitem = xbmcgui.ListItem( __language__(32013) )
             listitem.setProperty( "Path", 'noop' )
+
+            # Add fallback custom property values
+            fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
+            for key in fallbackProperties:
+                listitem.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
             
             # Add new item to both displayed list and list kept in memory
             self.allListItems.insert( orderIndex, listitem )
@@ -1403,7 +1421,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 else: # Multi-image
                     custom_image = imagedialog.browse( 0 , xbmc.getLocalizedString(1030), 'files', '', True, False, self.backgroundBrowseDefault)
                 
-                if custom_image and custom_image != self.backgroundBrowseDefault:
+                if custom_image:
                     self._add_additionalproperty( listitem, "background", custom_image )
                     self._add_additionalproperty( listitem, "backgroundName", custom_image )
                     self._remove_additionalproperty( listitem, "backgroundPlaylist" )
@@ -1800,6 +1818,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitemCopy.setProperty( "icon", icon )
         
         # If we've haven't been passed an originallistitem, set the following from the listitem we were passed
+        foundProperties = []
         if originallistitem is None:
             listitemCopy.setProperty( "labelID", listitem.getProperty("labelID") )
             if listitem.getProperty( "visible-condition" ):
@@ -1809,6 +1828,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitemProperties = eval( listitem.getProperty( "additionalListItemProperties" ) )
                 
                 for listitemProperty in listitemProperties:
+                    foundProperties.append( listitemProperty[ 0 ] )
                     listitemCopy.setProperty( listitemProperty[0], DATA.local( listitemProperty[1] )[2] )
         else:
             # Set these from the original item we were passed (this will keep original labelID and additional properties
@@ -1821,7 +1841,14 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitemProperties = eval( originallistitem.getProperty( "additionalListItemProperties" ) )
                 
                 for listitemProperty in listitemProperties:
+                    foundProperties.append( listitemProperty[ 0 ] )
                     listitemCopy.setProperty( listitemProperty[0], DATA.local(listitemProperty[1] )[2] )
+
+        # Add fallback custom property values
+        fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
+        for key in fallbackProperties:
+            if key not in foundProperties:
+                listitemCopy.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
                 
         return listitemCopy
                 

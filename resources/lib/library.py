@@ -310,7 +310,10 @@ class LibraryFunctions():
                 if "widget" in node.attrib:
                     # This is a widget shortcut, so add the relevant widget information
                     shortcutItem.setProperty( "widget", node.attrib.get( "widget" ) )
-                    shortcutItem.setProperty( "widgetName", node.attrib.get( "label" ) )
+                    if "widgetName" in node.attrib:
+                        shortcutItem.setProperty( "widgetName", node.attrib.get( "widgetName" ) )
+                    else:
+                        shortcutItem.setProperty( "widgetName", node.attrib.get( "label" ) )
                     shortcutItem.setProperty( "widgetPath", node.text )
                     if "widgetType" in node.attrib:
                         shortcutItem.setProperty( "widgetType", node.attrib.get( "widgetType" ) )
@@ -790,6 +793,8 @@ class LibraryFunctions():
         listitems.append( self._create(["ShutDown", "13005", "32054", {} ]) )
         listitems.append( self._create(["PowerDown", "13016", "32054", {} ]) )
         listitems.append( self._create(["Quit", "13009", "32054", {} ]) )
+        if (xbmc.getCondVisibility( "System.Platform.Windows" ) or xbmc.getCondVisibility( "System.Platform.Linux" )) and not xbmc.getCondVisibility( "System.Platform.Linux.RaspberryPi" ):
+            listitems.append( self._create(["RestartApp", "13313", "32054", {} ]) )
         listitems.append( self._create(["Hibernate", "13010", "32054", {} ]) )
         listitems.append( self._create(["Suspend", "13011", "32054", {} ]) )
         listitems.append( self._create(["AlarmClock(shutdowntimer,XBMC.Shutdown())", "19026", "32054", {} ]) )
@@ -1269,6 +1274,7 @@ class LibraryFunctions():
             widgetPath = None
             widgetTarget = None
             widgetIcon = ""
+            widgetName = None
             if "type" in elem.attrib:
                 widgetType = elem.attrib.get( "type" )
             if "condition" in elem.attrib:
@@ -1280,6 +1286,8 @@ class LibraryFunctions():
                 widgetTarget = elem.attrib.get( "target" )
             if "icon" in elem.attrib:
                 widgetIcon = elem.attrib.get( "icon" )
+            if "name" in elem.attrib:
+                widgetName = DATA.local( elem.attrib.get( 'name' ) )[2]
 
             # Save widget for button 309
             self.dictionaryGroupings[ "widgets-classic" ].append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], widgetType, widgetPath, widgetIcon, widgetTarget ] )
@@ -1287,7 +1295,10 @@ class LibraryFunctions():
             # Save widgets for button 312
             listitem = self._create( [ elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], "::SCRIPT::32099", {"icon": widgetIcon } ] )
             listitem.setProperty( "widget", elem.text )
-            listitem.setProperty( "widgetName", DATA.local( elem.attrib.get( 'label' ) )[2] )
+            if widgetName is not None:
+                listitem.setProperty( "widgetName", widgetName )
+            else:
+                listitem.setProperty( "widgetName", DATA.local( elem.attrib.get( 'label' ) )[2] )
             if widgetType is not None:
                 listitem.setProperty( "widgetType", widgetType )
             if widgetPath is not None:
@@ -1470,7 +1481,7 @@ class LibraryFunctions():
                 listitem = xbmcgui.ListItem(label=label[ len( label ) - 1 ].replace( "  >", "" ), label2=localItemType, iconImage="DefaultShortcut.png", thumbnailImage=thumbnail[ len( thumbnail ) - 1 ])
                 
                 # Build the action
-                if itemType == "32010" or itemType == "32014" or itemType == "32069":
+                if itemType in [ "32010", "32014", "32069" ]:
                     action = 'ActivateWindow(10025,"' + location + '",return)'
                     listitem.setProperty( "windowID", "10025" )
                     listitem.setProperty( "widgetType", "video" )
@@ -1491,9 +1502,9 @@ class LibraryFunctions():
                     listitem.setProperty( "widgetName", dialogLabel )
                     listitem.setProperty( "widgetPath", location )
 
-                elif itemType == "32011" or itemType == "32019" or itemType == "32073":
-                    action = 'ActivateWindow(10501,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "10501" )
+                elif itemType in [ "32011", "32019", "32073" ]:
+                    action = 'ActivateWindow(10502,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "10502" )
 
                     # Add widget details
                     listitem.setProperty( "widgetType", "audio" )
@@ -1511,7 +1522,7 @@ class LibraryFunctions():
                     listitem.setProperty( "widgetName", dialogLabel )
                     listitem.setProperty( "widgetPath", location )
 
-                elif itemType == "32012" or itemType == "32089":
+                elif itemType in [ "32012", "32089" ]:
                     action = 'ActivateWindow(10002,"' + location + '",return)'
                     listitem.setProperty( "windowID", "10002" )
 
@@ -1706,7 +1717,7 @@ class LibraryFunctions():
             elif userChoice == 6:
                 mediaType = "musicvideo"
                 negative = True
-        elif windowID == "10501":
+        elif windowID == "10502":
             # Music library                                    Files view           Songs                          Albums                         Mixed                           !Songs               !Albums               !Mixed
             userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(134), xbmc.getLocalizedString(132), xbmc.getLocalizedString(20395), __language__(32084), __language__(32085), __language__(32086) ] )            
             if userChoice == -1:
