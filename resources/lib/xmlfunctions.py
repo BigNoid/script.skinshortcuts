@@ -164,6 +164,9 @@ class XMLFunctions():
                 return True
         except:
             pass
+
+        # Save some settings to skin strings
+        xbmc.executebuiltin( "Skin.SetString(skinshortcuts-sharedmenu,%s)" %( __addon__.getSetting( "shared_menu" ) ) )
             
         # Get the skins addon.xml file
         addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")
@@ -191,8 +194,6 @@ class XMLFunctions():
                 return True
             else:
                 pass
-                
-
 
         try:
             hashes = ast.literal_eval( xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ) ).read() )
@@ -201,11 +202,18 @@ class XMLFunctions():
             log( "No hash list" )
             print_exc()
             return True
+
+        # We're not going to check for this, but we want the context_menu setting saved to a skin string
+        log( repr( __addon__.getSetting( "context_menu" ) ) )
+        xbmc.executebuiltin( "Skin.SetString(skinshortcuts-contextmenu,%s)" % ( __addon__.getSetting( "context_menu" ) ) )
         
         checkedXBMCVer = False
         checkedSkinVer = False
         checkedScriptVer = False
         checkedProfileList = False
+        checkedPVRVis = False
+        checkedSharedMenu = False
+        foundFullMenu = False
             
         for hash in hashes:
             if hash[1] is not None:
@@ -248,6 +256,12 @@ class XMLFunctions():
                             xbmc.executebuiltin( "Skin.SetBool(%s)" %( hash[ 1 ][ 1 ] ) )
                         else:
                             xbmc.executebuiltin( "Skin.Reset(%s)" %( hash[ 1 ][ 1 ] ) )
+                elif hash[0] == "::FULLMENU::":
+                    # Mark that we need to set the fullmenu bool
+                    foundFullMenu = True
+                elif hash[0] == "::SKINDIR::":
+                    # Used to import menus from one skin to another, nothing to check here
+                    pass
                 else:
                     try:
                         hasher = hashlib.md5()
@@ -263,7 +277,13 @@ class XMLFunctions():
                 if xbmcvfs.exists( hash[0] ):
                     log( "File now exists " + hash[0] )
                     return True
-                
+
+        # Set or clear the FullMenu skin bool
+        if foundFullMenu:
+            xbmc.executebuiltin( "Skin.SetBool(SkinShortcuts-FullMenu)" )
+        else:
+            xbmc.executebuiltin( "Skin.Reset(SkinShortcuts-FullMenu)" )
+        
         # If the skin or script version, or profile list, haven't been checked, we need to rebuild the menu 
         # (most likely we're running an old version of the script)
         if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False:

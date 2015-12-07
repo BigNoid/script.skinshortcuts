@@ -124,7 +124,8 @@ class DataFunctions():
         self.labelIDList.pop()
     
                 
-    def _get_shortcuts( self, group, defaultGroup = None, isXML = False, profileDir = None, defaultsOnly = False ):
+    def _get_shortcuts( self, group, defaultGroup = None, isXML = False, profileDir = None, defaultsOnly = False, processShortcuts = True ):
+        log( repr( processShortcuts ) )
         # This will load the shortcut file
         # Additionally, if the override files haven't been loaded, we'll load them too
         log( "Loading shortcuts for group " + group )
@@ -153,7 +154,7 @@ class DataFunctions():
                 self._save_hash( path, file )
                 tree = xmltree.parse( path )
             
-            if tree is not None:
+            if tree is not None and processShortcuts:
                 # If this is a user-selected list of shortcuts...
                 if path == userShortcuts:
                     if group == "mainmenu":
@@ -165,8 +166,12 @@ class DataFunctions():
                     if group == "mainmenu":
                         self._get_skin_required( tree, group, profileDir )
                     self._process_shortcuts( tree, group, profileDir )
-                                        
-                log( " - Loaded file " + path ) 
+
+                log( " - Loaded file " + path )
+                return tree
+            elif tree is not None:
+                log( " - Loaded file " + path )
+                log( " - Returning unprocessed shortcuts" )
                 return tree
             else:
                 self._save_hash( path, None )

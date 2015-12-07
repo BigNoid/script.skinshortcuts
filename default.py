@@ -38,6 +38,7 @@ import xmlfunctions, datafunctions, library, nodefunctions
 XML = xmlfunctions.XMLFunctions()
 DATA = datafunctions.DataFunctions()
 LIBRARY = library.LibraryFunctions()
+NODE = nodefunctions.NodeFunctions()
 
 hashlist = []
 
@@ -183,6 +184,13 @@ class Main:
                     xbmc.executebuiltin( "Skin.Reset(" + self.WIDGETTARGET + ")" )
                 if self.WIDGETPATH is not None:
                     xbmc.executebuiltin( "Skin.Reset(" + self.WIDGETPATH + ")" )
+
+        if self.TYPE=="context":
+            # Context menu addon asking us to add a folder to the menu
+            if not xbmc.getCondVisibility( "Skin.HasSetting(SkinShortcuts-FullMenu)" ):
+                line1 = "The skin you are using does not support adding items directly to the main menu"
+                xbmcgui.Dialog().ok(__addonname__, line1)
+            NODE.addToMenu( self.CONTEXTFILENAME, self.CONTEXTLABEL, self.CONTEXTICON, self.CONTEXTCONTENT, self.CONTEXTWINDOW, DATA )
                 
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
@@ -244,6 +252,13 @@ class Main:
         self.MINITEMS = int( params.get( "minitems", "0" ) )
         self.WARNING = params.get( "warning", None )
         self.DEFAULTGROUP = params.get( "defaultGroup", None )
+
+        # Properties from context menu addon
+        self.CONTEXTFILENAME = params.get( "filename", "" )
+        self.CONTEXTLABEL = params.get( "label", "" )
+        self.CONTEXTICON = params.get( "icon", "" )
+        self.CONTEXTCONTENT = params.get( "content", "" )
+        self.CONTEXTWINDOW = params.get( "window", "" )
     
     
     # -----------------
