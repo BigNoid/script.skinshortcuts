@@ -245,6 +245,10 @@ class XMLFunctions():
                     # Check if Library.HasContent(Music) has changed
                     if xbmc.getCondVisibility( "Library.HasContent(Music)" ) != hash[1]:
                         log( "Whether there is music in the library has changed" )
+                elif hash[0] == "::HIDEPVR::":
+                    checkedPVRVis = True
+                    if __addon__.getSetting( "donthidepvr" ) != hash[1]:
+                        log( "PVR visibility setting has changed" )
                         return True
                 elif hash[0] == "::LANGUAGE::":
                     # We no longer need to rebuild on a system language change
@@ -286,7 +290,7 @@ class XMLFunctions():
         
         # If the skin or script version, or profile list, haven't been checked, we need to rebuild the menu 
         # (most likely we're running an old version of the script)
-        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False:
+        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False or checkedPVRVis == False:
             return True
         
             
@@ -302,6 +306,7 @@ class XMLFunctions():
         hashlist.list.append( ["::XBMCVER::", __xbmcversion__] )
         if int( __xbmcversion__ ) <= 15:
             hashlist.list.append( ["::MUSICCONTENT::", xbmc.getCondVisibility( "Library.HasContent(Music)" ) ] )
+        hashlist.list.append( ["::HIDEPVR::",  __addon__.getSetting( "donthidepvr" )] )
         
         # Clear any skin settings for backgrounds and widgets
         DATA._reset_backgroundandwidgets()

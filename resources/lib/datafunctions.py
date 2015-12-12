@@ -725,11 +725,11 @@ class DataFunctions():
         # General visibilities
         elif action == "activatewindow(weather)":
             return "!IsEmpty(Weather.Plugin)"
-        elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ):
+        elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ) and __addon__.getSetting( "donthidepvr" ) == "false":
             return "system.getbool(pvrmanager.enabled)"
-        elif action.startswith( "activatewindow(tv" ):
+        elif action.startswith( "activatewindow(tv" ) and __addon__.getSetting( "donthidepvr" ) == "false":
             return "PVR.HasTVChannels"
-        elif action.startswith( "activatewindow(radio" ):
+        elif action.startswith( "activatewindow(radio" ) and __addon__.getSetting( "donthidepvr" ) == "false":
             return "PVR.HasRadioChannels"
         elif action.startswith( "activatewindow(videos,movie" ):
             return "Library.HasContent(Movies)"

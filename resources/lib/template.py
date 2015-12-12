@@ -55,9 +55,6 @@ class Template():
         if self.includes is None or self.tree is None:
             return
             
-        if profile == "test":
-            pass
-            
         # Get the template for this menu
         if menuType == "mainmenu":
             template = copy.deepcopy( self.tree.find( "mainmenu" ) )
