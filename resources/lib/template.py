@@ -59,6 +59,7 @@ class Template():
         if menuType == "mainmenu":
             template = copy.deepcopy( self.tree.find( "mainmenu" ) )
         else:
+            if len( items.findall( "item" ) ) == 0: return
             template = self.findSubmenu( menuName, level )
             
         if template is not None:
