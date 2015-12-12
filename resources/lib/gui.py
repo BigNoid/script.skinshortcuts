@@ -1585,14 +1585,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Check if we're launching a specific additional menu
             if controlID == 406:
                 launchGroup = launchGroup + ".1"
+                launchDefaultGroup = launchDefaultGroup + ".1"
             elif controlID == 407:
                 launchGroup = launchGroup + ".2"
+                launchDefaultGroup = launchDefaultGroup + ".2"
             elif controlID == 408:
                 launchGroup = launchGroup + ".3"
+                launchDefaultGroup = launchDefaultGroup + ".3"
             elif controlID == 409:
                 launchGroup = launchGroup + ".4"
+                launchDefaultGroup = launchDefaultGroup + ".4"
             elif controlID == 410:
                 launchGroup = launchGroup + ".5"
+                launchDefaultGroup = launchDefaultGroup + ".5"
             # Check if 'level' property has been set
             elif self.currentWindow.getProperty("level"):
                 launchGroup = launchGroup + "." + self.currentWindow.getProperty("level")
