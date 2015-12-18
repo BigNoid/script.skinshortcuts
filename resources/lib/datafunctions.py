@@ -1045,6 +1045,8 @@ class DataFunctions():
         if action.lower() == "activatewindow(musicfiles)" and int( __xbmcversion__ ) >= 16:
             return "ActivateWindow(Music,Files,Return)"
 
+        if "," not in action: return action
+
         if action.lower().startswith("activatewindow(musiclibrary") and int( __xbmcversion__ ) >= 16:
             return "ActivateWindow(Music," + action.split( ",", 1 )[ 1 ]
 
