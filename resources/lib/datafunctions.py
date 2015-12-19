@@ -452,7 +452,7 @@ class DataFunctions():
     def _get_additionalproperties( self, profileDir ):
         # Load all saved properties (widgets, backgrounds, custom properties)
 
-        if self.currentProperties:
+        if self.currentProperties is not None:
             return[ self.currentProperties, self.defaultProperties ]
             
         self.currentProperties = []
@@ -474,7 +474,9 @@ class DataFunctions():
                     # listProperty[3] = property value
                     self.currentProperties.append( [listProperty[0], listProperty[1], listProperty[2], listProperty[3]] )
             except:
-                pass
+                self.currentProperties = [ None ]
+        else:
+            self.currentProperties = [ None ]
             
         # Load skin defaults (in case we need them...)
         tree = self._get_overrides_skin()
@@ -798,7 +800,7 @@ class DataFunctions():
         #  allProperties[0] = Saved properties
         #  allProperties[1] = Default properties
         
-        if isUserShortcuts:
+        if isUserShortcuts and ( len( allProperties[ 0 ] ) == 0 or allProperties[ 0 ][ 0 ] is not None ):
             currentProperties = allProperties[0]
             
         # Loop through the current properties, looking for the current item
