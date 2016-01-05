@@ -1043,7 +1043,31 @@ class DataFunctions():
     def upgradeAction( self, action ):
         # This function looks for actions used in a previous version of Kodi, and upgrades them to the current action
 
-        # Jarvis music changes
+        # Isengard + earlier music addons
+        if int( __xbmcversion__ ) <= 15:
+            # Shortcut to addon section
+            if action.lower().startswith( "activatewindow(musiclibrary,addons" ) and xbmc.getCondVisibility( "!Library.HasContent(Music)" ):
+                return( "ActivateWindow(MusicFiles,Addons,return)" )
+            elif action.lower().startswith( "activatewindow(10502,addons" ) and xbmc.getCondVisibility( "!Library.HasContent(Music)" ):
+                return( "ActivateWindow(10501,Addons,return)" )
+            elif action.lower().startswith( "activatewindow(musicfiles,addons" ) and xbmc.getCondVisibility( "Library.HasContent(Music)" ):
+                return( "ActivateWindow(MusicLibrary,Addons,return)" )
+            elif action.lower().startswith( "activatewindow(10501,addons" ) and xbmc.getCondVisibility( "Library.HasContent(Music)" ):
+                return( "ActivateWindow(10502,Addons,return)" )
+
+            # Shortcut to a specific addon
+            if "plugin://" in action.lower():
+                if action.lower().startswith( "activatewindow(musiclibrary" ) and xbmc.getCondVisibility( "!Library.HasContent(Music)" ):
+                    return self.buildReplacementMusicAddonAction( action, "MusicFiles" )
+                elif action.lower().startswith( "activatewindow(10502" ) and xbmc.getCondVisibility( "!Library.HasContent(Music)" ):
+                    return self.buildReplacementMusicAddonAction( action, "10501" )
+                elif action.lower().startswith( "activatewindow(musicfiles" ) and xbmc.getCondVisibility( "Library.HasContent(Music)" ):
+                    return self.buildReplacementMusicAddonAction( action, "MusicLibrary" )
+                elif action.lower().startswith( "activatewindow(10501" ) and xbmc.getCondVisibility( "Library.HasContent(Music)" ):
+                    return self.buildReplacementMusicAddonAction( action, "10502" )
+
+
+        # Jarvis + later music windows
         if action.lower() == "activatewindow(musicfiles)" and int( __xbmcversion__ ) >= 16:
             return "ActivateWindow(Music,Files,Return)"
 
@@ -1054,3 +1078,15 @@ class DataFunctions():
 
         # No matching upgrade
         return action
+
+    def buildReplacementMusicAddonAction( self, action, window ):
+        # Builds a replacement action for an Isengard or earlier shortcut to a specific music addon
+        splitAction = action.split( "," )
+        # [0] = ActivateWindow([window]
+        # [1] = "plugin://plugin.name/path?params"
+        # [2] = return)
+        
+        if len(splitAction) == 2:
+            return "ActivateWindow(%s,%s)" %( window, splitAction[ 1 ] )
+        else:
+            return "ActivateWindow(%s,%s,return)" %( window, splitAction[ 1 ] )
