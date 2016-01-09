@@ -8,6 +8,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 #### Version 1.0.1 - git version
 
 - Ability to match multiple values when setting a property in a template - [Read More](./resources/docs/advanced/Templates.md#set-a-property-based-on-the-value-of-a-main-menu-item)
+- Ability to specify an 'onback' value for specific controls in management dialog - [Read More](./resources/docs/started/Management Dialog.md#custom-focus-on-back)
 
 #### Version 1.0.0 - repo version
 

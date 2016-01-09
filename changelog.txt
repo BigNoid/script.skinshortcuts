@@ -1,6 +1,7 @@
 v1.0.1 (Git version)
 - New artwork - thanks schimi2k
 - Template improvements
+- Management dialog improvements
 - Minor fixes
 
 v1.0.0
