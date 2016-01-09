@@ -129,7 +129,7 @@ class LibraryFunctions():
             return True
         elif self.loaded[ library ][ 0 ] == "Loading":
             # The list is currently being populated, wait and then return it
-            for i in ( 0, 20 ):
+            for i in range( 0, 50 ):
                 xbmc.sleep( 100 )
                 if self.loaded[ library ][ 0 ] is True:
                     return True
@@ -393,36 +393,41 @@ class LibraryFunctions():
         return( returnItems )
         
     def loadGrouping( self, content ):
+        # Display a busy dialog
+        dialog = xbmcgui.DialogProgress()
+        dialog.create( "Skin Shortcuts", __language__( 32063 ) )
+
         # We'll be called if the data for a wanted group hasn't been loaded yet
         if content == "common":
-            self.common()
+            self.loadLibrary( "common" )
         if content  == "commands":
-            self.more()            
+            self.loadLibrary( "more" )
         if content == "movie" or content == "tvshow" or content == "musicvideo" or content == "customvideonode" or content == "movie-flat" or content == "tvshow-flat" or content == "musicvideo-flat" or content == "customvideonode-flat":
             # These have been deprecated
             return []
         if content == "video":
-            self.videolibrary()
+            self.loadLibrary( "videolibrary" )
         if content == "videosources" or content == "musicsources" or content == "picturesources":
-            self.librarysources()
+            self.loadLibrary( "librarysources" )
         if content == "music":
-            self.musiclibrary()
+            self.loadLibrary( "musiclibrary" )
         if content == "pvr" or content == "pvr-tv" or content == "pvr-radio":
-            self.pvrlibrary()
+            self.loadLibrary( "pvrlibrary" )
         if content == "radio":
-            self.radiolibrary()
+            self.loadLibrary( "radiolibrary" )
         if content == "playlist-video" or content == "playlist-audio":
-            self.playlists()
+            self.loadLibrary( "playlists" )
         if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image":
-            self.addons()
+            self.loadLibrary( "addons" )
         if content == "favourite":
-            self.favourites()
+            self.loadLibrary( "favourites" )
         if content == "settings":
-            self.settings()
+            self.loadLibrary( "settings" )
         if content == "widgets":
-            self.widgets()
+            self.loadLibrary( "widgets" )
             
         # The data has now been loaded, return it
+        dialog.close()
         return self.dictionaryGroupings[ content ]
         
     def flatGroupingsCount( self ):
@@ -1917,10 +1922,6 @@ class LibraryFunctions():
 
     def selectShortcut( self, group = "", custom = False, availableShortcuts = None, windowTitle = None, showNone = False, currentAction = "", grouping = None ):
         # This function allows the user to select a shortcut
-        
-        # If group is empty, start background loading of shortcuts
-        if group == "":
-            thread.start_new_thread( self.loadAllLibrary, () )
 
         isWidget = False
         if grouping == "widget":
