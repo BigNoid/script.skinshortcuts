@@ -7,7 +7,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 #### Version 1.0.1 - git version
 
-No changes yet for skinners
+- Ability to match multiple values when setting a property in a template - [Read More](./resources/docs/advanced/Templates.md#set-a-property-based-on-the-value-of-a-main-menu-item)
 
 #### Version 1.0.0 - repo version
 
