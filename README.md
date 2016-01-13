@@ -1,16 +1,16 @@
-#Skin Shortcuts - 1.0.0
+#Skin Shortcuts - 1.0.2
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
-#### Version 1.0.1 - git version
+#### Version 1.0.2 - repo version
 
 - Ability to match multiple values when setting a property in a template - [Read More](./resources/docs/advanced/Templates.md#set-a-property-based-on-the-value-of-a-main-menu-item)
 - Ability to specify an 'onback' value for specific controls in management dialog - [Read More](./resources/docs/started/Management Dialog.md#custom-focus-on-back)
 
-#### Version 1.0.0 - repo version
+#### Version 1.0.0 - previous repo version
 
 - Ability for users to install additional widget providers - [Read More on customising when this is available to users](./resources/docs/advanced/Managing widgets.md#default-widgets-from-skin-helper-service)
 - Jarvis changes to music shortcuts - Please be aware that the shortcuts used to access various areas of the music library have changed. Skin Shortcuts will do its best to update any actions to the Jarvis version when the menu is built, but if this doesn't work (or if you are using the 'Just Select' method) the user may need to reset the action for these shortcuts.
