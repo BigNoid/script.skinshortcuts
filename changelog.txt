@@ -1,4 +1,5 @@
-v1.0.1 (Git version)
+v1.0.2
+- Fix for music addon shortcuts on Isengard
 - New artwork - thanks schimi2k
 - Template improvements
 - Management dialog improvements

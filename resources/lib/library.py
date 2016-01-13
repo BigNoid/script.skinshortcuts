@@ -130,8 +130,7 @@ class LibraryFunctions():
         elif self.loaded[ library ][ 0 ] == "Loading":
             # The list is currently being populated, wait and then return it
             for i in range( 0, 50 ):
-                xbmc.sleep( 100 )
-                if self.loaded[ library ][ 0 ] is True:
+                if xbmc.Monitor().waitForAbort(0.1) or self.loaded[ library ][ 0 ] is True:
                     return True
         else:
             # We're going to populate the list
@@ -1671,14 +1670,19 @@ class LibraryFunctions():
     def _install_widget_provider( self, provider ):
         xbmc.executebuiltin( "RunPlugin(plugin://%s)" %( provider ) )
 
-        xbmc.sleep(500)
+        if xbmc.Monitor().waitForAbort(0.5):
+            return
         while xbmc.getCondVisibility( "Window.IsActive(DialogYesNo.xml)" ):
-            xbmc.sleep( 500 )
+            if xbmc.Monitor().waitForAbort(0.5):
+                return
 
         # Stage 2 - progress dialog
-        xbmc.sleep( 500 )
+        if xbmc.Monitor().waitForAbort(0.5):
+            return
         while xbmc.getCondVisibility( "Window.IsActive(DialogProgress.xml)" ):
-            xbmc.sleep( 500 )
+            if xbmc.Monitor().waitForAbort(0.5):
+                return
+
     
     # ======================
     # === AUTO-PLAYLISTS ===
