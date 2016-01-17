@@ -125,7 +125,6 @@ class DataFunctions():
     
                 
     def _get_shortcuts( self, group, defaultGroup = None, isXML = False, profileDir = None, defaultsOnly = False, processShortcuts = True ):
-        log( repr( processShortcuts ) )
         # This will load the shortcut file
         # Additionally, if the override files haven't been loaded, we'll load them too
         log( "Loading shortcuts for group " + group )
@@ -233,8 +232,31 @@ class DataFunctions():
                     self._pop_labelID()
                     continue
                     
-            # Check that any skin-required shortcut matches current skin
-            xmltree.SubElement( node, "additional-properties" ).text = repr( self.checkAdditionalProperties( group, labelID, defaultID, isUserShortcuts, profileDir ) )
+            # Load additional properties
+            additionalProperties = self.checkAdditionalProperties( group, labelID, defaultID, isUserShortcuts, profileDir )
+
+            # If icon and thumbnail are in the additional properties, overwrite anything in the .DATA.xml file
+            # and remove them from the additional properties
+            for additionalProperty in additionalProperties:
+                if additionalProperty[ 0 ] == "icon":
+                    node.find( "icon" ).text = additionalProperty[ 1 ]
+                    additionalProperties.remove( additionalProperty )
+                    break
+
+            if node.find( "thumb" ) is None:
+                xmltree.SubElement( node, "thumb" ).text = ""
+            for additionalProperty in additionalProperties:
+                if additionalProperty[ 0 ] == "thumb":
+                    node.find( "thumb" ).text = additionalProperty[ 1 ]
+                    additionalProperties.remove( additionalProperty )
+                    log( repr( node.find( "thumb" ).text ) )
+                    break
+
+            xmltree.SubElement( node, "additional-properties" ).text = repr( additionalProperties )
+
+            iconNode = node.find( "icon" )
+            if iconNode.text is None or iconNode.text == "":
+                iconNode.text = "DefaultShortcut.png"
                         
             # Get a skin-overriden icon
             overridenIcon = self._get_icon_overrides( skinoverrides, node.find( "icon" ).text, group, labelID )
@@ -565,6 +587,18 @@ class DataFunctions():
                                 self.defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetPath", elem.attrib.get( "path" ), defaultID ] )
                             if "target" in elem.attrib:
                                 self.defaultProperties.append( [ elem.attrib.get( "group" ), labelID, "widgetTarget", elem.attrib.get( "target" ), defaultID ] )
+
+        # Load icons out of mainmenu.DATA.xml
+        path = os.path.join( __skinpath__ , "mainmenu.DATA.xml")
+        if xbmcvfs.exists( path ):
+            file = xbmcvfs.File( path ).read()
+            self._save_hash( path, file )
+            tree = xmltree.parse( path )
+            for node in tree.getroot().findall( "shortcut" ):
+                label = self.local( node.find( "label" ).text )[3].replace( " ", "" ).lower()
+                action = node.find( "action.text" )
+                labelID = self._get_labelID( label, action, getDefaultID = True )
+                self.defaultProperties.append( [ "mainmenu", labelID, "icon", node.find( "icon" ).text ] )
                                         
         returnVal = [ self.currentProperties, self.defaultProperties ]
         return returnVal
@@ -795,7 +829,7 @@ class DataFunctions():
         return False
         
     def checkAdditionalProperties( self, group, labelID, defaultID, isUserShortcuts, profileDir ):
-        # Return any additional properties, including widgets and backgrounds
+        # Return any additional properties, including widgets, backgrounds, icons and thumbnails
         allProperties = self._get_additionalproperties( profileDir )
         currentProperties = allProperties[1]
         
@@ -1021,6 +1055,7 @@ class DataFunctions():
                 
         # This isn't anything we can localize, just return it (in triplicate ;))
         return[ data, data, data, data ]
+
     def smart_truncate(string, max_length=0, word_boundaries=False, separator=' '):
         string = string.strip(separator)
 

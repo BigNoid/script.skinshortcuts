@@ -568,9 +568,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             icon = listitem.getProperty( "original-icon" )
                         else:
                             icon = listitem.getProperty( "icon" )
-                        
+
+                    thumb = listitem.getProperty( "thumbnail" )
+                    
                     xmltree.SubElement( shortcut, "icon" ).text = try_decode( icon )
-                    xmltree.SubElement( shortcut, "thumb" ).text = try_decode( listitem.getProperty( "thumbnail" ) )
+                    xmltree.SubElement( shortcut, "thumb" ).text = try_decode( thumb )
                     
                     # Action
                     xmltree.SubElement( shortcut, "action" ).text = try_decode( listitem.getProperty( "path" ) )
@@ -585,7 +587,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
                     # Additional properties
                     if listitem.getProperty( "additionalListItemProperties" ):
-                        properties.append( [ newlabelID, eval( listitem.getProperty( "additionalListItemProperties" ) ) ] )
+                        additionalProperties = eval( listitem.getProperty( "additionalListItemProperties" ) )
+                        if icon != "":
+                            additionalProperties.append( [ "icon", icon ] )
+                        if thumb != "":
+                            additionalProperties.append( [ "thumb", thumb ] )
+                        properties.append( [ newlabelID, additionalProperties ] )
                         
             # Save the shortcuts
             DATA.indent( root )
@@ -648,7 +655,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                     xbmcvfs.rename( path[0], target )
                             else:
                                 # We're copying the file (actually, we'll re-write the file without
-                                # any LOCKED elements)
+                                # any LOCKED elements and with icons/thumbs adjusted to absolute paths)
                                 newtree = xmltree.parse( path[0] )
                                 for newnode in newtree.getroot().findall( "shortcut" ):
                                     searchNode = newnode.find( "locked" )
