@@ -1242,7 +1242,11 @@ class LibraryFunctions():
             return "files"
         if not item.has_key("showtitle") and item.has_key("artist"):
             ##### AUDIO ITEMS ####
-            if item["type"] == "artist" or item["artist"][0] == item["title"]:
+            if len( item["artist"] ) != 0:
+                artist = item["artist"][0]
+            else:
+                artist = item["artist"]
+            if item["type"] == "artist" or artist == item["title"]:
                 return "artists"
             elif item["type"] == "album" or item["album"] == item["title"]:
                 return "albums"
