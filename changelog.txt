@@ -1,3 +1,9 @@
+v1.0.3
+- Option not to share menus between skins; never hide PVR shortcuts
+- Icons and thumbs are saved on a per-skin basis
+- mtime of files is used to determine if they have changed
+- Various language changes
+
 v1.0.2
 - Fix for music addon shortcuts on Isengard
 - New artwork - thanks schimi2k

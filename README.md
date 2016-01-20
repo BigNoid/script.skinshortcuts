@@ -1,22 +1,20 @@
-#Skin Shortcuts - 1.0.2
+#Skin Shortcuts - 1.0.3
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
+#### Version 1.0.3 - git version
+
+- Icons and thumbs are now saved on a per-skin basis
+
+Also, whilst it does not affect how skinners interact with the script, it is important to note this version introduces an option for users to specify that their menus should not be shared between skins.
+
 #### Version 1.0.2 - repo version
 
 - Ability to match multiple values when setting a property in a template - [Read More](./resources/docs/advanced/Templates.md#set-a-property-based-on-the-value-of-a-main-menu-item)
 - Ability to specify an 'onback' value for specific controls in management dialog - [Read More](./resources/docs/started/Management Dialog.md#custom-focus-on-back)
-
-#### Version 1.0.0 - previous repo version
-
-- Ability for users to install additional widget providers - [Read More on customising when this is available to users](./resources/docs/advanced/Managing widgets.md#default-widgets-from-skin-helper-service)
-- Jarvis changes to music shortcuts - Please be aware that the shortcuts used to access various areas of the music library have changed. Skin Shortcuts will do its best to update any actions to the Jarvis version when the menu is built, but if this doesn't work (or if you are using the 'Just Select' method) the user may need to reset the action for these shortcuts.
-- Skin playlists will now additionally be correctly loaded from subdirectories on all platforms
-- Ability to set a fallback value for a custom property, used if the user hasn't selected a vlue - [Read More](./resources/docs/advanced/Custom shortcut properties.md#for-all-shortcuts-without-a-user-set-property)
-- Ability to set widgetName property separately from label using `<shortcut />` elements in a custom groupings - [Read More](./resources/docs/advanced/Custom groupings.md#shortcut--element---widget) - and when defining available widgets [Read More](./resources/docs/advanced/Managing widgets.md#defining-available-widgets)
  
 ## With Thanks - Because their names don't deserve to be at the bottom :)
 
