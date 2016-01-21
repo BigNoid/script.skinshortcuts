@@ -57,7 +57,9 @@ class Template():
             
         # Get the template for this menu
         if menuType == "mainmenu":
-            template = copy.deepcopy( self.tree.find( "mainmenu" ) )
+            template = self.tree.find( "mainmenu" )
+            if template is not None:
+                template = self.copy_tree( template )
         else:
             if len( items.findall( "item" ) ) == 0: return
             template = self.findSubmenu( menuName, level )
@@ -104,6 +106,7 @@ class Template():
             self.findOther( item, profile, profileVisibility, visibilityCondition )
                     
     def writeOthers( self ):
+        log( "Write others" )
         # This will write any 'other' elements we have into the includes file
         # (now we have all the visibility conditions for them)
         if self.includes is None or self.tree is None:
@@ -111,6 +114,9 @@ class Template():
         
         if len( self.finalize ) == 0:
             return
+
+        finalVariables = {}
+        finalVariableNames = []
             
         for template in self.finalize:
             # Get the group name
@@ -137,8 +143,118 @@ class Template():
                 self.replaceElements( final, visibilityCondition, profile.attrib.get( "visible" ), [] )
                 
                 # Add the template to the includes
-                for child in final.find( "controls" ):
-                    include.append( child )
+                controls = final.find( "controls" )
+                if controls is not None:
+                    for child in controls:
+                        include.append( child )
+
+                # Process the variables
+                variables = final.find( "variables" )
+                if variables is not None:
+                    for variable in variables.findall( "variable" ):
+                        # If the profile doesn't have a dict in finalVariables, create one
+                        profileVisibility = profile.attrib.get( "visible" )
+                        if profileVisibility not in finalVariables.keys():
+                            finalVariables[ profileVisibility ] = {}
+
+                        # Save the variable name
+                        varName = variable.attrib.get( "name" )
+                        if varName not in finalVariableNames:
+                            finalVariableNames.append( varName )
+
+                        # Get any existing values for this profile + variable
+                        newVariables = []
+                        if varName in finalVariables[ profileVisibility ].keys():
+                            newVariables = finalVariables[ profileVisibility ][ varName ]
+
+                        # Loop through new values provided by this template
+                        for value in variable.findall( "value" ):
+                            condition = ""
+                            if "condition" in value.attrib:
+                                condition = value.attrib.get( "condition" )
+
+                            # Add the new condition/value pair only if it really is new
+                            newValue = ( condition, value.text )
+                            if newValue not in newVariables:
+                                newVariables.append( newValue )
+
+                        # Add the values into the dict
+                        finalVariables[ profileVisibility ][ varName ] = newVariables
+
+        # And now write the variables
+        for variableName in finalVariableNames:
+            log( repr( variableName ) )
+            element = xmltree.SubElement( self.includes, "variable" )
+            element.set( "name", variableName )
+            for condition, value in self.parseVariables( variableName, finalVariables ):
+                log( repr( condition ) )
+                log( repr( value ) )
+                valueElement = xmltree.SubElement( element, "value" )
+                valueElement.text = value
+                if condition != "":
+                    valueElement.set( "condition", condition )
+
+        #for key in finalVariables.keys():
+        #    log( repr( key ) )
+        #    element = xmltree.SubElement( self.includes, "variable" )
+        #    element.set( "name", key )
+        #    for condition, value in finalVariables[ key ]:
+        #        log( repr( condition ) )
+        #        log( repr( value ) )
+        #        valueElement = xmltree.SubElement( element, "value" )
+        #        valueElement.set( "condition", condition )
+        #        valueElement.text = value
+
+    def parseVariables( self, variableName, allVariables ):
+        # This function will return all condition/value elements for a given variable, including adding profile conditions
+        returnVariables = []
+        noCondition = []
+
+        # Firstly, lets pull out the specific variables from all the variables we've been passed
+        limitedVariables = {}
+        for profile in allVariables:
+            if variableName in allVariables[ profile ].keys():
+                limitedVariables[ profile ] = allVariables[ profile ][ variableName ]
+
+        numProfiles = len( limitedVariables )
+
+        for profile in limitedVariables:
+            log( repr( profile ) )
+            while len( limitedVariables[ profile ] ) != 0:
+                # Grab the first value from the list
+                value = limitedVariables[ profile ].pop( 0 )
+                profiles = [ profile ]
+
+                # Now check if any other profile has that value
+                for additionalProfile in limitedVariables:
+                    if value in limitedVariables[ additionalProfile ]:
+                        # It does - remove it and add the profile visibility to the one we already have
+                        profiles.append( additionalProfile )
+                        limitedVariables[ additionalProfile ].remove( value )
+
+                # Check if we need to add profile visibility
+                if len( profiles ) == numProfiles:
+                    # We don't
+                    if value[ 0 ] == "":
+                        noCondition.append( value )
+                    else:
+                        returnVariables.append( value )
+                else:
+                    # We do
+                    condition = None
+                    for profileVisibility in profiles:
+                        if condition is None:
+                            condition = profileVisibility
+                        else:
+                            condition = "%s | %s" %( condition, profileVisibility )
+                    if value[ 0 ] == "":
+                        noCondition.append( ( condition, value[ 1 ] ) )
+                    else:
+                        returnVariables.append( ( "%s + [%s]" %( condition, value[ 0 ] ), value[ 1 ] ) )
+            #for variable in limitedVariables[ profile ]:
+            #    log( repr( variable ) )
+
+        return returnVariables + noCondition
             
     def getInclude( self, tree, name, condition, profile ):
         # This function gets an existing <include/>, or creates it
@@ -199,8 +315,9 @@ class Template():
                     continue
             # Save this, in case we don't find a better match
             returnElem = elem
-            
-        return copy.deepcopy( returnElem )
+
+        if returnElem is None: return None            
+        return self.copy_tree( returnElem )
         
     def findOther( self, item, profile, profileVisibility, visibilityCondition ):
         # Find a template matching the item we have been passed
@@ -254,6 +371,7 @@ class Template():
             # we'll store for later (in case multiple items would have an
             # identical template
             self.replaceElements( template.find( "controls" ), None, None, [], properties )
+            self.replaceElements( template.find( "variables" ), None, None, [], properties )
             
             # Now we need to check if we've already got a template identical to this
             textVersion = None
@@ -265,13 +383,27 @@ class Template():
                     includeNameCheck = "NONE"
                 if previous.find( "skinshortcuts-includeName" ).text != includeNameCheck:
                     continue
-                    
+                                
                 # If we haven't already, convert our new template to a string
                 if textVersion is None:
-                    textVersion = xmltree.tostring( template.find( "controls" ), encoding='utf8' )
+                    textVersion = ""
+                    if template.find( "controls" ) is not None:
+                        textVersion = xmltree.tostring( template.find( "controls" ), encoding="utf8" )
+                    if template.find( "variables" ) is not None:
+                        textVersion = textVersion + xmltree.tostring( template.find( "variables" ), encoding="utf8" )
+                    #textVersion = xmltree.tostring( template.find( "controls" ), encoding='utf8' )
+
+                # Convert previous tempalte to a string
+                previousVersion = ""
+                if previous.find( "controls" ) is not None:
+                    previousVersion = xmltree.tostring( previous.find( "controls" ), encoding="utf-8" )
+                if previous.find( "variables" ) is not None:
+                    previousVersion = previousVersion + xmltree.tostring( previous.find( "variables" ), encoding="utf8" )
+
                     
                 # Compare string representations
-                if textVersion == xmltree.tostring( previous.find( "controls" ), encoding='utf8' ):
+                if textVersion == previousVersion:
+                #if textVersion == xmltree.tostring( previous.find( "controls" ), encoding='utf8' ):
                     # They are the same
                     
                     # Add our details to the previous version, so we can build it
@@ -416,6 +548,7 @@ class Template():
         return properties
     
     def replaceElements( self, tree, visibilityCondition, profileVisibility, items, properties = {} ):
+        if tree is None: return
         for elem in tree:
             # <tag skinshortcuts="visible" /> -> <tag condition="[condition]" />
             if "skinshortcuts" in elem.attrib:
@@ -548,3 +681,24 @@ class Template():
             hashlist.list.append( [ filename, os.path.getmtime( filename ) ] )
         else:
             hashlist.list.append( [filename, None] )            
+
+    def copy_tree( self, elem ):
+        #if elem is None: return None
+        ret = xmltree.Element(elem.tag, elem.attrib)
+        ret.text = elem.text
+        ret.tail = elem.tail
+        for child in elem:
+            ret.append(self.copy_tree(child))
+        return ret
+
+    def compare_tree( self, e1, e2 ):
+        if e1 is None and e2 is None:
+            return True
+        if e1 is None or e2 is None:
+            return False
+        if e1.tag != e2.tag: return False
+        if e1.text != e2.text: return False
+        if e1.tail != e2.tail: return False
+        if e1.attrib != e2.attrib: return False
+        if len(e1) != len(e2): return False
+        return all(self.compare_tree(c1, c2) for c1, c2 in zip(e1, e2))
