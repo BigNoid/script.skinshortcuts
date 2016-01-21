@@ -125,7 +125,7 @@ class NodeFunctions():
 
             if isFolder:
                 # Add it to our list of nodes
-                nodes[ int( index ) ] = [ label, icon, origFolder.decode( "utf-8" ), "folder", origIndex, mediaType ]
+                nodes[ int( index ) ] = [ label, icon, origFolder, "folder", origIndex, mediaType ]
             else:
                 # Check for a path
                 path = root.find( "path" )

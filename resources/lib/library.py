@@ -1369,7 +1369,7 @@ class LibraryFunctions():
                 createLabel = "32100"
             listings.append( self._get_icon_overrides( tree, self._create( ["::CREATE::", createLabel, "", {}] ), "" ) )
                 
-        log( "Getting %s - %s" %( dialogLabel, location ) )
+        log( "Getting %s - %s" %( dialogLabel, try_decode( location ) ) )
             
         # Show a waiting dialog, then get the listings for the directory
         dialog = xbmcgui.DialogProgress()
