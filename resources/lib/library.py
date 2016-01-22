@@ -47,7 +47,7 @@ def kodiwalk(path, stringForce = False):
     if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
         for item in json_response['result']['files']:
             if item.has_key('file') and item.has_key('filetype') and item.has_key('label'):
-                if item['filetype'] == 'directory' and ((not item['file'].endswith('.xsp')) and (not item['file'].endswith('.xml/')) and (not item['file'].endswith('.xml'))):
+                if item['filetype'] == 'directory' and ((not item['file'].endswith('.xsp')) and (not item['file'].endswith('.m3u')) and (not item['file'].endswith('.xml/')) and (not item['file'].endswith('.xml'))):
                     if stringForce and item['file'].startswith(stringForce):
                         files = files + kodiwalk( xbmc.translatePath( item['file'] ), stringForce )
                     else:
@@ -1042,17 +1042,29 @@ class LibraryFunctions():
                                 count += 1
                                 break
 
-                    elif playlist.endswith( '.m3u' ):
+                    elif playlist.endswith( '.m3u' ) and path[2] is not None:
                         name = label
-                        listitem = self._create( ["::PLAYLIST::", name, "32005", {"icon": "DefaultPlaylist.png"} ] )
+                        listitem = self._create( ["::PLAYLIST>%s::" %( path[2] ), name, path[1], {"icon": "DefaultPlaylist.png"} ] )
                         listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
-                        listitem.setProperty( "action-show", "ActivateWindow(MusicLibrary," + playlist + ",return)".encode( 'utf-8' ) )
-                        
-                        audiolist.append( listitem )
+                        listitem.setProperty( "action-show", "ActivateWindow(%s,%s,return)".encode( 'utf-8' ) %( path[2], playlist ) )
+
+                        # Add widget information
+                        listitem.setProperty( "widget", "Playlist" )
+                        listitem.setProperty( "widgetName", name )
+                        listitem.setProperty( "widgetPath", playlist )
+                        if path[2] == "VideoLibrary":
+                            listitem.setProperty( "widgetType", "videos" )
+                            listitem.setProperty( "widgetTarget", "video" )
+                            videolist.append( listitem )
+                        else:
+                            listitem.setProperty( "widgetType", "songs" )
+                            listitem.setProperty( "widgetTarget", "music" )
+                            audiolist.append( listitem )
                         
                         count += 1
                 except:
                     log( "Failed to load playlist: %s" %( file ) )
+                    print_exc()
                         
             log( " - [" + path[0] + "] " + str( count ) + " playlists found" )
         
