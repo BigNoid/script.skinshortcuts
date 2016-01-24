@@ -719,7 +719,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _load_overrides( self ):
         # Load various overrides from the skin, most notably backgrounds and thumbnails
         self.backgrounds = []
-        self.backgroundsPretty = {}
         self.thumbnails = []
         self.thumbnailsPretty = {}
         
@@ -740,15 +739,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
                     continue
             
-            if elem.text.startswith("||BROWSE||"):
+            if "icon" in elem.attrib:
+                self.backgrounds.append( [elem.attrib.get( "icon" ), DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+            elif elem.text.startswith("||BROWSE||"):
                 #we want to include images from a VFS path...
                 images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
                 for image in images:
                     self.backgrounds.append( [image[0], image[1] ] )
-                    self.backgroundsPretty[image[0]] = image[1]  
             else:
                 self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-                self.backgroundsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
             
         # Should we allow the user to browse for background images...
         elem = tree.find('backgroundBrowse')
@@ -1362,7 +1361,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             # Get the default background for this item
             defaultBackground = self.find_default( "background", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
-            log( repr( defaultBackground ) )
             
             # Generate list of backgrounds for the dialog
             for key in self.backgrounds:
@@ -1383,19 +1381,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         virtualImage = xbmc.getInfoLabel(virtualImage)
 
                     if defaultBackground == key[ 0 ]:
-                        backgroundLabel.append( key[1] + " (%s)" %( __language__(32050) ) )
-                        if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
-                            usePrettyDialog = True
-                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", { "icon":  key[ 0 ] } ] ) )
-                        else:
-                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ] + " (%s)" %( __language__(32050) ), "", {} ] ) )
+                        label = "%s (%s)" %( key[ 1 ], __language__( 32050 ) )
                     else:
-                        backgroundLabel.append( key[1] )
-                        if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
-                            usePrettyDialog = True
-                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ], "", { "icon": key[ 0 ] } ] ) )
-                        else:
-                            backgroundPretty.append( LIBRARY._create(["", key[ 1 ], "", {} ] ) )
+                        label = key[ 1 ]
+                    backgroundLabel.append( label )
+                    if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
+                        usePrettyDialog = True
+                        backgroundPretty.append( LIBRARY._create(["", label, "", { "icon":  key[ 0 ] } ] ) )
+                    else:
+                        backgroundPretty.append( LIBRARY._create(["", label, "", {} ] ) )
             
             if usePrettyDialog:
                 w = library.ShowDialog( "DialogSelect.xml", __cwd__, listing=backgroundPretty, windowtitle=__language__(32045) )
