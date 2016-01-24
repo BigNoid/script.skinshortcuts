@@ -47,7 +47,7 @@ def kodiwalk(path, stringForce = False):
     if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
         for item in json_response['result']['files']:
             if item.has_key('file') and item.has_key('filetype') and item.has_key('label'):
-                if item['filetype'] == 'directory' and ((not item['file'].endswith('.xsp')) and (not item['file'].endswith('.m3u')) and (not item['file'].endswith('.xml/')) and (not item['file'].endswith('.xml'))):
+                if item['filetype'] == 'directory' and not item['file'].endswith(('.xsp', '.m3u', '.xml/', '.xml' )):
                     if stringForce and item['file'].startswith(stringForce):
                         files = files + kodiwalk( xbmc.translatePath( item['file'] ), stringForce )
                     else:
