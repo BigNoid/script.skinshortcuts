@@ -632,7 +632,7 @@ class XMLFunctions():
         # Save the hashes
         file = xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ), "w" )
         file.write( repr( hashlist.list ) )
-        file.close
+        file.close()
         
         
     def buildElement( self, item, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1, options=[] ):

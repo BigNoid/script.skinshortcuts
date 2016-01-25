@@ -239,13 +239,6 @@ class LibraryFunctions():
                 if count == group:
                     # We found it :)
                     return( node.attrib.get( "label" ), self.buildNodeListing( node, True ) )
-                    for subnode in node:
-                        if subnode.tag == "content":
-                            returnList = returnList + self.retrieveContent( subnode.text )
-                        if subnode.tag == "shortcut":
-                            returnList.append( self._create( [subnode.text, subnode.attrib.get( "label" ), subnode.attrib.get( "type" ), {"icon": subnode.attrib.get( "icon" )}] ) )
-
-                    return [node.attrib.get( "label" ), returnList]
                     
             return ["Error", []]
             
@@ -669,7 +662,7 @@ class LibraryFunctions():
         if not xbmc.skinHasImage( newicon ) and setToDefault == True:
             oldicon = item.getProperty( "icon" )
             icon = "DefaultShortcut.png"
-            setDefault == True
+            setDefault = True
 
         if oldicon is not None:
             # we found an icon override
@@ -935,9 +928,9 @@ class LibraryFunctions():
             listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "136", "32019", {"icon": "DefaultMusicPlaylists.png"} ] ) )
             
             # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
-            if self.loadedUPNP == False:
+            if self.loaded[ "upnp" ][ 0 ] == False:
                 json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
-                self.loadedUPNP = True
+                self.loaded[ "upnp" ][ 0 ] = True
                 
             self.addToDictionary( "music", listitems )
     
@@ -1655,7 +1648,6 @@ class LibraryFunctions():
 
         # Return to where we were
         return self.selectShortcut( group = group, grouping = grouping, custom = custom, showNone = showNone, currentAction = currentAction )
-        return self.explorer( history, history[ len( history ) -1 ], label, thumbnail, itemType, isWidget = isWidget )
 
     def _allow_install_widget_provider( self, location, isWidget, nodeAllows = None ):
         # This function checks whether the 'Get More...' button should be enabled to install
