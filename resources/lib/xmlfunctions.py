@@ -732,9 +732,26 @@ class XMLFunctions():
         fallbackProperties = DATA._getCustomPropertyFallbacks( groupName )
         for key in fallbackProperties:
             if key not in allProps:
-                additionalproperty = xmltree.SubElement( newelement, "property" )
-                additionalproperty.set( "name", key.decode( "utf-8" ) )
-                additionalproperty.text = DATA.local( fallbackProperties[ key ] )[1]
+                for propertyMatch in fallbackProperties[ key ]:
+                    #log( repr ( propertyMatch ) )
+                    matches = False
+                    if propertyMatch[ 1 ] is None:
+                        # This has no conditions, so it matched
+                        #log( " - No condition - matches")
+                        matches = True
+                    else:
+                        # This has an attribute and a value to match against
+                        for property in properties:
+                            if property[ 0 ] == propertyMatch[ 1 ] and property[ 1 ] == propertyMatch[ 2 ]:
+                                #log( " - Matched %s" %( repr( property ) ) )
+                                matches = True
+                                break
+
+                    if matches:
+                        additionalproperty = xmltree.SubElement( newelement, "property" )
+                        additionalproperty.set( "name", key.decode( "utf-8" ) )
+                        additionalproperty.text = DATA.local( propertyMatch[ 0 ] )[1]
+                        break
         
         # Primary visibility
         visibility = item.find( "visibility" )

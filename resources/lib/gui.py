@@ -384,12 +384,24 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( "additionalListItemProperties", "[]" )
 
         # Add fallback custom property values
-        fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
-        for key in fallbackProperties:
-            if key not in foundProperties:
-                listitem.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
+        self._parse_fallbacks( listitem )
+        #fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
+        #for key in fallbackProperties:
+        #    if key not in foundProperties:
+        #        listitem.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
                 
         return [ isVisible, listitem ]
+
+    def _parse_fallbacks( self, listitem ):
+        # This function adds any fallback properties to the listitem we've been passed
+        fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
+        for key in fallbackProperties:
+            if listitem.getProperty( key ) == "":
+                for propertyMatch in fallbackProperties[ key ]:
+                    if propertyMatch[ 1 ] is None or listitem.getProperty( propertyMatch[ 1 ] ) == propertyMatch[ 2 ]:
+                        log( "Matched" )
+                        listitem.setProperty( key.decode( "utf-8" ), DATA.local( propertyMatch[ 0 ] )[2] )
+                        break
 
     def _get_icon_overrides( self, listitem, setToDefault = True, labelID = None ):
         # Start by getting the labelID
@@ -924,9 +936,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( "Path", 'noop' )
 
             # Add fallback custom property values
-            fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
-            for key in fallbackProperties:
-                listitem.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
+            self._parse_fallbacks( listitem )
+            #fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
+            #for key in fallbackProperties:
+            #    listitem.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
             
             # Add new item to both displayed list and list kept in memory
             self.allListItems.insert( orderIndex, listitem )
@@ -1893,10 +1906,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     listitemCopy.setProperty( listitemProperty[0], DATA.local(listitemProperty[1] )[2] )
 
         # Add fallback custom property values
-        fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
-        for key in fallbackProperties:
-            if key not in foundProperties:
-                listitemCopy.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
+        self._parse_fallbacks( listitemCopy )
+        #fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
+        #for key in fallbackProperties:
+        #    if key not in foundProperties:
+        #        listitemCopy.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
                 
         return listitemCopy
                 
@@ -1923,6 +1937,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
             
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
+
+        self._parse_fallbacks( listitem )
         
     def _remove_additionalproperty( self, listitem, propertyName ):
         # Remove an item from the additional properties of a user item
@@ -1939,6 +1955,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
             
         listitem.setProperty( propertyName, None )
+
+        self._parse_fallbacks( listitem )
     
     def warnonremoval( self, item ):
         # This function will warn the user before they modify a settings link
