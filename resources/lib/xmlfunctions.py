@@ -24,7 +24,7 @@ __language__     = __addon__.getLocalizedString
 
 import datafunctions, template
 DATA = datafunctions.DataFunctions()
-import hashlib, hashlist
+import hashlist
 
 def log(txt):
     if __addon__.getSetting( "enable_logging" ) == "true":
@@ -164,6 +164,9 @@ class XMLFunctions():
                 return True
         except:
             pass
+
+        # Save some settings to skin strings
+        xbmc.executebuiltin( "Skin.SetString(skinshortcuts-sharedmenu,%s)" %( __addon__.getSetting( "shared_menu" ) ) )
             
         # Get the skins addon.xml file
         addonpath = xbmc.translatePath( os.path.join( "special://skin/", 'addon.xml').encode("utf-8") ).decode("utf-8")
@@ -191,8 +194,6 @@ class XMLFunctions():
                 return True
             else:
                 pass
-                
-
 
         try:
             hashes = ast.literal_eval( xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ) ).read() )
@@ -206,6 +207,9 @@ class XMLFunctions():
         checkedSkinVer = False
         checkedScriptVer = False
         checkedProfileList = False
+        checkedPVRVis = False
+        checkedSharedMenu = False
+        foundFullMenu = False
             
         for hash in hashes:
             if hash[1] is not None:
@@ -237,6 +241,15 @@ class XMLFunctions():
                     # Check if Library.HasContent(Music) has changed
                     if xbmc.getCondVisibility( "Library.HasContent(Music)" ) != hash[1]:
                         log( "Whether there is music in the library has changed" )
+                elif hash[0] == "::HIDEPVR::":
+                    checkedPVRVis = True
+                    if __addon__.getSetting( "donthidepvr" ) != hash[1]:
+                        log( "PVR visibility setting has changed" )
+                elif hash[0] == "::SHARED::":
+                    # Check whether shared-menu setting has changed
+                    checkedSharedMenu = True
+                    if __addon__.getSetting( "shared_menu" ) != hash[1]:
+                        log( "Shared menu setting has changed" )
                         return True
                 elif hash[0] == "::LANGUAGE::":
                     # We no longer need to rebuild on a system language change
@@ -248,25 +261,37 @@ class XMLFunctions():
                             xbmc.executebuiltin( "Skin.SetBool(%s)" %( hash[ 1 ][ 1 ] ) )
                         else:
                             xbmc.executebuiltin( "Skin.Reset(%s)" %( hash[ 1 ][ 1 ] ) )
+                elif hash[0] == "::FULLMENU::":
+                    # Mark that we need to set the fullmenu bool
+                    foundFullMenu = True
+                elif hash[0] == "::SKINDIR::":
+                    # Used to import menus from one skin to another, nothing to check here
+                    pass
                 else:
                     try:
-                        hasher = hashlib.md5()
-                        hasher.update( xbmcvfs.File( hash[0] ).read() )
-                        if hasher.hexdigest() != hash[1]:
-                            log( "Hash does not match on file " + hash[0] )
-                            log( "(" + hash[1] + " > " + hasher.hexdigest() + ")" )
+                        modTime = os.path.getmtime( hash[ 0 ] )
+                        if modTime != hash[ 1 ]:
+                            log( "%s has been modified" %( hash[ 0 ] ) )
+                            log( "(%s > %s)" %( modTime, hash[ 1 ] ) )
                             return True
                     except:
-                        log( "Unable to generate hash for %s" %( hash[ 0 ] ) )
+                        log( "Unable to get modified time for %s" %( hash[ 0 ] ) )
                         log( "(%s > ?)" %( hash[ 1 ] ) )
+                        return True
             else:
                 if xbmcvfs.exists( hash[0] ):
                     log( "File now exists " + hash[0] )
                     return True
-                
+
+        # Set or clear the FullMenu skin bool
+        if foundFullMenu:
+            xbmc.executebuiltin( "Skin.SetBool(SkinShortcuts-FullMenu)" )
+        else:
+            xbmc.executebuiltin( "Skin.Reset(SkinShortcuts-FullMenu)" )
+        
         # If the skin or script version, or profile list, haven't been checked, we need to rebuild the menu 
         # (most likely we're running an old version of the script)
-        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False:
+        if checkedXBMCVer == False or checkedSkinVer == False or checkedScriptVer == False or checkedProfileList == False or checkedPVRVis == False or checkedSharedMenu == False:
             return True
         
             
@@ -282,6 +307,9 @@ class XMLFunctions():
         hashlist.list.append( ["::XBMCVER::", __xbmcversion__] )
         if int( __xbmcversion__ ) <= 15:
             hashlist.list.append( ["::MUSICCONTENT::", xbmc.getCondVisibility( "Library.HasContent(Music)" ) ] )
+        hashlist.list.append( ["::HIDEPVR::",  __addon__.getSetting( "donthidepvr" )] )
+        hashlist.list.append( ["::SHARED::", __addon__.getSetting( "shared_menu" )] )
+        hashlist.list.append( ["::SKINDIR::", xbmc.getSkinDir()] )
         
         # Clear any skin settings for backgrounds and widgets
         DATA._reset_backgroundandwidgets()
@@ -358,12 +386,14 @@ class XMLFunctions():
             if groups == "" or groups.split( "|" )[0] == "mainmenu":
                 # Set a skinstring that marks that we're providing the whole menu
                 xbmc.executebuiltin( "Skin.SetBool(SkinShortcuts-FullMenu)" )
+                hashlist.list.append( ["::FULLMENU::", "True"] )
                 for node in DATA._get_shortcuts( "mainmenu", None, True, profile[0] ).findall( "shortcut" ):
                     menuitems.append( node )
                 fullMenu = True
             else:
                 # Clear any skinstring marking that we're providing the whole menu
                 xbmc.executebuiltin( "Skin.Reset(SkinShortcuts-FullMenu)" )
+                hashlist.list.append( ["::FULLMENU::", "False"] )
                     
             # If building specific groups, split them into the menuitems list
             count = 0
@@ -602,7 +632,7 @@ class XMLFunctions():
         # Save the hashes
         file = xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ), "w" )
         file.write( repr( hashlist.list ) )
-        file.close
+        file.close()
         
         
     def buildElement( self, item, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1, options=[] ):
