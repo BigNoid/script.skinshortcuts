@@ -736,8 +736,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
     
     def _load_overrides( self ):
         # Load various overrides from the skin, most notably backgrounds and thumbnails
-        self.backgrounds = []
-        self.thumbnails = []
+        self.backgrounds = "LOADING"
+        self.thumbnails = "LOADING"
         self.thumbnailsPretty = {}
         
         # Load skin overrides
@@ -750,23 +750,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if "type" in elem.attrib:
                 self.widgetPlaylistsType = elem.attrib.get( "type" )
                 
-        # Get backgrounds
-        elems = tree.findall('background')
-        for elem in elems:
-            if "condition" in elem.attrib:
-                if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
-                    continue
-            
-            if "icon" in elem.attrib:
-                self.backgrounds.append( [elem.attrib.get( "icon" ), DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-            elif elem.text.startswith("||BROWSE||"):
-                #we want to include images from a VFS path...
-                images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
-                for image in images:
-                    self.backgrounds.append( [image[0], image[1] ] )
-            else:
-                self.backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-            
+        # Get backgrounds and thumbnails - we do this in a separate thread as the json used to load VFS paths
+        # is very expensive
+        thread.start_new_thread( self._load_backgrounds_thumbnails, () )
+
         # Should we allow the user to browse for background images...
         elem = tree.find('backgroundBrowse')
         if elem is not None and elem.text == "True":
@@ -774,23 +761,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if "default" in elem.attrib:
                 self.backgroundBrowseDefault = elem.attrib.get( "default" )
 
-        # Get thumbnails
-        elems = tree.findall('thumbnail')
-        for elem in elems:
-            if "condition" in elem.attrib:
-                if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
-                    continue
-                    
-            if elem.text.startswith("||BROWSE||"):
-                #we want to include images from a VFS path...
-                images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
-                for image in images:
-                    self.thumbnails.append( [image[0], image[1] ] )
-                    self.thumbnailsPretty[image[0]] = image[1]
-            else:
-                self.thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-                self.thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
-        
+        # Find the default thumbnail browse directory
         elem = tree.find("thumbnailBrowseDefault")
         if elem is not None and len(elem.text) > 0:
             self.thumbnailBrowseDefault = elem.text
@@ -816,6 +787,52 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Are there any controls we don't close the window on 'back' for?
         for elem in tree.findall( "onback" ):
             self.onBack[ int( elem.text ) ] = int( elem.attrib.get( "to" ) )
+
+    def _load_backgrounds_thumbnails( self ):
+        # Load backgrounds (done in background thread)
+        backgrounds = []
+        thumbnails = []
+
+        # Load skin overrides
+        tree = DATA._get_overrides_skin()
+        
+        # Get backgrounds
+        elems = tree.findall('background')
+        for elem in elems:
+            if "condition" in elem.attrib:
+                if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                    continue
+            
+            if "icon" in elem.attrib:
+                backgrounds.append( [elem.attrib.get( "icon" ), DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+            elif elem.text.startswith("||BROWSE||"):
+                #we want to include images from a VFS path...
+                images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
+                for image in images:
+                    backgrounds.append( [image[0], image[1] ] )
+            else:
+                backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+
+        self.backgrounds = backgrounds
+
+        # Get thumbnails
+        elems = tree.findall('thumbnail')
+        for elem in elems:
+            if "condition" in elem.attrib:
+                if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
+                    continue
+                    
+            if elem.text.startswith("||BROWSE||"):
+                #we want to include images from a VFS path...
+                images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
+                for image in images:
+                    thumbnails.append( [image[0], image[1] ] )
+                    thumbnailsPretty[image[0]] = image[1]
+            else:
+                thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
+                thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
+
+        self.thumbnails = thumbnails
 
     def _load_customPropertyButtons( self ):
         # Load a list of addition button IDs we'll handle for setting additional properties
@@ -1416,6 +1433,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 backgroundLabel = [__language__(32053)]
                 backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", { "icon": "DefaultAddonNone.png" }] ) ]
 
+            # Wait to ensure that all backgrounds are loaded
+            count = 0
+            while self.backgrounds == "LOADING" and count < 20:
+                if xbmc.Monitor().waitForAbort(0.1):
+                    return
+                count = count + 1
+
             # Get the default background for this item
             defaultBackground = self.find_default( "background", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
             
@@ -1512,6 +1536,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Create lists for the select dialog
             thumbnail = [""]                     
             thumbnailLabel = [LIBRARY._create(["", __language__(32096), "", {}] )]
+
+            # Ensure thumbnails have been loaded
+            count = 0
+            while self.thumbnails == "LOADING" and count < 20:
+                if xbmc.Monitor().waitForAbort(0.1):
+                    return
+                count = count + 1
             
             # Generate list of thumbnails for the dialog
             for key in self.thumbnails:
@@ -1977,6 +2008,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
     
     def find_defaultBackground( self, labelID, defaultID ):
         # This function finds the default background, including properties
+        count = 0
+        while self.backgrounds == "LOADING" and count < 20:
+            if xbmc.Monitor().waitForAbort(0.1):
+                return
+            count = count + 1
         result = {}
         defaultBackground = self.find_default( "background", labelID, defaultID )
         if defaultBackground:

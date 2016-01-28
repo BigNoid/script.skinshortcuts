@@ -3,7 +3,6 @@ import os
 import xbmc, xbmcaddon, xbmcvfs
 import xml.etree.ElementTree as xmltree
 import hashlist
-import copy
 from traceback import print_exc
 
 __addon__        = xbmcaddon.Addon()
@@ -139,7 +138,7 @@ class Template():
                 include = self.getInclude( self.includes, "%s-%s" %( name, profile.attrib.get( "profile" ) ), None, None ) #profile.attrib.get( "visible" ) )
                 
                 # Create a copy of the node with any changes within (this time it'll be visibility)
-                final = copy.deepcopy( template )
+                final = self.copy_tree( template )
                 self.replaceElements( final, visibilityCondition, profile.attrib.get( "visible" ), [] )
                 
                 # Add the template to the includes
@@ -310,7 +309,7 @@ class Template():
             if "name" in elem.attrib:
                 if elem.attrib.get( "name" ) == name:
                     # This is the one we want :)
-                    return copy.deepcopy( elem )
+                    return self.copy_tree( elem )
                 else:
                     continue
             # Save this, in case we don't find a better match
@@ -330,7 +329,7 @@ class Template():
             if includeName in foundTemplateIncludes:
                 continue
 
-            template = copy.deepcopy( elem )
+            template = self.copy_tree( elem )
             matched = True
 
             # Check whether the skinner has set the match type (whether all conditions need to match, or any)
@@ -383,27 +382,9 @@ class Template():
                     includeNameCheck = "NONE"
                 if previous.find( "skinshortcuts-includeName" ).text != includeNameCheck:
                     continue
-                                
-                # If we haven't already, convert our new template to a string
-                if textVersion is None:
-                    textVersion = ""
-                    if template.find( "controls" ) is not None:
-                        textVersion = xmltree.tostring( template.find( "controls" ), encoding="utf8" )
-                    if template.find( "variables" ) is not None:
-                        textVersion = textVersion + xmltree.tostring( template.find( "variables" ), encoding="utf8" )
-                    #textVersion = xmltree.tostring( template.find( "controls" ), encoding='utf8' )
-
-                # Convert previous tempalte to a string
-                previousVersion = ""
-                if previous.find( "controls" ) is not None:
-                    previousVersion = xmltree.tostring( previous.find( "controls" ), encoding="utf-8" )
-                if previous.find( "variables" ) is not None:
-                    previousVersion = previousVersion + xmltree.tostring( previous.find( "variables" ), encoding="utf8" )
-
                     
-                # Compare string representations
-                if textVersion == previousVersion:
-                #if textVersion == xmltree.tostring( previous.find( "controls" ), encoding='utf8' ):
+                # Compare templates
+                if self.compare_tree( template.find( "controls" ), previous.find( "controls" ) ) and self.compare_tree( template.find( "variables" ), previous.find( "variables" ) ) :
                     # They are the same
                     
                     # Add our details to the previous version, so we can build it
@@ -658,7 +639,7 @@ class Template():
                     if items == []:
                         break
                     for item in items.findall( "item" ):
-                        newitem = copy.deepcopy( item )
+                        newitem = self.copy_tree( item )
 
                         # Remove the existing visible elem from this
                         for visibility in newitem.findall( "visible" ):
@@ -683,7 +664,7 @@ class Template():
             hashlist.list.append( [filename, None] )            
 
     def copy_tree( self, elem ):
-        #if elem is None: return None
+        if elem is None: return None
         ret = xmltree.Element(elem.tag, elem.attrib)
         ret.text = elem.text
         ret.tail = elem.tail
@@ -692,7 +673,7 @@ class Template():
         return ret
 
     def compare_tree( self, e1, e2 ):
-        if e1 is None and e2 is None:
+        if e1 is None or e2 is None:
             return True
         if e1 is None or e2 is None:
             return False
