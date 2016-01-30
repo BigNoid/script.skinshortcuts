@@ -369,7 +369,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     #Translate some listItem properties if needed so they're displayed correctly in the gui
                     listitem.setProperty(property[0],xbmc.getInfoLabel(property[1]))
                 else:
-                    listitem.setProperty( property[0], DATA.local( property[1] )[2] )
+                    listitem.setProperty( property[0], property[1] )
                 
                 # if this is backgroundName or backgroundPlaylistName, keep them so we can localise them properly
                 if property[0] == "backgroundName":
@@ -400,7 +400,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for propertyMatch in fallbackProperties[ key ]:
                     if propertyMatch[ 1 ] is None or listitem.getProperty( propertyMatch[ 1 ] ) == propertyMatch[ 2 ]:
                         log( "Matched" )
-                        listitem.setProperty( key.decode( "utf-8" ), DATA.local( propertyMatch[ 0 ] )[2] )
+                        listitem.setProperty( key.decode( "utf-8" ), propertyMatch[ 0 ] )
                         break
 
     def _get_icon_overrides( self, listitem, setToDefault = True, labelID = None ):
@@ -1903,7 +1903,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 for listitemProperty in listitemProperties:
                     foundProperties.append( listitemProperty[ 0 ] )
-                    listitemCopy.setProperty( listitemProperty[0], DATA.local(listitemProperty[1] )[2] )
+                    listitemCopy.setProperty( listitemProperty[0], listitemProperty[1] )
 
         # Add fallback custom property values
         self._parse_fallbacks( listitemCopy )
@@ -1934,7 +1934,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if propertyValue.startswith("$") and not propertyValue.startswith( "$SKIN" ):
                 listitem.setProperty( propertyName, xbmc.getInfoLabel(propertyValue) )
             else:
-                listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
+                listitem.setProperty( propertyName, propertyValue )
             
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
 

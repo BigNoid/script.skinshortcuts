@@ -691,7 +691,7 @@ class XMLFunctions():
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0].decode( "utf-8" ) )
-                    additionalproperty.text = DATA.local( property[1] )[1]
+                    additionalproperty.text = property[1]
                         
                     # If this is a widget or background, set a skin setting to say it's enabled
                     if property[0] == "widget":
@@ -711,22 +711,19 @@ class XMLFunctions():
                         if "clonewidgets" in options:
                             widgetProperties = [ "widget", "widgetName", "widgetType", "widgetTarget", "widgetPath", "widgetPlaylist" ]
                             if property[0] in widgetProperties:
-                                self.MAINWIDGET[ property[0] ] = DATA.local( property[1] )[ 2 ]
+                                self.MAINWIDGET[ property[0] ] = property[1]
                         if "clonebackgrounds" in options:
                             backgroundProperties = [ "background", "backgroundName", "backgroundPlaylist", "backgroundPlaylistName" ]
                             if property[0] in backgroundProperties:
-                                self.MAINBACKGROUND[ property[0] ] = DATA.local( property[1] )[ 2 ]
+                                self.MAINBACKGROUND[ property[0] ] = property[1]
                         if "cloneproperties" in options:
-                            self.MAINPROPERTIES[ property[0] ] = DATA.local( property[1] )[ 2 ]
+                            self.MAINPROPERTIES[ property[0] ] = property[1]
 
                     # For backwards compatibility, save widgetPlaylist as widgetPath too
                     if property[ 0 ] == "widgetPlaylist":
                         additionalproperty = xmltree.SubElement( newelement, "property" )
                         additionalproperty.set( "name", "widgetPath" )
-                        try:
-                            additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
-                        except:
-                            additionalproperty.text = DATA.local( property[1] )[1]
+                        additionalproperty.text = try_decode( property[1] )
 
         # Add fallback custom property values
         fallbackProperties = DATA._getCustomPropertyFallbacks( groupName )
@@ -750,7 +747,7 @@ class XMLFunctions():
                     if matches:
                         additionalproperty = xmltree.SubElement( newelement, "property" )
                         additionalproperty.set( "name", key.decode( "utf-8" ) )
-                        additionalproperty.text = DATA.local( propertyMatch[ 0 ] )[1]
+                        additionalproperty.text = propertyMatch[ 0 ]
                         break
         
         # Primary visibility
