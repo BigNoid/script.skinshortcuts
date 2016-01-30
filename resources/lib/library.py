@@ -700,11 +700,11 @@ class LibraryFunctions():
         items = {}
 
         if library == "video":
-            windowID = "10025"
+            windowID = "Videos"
             prefix = "library://video"
             action = "||VIDEO||"
         elif library == "music":
-            windowID = "10502"
+            windowID = "MusicLibrary"
             prefix = "library://music"
             action = "||AUDIO||"
 
@@ -1004,8 +1004,6 @@ class LibraryFunctions():
                                     mediaContent = "video"
                                 elif mediaType == "albums" or mediaType == "artists" or mediaType == "songs":
                                     mediaLibrary = "MusicLibrary"
-                                    if __xbmcversion__ >= 16:
-                                        mediaLibrary = "Music"
                                     mediaContent = "music"
                                 
                             if line.tag == "name" and mediaLibrary is not None:
@@ -1390,13 +1388,13 @@ class LibraryFunctions():
 
                     if itemType == "32014":
                         # Video node
-                        windowID = "10025"
+                        windowID = "Videos"
                         if widgetType == "unknown":
                             widgetType = "video"
                         widgetTarget = "video"
                     else:
                         # Audio node
-                        windowID = "10502"
+                        windowID = "MusicLibrary"
                         if widgetType == "unknown":
                             widgetType = "audio"
                         widgetTarget = "music"
@@ -1495,8 +1493,8 @@ class LibraryFunctions():
                 
                 # Build the action
                 if itemType in [ "32010", "32014", "32069" ]:
-                    action = 'ActivateWindow(10025,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "10025" )
+                    action = 'ActivateWindow(VideoLibrary,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "VideoLibrary" )
                     listitem.setProperty( "widgetType", "video" )
 
                     # Add widget details
@@ -1516,8 +1514,8 @@ class LibraryFunctions():
                     listitem.setProperty( "widgetPath", location )
 
                 elif itemType in [ "32011", "32019", "32073" ]:
-                    action = 'ActivateWindow(10502,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "10502" )
+                    action = 'ActivateWindow(MusicLibrary,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "MusicLibrary" )
 
                     # Add widget details
                     listitem.setProperty( "widgetType", "audio" )
@@ -1536,8 +1534,8 @@ class LibraryFunctions():
                     listitem.setProperty( "widgetPath", location )
 
                 elif itemType in [ "32012", "32089" ]:
-                    action = 'ActivateWindow(10002,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "10002" )
+                    action = 'ActivateWindow(Pictures,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "Pictures" )
 
                     # Add widget details
                     listitem.setProperty( "widget", "Addon" )
@@ -1547,8 +1545,8 @@ class LibraryFunctions():
                     listitem.setProperty( "widgetPath", location )
                     
                 elif itemType == "32009":
-                    action = 'ActivateWindow(10001,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "10001" )
+                    action = 'ActivateWindow(Programs,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "Programs" )
 
                     # Add widget details
                     listitem.setProperty( "widget", "Addon" )
@@ -1704,7 +1702,7 @@ class LibraryFunctions():
         mediaType = None
         windowID = selectedShortcut.getProperty( "windowID" )
         # Check if we're going to display this in the files view, or the library view
-        if windowID == "10025":
+        if windowID == "VideoLibrary":
             # Video library                                    Files view           Movies                TV Shows             Music videos         !Movies               !TV Shows            !Music Videos
             userChoice = dialog.select( __language__(32078), [__language__(32079), __language__(32015), __language__(32016), __language__(32018), __language__(32081), __language__(32082), __language__(32083) ] )            
             if userChoice == -1:
@@ -1734,7 +1732,7 @@ class LibraryFunctions():
             elif userChoice == 6:
                 mediaType = "musicvideo"
                 negative = True
-        elif windowID == "10502":
+        elif windowID == "MusicLibrary":
             # Music library                                    Files view           Songs                          Albums                         Mixed                           !Songs               !Albums               !Mixed
             userChoice = dialog.select( __language__(32078), [__language__(32079), xbmc.getLocalizedString(134), xbmc.getLocalizedString(132), xbmc.getLocalizedString(20395), __language__(32084), __language__(32085), __language__(32086) ] )            
             if userChoice == -1:
