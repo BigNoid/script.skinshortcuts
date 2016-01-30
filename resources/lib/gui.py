@@ -385,10 +385,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Add fallback custom property values
         self._parse_fallbacks( listitem )
-        #fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
-        #for key in fallbackProperties:
-        #    if key not in foundProperties:
-        #        listitem.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
                 
         return [ isVisible, listitem ]
 
@@ -954,9 +950,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             # Add fallback custom property values
             self._parse_fallbacks( listitem )
-            #fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
-            #for key in fallbackProperties:
-            #    listitem.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
             
             # Add new item to both displayed list and list kept in memory
             self.allListItems.insert( orderIndex, listitem )
@@ -1938,10 +1931,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Add fallback custom property values
         self._parse_fallbacks( listitemCopy )
-        #fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
-        #for key in fallbackProperties:
-        #    if key not in foundProperties:
-        #        listitemCopy.setProperty( key.decode( "utf-8" ), DATA.local( fallbackProperties[ key ] )[2] )
                 
         return listitemCopy
                 

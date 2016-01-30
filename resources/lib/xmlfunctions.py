@@ -732,17 +732,14 @@ class XMLFunctions():
         for key in fallbackProperties:
             if key not in allProps:
                 for propertyMatch in fallbackProperties[ key ]:
-                    #log( repr ( propertyMatch ) )
                     matches = False
                     if propertyMatch[ 1 ] is None:
                         # This has no conditions, so it matched
-                        #log( " - No condition - matches")
                         matches = True
                     else:
                         # This has an attribute and a value to match against
                         for property in properties:
                             if property[ 0 ] == propertyMatch[ 1 ] and property[ 1 ] == propertyMatch[ 2 ]:
-                                #log( " - Matched %s" %( repr( property ) ) )
                                 matches = True
                                 break
 
@@ -893,11 +890,11 @@ class XMLFunctions():
 
 
     def getPropertyPatterns(self, labelID, group):
+        propertyPatterns = {}
         if not self.loadedPropertyPatterns:
             overrides = DATA._get_overrides_skin()
-            propertyPatterns = {}
             self.propertyPatterns = overrides.getroot().findall("propertypattern")
-            self.loadedPropertyPatterns
+            self.loadedPropertyPatterns = True
 
         for propertyPatternElement in self.propertyPatterns:
             propertyName = propertyPatternElement.get("property")

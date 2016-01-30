@@ -105,7 +105,6 @@ class Template():
             self.findOther( item, profile, profileVisibility, visibilityCondition )
                     
     def writeOthers( self ):
-        log( "Write others" )
         # This will write any 'other' elements we have into the includes file
         # (now we have all the visibility conditions for them)
         if self.includes is None or self.tree is None:
@@ -182,27 +181,13 @@ class Template():
 
         # And now write the variables
         for variableName in finalVariableNames:
-            log( repr( variableName ) )
             element = xmltree.SubElement( self.includes, "variable" )
             element.set( "name", variableName )
             for condition, value in self.parseVariables( variableName, finalVariables ):
-                log( repr( condition ) )
-                log( repr( value ) )
                 valueElement = xmltree.SubElement( element, "value" )
                 valueElement.text = value
                 if condition != "":
                     valueElement.set( "condition", condition )
-
-        #for key in finalVariables.keys():
-        #    log( repr( key ) )
-        #    element = xmltree.SubElement( self.includes, "variable" )
-        #    element.set( "name", key )
-        #    for condition, value in finalVariables[ key ]:
-        #        log( repr( condition ) )
-        #        log( repr( value ) )
-        #        valueElement = xmltree.SubElement( element, "value" )
-        #        valueElement.set( "condition", condition )
-        #        valueElement.text = value
 
     def parseVariables( self, variableName, allVariables ):
         # This function will return all condition/value elements for a given variable, including adding profile conditions
@@ -218,7 +203,6 @@ class Template():
         numProfiles = len( limitedVariables )
 
         for profile in limitedVariables:
-            log( repr( profile ) )
             while len( limitedVariables[ profile ] ) != 0:
                 # Grab the first value from the list
                 value = limitedVariables[ profile ].pop( 0 )
@@ -250,8 +234,6 @@ class Template():
                         noCondition.append( ( condition, value[ 1 ] ) )
                     else:
                         returnVariables.append( ( "%s + [%s]" %( condition, value[ 0 ] ), value[ 1 ] ) )
-            #for variable in limitedVariables[ profile ]:
-            #    log( repr( variable ) )
 
         return returnVariables + noCondition
             
@@ -673,7 +655,7 @@ class Template():
         return ret
 
     def compare_tree( self, e1, e2 ):
-        if e1 is None or e2 is None:
+        if e1 is None and e2 is None:
             return True
         if e1 is None or e2 is None:
             return False

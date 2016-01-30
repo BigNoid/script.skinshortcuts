@@ -249,7 +249,6 @@ class DataFunctions():
                 if additionalProperty[ 0 ] == "thumb":
                     node.find( "thumb" ).text = additionalProperty[ 1 ]
                     additionalProperties.remove( additionalProperty )
-                    log( repr( node.find( "thumb" ).text ) )
                     break
 
             xmltree.SubElement( node, "additional-properties" ).text = repr( additionalProperties )
@@ -624,7 +623,6 @@ class DataFunctions():
                     # This particular property is not matched
                     propertyFallbacks[ elem.attrib.get( "property" ) ].append( ( elem.text, None, None ) )
         self.fallbackProperties[ group ] = propertyFallbacks
-        log( repr( propertyFallbacks ) )
         return propertyFallbacks
         
     def _getWidgetNameAndType( self, widgetID ):
