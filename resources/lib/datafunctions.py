@@ -249,7 +249,6 @@ class DataFunctions():
                 if additionalProperty[ 0 ] == "thumb":
                     node.find( "thumb" ).text = additionalProperty[ 1 ]
                     additionalProperties.remove( additionalProperty )
-                    log( repr( node.find( "thumb" ).text ) )
                     break
 
             xmltree.SubElement( node, "additional-properties" ).text = repr( additionalProperties )
@@ -604,13 +603,25 @@ class DataFunctions():
         return returnVal
 
     def _getCustomPropertyFallbacks( self, group ):
+        # This function loads any fallbacks for custom properties
         if group in self.fallbackProperties:
+            # Return previously loaded fallbacks
             return self.fallbackProperties[ group ]
         propertyFallbacks = {}
         tree = self._get_overrides_skin()
+        # Find all fallbacks
         for elem in tree.findall( "propertyfallback" ):
             if ("group" not in elem.attrib and group == "mainmenu") or elem.attrib.get("group") == group:
-                propertyFallbacks[ elem.attrib.get( "property" ) ] = elem.text
+                propertyName = elem.attrib.get( "property" )
+                if propertyName not in propertyFallbacks.keys():
+                    # Create an empty list to hold fallbacks for this particular property
+                    propertyFallbacks[ propertyName ] = []
+                if "attribute" in elem.attrib and "value" in elem.attrib:
+                    # This particular property is a matched property
+                    propertyFallbacks[ elem.attrib.get( "property" ) ].append( ( elem.text, elem.attrib.get( "attribute" ), elem.attrib.get( "value" ) ) )
+                else:
+                    # This particular property is not matched
+                    propertyFallbacks[ elem.attrib.get( "property" ) ].append( ( elem.text, None, None ) )
         self.fallbackProperties[ group ] = propertyFallbacks
         return propertyFallbacks
         

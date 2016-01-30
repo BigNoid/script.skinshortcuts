@@ -3,7 +3,6 @@ import os, sys, datetime, unicodedata, re
 import xbmc, xbmcgui, xbmcvfs, xbmcaddon
 import xml.etree.ElementTree as xmltree
 from xml.sax.saxutils import escape as escapeXML
-import copy
 import ast
 from traceback import print_exc
 from unicodeutils import try_decode
@@ -40,6 +39,9 @@ class XMLFunctions():
         self.MAINPROPERTIES = {}
         self.hasSettings = False
         self.widgetCount = 1
+
+        self.loadedPropertyPatterns = False
+        self.propertyPatterns = None
 
         self.skinDir = xbmc.translatePath( "special://skin" )
         
@@ -424,14 +426,14 @@ class XMLFunctions():
                     menuitem = self.buildElement( item, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
 
                     # Add the menu item to the various includes, retaining a reference to them
-                    mainmenuItemA = copy.deepcopy( menuitem )
+                    mainmenuItemA = Template.copy_tree( menuitem )
                     mainmenuTree.append( mainmenuItemA )
 
                     if buildMode == "single":
-                        mainmenuItemB = copy.deepcopy( menuitem )
+                        mainmenuItemB = Template.copy_tree( menuitem )
                         allmenuTree.append( mainmenuItemB )
 
-                    templateMainMenuItems.append( copy.deepcopy( menuitem ) )
+                    templateMainMenuItems.append( Template.copy_tree( menuitem ) )
 
                     # Get submenu defaultID
                     submenuDefaultID = item.find( "defaultID" ).text
@@ -526,22 +528,22 @@ class XMLFunctions():
                         isSubMenuElement.text = "True"
 
                         # Add it, with appropriate visibility conditions, to the various submenu includes
-                        justmenuTreeA.append( copy.deepcopy( menuitem ) )
+                        justmenuTreeA.append( Template.copy_tree( menuitem ) )
 
-                        menuitemCopy = copy.deepcopy( menuitem )
+                        menuitemCopy = Template.copy_tree( menuitem )
                         visibilityElement = menuitemCopy.find( "visible" )
                         visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
                         justmenuTreeB.append( menuitemCopy )
 
                         if buildMode == "single":
                             # Add the property 'submenuVisibility'
-                            allmenuTreeCopy = copy.deepcopy( menuitemCopy )
+                            allmenuTreeCopy = Template.copy_tree( menuitemCopy )
                             submenuVisibility = xmltree.SubElement( allmenuTreeCopy, "property" )
                             submenuVisibility.set( "name", "submenuVisibility" )
                             submenuVisibility.text = DATA.slugify( submenuVisibilityName, convertInteger=True )
                             allmenuTree.append( allmenuTreeCopy )
 
-                        menuitemCopy = copy.deepcopy( menuitem )
+                        menuitemCopy = Template.copy_tree( menuitem )
                         visibilityElement = menuitemCopy.find( "visible" )
                         visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
                         submenuTree.append( menuitemCopy )
@@ -587,7 +589,7 @@ class XMLFunctions():
 
             # If we haven't built enough main menu items, copy the ones we have
             while itemidmainmenu < minitems and fullMenu and len( mainmenuTree ) != 0:
-                updatedMenuTree = copy.deepcopy( mainmenuTree )
+                updatedMenuTree = Template.copy_tree( mainmenuTree )
                 for item in updatedMenuTree:
                     itemidmainmenu += 1
                     # Update ID
@@ -691,7 +693,7 @@ class XMLFunctions():
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0].decode( "utf-8" ) )
-                    additionalproperty.text = DATA.local( property[1] )[1]
+                    additionalproperty.text = property[1]
                         
                     # If this is a widget or background, set a skin setting to say it's enabled
                     if property[0] == "widget":
@@ -711,30 +713,41 @@ class XMLFunctions():
                         if "clonewidgets" in options:
                             widgetProperties = [ "widget", "widgetName", "widgetType", "widgetTarget", "widgetPath", "widgetPlaylist" ]
                             if property[0] in widgetProperties:
-                                self.MAINWIDGET[ property[0] ] = DATA.local( property[1] )[ 2 ]
+                                self.MAINWIDGET[ property[0] ] = property[1]
                         if "clonebackgrounds" in options:
                             backgroundProperties = [ "background", "backgroundName", "backgroundPlaylist", "backgroundPlaylistName" ]
                             if property[0] in backgroundProperties:
-                                self.MAINBACKGROUND[ property[0] ] = DATA.local( property[1] )[ 2 ]
+                                self.MAINBACKGROUND[ property[0] ] = property[1]
                         if "cloneproperties" in options:
-                            self.MAINPROPERTIES[ property[0] ] = DATA.local( property[1] )[ 2 ]
+                            self.MAINPROPERTIES[ property[0] ] = property[1]
 
                     # For backwards compatibility, save widgetPlaylist as widgetPath too
                     if property[ 0 ] == "widgetPlaylist":
                         additionalproperty = xmltree.SubElement( newelement, "property" )
                         additionalproperty.set( "name", "widgetPath" )
-                        try:
-                            additionalproperty.text = DATA.local( property[1].decode( "utf-8" ) )[1]
-                        except:
-                            additionalproperty.text = DATA.local( property[1] )[1]
+                        additionalproperty.text = try_decode( property[1] )
 
         # Add fallback custom property values
         fallbackProperties = DATA._getCustomPropertyFallbacks( groupName )
         for key in fallbackProperties:
             if key not in allProps:
-                additionalproperty = xmltree.SubElement( newelement, "property" )
-                additionalproperty.set( "name", key.decode( "utf-8" ) )
-                additionalproperty.text = DATA.local( fallbackProperties[ key ] )[1]
+                for propertyMatch in fallbackProperties[ key ]:
+                    matches = False
+                    if propertyMatch[ 1 ] is None:
+                        # This has no conditions, so it matched
+                        matches = True
+                    else:
+                        # This has an attribute and a value to match against
+                        for property in properties:
+                            if property[ 0 ] == propertyMatch[ 1 ] and property[ 1 ] == propertyMatch[ 2 ]:
+                                matches = True
+                                break
+
+                    if matches:
+                        additionalproperty = xmltree.SubElement( newelement, "property" )
+                        additionalproperty.set( "name", key.decode( "utf-8" ) )
+                        additionalproperty.text = propertyMatch[ 0 ]
+                        break
         
         # Primary visibility
         visibility = item.find( "visibility" )
@@ -877,11 +890,13 @@ class XMLFunctions():
 
 
     def getPropertyPatterns(self, labelID, group):
-        overrides = DATA._get_overrides_skin()
         propertyPatterns = {}
-        
-        propertyPatternElements = overrides.getroot().findall("propertypattern")
-        for propertyPatternElement in propertyPatternElements:
+        if not self.loadedPropertyPatterns:
+            overrides = DATA._get_overrides_skin()
+            self.propertyPatterns = overrides.getroot().findall("propertypattern")
+            self.loadedPropertyPatterns = True
+
+        for propertyPatternElement in self.propertyPatterns:
             propertyName = propertyPatternElement.get("property")
             propertyGroup = propertyPatternElement.get("group")
           

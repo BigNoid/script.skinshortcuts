@@ -8,6 +8,14 @@ script.skinshortcuts was written with the intention of making user customizable 
 #### Version 1.0.3 - git version
 
 - Icons and thumbs are now saved on a per-skin basis
+- Ability to specify an icon to be displayed with a background - [Read More](./resources/docs/advanced/Managing backgrounds.md#defining-backgrounds)
+- Support building variables in templates - [Read More](./resources/docs/advanced/Templates.md#other-template)
+- Ability to specify conditions for fallback custom properties - [Read More](./resources/docs/advanced/Custom shortcut properties.md#for-all-shortcuts-without-a-user-set-property)
+
+Whilst they do not affect how skinners interact with the script, it is worth noting this version introduces changes aimed at the end users. Most notably:-
+
+- Users can now specify that their menus should not be shared between skins
+- Support for context menu add-on ([Git](https://github.com/Ignoble61/context.skinshortcuts.addtomenu)) to add items directly to menu
 
 Also, whilst it does not affect how skinners interact with the script, it is important to note this version introduces an option for users to specify that their menus should not be shared between skins.
 
