@@ -369,7 +369,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     #Translate some listItem properties if needed so they're displayed correctly in the gui
                     listitem.setProperty(property[0],xbmc.getInfoLabel(property[1]))
                 else:
-                    listitem.setProperty( property[0], property[1] )
+                    listitem.setProperty( property[0], DATA.local( property[1] )[2] )
+                    if property[1].isdigit():
+                        listitem.setProperty( "%s-NUM" %( property[0] ), property[1] )
                 
                 # if this is backgroundName or backgroundPlaylistName, keep them so we can localise them properly
                 if property[0] == "backgroundName":
@@ -1915,6 +1917,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 for listitemProperty in listitemProperties:
                     foundProperties.append( listitemProperty[ 0 ] )
                     listitemCopy.setProperty( listitemProperty[0], DATA.local( listitemProperty[1] )[2] )
+                    if listitemProperty[1].isdigit():
+                        listitemCopy.setProperty( "%s-NUM" %( listitemProperty[0] ), listitemProperty[1] )
         else:
             # Set these from the original item we were passed (this will keep original labelID and additional properties
             # in tact)
@@ -1927,7 +1931,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 for listitemProperty in listitemProperties:
                     foundProperties.append( listitemProperty[ 0 ] )
-                    listitemCopy.setProperty( listitemProperty[0], listitemProperty[1] )
+                    listitemCopy.setProperty( listitemProperty[0], DATA.local( listitemProperty[1] )[2] )
+                    if listitemProperty[1].isdigit():
+                        listitemCopy.setProperty( "%s-NUM" %( listitemProperty[0] ), listitemProperty[1] )
 
         # Add fallback custom property values
         self._parse_fallbacks( listitemCopy )
@@ -1954,7 +1960,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if propertyValue.startswith("$") and not propertyValue.startswith( "$SKIN" ):
                 listitem.setProperty( propertyName, xbmc.getInfoLabel(propertyValue) )
             else:
-                listitem.setProperty( propertyName, propertyValue )
+                listitem.setProperty( propertyName, DATA.local( propertyValue )[2] )
+                if propertyValue.isdigit():
+                    listitem.setProperty( "%s-NUM" %( propertyName ), propertyValue )
             
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
 
@@ -1969,7 +1977,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             hasProperties = True
         
         for property in properties:
-            if property[0] == propertyName:
+            if property[0] == propertyName or "%s-NUM" $( property[0] ) == "%s-NUM" %( propertyName ):
                 properties.remove( property )
         
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
