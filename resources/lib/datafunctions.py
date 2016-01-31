@@ -2,7 +2,7 @@
 import os, sys, datetime, unicodedata, re, types
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
-import hashlist
+import hashlib, hashlist
 import ast
 from xml.dom.minidom import parse
 from traceback import print_exc
@@ -983,7 +983,9 @@ class DataFunctions():
 
     def _save_hash( self, filename, file ):
         if file is not None:
-            hashlist.list.append( [ filename, os.path.getmtime( filename ) ] )
+            hasher = hashlib.md5()
+            hasher.update( file )
+            hashlist.list.append( [filename, hasher.hexdigest()] )
         else:
             hashlist.list.append( [filename, None] )
             
