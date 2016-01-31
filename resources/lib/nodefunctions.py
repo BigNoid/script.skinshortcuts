@@ -2,8 +2,7 @@
 import os, sys, datetime, unicodedata, re, types
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
-import ast
-import hashlist
+import hashlib, hashlist
 import cPickle as pickle
 from xml.dom.minidom import parse
 from traceback import print_exc

@@ -23,7 +23,7 @@ __language__     = __addon__.getLocalizedString
 
 import datafunctions, template
 DATA = datafunctions.DataFunctions()
-import hashlist
+import hashlib, hashlist
 
 def log(txt):
     if __addon__.getSetting( "enable_logging" ) == "true":
@@ -271,15 +271,15 @@ class XMLFunctions():
                     pass
                 else:
                     try:
-                        modTime = os.path.getmtime( hash[ 0 ] )
-                        if modTime != hash[ 1 ]:
-                            log( "%s has been modified" %( hash[ 0 ] ) )
-                            log( "(%s > %s)" %( modTime, hash[ 1 ] ) )
+                        hasher = hashlib.md5()
+                        hasher.update( xbmcvfs.File( hash[0] ).read() )
+                        if hasher.hexdigest() != hash[1]:
+                            log( "Hash does not match on file " + hash[0] )
+                            log( "(" + hash[1] + " > " + hasher.hexdigest() + ")" )
                             return True
                     except:
-                        log( "Unable to get modified time for %s" %( hash[ 0 ] ) )
+                        log( "Unable to generate hash for %s" %( hash[ 0 ] ) )
                         log( "(%s > ?)" %( hash[ 1 ] ) )
-                        return True
             else:
                 if xbmcvfs.exists( hash[0] ):
                     log( "File now exists " + hash[0] )

@@ -2,7 +2,8 @@
 import os
 import xbmc, xbmcaddon, xbmcvfs
 import xml.etree.ElementTree as xmltree
-import hashlist
+import hashlib, hashlist
+import copy
 from traceback import print_exc
 
 __addon__        = xbmcaddon.Addon()
@@ -641,7 +642,9 @@ class Template():
             
     def _save_hash( self, filename, file ):
         if file is not None:
-            hashlist.list.append( [ filename, os.path.getmtime( filename ) ] )
+            hasher = hashlib.md5()
+            hasher.update( file )
+            hashlist.list.append( [filename, hasher.hexdigest()] )
         else:
             hashlist.list.append( [filename, None] )            
 
