@@ -1977,7 +1977,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             hasProperties = True
         
         for property in properties:
-            if property[0] == propertyName or "%s-NUM" $( property[0] ) == "%s-NUM" %( propertyName ):
+            if property[0] == propertyName or "%s-NUM" %( property[0] ) == "%s-NUM" %( propertyName ):
                 properties.remove( property )
         
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
