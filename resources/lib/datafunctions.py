@@ -498,6 +498,11 @@ class DataFunctions():
                     # listProperty[1] = labelID
                     # listProperty[2] = property name
                     # listProperty[3] = property value
+
+                    # If listProperty[3] starts with $SKIN, it's from an older version of the script
+                    # so quickly run it through the local function to remove the unecessary localisation
+                    if listProperty[3].startswith( "$SKIN["):
+                        listProperty[3] = self.local( listProperty[3] )[3]
                     self.currentProperties.append( [listProperty[0], listProperty[1], listProperty[2], listProperty[3]] )
             except:
                 self.currentProperties = [ None ]
