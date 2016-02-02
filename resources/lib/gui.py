@@ -358,48 +358,82 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         # Additional properties
         additionalProperties = item.find( "additional-properties" )
-        backgroundName = None
-        backgroundPlaylistName = None
-        foundProperties = []
         if additionalProperties is not None:
             listitem.setProperty( "additionalListItemProperties", additionalProperties.text )
-            for property in eval( additionalProperties.text ):
-                foundProperties.append( property[ 0 ] )
-                if property[1].startswith("$") and not property[ 1 ].startswith( "$SKIN" ):
-                    #Translate some listItem properties if needed so they're displayed correctly in the gui
-                    listitem.setProperty(property[0],xbmc.getInfoLabel(property[1]))
-                else:
-                    listitem.setProperty( property[0], DATA.local( property[1] )[2] )
-                    if property[1].isdigit():
-                        listitem.setProperty( "%s-NUM" %( property[0] ), property[1] )
-                
-                # if this is backgroundName or backgroundPlaylistName, keep them so we can localise them properly
-                if property[0] == "backgroundName":
-                    backgroundName = property[1]
-                if property[1] == "backgroundPlaylistName":
-                    backgroundPlaylistName = property[1]
-                    
-            # If we've kept backgroundName, localise it with the updated playlist name
-            if backgroundName is not None and backgroundPlaylistName is not None:
-                listitem.setProperty( "backgroundName", DATA.local( backgroundName )[2].replace( "::PLAYLIST::", backgroundPlaylistName ) )
         else:
             listitem.setProperty( "additionalListItemProperties", "[]" )
-
-        # Add fallback custom property values
-        self._parse_fallbacks( listitem )
+        self._add_additional_properties( listitem )
                 
         return [ isVisible, listitem ]
 
-    def _parse_fallbacks( self, listitem ):
-        # This function adds any fallback properties to the listitem we've been passed
-        fallbackProperties = DATA._getCustomPropertyFallbacks( self.group )
+    def _add_additional_properties( self, listitem ):
+        allProps = {}
+        backgroundName = None
+        backgroundPlaylistName = None
+
+        # If there's a list of current properties, remove them from the listitem
+        currentProperties = listitem.getProperty( "skinshortcuts-allproperties" )
+        if currentProperties != "":
+            for currentProperty in eval( currentProperties ):
+                listitem.setProperty( currentProperty[ 0 ], "" )
+
+        # Process all custom properties
+        customProperties = listitem.getProperty( "additionalListItemProperties" )
+        if customProperties != "":
+            customProperties = eval( customProperties )
+            for customProperty in customProperties:
+                if customProperty[1].startswith("$") and not customProperty[ 1 ].startswith( "$SKIN" ):
+                    #Translate some listItem properties if needed so they're displayed correctly in the gui
+                    allProps[ customProperty[ 0 ] ] = xbmc.getInfoLabel( customProperty[ 1 ] )
+                else:
+                    allProps[ customProperty[ 0 ] ] = DATA.local( customProperty[ 1 ] )[ 2 ]
+                    if customProperty[ 1 ].isdigit():
+                        allProps[ "%s-NUM" %( customProperty[ 0 ] ) ] = customProperty[ 1 ]
+                
+                # if this is backgroundName or backgroundPlaylistName, keep them so we can localise them properly
+                if customProperty[0] == "backgroundName":
+                    backgroundName = customProperty[1]
+                if customProperty[1] == "backgroundPlaylistName":
+                    backgroundPlaylistName = customProperty[1]
+                
+        # If we've kept backgroundName, localise it with the updated playlist name
+        if backgroundName is not None and backgroundPlaylistName is not None:
+            allProps[ "backgroundName" ] = DATA.local( backgroundName )[2].replace( "::PLAYLIST::", backgroundPlaylistName )
+
+        # Get fallback properties
+        fallbackProperties, fallbacks = DATA._getCustomPropertyFallbacks( self.group )
+
+        # Add fallback properties
         for key in fallbackProperties:
-            if listitem.getProperty( key ) == "":
-                for propertyMatch in fallbackProperties[ key ]:
-                    if propertyMatch[ 1 ] is None or listitem.getProperty( propertyMatch[ 1 ] ) == propertyMatch[ 2 ]:
-                        log( "Matched" )
-                        listitem.setProperty( key.decode( "utf-8" ), propertyMatch[ 0 ] )
+            if key not in allProps.keys():
+                # Check whether we have a fallback for the value
+                for propertyMatch in fallbacks[ key ]:
+                    matches = False
+                    if propertyMatch[ 1 ] is None:
+                        # This has no conditions, so it matched
+                        matches = True
+                    elif propertyMatch[ 1 ] in allProps.keys() and allProps[ propertyMatch[ 1 ] ] == propertyMatch[ 2 ]:
+                        matched = True
+
+                    if matches:
+                        allProps[ key ] = propertyMatch[ 0 ]
                         break
+
+        # Get property requirements
+        otherProperties, requires, templateOnly = DATA._getPropertyRequires()
+
+        # Remove any properties whose requirements haven't been met
+        for key in otherProperties:
+            if key in allProps.keys() and key in requires.keys() and requires[ key ] not in allProps.keys():
+                # This properties requirements aren't met
+                allProps.pop( key )
+                if "%s-NUM" %( key ) in allProps.keys():
+                    allProps.pop( "%s-NUM" %( key ) )
+
+        # And finally, add the custom properties to the listitem
+        for prop in allProps:
+            listitem.setProperty( prop, allProps[ prop ] )
+        listitem.setProperty( "skinshortcuts-allproperties", repr( allProps ) )
 
     def _get_icon_overrides( self, listitem, setToDefault = True, labelID = None ):
         # Start by getting the labelID
@@ -949,9 +983,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set default label and action
             listitem = xbmcgui.ListItem( __language__(32013) )
             listitem.setProperty( "Path", 'noop' )
+            listitem.setProperty( "additionalListItemProperties", "[]" )
 
             # Add fallback custom property values
-            self._parse_fallbacks( listitem )
+            self._add_additional_properties( listitem )
             
             # Add new item to both displayed list and list kept in memory
             self.allListItems.insert( orderIndex, listitem )
@@ -1912,13 +1947,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitemCopy.setProperty( "visible-condition", listitem.getProperty( "visible-condition" ) )
             if listitem.getProperty( "additionalListItemProperties" ):
                 listitemCopy.setProperty( "additionalListItemProperties", listitem.getProperty( "additionalListItemProperties" ) )
-                listitemProperties = eval( listitem.getProperty( "additionalListItemProperties" ) )
-                
-                for listitemProperty in listitemProperties:
-                    foundProperties.append( listitemProperty[ 0 ] )
-                    listitemCopy.setProperty( listitemProperty[0], DATA.local( listitemProperty[1] )[2] )
-                    if listitemProperty[1].isdigit():
-                        listitemCopy.setProperty( "%s-NUM" %( listitemProperty[0] ), listitemProperty[1] )
         else:
             # Set these from the original item we were passed (this will keep original labelID and additional properties
             # in tact)
@@ -1927,16 +1955,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitemCopy.setProperty( "visible-condition", originallistitem.getProperty( "visible-condition" ) )
             if originallistitem.getProperty( "additionalListItemProperties" ):
                 listitemCopy.setProperty( "additionalListItemProperties", originallistitem.getProperty( "additionalListItemProperties" ) )
-                listitemProperties = eval( originallistitem.getProperty( "additionalListItemProperties" ) )
-                
-                for listitemProperty in listitemProperties:
-                    foundProperties.append( listitemProperty[ 0 ] )
-                    listitemCopy.setProperty( listitemProperty[0], DATA.local( listitemProperty[1] )[2] )
-                    if listitemProperty[1].isdigit():
-                        listitemCopy.setProperty( "%s-NUM" %( listitemProperty[0] ), listitemProperty[1] )
 
-        # Add fallback custom property values
-        self._parse_fallbacks( listitemCopy )
+        # Add custom properties
+        self._add_additional_properties( listitemCopy )
                 
         return listitemCopy
                 
@@ -1966,7 +1987,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
 
-        self._parse_fallbacks( listitem )
+        self._add_additional_properties( listitem )
         
     def _remove_additionalproperty( self, listitem, propertyName ):
         # Remove an item from the additional properties of a user item
@@ -1981,10 +2002,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 properties.remove( property )
         
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
-            
-        listitem.setProperty( propertyName, None )
 
-        self._parse_fallbacks( listitem )
+        self._add_additional_properties( listitem )
     
     def warnonremoval( self, item ):
         # This function will warn the user before they modify a settings link

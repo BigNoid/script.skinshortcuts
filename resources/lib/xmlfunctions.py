@@ -423,7 +423,21 @@ class XMLFunctions():
                     submenu = item.find( "labelID" ).text
 
                     # Build the menu item
-                    menuitem = self.buildElement( item, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
+                    menuitem, allProps = self.buildElement( item, "mainmenu", None, profile[1], DATA.slugify( submenu, convertInteger=True ), itemid = itemidmainmenu, options = options )
+
+                    # Save a copy for the template
+                    templateMainMenuItems.append( Template.copy_tree( menuitem ) )
+
+                    # Get submenu defaultID
+                    submenuDefaultID = item.find( "defaultID" ).text
+
+                    # Remove any template-only properties
+                    otherProperties, requires, templateOnly = DATA._getPropertyRequires()
+                    for key in otherProperties:
+                        if key in allProps.keys() and key in templateOnly:
+                            # This key is template-only
+                            menuitem.remove( allProps[ key ] )
+                            allProps.pop( key )
 
                     # Add the menu item to the various includes, retaining a reference to them
                     mainmenuItemA = Template.copy_tree( menuitem )
@@ -433,10 +447,6 @@ class XMLFunctions():
                         mainmenuItemB = Template.copy_tree( menuitem )
                         allmenuTree.append( mainmenuItemB )
 
-                    templateMainMenuItems.append( Template.copy_tree( menuitem ) )
-
-                    # Get submenu defaultID
-                    submenuDefaultID = item.find( "defaultID" ).text
                 else:
                     # It's an additional menu, so get its labelID
                     submenu = DATA._get_labelID( item, None )
@@ -519,16 +529,28 @@ class XMLFunctions():
                                 newonclick.text = "SetProperty(submenuVisibility," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ",10000)"
                     
                     # Build the submenu items
+                    templateSubMenuItems = xmltree.Element( "includes" )
                     for submenuItem in submenuitems:
                         itemidsubmenu += 1
                         # Build the item without any visibility conditions
-                        menuitem = self.buildElement( submenuItem, submenu, None, profile[1], itemid = itemidsubmenu, options = options )
+                        menuitem, allProps = self.buildElement( submenuItem, submenu, None, profile[1], itemid = itemidsubmenu, options = options )
                         isSubMenuElement = xmltree.SubElement( menuitem, "property" )
                         isSubMenuElement.set( "name", "isSubmenu" )
                         isSubMenuElement.text = "True"
 
+                        # Save a copy for the template
+                        templateSubMenuItems.append( Template.copy_tree( menuitem ) )
+
+                        # Remove any template-only properties
+                        otherProperties, requires, templateOnly = DATA._getPropertyRequires()
+                        for key in otherProperties:
+                            if key in allProps.keys() and key in templateOnly:
+                                # This key is template-only
+                                menuitem.remove( allProps[ key ] )
+                                allProps.pop( key )
+
                         # Add it, with appropriate visibility conditions, to the various submenu includes
-                        justmenuTreeA.append( Template.copy_tree( menuitem ) )
+                        justmenuTreeA.append( menuitem )
 
                         menuitemCopy = Template.copy_tree( menuitem )
                         visibilityElement = menuitemCopy.find( "visible" )
@@ -549,7 +571,7 @@ class XMLFunctions():
                         submenuTree.append( menuitemCopy )
                             
                     # Build the template for the submenu
-                    Template.parseItems( "submenu", count, justmenuTreeA, profile[ 2 ], profile[ 1 ], "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", item )
+                    Template.parseItems( "submenu", count, templateSubMenuItems, profile[ 2 ], profile[ 1 ], "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")", item )
                         
                     count += 1
 
@@ -640,6 +662,7 @@ class XMLFunctions():
     def buildElement( self, item, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1, options=[] ):
         # This function will build an element for the passed Item in
         newelement = xmltree.Element( "item" )
+        allProps = {}
 
         # Set ID
         if itemid is not -1:
@@ -647,6 +670,7 @@ class XMLFunctions():
         idproperty = xmltree.SubElement( newelement, "property" )
         idproperty.set( "name", "id" )
         idproperty.text = "$NUM[%s]" %( str( itemid ) )
+        allProps[ "id" ] = idproperty
             
         # Label and label2
         xmltree.SubElement( newelement, "label" ).text = DATA.local( item.find( "label" ).text )[1]
@@ -668,9 +692,11 @@ class XMLFunctions():
         labelID = xmltree.SubElement( newelement, "property" )
         labelID.text = item.find( "labelID" ).text
         labelID.set( "name", "labelID" )
+        allProps[ "labelID" ] = labelID
         defaultID = xmltree.SubElement( newelement, "property" )
         defaultID.text = item.find( "defaultID" ).text
         defaultID.set( "name", "defaultID" )
+        allProps[ "defaultID" ] = defaultID
 
         # Clear cloned options if main menu
         if groupName == "mainmenu":
@@ -682,11 +708,9 @@ class XMLFunctions():
         foundProperties = []
         
         # Additional properties
-        allProps = []
         properties = eval( item.find( "additional-properties" ).text )
         if len( properties ) != 0:
             for property in properties:
-                allProps.append(property[0])
                 if property[0] == "node.visible":
                     visibleProperty = xmltree.SubElement( newelement, "visible" )
                     visibleProperty.text = try_decode( property[1] )                    
@@ -694,6 +718,7 @@ class XMLFunctions():
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0].decode( "utf-8" ) )
                     additionalproperty.text = property[1]
+                    allProps[ property[ 0 ] ] = additionalproperty
                         
                     # If this is a widget or background, set a skin setting to say it's enabled
                     if property[0] == "widget":
@@ -727,11 +752,14 @@ class XMLFunctions():
                         additionalproperty.set( "name", "widgetPath" )
                         additionalproperty.text = try_decode( property[1] )
 
-        # Add fallback custom property values
-        fallbackProperties = DATA._getCustomPropertyFallbacks( groupName )
+        # Get fallback properties, property requirements, templateOnly value of properties
+        fallbackProperties, fallbacks = DATA._getCustomPropertyFallbacks( groupName )
+
+        # Add fallback properties
         for key in fallbackProperties:
-            if key not in allProps:
-                for propertyMatch in fallbackProperties[ key ]:
+            if key not in allProps.keys():
+                # Check whether we have a fallback for the value
+                for propertyMatch in fallbacks[ key ]:
                     matches = False
                     if propertyMatch[ 1 ] is None:
                         # This has no conditions, so it matched
@@ -747,7 +775,18 @@ class XMLFunctions():
                         additionalproperty = xmltree.SubElement( newelement, "property" )
                         additionalproperty.set( "name", key.decode( "utf-8" ) )
                         additionalproperty.text = propertyMatch[ 0 ]
+                        allProps[ key ] = additionalproperty
                         break
+
+        # Get property requirements
+        otherProperties, requires, templateOnly = DATA._getPropertyRequires()
+
+        # Remove any properties whose requirements haven't been met
+        for key in otherProperties:
+            if key in allProps.keys() and key in requires.keys() and requires[ key ] not in allProps.keys():
+                # This properties requirements aren't met
+                newelement.remove( allProps[ key ] )
+                allProps.pop( key )
         
         # Primary visibility
         visibility = item.find( "visibility" )
@@ -797,18 +836,20 @@ class XMLFunctions():
                 onclickelement.text = onclick.text
                 
             # Also add it as a path property
-            if not self.propertyExists( "path", newelement ) and not "path" in allProps:
+            if not self.propertyExists( "path", newelement ) and not "path" in allProps.keys():
                 # we only add the path property if there isn't already one in the list because it has to be unique in Kodi lists
                 pathelement = xmltree.SubElement( newelement, "property" )
                 pathelement.set( "name", "path" )
                 pathelement.text = onclickelement.text
+                allProps[ "path" ] = pathelement
             
             # Get 'list' property (the action property of an ActivateWindow shortcut)
-            if not self.propertyExists( "list", newelement ) and not "list" in allProps:
+            if not self.propertyExists( "list", newelement ) and not "list" in allProps.keys():
                 # we only add the list property if there isn't already one in the list because it has to be unique in Kodi lists
                 listElement = xmltree.SubElement( newelement, "property" )
                 listElement.set( "name", "list" )
                 listElement.text = DATA.getListProperty( onclickelement.text.replace('"','') )
+                allProps[ "list" ] = listElement
                 
             if onclick.text == "ActivateWindow(Settings)":
                 self.hasSettings = True
@@ -837,6 +878,7 @@ class XMLFunctions():
             issubmenuElement = xmltree.SubElement( newelement, "property" )
             issubmenuElement.set( "name", "isSubmenu" )
             issubmenuElement.text = "True"
+            allProps[ "isSubmenu" ] = issubmenuElement
         elif profileVisibility is not None:
             visibilityElement = xmltree.SubElement( newelement, "visible" )
             visibilityElement.text = profileVisibility
@@ -854,6 +896,7 @@ class XMLFunctions():
         group = xmltree.SubElement( newelement, "property" )
         group.set( "name", "group" )
         group.text = try_decode( groupName )
+        allProps[ "group" ] = group
         
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
         if groupName != "mainmenu":
@@ -862,16 +905,19 @@ class XMLFunctions():
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
                     additionalproperty.text = try_decode( self.MAINWIDGET[ key ] )
+                    allProps[ key ] = additionalproperty
             if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) is not 0:
                 for key in self.MAINBACKGROUND:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
                     additionalproperty.text = DATA.local( self.MAINBACKGROUND[ key ] )[1]
+                    allProps[ key ] = additionalproperty
             if "cloneproperties" in options and len( self.MAINPROPERTIES ) is not 0:
                 for key in self.MAINPROPERTIES:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
                     additionalproperty.text = DATA.local( self.MAINPROPERTIES[ key ] )[1]
+                    allProps[ key ] = additionalproperty
 
         propertyPatterns = self.getPropertyPatterns(labelID.text, groupName)
         if len(propertyPatterns) > 0:
@@ -885,8 +931,9 @@ class XMLFunctions():
                 additionalproperty = xmltree.SubElement(newelement, "property")
                 additionalproperty.set("name", propertyName.decode("utf-8"))
                 additionalproperty.text = propertyPattern.decode("utf-8")
+                allProps[ propertyName ] = additionalproperty
             
-        return newelement
+        return( newelement, allProps )
 
 
     def getPropertyPatterns(self, labelID, group):

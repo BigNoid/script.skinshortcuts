@@ -5,6 +5,7 @@ v1.0.4
 - New icon element for background overrides
 - Support building variables in templates
 - Add conditional custom property fallback override
+- Add requires and templateOnly elements to properties
 - Various language changes
 - Speed improvements
 - Minor fixes
