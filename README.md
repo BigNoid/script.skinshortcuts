@@ -1,11 +1,11 @@
-#Skin Shortcuts - 1.0.3
+#Skin Shortcuts - 1.0.4
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
-#### Version 1.0.3 - git version
+#### Version 1.0.4 - git version
 
 - Icons and thumbs are now saved on a per-skin basis
 - Ability to specify an icon to be displayed with a background - [Read More](./resources/docs/advanced/Managing backgrounds.md#defining-backgrounds)
