@@ -11,6 +11,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Ability to specify an icon to be displayed with a background - [Read More](./resources/docs/advanced/Managing backgrounds.md#defining-backgrounds)
 - Support building variables in templates - [Read More](./resources/docs/advanced/Templates.md#other-template)
 - Ability to specify conditions for fallback custom properties - [Read More](./resources/docs/advanced/Custom shortcut properties.md#for-all-shortcuts-without-a-user-set-property)
+- Ability to specify a property requires another property to be present, and that a property is only used by templates - [Read More](./resources/docs/advanced/Custom shortcut properties.md#set-options)
 
 Whilst they do not affect how skinners interact with the script, it is worth noting this version introduces changes aimed at the end users. Most notably:-
 

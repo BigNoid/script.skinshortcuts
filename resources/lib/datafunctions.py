@@ -56,9 +56,15 @@ class DataFunctions():
         self.widgetNameAndType = {}
         self.backgroundName = {}
         self.fallbackProperties = {}
+        self.fallbackRequires = {}
+        self.propertyRequires = None
+        self.templateOnlyProperties = None
 
         self.currentProperties = None
         self.defaultProperties = None
+
+        self.propertyInformation = { "fallbackProperties": {}, "fallbacks": {},
+                "otherProperties": [], "requires": None, "templateOnly": None }
         
     
     def _get_labelID( self, labelID, action, getDefaultID = False, includeAddOnID = True ):
@@ -608,27 +614,68 @@ class DataFunctions():
         return returnVal
 
     def _getCustomPropertyFallbacks( self, group ):
-        # This function loads any fallbacks for custom properties
-        if group in self.fallbackProperties:
-            # Return previously loaded fallbacks
-            return self.fallbackProperties[ group ]
-        propertyFallbacks = {}
+        if group in self.propertyInformation[ "fallbacks" ]:
+            # We've already loaded everything, return it all
+            return( self.propertyInformation[ "fallbackProperties" ][ group ], self.propertyInformation[ "fallbacks" ][ group ] )
+
+        # Get skin overrides
         tree = self._get_overrides_skin()
+
         # Find all fallbacks
+        fallbackProperties = []
+        fallbacks = {}
         for elem in tree.findall( "propertyfallback" ):
             if ("group" not in elem.attrib and group == "mainmenu") or elem.attrib.get("group") == group:
+                # This is a fallback for the group we've been asked for
                 propertyName = elem.attrib.get( "property" )
-                if propertyName not in propertyFallbacks.keys():
-                    # Create an empty list to hold fallbacks for this particular property
-                    propertyFallbacks[ propertyName ] = []
+                if propertyName not in fallbackProperties:
+                    # Save the property name in the order in which we processed it
+                    fallbackProperties.append( propertyName )
+                if propertyName not in fallbacks.keys():
+                    # Create an empty list to hold fallbacks for this property
+                    fallbacks[ propertyName ] = []
+                # Check whether any attribute/value pair has to match for this fallback
+                attribName = None
+                attribValue = None
                 if "attribute" in elem.attrib and "value" in elem.attrib:
                     # This particular property is a matched property
-                    propertyFallbacks[ elem.attrib.get( "property" ) ].append( ( elem.text, elem.attrib.get( "attribute" ), elem.attrib.get( "value" ) ) )
-                else:
-                    # This particular property is not matched
-                    propertyFallbacks[ elem.attrib.get( "property" ) ].append( ( elem.text, None, None ) )
-        self.fallbackProperties[ group ] = propertyFallbacks
-        return propertyFallbacks
+                    attribName = elem.attrib.get( "attribute" )
+                    attribValue = elem.attrib.get( "value" )
+                # Save details
+                fallbacks[ propertyName ].append( ( elem.text, attribName, attribValue ) )
+        # Save all the results for this group
+        self.propertyInformation[ "fallbackProperties" ][ group ] = fallbackProperties
+        self.propertyInformation[ "fallbacks" ][ group ] = fallbacks
+        
+        return( self.propertyInformation[ "fallbackProperties" ][ group ], self.propertyInformation[ "fallbacks" ][ group ] )
+
+    def _getPropertyRequires( self ):
+        if self.propertyInformation[ "requires" ] is not None:
+            # We've already loaded requires and templateOnly properties, return eveything
+            return( self.propertyInformation[ "otherProperties" ], self.propertyInformation[ "requires" ], self.propertyInformation[ "templateOnly" ] )
+
+        # Get skin overrides
+        tree = self._get_overrides_skin()
+
+        # Find all property requirements
+        requires = {}
+        templateOnly = []
+        for elem in tree.findall( "propertySettings" ):
+            propertyName = elem.attrib.get( "property" )
+            if propertyName not in self.propertyInformation[ "otherProperties" ]:
+                # Save the property name in the order in which we processed it
+                self.propertyInformation[ "otherProperties" ].append( propertyName )
+            if "requires" in elem.attrib:
+                # This property requires another to be present
+                requires[ propertyName ] = elem.attrib.get( "requires" )
+            if "templateonly" in elem.attrib and elem.attrib.get( "templateonly" ).lower() == "true":
+                # This property is only used by the template, and should not be written to the main menu
+                templateOnly.append( propertyName )
+        # Save all the results
+        self.propertyInformation[ "requires" ] = requires
+        self.propertyInformation[ "templateOnly" ] = templateOnly
+        
+        return( self.propertyInformation[ "otherProperties" ], self.propertyInformation[ "requires" ], self.propertyInformation[ "templateOnly" ] )
         
     def _getWidgetNameAndType( self, widgetID ):
         if widgetID in self.widgetNameAndType:

@@ -32,16 +32,17 @@ The available options the user will be able to choose from are defined in the sk
 
 You can optionally use a `<propertySettings />` element in your overrides.xml to adjust how the dialog will be called and displayed when the user chooses the custom property:-
 
-`<propertySettings property="[Property]" buttonID="[buttonID]" title="[Dialog title]" showNone="[True/False]" imageBrowse="[True/False]" />`
+`<propertySettings property="[Property]" buttonID="[buttonID]" requires="[requires]" templateonly="[True/False]" title="[Dialog title]" showNone="[True/False]" imageBrowse="[True/False]" />`
 
 | Property | Optional | Description |
 | :------: | :------: | ----------- |
 | `[Property]` | | The property of the shortcut that will be set |
 | `[buttonID]` | Yes | The ID of the button that will be used to set this property. If ommitted, you must set the window property 'chooseProperty' to `[Property]` and send a click to 404 |
+| `[Requires]` | Yes | The name of another property that must be present in the shortcut for this property to be added to it |
+| templateonly `[True/False]` | Yes | A boolean indicating whether a property is only used by templates. If True, the property will not be written to the shortcut in the includes file. Defaults to False. |
 | `[Dialog title]` | Yes | The title of the dialog that will be shown to the user |
-| `[True/False]` | Yes | A boolean indicating whether a None option will be shown, and whether the user will be able to browse for an image or folder of images |
-
-Note:- showNone defaults to True, imageBrowse defaults to False
+| showNone `[True/False]` | Yes | A boolean indicating whether a None option will be shown when the user is setting the property. Defaults to True. |
+| imageBrowse `[True/False]` | Yes | A boolean indicating whether the user will be able to browse for an image or folder of images. Defaults to False. |
 
 You can then define multiple options for the user to be able to select from:-
 
