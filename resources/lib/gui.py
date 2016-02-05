@@ -1998,6 +1998,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             hasProperties = True
         
         for property in properties:
+            listitem.setProperty( property[0], None )
+            listitem.setProperty( "%s-NUM" %( property[0] ), None )
             if property[0] == propertyName or "%s-NUM" %( property[0] ) == "%s-NUM" %( propertyName ):
                 properties.remove( property )
         
