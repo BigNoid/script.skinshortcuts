@@ -374,8 +374,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # If there's a list of current properties, remove them from the listitem
         currentProperties = listitem.getProperty( "skinshortcuts-allproperties" )
         if currentProperties != "":
-            for currentProperty in eval( currentProperties ):
-                listitem.setProperty( currentProperty[ 0 ], "" )
+            currentProperties = eval( currentProperties)
+        else:
+            currentProperties = {}
 
         # Process all custom properties
         customProperties = listitem.getProperty( "additionalListItemProperties" )
@@ -413,7 +414,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         # This has no conditions, so it matched
                         matches = True
                     elif propertyMatch[ 1 ] in allProps.keys() and allProps[ propertyMatch[ 1 ] ] == propertyMatch[ 2 ]:
-                        matched = True
+                        matches = True
 
                     if matches:
                         allProps[ key ] = propertyMatch[ 0 ]
@@ -430,10 +431,25 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if "%s-NUM" %( key ) in allProps.keys():
                     allProps.pop( "%s-NUM" %( key ) )
 
-        # And finally, add the custom properties to the listitem
-        for prop in allProps:
-            listitem.setProperty( prop, allProps[ prop ] )
+        # Save the new properties
         listitem.setProperty( "skinshortcuts-allproperties", repr( allProps ) )
+        added, removed, changed = self.DictDiffer( allProps, currentProperties )
+        for key in added:
+            listitem.setProperty( key, allProps[ key ] )
+        for key in removed:
+            if key not in allProps.keys(): continue
+            listitem.setProperty( key, None )
+        for key in changed:
+            listitem.setProperty( key, allProps[ key ] )
+
+    def DictDiffer( self, current_dict, past_dict ):
+        # Get differences between dictionaries
+        self.current_dict, self.past_dict = current_dict, past_dict
+        set_current, set_past = set(current_dict.keys()), set(past_dict.keys())
+        intersect = set_current.intersection(set_past)
+
+        #       Added                    Removed               Changed
+        return( set_current - intersect, set_past - intersect, set(o for o in intersect if past_dict[o] != current_dict[o]) )
 
     def _get_icon_overrides( self, listitem, setToDefault = True, labelID = None ):
         # Start by getting the labelID
@@ -1998,10 +2014,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             hasProperties = True
         
         for property in properties:
-            listitem.setProperty( property[0], None )
-            listitem.setProperty( "%s-NUM" %( property[0] ), None )
             if property[0] == propertyName or "%s-NUM" %( property[0] ) == "%s-NUM" %( propertyName ):
                 properties.remove( property )
+                listitem.setProperty( property[0], None )
         
         listitem.setProperty( "additionalListItemProperties", repr( properties ) )
 
@@ -2103,7 +2118,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _set_label( self, listitem, label ):
         # Update the label, local string and labelID
         listitem.setLabel( label )
-        listitem.setProperty( "localizedString", "" )
+        listitem.setProperty( "localizedString", None )
             
         LIBRARY._rename_playlist( listitem.getProperty( "path" ), label )
             
