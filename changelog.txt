@@ -1,4 +1,4 @@
-v1.0.5
+v1.0.6
 - Option not to share menus between skins; never hide PVR shortcuts
 - Icons and thumbs are saved on a per-skin basis
 - mtime of files is used to determine if they have changed
