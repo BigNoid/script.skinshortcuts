@@ -786,7 +786,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load various overrides from the skin, most notably backgrounds and thumbnails
         self.backgrounds = "LOADING"
         self.thumbnails = "LOADING"
-        self.thumbnailsPretty = {}
         
         # Load skin overrides
         tree = DATA._get_overrides_skin()
@@ -875,10 +874,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
                 for image in images:
                     thumbnails.append( [image[0], image[1] ] )
-                    thumbnailsPretty[image[0]] = image[1]
             else:
                 thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-                thumbnailsPretty[elem.text] = DATA.local( elem.attrib.get( 'label' ) )[2]
 
         self.thumbnails = thumbnails
 
@@ -1485,6 +1482,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if xbmc.Monitor().waitForAbort(0.1):
                     return
                 count = count + 1
+            if self.backgrounds == "LOADING":
+                self.backgrounds = []
 
             # Get the default background for this item
             defaultBackground = self.find_default( "background", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
@@ -1589,6 +1588,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if xbmc.Monitor().waitForAbort(0.1):
                     return
                 count = count + 1
+            if self.thumbnails == "LOADING":
+                self.thumbnails = []
             
             # Generate list of thumbnails for the dialog
             for key in self.thumbnails:
@@ -2046,6 +2047,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if xbmc.Monitor().waitForAbort(0.1):
                 return
             count = count + 1
+        if self.backgrounds == "LOADING":
+            self.backgrounds = []
         result = {}
         defaultBackground = self.find_default( "background", labelID, defaultID )
         if defaultBackground:
