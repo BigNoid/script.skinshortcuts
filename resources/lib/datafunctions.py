@@ -470,7 +470,6 @@ class DataFunctions():
             self.overrides[ "user" ] = tree
             return tree
         except:
-            print_exc()
             if xbmcvfs.exists( overridePath ):
                 log( "Unable to parse user overrides.xml. Invalid xml?" )
                 self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
