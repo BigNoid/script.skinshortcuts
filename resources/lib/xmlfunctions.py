@@ -683,10 +683,10 @@ class XMLFunctions():
         if icon is None:
             xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
         else:
-            xmltree.SubElement( newelement, "icon" ).text = icon.text
+            xmltree.SubElement( newelement, "icon" ).text = try_decode( icon.text )
         thumb = item.find( "thumb" )
         if thumb is not None:
-            xmltree.SubElement( newelement, "thumb" ).text = item.find( "thumb" ).text
+            xmltree.SubElement( newelement, "thumb" ).text = try_decode( item.find( "thumb" ).text )
         
         # labelID and defaultID
         labelID = xmltree.SubElement( newelement, "property" )
