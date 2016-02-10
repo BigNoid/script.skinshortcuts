@@ -5,7 +5,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 ## What's New for Skinners
 
-#### Version 1.0.5 - git version
+#### Version 1.0.6 - repo version
 
 - Icons and thumbs are now saved on a per-skin basis
 - Ability to specify an icon to be displayed with a background - [Read More](./resources/docs/advanced/Managing backgrounds.md#defining-backgrounds)
@@ -20,10 +20,6 @@ Whilst they do not affect how skinners interact with the script, it is worth not
 
 Also, whilst it does not affect how skinners interact with the script, it is important to note this version introduces an option for users to specify that their menus should not be shared between skins.
 
-#### Version 1.0.2 - repo version
-
-- Ability to match multiple values when setting a property in a template - [Read More](./resources/docs/advanced/Templates.md#set-a-property-based-on-the-value-of-a-main-menu-item)
-- Ability to specify an 'onback' value for specific controls in management dialog - [Read More](./resources/docs/started/Management Dialog.md#custom-focus-on-back)
  
 ## With Thanks - Because their names don't deserve to be at the bottom :)
 
