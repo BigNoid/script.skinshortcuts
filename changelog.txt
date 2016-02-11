@@ -1,3 +1,7 @@
+v1.0.7
+- Hotfix for future Krypton support
+- More accurately display build progress
+
 v1.0.6
 - Option not to share menus between skins; never hide PVR shortcuts
 - Icons and thumbs are saved on a per-skin basis
