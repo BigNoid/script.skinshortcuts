@@ -25,10 +25,15 @@ class Template():
     def __init__( self ):
         # Load the skins template.xml file
         templatepath = os.path.join( __skinpath__ , "template.xml" )
+        self.hasOtherTemplates = False
         try:
             self.tree = xmltree.parse( templatepath )
 
             log( "Loaded template.xml file")
+
+            # Determine if there are any 'other' templates (used to calculate progress)
+            if len( self.tree.getroot().findall( "other" ) ) != 0:
+                self.hasOtherTemplates = True
             
             # Add the template.xml to the hash file
             self._save_hash( templatepath, xbmcvfs.File( templatepath ).read() )
@@ -45,6 +50,11 @@ class Template():
             
         # Empty variable which will contain our base elementree (passed from buildxml)
         self.includes = None
+
+        # Empty progress which will contain the Kodi progress dialog gui (passed from buildxml)
+        self.progress = None
+        self.percent = None
+        self.current = None
         
         # List which will contain 'other' elements we will need to finalize (we won't have all the
         # visibility conditions until the end)
@@ -88,9 +98,13 @@ class Template():
                 includeTree.append( child )
             
         # Now we want to see if any of the main menu items match a template
-        if menuType != "mainmenu":
+        if menuType != "mainmenu" or not self.hasOtherTemplates:
             return
+        progressCount = 0
+        numTemplates = 0
+        log( "Building templates")
         for item in items:
+            progressCount = progressCount + 1
             # First we need to build the visibilityCondition, based on the items
             # submenuVisibility element, and the mainmenuID
             visibilityName = ""
@@ -103,7 +117,9 @@ class Template():
             
             # Now find a matching template - if one matches, it will be saved to be processed
             # at the end (when we have all visibility conditions)
-            self.findOther( item, profile, profileVisibility, visibilityCondition )
+            numTemplates += self.findOther( item, profile, profileVisibility, visibilityCondition )
+            self.progress.update( int( self.current + ( ( float( self.percent ) / float( len( items ) ) ) * progressCount ) ) )
+        log( " - Built %d templates" %( numTemplates ) )
                     
     def writeOthers( self ):
         # This will write any 'other' elements we have into the includes file
@@ -304,6 +320,7 @@ class Template():
     def findOther( self, item, profile, profileVisibility, visibilityCondition ):
         # Find a template matching the item we have been passed
         foundTemplateIncludes = []
+        numTemplates = 0
         for elem in self.tree.findall( "other" ):
             # Check that we don't already have a template for this include
             includeName = None
@@ -345,6 +362,8 @@ class Template():
             # If the conditions didn't match, we're done here
             if matched == False:
                 continue
+
+            numTemplates += 1
                 
             # All the rules matched, so next we'll get any properties
             properties = self.getProperties( template, item )
@@ -420,7 +439,7 @@ class Template():
                 # Add that we've found a template for this include
                 foundTemplateIncludes.append( includeName )
 
-                log( " - Other template found" )
+        return numTemplates
             
     def checkCondition( self, condition, items ):
         # Check if a particular condition is matched for an 'other' template

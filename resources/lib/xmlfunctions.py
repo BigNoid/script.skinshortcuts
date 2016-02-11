@@ -324,6 +324,7 @@ class XMLFunctions():
         # Create a Template object and pass it the root
         Template = template.Template()
         Template.includes = root
+        Template.progress = progress
         
         # Get any shortcuts we're checking for
         self.checkForShortcuts = []
@@ -409,13 +410,19 @@ class XMLFunctions():
                 break
                 
             itemidmainmenu = 0
-            percent = profilePercent / len( menuitems )
-            
+            if Template.hasOtherTemplates:
+                percent = float( profilePercent ) / float( len( menuitems ) * 2 )
+            else:
+                percent = profilePercent / len( menuitems )
+            Template.percent = percent * ( len( menuitems ) )
+
             i = 0
             for item in menuitems:
                 i += 1
                 itemidmainmenu += 1
-                progress.update( ( profilePercent * profileCount) + percent * i )
+                currentProgress = ( profilePercent * profileCount ) + ( percent * i )
+                progress.update( int( currentProgress ) )
+                Template.current = currentProgress
                 submenuDefaultID = None
 
                 if not isinstance( item, basestring ):
