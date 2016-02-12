@@ -277,6 +277,7 @@ class Template():
         # We didn't find the node, so create it
         newInclude = xmltree.SubElement( tree, "include" )
         newInclude.set( "name", name )
+        newInclude.set( "definition", name )
         
         # If we've been passed a condition, create an include with that as condition
         # and name as text
