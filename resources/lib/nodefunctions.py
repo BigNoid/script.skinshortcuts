@@ -454,6 +454,13 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
             self.getControl(5).setVisible(False)
         self.getControl(1).setLabel(self.windowtitle)
 
+        # Set Cancel label (Kodi 17+)
+        if int( __xbmcversion__ ) >= 17:
+            try:
+                self.getControl(7).setLabel(xbmc.getLocalizedString(222))
+            except:
+                log( "Unable to set label for control 7" )
+
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2(), iconImage=item.getProperty( "icon" ), thumbnailImage=item.getProperty( "thumbnail" ))
             listitem.setProperty( "Addon.Summary", item.getLabel2() )
