@@ -7,6 +7,10 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 #### Version 1.0.7 - repo version
 
+- Additional properties of the currently selected menu item are now available via window properties in the management dialog - accessing them this way may help in cases where Kodi's property limit is reached - [Read More](./resources/docs/started/Management Dialog.md#label-and-label2)
+
+#### Version 1.0.6 - previous repo version
+
 - Icons and thumbs are now saved on a per-skin basis
 - Ability to specify an icon to be displayed with a background - [Read More](./resources/docs/advanced/Managing backgrounds.md#defining-backgrounds)
 - Support building variables in templates - [Read More](./resources/docs/advanced/Templates.md#other-template)
@@ -17,9 +21,6 @@ Whilst they do not affect how skinners interact with the script, it is worth not
 
 - Users can now specify that their menus should not be shared between skins
 - Support for context menu add-on ([Git](https://github.com/Ignoble61/context.skinshortcuts.addtomenu)) to add items directly to menu
-
-Also, whilst it does not affect how skinners interact with the script, it is important to note this version introduces an option for users to specify that their menus should not be shared between skins.
-
  
 ## With Thanks - Because their names don't deserve to be at the bottom :)
 
