@@ -752,6 +752,10 @@ class DataFunctions():
         # Return whether mainmenu items should be displayed
         action = action.lower().replace( " ", "" )
 
+        # Catch-all for shortcuts to plugins
+        if "plugin://" in action:
+            return ""
+
         # Video node visibility
         if action.startswith( "activatewindow(videos,videodb://" ) or action.startswith( "activatewindow(10025,videodb://" ) or action.startswith( "activatewindow(videos,library://video/" ) or action.startswith( "activatewindow(10025,library://video/" ):
             path = action.split( "," )
