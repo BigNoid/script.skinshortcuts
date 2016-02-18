@@ -337,7 +337,6 @@ class XMLFunctions():
         
         mainmenuTree = xmltree.SubElement( root, "include" )
         mainmenuTree.set( "name", "skinshortcuts-mainmenu" )
-        mainmenuTree.set( "definition", "skinshortcuts-mainmenu" )
         
         submenuTrees = []
         for level in range( 0,  int( numLevels) + 1 ):
@@ -345,17 +344,14 @@ class XMLFunctions():
             subtree = xmltree.SubElement( root, "include" )
             if level == 0:
                 subtree.set( "name", "skinshortcuts-submenu" )
-                subtree.set( "definition", "skinshortcuts-submenu" )
             else:
                 subtree.set( "name", "skinshortcuts-submenu-" + str( level ) )
-                subtree.set( "definition", "skinshortcuts-submenu-" + str( level ) )
             if not subtree in submenuTrees:
                 submenuTrees.append( subtree )
         
         if buildMode == "single":
             allmenuTree = xmltree.SubElement( root, "include" )
             allmenuTree.set( "name", "skinshortcuts-allmenus" )
-            allmenuTree.set( "definition", "skinshortcuts-allmenus" )
         
         profilePercent = 100 / len( profilelist )
         profileCount = -1
@@ -482,9 +478,7 @@ class XMLFunctions():
                         justmenuTreeB = xmltree.SubElement( root, "include" )
                         
                         justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) )
-                        justmenuTreeA.set( "definition", "skinshortcuts-group-" + DATA.slugify( submenu ) )
                         justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
-                        justmenuTreeB.set( "definition", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
                         
                         submenuNodes[ submenu ] = [ justmenuTreeA, justmenuTreeB ]
                         
