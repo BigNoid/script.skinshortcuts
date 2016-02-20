@@ -25,15 +25,20 @@ class Template():
     def __init__( self ):
         # Load the skins template.xml file
         templatepath = os.path.join( __skinpath__ , "template.xml" )
-        self.hasOtherTemplates = False
+        self.otherTemplates = []
         try:
             self.tree = xmltree.parse( templatepath )
 
             log( "Loaded template.xml file")
 
-            # Determine if there are any 'other' templates (used to calculate progress)
-            if len( self.tree.getroot().findall( "other" ) ) != 0:
-                self.hasOtherTemplates = True
+            # Pull out the names and includes of the 'other' templates - used to generate accurate progress
+            # and to build empty 'other' templates if necessary
+            for otherTemplate in self.tree.getroot().findall( "other" ):
+                includeName = "skinshortcuts-template"
+                if "include" in otherTemplate.attrib:
+                    includeName = "skinshortcuts-template-%s" %( otherTemplate.attrib.get( "include" ) )
+                if includeName not in self.otherTemplates:
+                    self.otherTemplates.append( includeName )
             
             # Add the template.xml to the hash file
             self._save_hash( templatepath, xbmcvfs.File( templatepath ).read() )
@@ -98,7 +103,7 @@ class Template():
                 includeTree.append( child )
             
         # Now we want to see if any of the main menu items match a template
-        if menuType != "mainmenu" or not self.hasOtherTemplates:
+        if menuType != "mainmenu" or len( self.otherTemplates ) == 0:
             return
         progressCount = 0
         numTemplates = 0
@@ -137,7 +142,11 @@ class Template():
             # Get the group name
             name = "skinshortcuts-template"
             if "include" in template.attrib:
-                name += "-%s" %( template.attrib.get( "include" ) )
+                includeName = template.attrib.get( "include" )
+                name += "-%s" %( includeName )
+                # Remove the include from our list of other templates, as we don't need to build an empty one
+                if name in self.otherTemplates:
+                    self.otherTemplates.remove( name )
             
             # Loop through any profiles we have
             for profile in template.findall( "skinshortcuts-profile" ):
@@ -205,6 +214,12 @@ class Template():
                 valueElement.text = value
                 if condition != "":
                     valueElement.set( "condition", condition )
+
+        # If there are any 'other' templates that we haven't built, build an empty one
+        for otherTemplate in self.otherTemplates:
+            # Get the include this will be built in
+            root = self.getInclude( self.includes, otherTemplate, None, None )
+            xmltree.SubElement( root, "description" ).text = "This include was built automatically as the template didn't match any menu items"
 
     def parseVariables( self, variableName, allVariables ):
         # This function will return all condition/value elements for a given variable, including adding profile conditions
