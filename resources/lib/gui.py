@@ -86,6 +86,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Additional button ID's we'll handle for setting custom properties
         self.customPropertyButtons = {}
+
+        self.windowProperties = {}
         
         self.changeMade = False
         
@@ -289,6 +291,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.getControl( 211 ).addItems( listitems )
         if focus is not None:
             self.getControl( 211 ).selectItem( focus )
+        self._add_additional_properties()
               
     def _parse_shortcut( self, item ):
         # Parse a shortcut node
@@ -366,15 +369,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
         return [ isVisible, listitem ]
 
-    def _add_additional_properties( self, listitem ):
+    def _add_additional_properties( self, listitem = None ):
         allProps = {}
         backgroundName = None
         backgroundPlaylistName = None
 
-        # If there's a list of current properties, remove them from the listitem
+        # If the listitem is None, grab the current listitem from 211
+        if listitem is None:
+            listitem = self.getControl( 211 ).getSelectedItem()
+
+        # Process current properties
         currentProperties = listitem.getProperty( "skinshortcuts-allproperties" )
         if currentProperties != "":
-            currentProperties = eval( currentProperties)
+            currentProperties = eval( currentProperties )
         else:
             currentProperties = {}
 
@@ -431,7 +438,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if "%s-NUM" %( key ) in allProps.keys():
                     allProps.pop( "%s-NUM" %( key ) )
 
-        # Save the new properties
+        # Save the new properties to the listitem
         listitem.setProperty( "skinshortcuts-allproperties", repr( allProps ) )
         added, removed, changed = self.DictDiffer( allProps, currentProperties )
         for key in added:
@@ -441,6 +448,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
             listitem.setProperty( key, None )
         for key in changed:
             listitem.setProperty( key, allProps[ key ] )
+        
+        # Save the new properties to the window
+        added, removed, changed = self.DictDiffer( allProps, self.windowProperties )
+        for key in added:
+            self.currentWindow.setProperty( key, allProps[ key ] )
+        for key in removed:
+            self.currentWindow.clearProperty( key )
+        for key in changed:
+            self.currentWindow.setProperty( key, allProps[ key ] )
+        self.windowProperties = allProps
 
     def DictDiffer( self, current_dict, past_dict ):
         # Get differences between dictionaries
@@ -1749,7 +1766,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             ui.doModal()
             del ui
             self.currentWindow.clearProperty( "additionalDialog" )
-
                     
         if controlID == 404 or controlID in self.customPropertyButtons:
             # Set custom property
@@ -2143,7 +2159,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self._save_shortcuts()
             xbmcgui.Window(self.window_id).clearProperty('groupname')
             self._close()
+        elif currentFocus == 211:
+            self._add_additional_properties()
 
     def _close( self ):
-            self.close()
+        self.close()
             
