@@ -974,18 +974,36 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             listitemCopy = None
                 else:
                     listitemCopy = None
-            elif path == "::PLAYLIST::":
-                # Give the user the choice of playing or displaying the playlist
-                dialog = xbmcgui.Dialog()
-                userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
-                # False: Display
-                # True: Play
-                if not userchoice:
-                    listitemCopy.setProperty( "path", selectedItem.getProperty( "action-show" ) )
-                    listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-show" ) )
-                else:
-                    listitemCopy.setProperty( "path", selectedItem.getProperty( "action-play" ) )
-                    listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-play" ) )
+            elif path.startswith( "::PLAYLIST" ):
+                log( "Selected playlist" )
+                if not ">" in path or "VideoLibrary" in path:
+                    # Give the user the choice of playing or displaying the playlist
+                    dialog = xbmcgui.Dialog()
+                    userchoice = dialog.yesno( __language__( 32040 ), __language__( 32060 ), "", "", __language__( 32061 ), __language__( 32062 ) )
+                    # False: Display
+                    # True: Play
+                    if not userchoice:
+                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-show" ) )
+                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-show" ) )
+                    else:
+                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-play" ) )
+                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-play" ) )
+                elif ">" in path:
+                    # Give the user the choice of playing, displaying or party more for the playlist
+                    dialog = xbmcgui.Dialog()
+                    userchoice = dialog.select( __language__( 32060 ), [ __language__( 32061 ), __language__( 32062 ), xbmc.getLocalizedString( 589 ) ] )
+                    # 0 - Display
+                    # 1 - Play
+                    # 2 - Party mode
+                    if not userchoice or userchoice == 0:
+                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-show" ) )
+                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-show" ) )
+                    elif userchoice == 1:
+                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-play" ) )
+                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-play" ) )
+                    else:
+                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-party" ) )
+                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-party" ) )
              
             if listitemCopy is None:
                 # Nothing was selected in the explorer
@@ -1935,6 +1953,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if item.getProperty( "action-show" ):
                 newItem.setProperty( "action-show", item.getProperty( "action-show" ) )
                 newItem.setProperty( "action-play", item.getProperty( "action-play" ) )
+                newItem.setProperty( "action-party", item.getProperty( "action-party" ) )
             self.getControl( 111 ).addItem( newItem )
         self.getControl( 101 ).setLabel( label + " (%s)" %self.getControl( 111 ).size() )
         
