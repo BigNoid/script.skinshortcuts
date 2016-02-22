@@ -1042,6 +1042,7 @@ class LibraryFunctions():
                         listitem = self._create( ["::PLAYLIST>%s::" %( path[2] ), name, path[1], {"icon": "DefaultPlaylist.png"} ] )
                         listitem.setProperty( "action-play", "PlayMedia(" + playlist + ")" )
                         listitem.setProperty( "action-show", "ActivateWindow(%s,%s,return)".encode( 'utf-8' ) %( path[2], playlist ) )
+                        listitem.setProperty( "action-party", "PlayerControl(PartyMode(%s))" %( playlist ) )
 
                         # Add widget information
                         listitem.setProperty( "widget", "Playlist" )
