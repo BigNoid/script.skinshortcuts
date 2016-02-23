@@ -778,24 +778,6 @@ class DataFunctions():
                 path[ 1 ] = path[ 1 ][:-1]
             return NODE.get_visibility( path[ 1 ] )
 
-        # Isengard and earlier music library
-        elif action.startswith( "activatewindow(musiclibrary,addons" ):
-            return ""
-        elif action.startswith( "activatewindow(musiclibrary,musicvideo" ):
-            return "Library.HasContent(MusicVideos)"
-        elif action.startswith( "activatewindow(musiclibrary," ):
-            return "Library.HasContent(Music)"
-
-        # Jarvis and later music library
-        elif action.startswith( "activatewindow(music,addons" ) or action.startswith( "activatewindow(music,files" ):
-            return ""
-        elif action.startswith( "activatewindow(music,musicvideo" ):
-            return "Library.HasContent(MusicVideos)"
-        elif action == "activatewindow(music)" or action.startswith( "activatewindow(music,root" ):
-            return ""
-        elif action.startswith( "activatewindow(music,"):
-            return "Library.HasContent(Music)"
-
         # Power menu visibilities
         elif action == "quit()" or action == "quit":
             return "System.ShowExitButton"
