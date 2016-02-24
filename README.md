@@ -5,22 +5,13 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 ## What's New for Skinners
 
+#### Version 1.0.8 - Git version
+
+- Ability to set additional properties of menu items from outside of the management dialog - [Documentation to follow]()
+
 #### Version 1.0.7 - repo version
 
 - Additional properties of the currently selected menu item are now available via window properties in the management dialog - accessing them this way may help in cases where Kodi's property limit is reached - [Read More](./resources/docs/started/Management Dialog.md#label-and-label2)
-
-#### Version 1.0.6 - previous repo version
-
-- Icons and thumbs are now saved on a per-skin basis
-- Ability to specify an icon to be displayed with a background - [Read More](./resources/docs/advanced/Managing backgrounds.md#defining-backgrounds)
-- Support building variables in templates - [Read More](./resources/docs/advanced/Templates.md#other-template)
-- Ability to specify conditions for fallback custom properties - [Read More](./resources/docs/advanced/Custom shortcut properties.md#for-all-shortcuts-without-a-user-set-property)
-- Ability to specify a property requires another property to be present, and that a property is only used by templates - [Read More](./resources/docs/advanced/Custom shortcut properties.md#set-options)
-
-Whilst they do not affect how skinners interact with the script, it is worth noting this version introduces changes aimed at the end users. Most notably:-
-
-- Users can now specify that their menus should not be shared between skins
-- Support for context menu add-on ([Git](https://github.com/Ignoble61/context.skinshortcuts.addtomenu)) to add items directly to menu
  
 ## With Thanks - Because their names don't deserve to be at the bottom :)
 

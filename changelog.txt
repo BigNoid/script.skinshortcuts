@@ -1,3 +1,6 @@
+v1.0.8
+- Ability to set item properties from outside management dialog
+
 v1.0.7
 - Krypton support
 - More accurately display build progress
