@@ -71,7 +71,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Empty arrays for different shortcut types
         self.thumbnailBrowseDefault = None
-        self.backgroundBrowse = False
+        self.backgroundBrowse = None
         self.backgroundBrowseDefault = None
         self.widgetPlaylists = False
         self.widgetPlaylistsType = None
@@ -820,8 +820,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Should we allow the user to browse for background images...
         elem = tree.find('backgroundBrowse')
-        if elem is not None and elem.text == "True":
-            self.backgroundBrowse = True
+        if elem is not None and elem.text.lower() in ("true", "single", "multi"):
+            self.backgroundBrowse = elem.text.lower()
             if "default" in elem.attrib:
                 self.backgroundBrowseDefault = elem.attrib.get( "default" )
 
@@ -1502,10 +1502,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
             usePrettyDialog = False
             
             # Create lists for the select dialog, with image browse buttons if enabled
-            if self.backgroundBrowse:
+            if self.backgroundBrowse == "true":
+                log( "Adding both browse options" )
                 background = ["", "", ""]         
                 backgroundLabel = [__language__(32053), __language__(32051), __language__(32052)]
                 backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", { "icon": "DefaultAddonNone.png" }] ), LIBRARY._create(["", __language__(32051), "", { "icon": "DefaultFile.png" }] ), LIBRARY._create(["", __language__(32052), "", { "icon": "DefaultFolder.png" }] ) ]
+            elif self.backgroundBrowse == "single":
+                log( "Adding single browse option" )
+                background = ["", ""]         
+                backgroundLabel = [__language__(32053), __language__(32051)]
+                backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", { "icon": "DefaultAddonNone.png" }] ), LIBRARY._create(["", __language__(32051), "", { "icon": "DefaultFile.png" }] ) ]
+            elif self.backgroundBrowse == "multi":
+                log( "Adding multi browse option" )
+                background = ["", ""]         
+                backgroundLabel = [__language__(32053), __language__(32052)]
+                backgroundPretty = [ LIBRARY._create(["", __language__(32053), "", { "icon": "DefaultAddonNone.png" }] ), LIBRARY._create(["", __language__(32052), "", { "icon": "DefaultFolder.png" }] ) ]
             else:
                 background = [""]                         
                 backgroundLabel = [__language__(32053)]
@@ -1573,10 +1584,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.changeMade = True
                 return
 
-            elif self.backgroundBrowse == True and (selectedBackground == 1 or selectedBackground == 2):
+            elif self.backgroundBrowse and (selectedBackground == 1 or (self.backgroundBrowse == "true" and selectedBackground == 2)):
                 # User has chosen to browse for an image/folder
                 imagedialog = xbmcgui.Dialog()
-                if selectedBackground == 1: # Single image
+                if selectedBackground == 1 and self.backgroundBrowse != "multi": # Single image
                     custom_image = imagedialog.browse( 2 , xbmc.getLocalizedString(1030), 'files', '', True, False, self.backgroundBrowseDefault)
                 else: # Multi-image
                     custom_image = imagedialog.browse( 0 , xbmc.getLocalizedString(1030), 'files', '', True, False, self.backgroundBrowseDefault)
