@@ -71,6 +71,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         # Empty arrays for different shortcut types
         self.thumbnailBrowseDefault = None
+        self.thumbnailNone = None
         self.backgroundBrowse = None
         self.backgroundBrowseDefault = None
         self.widgetPlaylists = False
@@ -891,6 +892,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
                 for image in images:
                     thumbnails.append( [image[0], image[1] ] )
+            if elem.text == "::NONE::":
+                if "label" in elem.attrib:
+                    self.thumbnailNone = elem.attrib.get( "label" )
+                else:
+                    self.thumbnailNone = "231"
             else:
                 thumbnails.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
 
@@ -1628,6 +1634,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             thumbnail = [""]                     
             thumbnailLabel = [LIBRARY._create(["", __language__(32096), "", {}] )]
 
+            # Add a None option if the skin specified it
+            if self.thumbnailNone:
+                thumbnail.append( "" )
+                thumbnailLabel.insert( 0, LIBRARY._create(["", self.thumbnailNone, "", {}] ) )
+
             # Ensure thumbnails have been loaded
             count = 0
             while self.thumbnails == "LOADING" and count < 20:
@@ -1653,7 +1664,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # User cancelled
                 return
 
-            elif selectedThumbnail == 0:
+            elif self.thumbnailNone and selectedThumbnail == 0:
+                # User has chosen 'None'
+                listitem.setThumbnailImage( None )
+                listitem.setProperty( "thumbnail", None )
+
+            elif (not self.thumbnailNone and selectedThumbnail == 0) or (self.thumbnailNone and selectedThumbnail == 1):
                 # User has chosen to browse for an image
                 imagedialog = xbmcgui.Dialog()
                 
