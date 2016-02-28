@@ -492,7 +492,6 @@ class Template():
         # Get any properties specified in an 'other' template
         properties = {}
         for property in elem.findall( "property" ):
-            value = None
             if "name" not in property.attrib or property.attrib.get( "name" ) in properties:
                 # Name attrib required, or we've already got a property with this name
                 continue
@@ -512,10 +511,11 @@ class Template():
                 properties[ name ] = items.attrib.get( "id" )
                 continue
 
-            if "attribute" in property.attrib and "value" not in property.attrib:
+            attrib = None
+            value = None
+            if "attribute" in property.attrib:
                 attrib = property.attrib.get( "attribute" ).split( "|" )
-            else:
-                attrib = property.attrib.get( "attribute" ).split( "|" )
+            if "value" in property.attrib:
                 value = property.attrib.get( "value" ).split( "|" )
                 
             # Let's get looking for any items that match
