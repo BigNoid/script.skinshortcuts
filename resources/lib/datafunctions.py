@@ -510,6 +510,8 @@ class DataFunctions():
                         listProperty[3] = self.local( listProperty[3] )[3]
                     self.currentProperties.append( [listProperty[0], listProperty[1], listProperty[2], listProperty[3]] )
             except:
+                log( "Failed to load current properties" )
+                print_exc()
                 self.currentProperties = [ None ]
         else:
             self.currentProperties = [ None ]
@@ -922,6 +924,12 @@ class DataFunctions():
 
 
     def checkIfMenusShared( self ):
+        # Check if the skin required the menu not to be shared
+        tree = self._get_overrides_skin()
+        if tree is not None:
+            if tree.find( "doNotShareMenu" ) is not None:
+                return False
+
         # Check if the user has asked for their menus not to be shared
         if __addon__.getSetting( "shared_menu" ).lower() == "false":
             return False

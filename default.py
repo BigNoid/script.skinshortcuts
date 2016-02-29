@@ -191,6 +191,10 @@ class Main:
                 line1 = "The skin you are using does not support adding items directly to the main menu"
                 xbmcgui.Dialog().ok(__addonname__, line1)
             NODE.addToMenu( self.CONTEXTFILENAME, self.CONTEXTLABEL, self.CONTEXTICON, self.CONTEXTCONTENT, self.CONTEXTWINDOW, DATA )
+
+        if self.TYPE=="setProperty":
+            # External request to set properties of a menu item
+            NODE.setProperties( self.PROPERTIES, self.VALUES, self.LABELID, self.GROUPNAME, DATA )
                 
         if self.TYPE=="resetall":
             # Tell XBMC not to try playing any media
@@ -259,6 +263,11 @@ class Main:
         self.CONTEXTICON = params.get( "icon", "" )
         self.CONTEXTCONTENT = params.get( "content", "" )
         self.CONTEXTWINDOW = params.get( "window", "" )
+
+        # Properties from external request to set properties
+        self.PROPERTIES = urllib.unquote( params.get( "property", "" ) )
+        self.VALUES = urllib.unquote( params.get( "value", "" ) )
+        self.LABELID = params.get( "labelID", "" )
     
     
     # -----------------
