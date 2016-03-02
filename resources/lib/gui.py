@@ -1471,9 +1471,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         widgetTempName = widgetTempName[::-1]
                     keyboard = xbmc.Keyboard( widgetTempName, xbmc.getLocalizedString(16105), False )
                     keyboard.doModal()
-                    if ( keyboard.isConfirmed() ) and keyboard.getText != "":
-                        if widgetTempName != keyboard.getText():
-                            widgetName = keyboard.getText()
+                    if ( keyboard.isConfirmed() ) and keyboard.getText() != "":
+                        if widgetTempName != try_decode( keyboard.getText() ):
+                            widgetName = try_decode( keyboard.getText() )
                 
                 self._add_additionalproperty( listitem, "widget" + widgetID, selectedShortcut.getProperty( "widget" ) )
                 self._add_additionalproperty( listitem, "widgetName" + widgetID, widgetName )
