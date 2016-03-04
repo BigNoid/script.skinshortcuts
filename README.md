@@ -7,7 +7,12 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 #### Version 1.0.8 - Git version
 
-- Ability to set additional properties of menu items from outside of the management dialog - [Documentation to follow]()
+- Ability to set additional properties of menu items from outside of the management dialog - [Read More](./resources/docs/advanced/External editing.md#change-properties-of-menu-items)
+- Skinner can now set that their skin should not use the users shared menu - [Read More](./resources/docs/started/Getting Started.md#shared-menu)
+- backgroundbrowse override can now be used to specify whether only a single or multi image should be selected - [Read More](./resources/docs/advanced/Managing backgrounds.md#let-the-user-browse-for-a-background-image)
+- Ability to add a 'None' option when using GUI 311 to select thumbnail - [Read More](./resources/docs/advanced/Provide thumbnails.md)
+- Ability to override an action based on its automatic visibility condition - [Read More](./resources/docs/advanced/Overriding an action.md#run-a-different-command-based-on-automatic-visibility-condition)
+- Ability to define a control ID to toggle a custom property - [Read More](./resources/docs/advanced/Custom shortcut properties.md#allow-user-to-toggle-a-property)
 
 #### Version 1.0.7 - repo version
 
