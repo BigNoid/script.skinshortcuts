@@ -87,6 +87,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Additional button ID's we'll handle for setting custom properties
         self.customPropertyButtons = {}
+        self.customToggleButtons = {}
 
         self.windowProperties = {}
         
@@ -911,6 +912,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         for elem in tree.findall( "propertySettings" ):
             if "buttonID" in elem.attrib and "property" in elem.attrib:
                 self.customPropertyButtons[ int( elem.attrib.get( "buttonID" ) ) ] = elem.attrib.get( "property" )
+            elif "buttonID" in elem.attrib and "toggle" in elem.attrib:
+                self.customToggleButtons[ int( elem.attrib.get( "buttonID" ) ) ] = elem.attrib.get( "toggle" )
                 
     # ========================
     # === GUI INTERACTIONS ===
@@ -1811,6 +1814,20 @@ class GUI( xbmcgui.WindowXMLDialog ):
             ui.doModal()
             del ui
             self.currentWindow.clearProperty( "additionalDialog" )
+
+        if controlID in self.customToggleButtons:
+            # Toggle a custom property
+            log( "Toggling custom property (%s)" %( str( controlID ) ) )
+            listControl = self.getControl( 211 )
+            listitem = listControl.getSelectedItem()
+
+            propertyName = self.customToggleButtons[ controlID ]
+            self.changeMade = True
+
+            if listitem.getProperty( propertyName ) == "True":
+                self._remove_additionalproperty( listitem, propertyName )
+            else:
+                self._add_additionalproperty( listitem, propertyName, "True" )
                     
         if controlID == 404 or controlID in self.customPropertyButtons:
             # Set custom property
