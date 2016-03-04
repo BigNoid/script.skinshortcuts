@@ -276,9 +276,38 @@ class DataFunctions():
             # Get visibility condition
             visibilityCondition = self.checkVisibility( action.text )
             visibilityNode = None
+
             if visibilityCondition != "":
-                visibilityNode = xmltree.SubElement( node, "visibility" )
-                visibilityNode.text = visibilityCondition
+                log( repr( visibilityCondition ) )
+                # Check whether visibility condition is overriden
+                overriddenVisibility = False
+                for override in skinoverrides.findall( "visibleoverride" ):
+                    if override.attrib.get( "condition" ).lower() != visibilityCondition.lower():
+                        # Not overriding this visibility condition
+                        continue
+
+                    if "group" in override.attrib and not override.attrib.get( "group" ) == group:
+                        # Not overriding this group
+                        continue
+
+                    overriddenVisibility = True
+
+                    # It's overriden - add the original action with the visibility condition
+                    originalAction = xmltree.SubElement( node, "override-action" )
+                    originalAction.text = action.text
+                    originalAction.set( "condition", visibilityCondition )
+
+                    # And add the new action with the inverse visibility condition
+                    newaction = xmltree.SubElement( node, "override-action" )
+                    newaction.text = override.text
+                    newaction.set( "condition", "![%s]" %( visibilityCondition ) )
+
+                    break
+
+                if overriddenVisibility == False:
+                    # The skin hasn't overriden the visibility
+                    visibilityNode = xmltree.SubElement( node, "visibility" )
+                    visibilityNode.text = visibilityCondition
             
             # Get action and visibility overrides
             overrideTrees = [useroverrides, skinoverrides]
@@ -752,14 +781,17 @@ class DataFunctions():
             
     def checkVisibility ( self, action ):
         # Return whether mainmenu items should be displayed
-        action = action.lower().replace( " ", "" )
+        action = action.lower().replace( " ", "" ).replace( "\"", "" )
+        log( repr( action ) )
 
         # Catch-all for shortcuts to plugins
         if "plugin://" in action:
             return ""
 
         # Video node visibility
-        if action.startswith( "activatewindow(videos,videodb://" ) or action.startswith( "activatewindow(10025,videodb://" ) or action.startswith( "activatewindow(videos,library://video/" ) or action.startswith( "activatewindow(10025,library://video/" ):
+        if action.startswith( ( "activatewindow(videos,videodb://", "activatewindow(videolibrary,videodb://",
+                 "activatewindow(10025,videodb://", "activatewindow(videos,library://video/", 
+                 "activatewindow(videolibrary,library://video", "activatewindow(10025,library://video/" ) ):
             path = action.split( "," )
             if path[ 1 ].endswith( ")" ):
                 path[ 1 ] = path[ 1 ][:-1]
