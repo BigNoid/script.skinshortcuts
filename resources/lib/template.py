@@ -496,52 +496,92 @@ class Template():
                 # Name attrib required, or we've already got a property with this name
                 continue
             name = property.attrib.get( "name" )
-            if "tag" in property.attrib:
-                tag = property.attrib.get( "tag" )
-            else:
-                # No tag property, so this will always match (so let's just use it!)
-                if property.text:
-                    properties[ name ] = property.text
+
+            # Pull out the tag, attribute and value attribs into an array of tuples
+            rules = []
+            propertyValue = ""
+            if "propertyValue" in property.attrib:
+                propertyValue = property.attrib.get( "propertyValue" )
+            
+            # Check for multiple items to match against this single value
+            for singleMatch in property.findall( "rule" ):
+                tag = None
+                attribute = None
+                value = None
+                if "tag" in singleMatch.attrib:
+                    tag = singleMatch.attrib.get( "tag" )
                 else:
-                    properties[ name ] = ""
-                continue
+                    # Tag is required, so we'll pass on this
+                    log( "Trying to match a property without using a tag element" )
+                    continue
+                if "attribute" in singleMatch.attrib:
+                    attribute = singleMatch.attrib.get( "attribute" ).split( "|" )
+                if "value" in singleMatch.attrib:
+                    value = singleMatch.attrib.get( "value" ).split( "|" )
+                rules.append( ( tag, attribute, value, propertyValue ) )
 
-            if tag.lower() == "mainmenuid":
-                # Special case for the ID of the main menu item
-                properties[ name ] = items.attrib.get( "id" )
-                continue
+            # If we haven't grabbed anything to match against yet
+            if len( rules ) == 0:
+                if "tag" in property.attrib:
+                    tag = property.attrib.get( "tag" )
 
-            attrib = None
-            value = None
-            if "attribute" in property.attrib:
-                attrib = property.attrib.get( "attribute" ).split( "|" )
-            if "value" in property.attrib:
-                value = property.attrib.get( "value" ).split( "|" )
+                    # Special case for the ID of the main menu item
+                    if tag.lower() == "mainmenuid":
+                        properties[ name ] = items.attrib.get( "id" )
+                        continue
+
+                    # Pull out the properties we'll match against
+                    attribute = None
+                    value = None
+                    propertyValue = None
+                    if "attribute" in property.attrib:
+                        attribute = property.attrib.get( "attribute" ).split( "|" )
+                    if "value" in property.attrib:
+                        value = property.attrib.get( "value" ).split( "|" )
+                    if property.text:
+                        propertyValue = property.text
+                    rules.append( ( tag, attribute, value, propertyValue ) )
+                else:
+                    # No tag property, so this will always match (so let's just use it!)
+                    if property.text:
+                        properties[ name ] = property.text
+                    else:
+                        properties[ name ] = ""
+                    continue
+
+            matchedRule = False
+            for rule in rules:
+                if matchedRule:
+                    break
+
+                # Let's get looking for any items that match
+                tag = rule[ 0 ]
+                attrib = rule[ 1 ]
+                value = rule[ 2 ]
                 
-            # Let's get looking for any items that match
-            for item in items.findall( tag ):
-                if attrib is not None:
-                    if attrib[ 0 ] not in item.attrib:
-                        # Doesn't have the attribute we're looking for
-                        continue
-                    if attrib[ 1 ] != item.attrib.get( attrib[ 0 ] ):
-                        # The attributes value doesn't match
-                        continue
+                for item in items.findall( tag ):
+                    if attrib is not None:
+                        if attrib[ 0 ] not in item.attrib:
+                            # Doesn't have the attribute we're looking for
+                            continue
+                        if attrib[ 1 ] != item.attrib.get( attrib[ 0 ] ):
+                            # The attributes value doesn't match
+                            continue
 
-                if not item.text:
-                    # The item doesn't have a value to match
-                    continue
+                    if not item.text:
+                        # The item doesn't have a value to match
+                        continue
+                            
+                    if value is not None and item.text not in value:
+                        # The value doesn't match
+                        continue
                         
-                if value is not None and item.text not in value:
-                    # The value doesn't match
-                    continue
-                    
-                # We've matched a property :)
-                if property.text:
-                    properties[ name ] = property.text
-                else:
-                    properties[ name ] = item.text
-                break
+                    # We've matched a property :)
+                    if rule[ 3 ] is not None:
+                        properties[ name ] = rule[ 3 ]
+                    else:
+                        properties[ name ] = item.text
+                    break
         
         return properties
     
