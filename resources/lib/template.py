@@ -5,6 +5,7 @@ import xml.etree.ElementTree as xmltree
 import hashlib, hashlist
 import copy
 from traceback import print_exc
+from simpleeval import simple_eval
 
 __addon__        = xbmcaddon.Addon()
 __addonid__      = __addon__.getAddonInfo('id').decode( 'utf-8' )
@@ -713,6 +714,32 @@ class Template():
                     if value[ 15:-1 ] in properties:
                         newValue = properties[ value[ 15:-1 ] ]
                     elem.set( attrib, newValue )
+
+            # <tag>$MATHS[var]</tag> -> <tag>[result]</tag>
+            if elem.text is not None:
+                while "$MATHS[" in elem.text:
+                    # Split the string into its composite parts
+                    stringStart = elem.text.split( "$MATHS[", 1 )
+                    stringEnd = stringStart[ 1 ].split( "]", 1 )
+                    # stringStart[ 0 ] = Any code before the $MATHS property
+                    # StringEnd[ 0 ] = The maths to be performed
+                    # stringEnd[ 1 ] = Any code after the $MATHS property
+
+                    stringEnd[ 0 ] = simple_eval( stringEnd[ 0 ] )
+                    
+                    elem.text = stringStart[ 0 ] + str( stringEnd[ 0 ] ) + stringEnd[ 1 ]
+            
+            # <tag attrib="$MATHS[var]" /> -> <tag attrib="[value]" />
+            for attrib in elem.attrib:
+                value = elem.attrib.get( attrib )
+                while "$MATHS[" in elem.attrib.get( attrib ):
+                    # Split the string into its composite parts
+                    stringStart = elem.attrib.get( attrib ).split( "$MATHS[", 1 )
+                    stringEnd = stringStart[ 1 ].split( "]", 1 )
+
+                    stringEnd[ 0 ] = simple_eval( stringEnd[ 0 ] )
+
+                    elem.set( attrib, stringStart[ 0 ] + str( stringEnd[ 0 ] ) + stringEnd[ 1 ] )
             
             # <skinshortcuts>visible</skinshortcuts> -> <visible>[condition]</visible>
             # <skinshortcuts>items</skinshortcuts> -> <item/><item/>...
