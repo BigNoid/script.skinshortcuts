@@ -531,7 +531,15 @@ class Template():
     def getProperties( self, elem, items ):
         # Get any properties specified in an 'other' template
         properties = {}
-        for property in elem.findall( "property" ):
+        searchProperties = elem.findall( "property" )
+
+        # Start by finding any global property groups
+        for propertyGroup in elem.findall( "propertyGroup" ):
+            for searchGroup in self.tree.findall( "propertyGroup" ):
+                if propertyGroup.text.lower() == searchGroup.attrib.get( "name" ).lower():
+                    searchProperties += searchGroup.findall( "property" )
+
+        for property in searchProperties:
             if "name" not in property.attrib or property.attrib.get( "name" ) in properties:
                 # Name attrib required, or we've already got a property with this name
                 continue
