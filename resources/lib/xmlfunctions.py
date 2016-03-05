@@ -197,11 +197,15 @@ class XMLFunctions():
             else:
                 pass
 
+        # Check for the hashes file
+        hashesPath = os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" )
+        if not xbmcvfs.exists( hashesPath ):
+            log( "Hash list does not exist" )
+            return True
         try:
-            hashes = ast.literal_eval( xbmcvfs.File( os.path.join( __masterpath__ , xbmc.getSkinDir() + ".hash" ) ).read() )
+            hashes = ast.literal_eval( xbmcvfs.File( hashesPath ).read() )
         except:
-            # There is no hash list, return True
-            log( "No hash list" )
+            log( "Unable to parse hash list" )
             print_exc()
             return True
         
@@ -675,7 +679,7 @@ class XMLFunctions():
             newelement.set( "id", str( itemid ) )
         idproperty = xmltree.SubElement( newelement, "property" )
         idproperty.set( "name", "id" )
-        idproperty.text = "$NUM[%s]" %( str( itemid ) )
+        idproperty.text = "$NUMBER[%s]" %( str( itemid ) )
         allProps[ "id" ] = idproperty
             
         # Label and label2

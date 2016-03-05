@@ -278,7 +278,6 @@ class DataFunctions():
             visibilityNode = None
 
             if visibilityCondition != "":
-                log( repr( visibilityCondition ) )
                 # Check whether visibility condition is overriden
                 overriddenVisibility = False
                 for override in skinoverrides.findall( "visibleoverride" ):
@@ -782,7 +781,6 @@ class DataFunctions():
     def checkVisibility ( self, action ):
         # Return whether mainmenu items should be displayed
         action = action.lower().replace( " ", "" ).replace( "\"", "" )
-        log( repr( action ) )
 
         # Catch-all for shortcuts to plugins
         if "plugin://" in action:
