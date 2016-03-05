@@ -65,7 +65,7 @@ class Template():
         # visibility conditions until the end)
         self.finalize = []
             
-    def parseItems( self, menuType, level, items, profile, profileVisibility, visibilityCondition, menuName, mainmenuID = None ):
+    def parseItems( self, menuType, level, items, profile, profileVisibility, visibilityCondition, menuName, mainmenuID = None, buildOthers = False ):
         # This will build an item in our includes for a menu
         if self.includes is None or self.tree is None:
             return
@@ -103,28 +103,45 @@ class Template():
                 includeTree.append( child )
             
         # Now we want to see if any of the main menu items match a template
-        if menuType != "mainmenu" or len( self.otherTemplates ) == 0:
+        if not buildOthers or len( self.otherTemplates ) == 0:
             return
         progressCount = 0
         numTemplates = 0
-        log( "Building templates")
+        if menuType == "mainmenu":
+            log( "Building templates")
+        else:
+            # Switch menutype for level for submenu templates, to make it easier to pass in
+            menuType = level
         for item in items:
             progressCount = progressCount + 1
-            # First we need to build the visibilityCondition, based on the items
-            # submenuVisibility element, and the mainmenuID
-            visibilityName = ""
-            for element in item.findall( "property" ):
-                if "name" in element.attrib and element.attrib.get( "name" ) == "submenuVisibility":
-                    visibilityName = element.text
-                    break
-            
-            visibilityCondition = "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + visibilityName + ")"
-            
+            if menuType == "mainmenu":
+                # First we need to build the visibilityCondition, based on the items
+                # submenuVisibility element, and the mainmenuID
+                visibilityName = ""
+                for element in item.findall( "property" ):
+                    if "name" in element.attrib and element.attrib.get( "name" ) == "submenuVisibility":
+                        visibilityName = element.text
+                        break
+                
+                finalVisibility = "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + visibilityName + ")"
+            else:
+                # First we need to build the visibilityCondition, based on the visibility condition
+                # passed in, and the submenuVisibility element
+                visibilityName = ""
+                for element in item.findall( "property" ):
+                    if "name" in element.attrib and element.attrib.get( "name" ) == "labelID":
+                        visibilityName = element.text
+                        break
+                
+                finalVisibility = "[%s + StringCompare(Container(::SUBMENUCONTAINER::).ListItem.Property(labelID),%s)]" %( visibilityCondition, visibilityName )
+
             # Now find a matching template - if one matches, it will be saved to be processed
             # at the end (when we have all visibility conditions)
-            numTemplates += self.findOther( item, profile, profileVisibility, visibilityCondition )
-            self.progress.update( int( self.current + ( ( float( self.percent ) / float( len( items ) ) ) * progressCount ) ) )
-        log( " - Built %d templates" %( numTemplates ) )
+            numTemplates += self.findOther( item, profile, profileVisibility, finalVisibility, menuType )
+            if menuType == "mainmenu":
+                self.progress.update( int( self.current + ( ( float( self.percent ) / float( len( items ) ) ) * progressCount ) ) )
+        if numTemplates != 0:
+            log( " - %d templates" %( numTemplates ) )
                     
     def writeOthers( self ):
         # This will write any 'other' elements we have into the includes file
@@ -332,11 +349,14 @@ class Template():
         if returnElem is None: return None            
         return self.copy_tree( returnElem )
         
-    def findOther( self, item, profile, profileVisibility, visibilityCondition ):
+    def findOther( self, item, profile, profileVisibility, visibilityCondition, menuType ):
         # Find a template matching the item we have been passed
         foundTemplateIncludes = []
         numTemplates = 0
-        for elem in self.tree.findall( "other" ):
+        searchType = "other"
+        if menuType != "mainmenu":
+            searchType = "submenuOther"
+        for elem in self.tree.findall( searchType ):
             # Check that we don't already have a template for this include
             includeName = None
             if "include" in elem.attrib:
@@ -346,6 +366,26 @@ class Template():
 
             template = self.copy_tree( elem )
             matched = True
+
+            finalVisibility = visibilityCondition
+            if menuType != "mainmenu":
+                # This isn't the main menu
+
+                # First we check if the level matches
+                if "level" in elem.attrib:
+                    if menuType != int( elem.attrib.get( "level" ) ):
+                        matched = False
+                        continue
+                elif menuType != 0:
+                    matched = False
+                    continue
+                
+                # Next we either extend the visibility condition to also match the submenu
+                # (if the template provides the submenu container ID), or drop the visibility condition
+                if "container" in elem.attrib:
+                    finalVisibility = visibilityCondition.replace( "::SUBMENUCONTAINER::", elem.attrib.get( "container" ) )
+                else:
+                    finalVisibility = ""
 
             # Check whether the skinner has set the match type (whether all conditions need to match, or any)
             matchType = "all"
@@ -410,12 +450,12 @@ class Template():
                         if profileMatch.attrib.get( "profile" ) == profile:
                             # Check if we've already added this visibilityCondition
                             for visible in profileMatch.findall( "visible" ):
-                                if visible.text == visibilityCondition:
+                                if visible.text == finalVisibility:
                                     # The condition is already there
                                     foundInPrevious = True
                             
                             # We didn't find it, so add it
-                            xmltree.SubElement( profileMatch, "visible" ).text = visibilityCondition
+                            xmltree.SubElement( profileMatch, "visible" ).text = finalVisibility
                             foundInPrevious = True
 
                     if foundInPrevious == True:
@@ -427,7 +467,7 @@ class Template():
                     newElement.set( "visible", profileVisibility )
                     
                     # And save the visibility condition
-                    xmltree.SubElement( newElement, "visible" ).text = visibilityCondition
+                    xmltree.SubElement( newElement, "visible" ).text = finalVisibility
                     
                     # And we're done
                     foundTemplateIncludes.append( includeName )
@@ -440,7 +480,7 @@ class Template():
                 newElement.set( "visible", profileVisibility )
 
                 # Save the visibility condition
-                xmltree.SubElement( newElement, "visible" ).text = visibilityCondition
+                xmltree.SubElement( newElement, "visible" ).text = finalVisibility
 
                 newElement = xmltree.SubElement( template, "skinshortcuts-includeName" )
                 if includeName is None:
