@@ -204,29 +204,46 @@ class NodeFunctions():
 
         # Check whether the node exists - either as a parent node (with an index.xml) or a view node (append .xml)
         # in first custom video nodes, then default video nodes
+        nodeFile = None
         if xbmcvfs.exists( customPath ):
-            path = customPath
-        elif xbmcvfs.exists( customFile ):
-            path = customFile
+            nodeFile = customPath
         elif xbmcvfs.exists( defaultPath ):
-            path = defaultPath
+            nodeFile = defaultPath
+        if xbmcvfs.exists( customFile ):
+            nodeFile = customFile
         elif xbmcvfs.exists( defaultFile ):
-            path = defaultFile
-        else:
-            return ""
-            
-        # Open the file
-        try:
-            # Load the xml file
-            tree = xmltree.parse( path )
-            root = tree.getroot()
+            nodeFile = defaultFile
 
-            if "visible" in root.attrib:
-                return root.attrib.get( "visible" )
-            else:
-                return ""
-        except:
-            return False
+        # Next check if there is a parent node
+        if path.endswith( "/" ): path = path[ :-1 ]
+        path = path.rsplit( "/", 1 )[ 0 ]
+
+        customPath = path.replace( pathStart, os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", pathEnd ) ) + "/index.xml"
+        defaultPath = path.replace( pathStart, os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", pathEnd ) ) + "/index.xml"
+        nodeParent = None
+        if xbmcvfs.exists( customPath ):
+            nodeParent = customPath
+        elif xbmcvfs.exists( defaultPath ):
+            nodeParent = defaultPath
+
+        if not nodeFile and not nodeParent:
+            return ""
+
+        for path in ( nodeFile, nodeParent ):
+            if path is None:
+                continue
+            # Open the file
+            try:
+                # Load the xml file
+                tree = xmltree.parse( path )
+                root = tree.getroot()
+
+                if "visible" in root.attrib:
+                    return root.attrib.get( "visible" )
+            except:
+                pass
+
+        return ""
 
     def get_mediaType( self, path ):
         path = path.replace( "videodb://", "library://video/" )
