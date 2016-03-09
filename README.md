@@ -17,7 +17,7 @@ script.skinshortcuts was written with the intention of making user customizable 
  - Match multiple properties to a single value - [Read More](./resources/docs/advanced/Templates.md#set-a-property-based-on-multiple-elements)
  - Property groups shared between templates - [Read More](./resources/docs/advanced/Templates.md#property-groups)
  - New submenuOther templates - [Read More](./resources/docs/advanced/Templates.md#types-of-templates)
- - Perform maths - [Read More](./resources/docs/advanced/Templates.md#performing-maths)
+ - Get value from Python - [Read More](./resources/docs/advanced/Templates.md#get-value-from-python)
 
 #### Version 1.0.7 - repo version
 
