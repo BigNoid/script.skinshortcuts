@@ -469,18 +469,19 @@ class XMLFunctions():
                         submenuVisibilityName = submenu[:-2]
                         
                     # Get the tree's we're going to write the menu to
-                    if submenu in submenuNodes:
-                        justmenuTreeA = submenuNodes[ submenu ][ 0 ]
-                        justmenuTreeB = submenuNodes[ submenu ][ 1 ]
-                    else:
-                        # Create these nodes
-                        justmenuTreeA = xmltree.SubElement( root, "include" )
-                        justmenuTreeB = xmltree.SubElement( root, "include" )
-                        
-                        justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) )
-                        justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
-                        
-                        submenuNodes[ submenu ] = [ justmenuTreeA, justmenuTreeB ]
+                    if "noGroups" not in options:
+                        if submenu in submenuNodes:
+                            justmenuTreeA = submenuNodes[ submenu ][ 0 ]
+                            justmenuTreeB = submenuNodes[ submenu ][ 1 ]
+                        else:
+                            # Create these nodes
+                            justmenuTreeA = xmltree.SubElement( root, "include" )
+                            justmenuTreeB = xmltree.SubElement( root, "include" )
+                            
+                            justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) )
+                            justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
+                            
+                            submenuNodes[ submenu ] = [ justmenuTreeA, justmenuTreeB ]
                         
                     itemidsubmenu = 0
                     
@@ -556,13 +557,16 @@ class XMLFunctions():
                                 menuitem.remove( allProps[ key ] )
                                 allProps.pop( key )
 
-                        # Add it, with appropriate visibility conditions, to the various submenu includes
-                        justmenuTreeA.append( menuitem )
-
+                        
                         menuitemCopy = Template.copy_tree( menuitem )
-                        visibilityElement = menuitemCopy.find( "visible" )
-                        visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
-                        justmenuTreeB.append( menuitemCopy )
+                        
+                        if "noGroups" not in options:
+                            # Add it, with appropriate visibility conditions, to the various submenu includes
+                            justmenuTreeA.append( menuitem )
+
+                            visibilityElement = menuitemCopy.find( "visible" )
+                            visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
+                            justmenuTreeB.append( menuitemCopy )
 
                         if buildMode == "single":
                             # Add the property 'submenuVisibility'

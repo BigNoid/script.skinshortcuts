@@ -13,6 +13,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Ability to add a 'None' option when using GUI 311 to select thumbnail - [Read More](./resources/docs/advanced/Provide thumbnails.md)
 - Ability to override an action based on its automatic visibility condition - [Read More](./resources/docs/advanced/Overriding an action.md#run-a-different-command-based-on-automatic-visibility-condition)
 - Ability to define a control ID to toggle a custom property - [Read More](./resources/docs/advanced/Custom shortcut properties.md#allow-user-to-toggle-a-property)
+- Build option to not build `skinshortcuts-group-[name]` includes - [Read More](./resources/docs/started/Getting Started.md#don't-build-individual-groups)
 - Template improvements
  - Match multiple properties to a single value - [Read More](./resources/docs/advanced/Templates.md#set-a-property-based-on-multiple-elements)
  - Property groups shared between templates - [Read More](./resources/docs/advanced/Templates.md#property-groups)
