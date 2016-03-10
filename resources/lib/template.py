@@ -5,6 +5,7 @@ import xml.etree.ElementTree as xmltree
 import hashlib, hashlist
 import copy
 from traceback import print_exc
+import simpleeval, operator, ast
 from simpleeval import simple_eval
 
 __addon__        = xbmcaddon.Addon()
@@ -65,6 +66,10 @@ class Template():
         # List which will contain 'other' elements we will need to finalize (we won't have all the
         # visibility conditions until the end)
         self.finalize = []
+
+        # Initialize simple eval
+        self.simple_eval = simpleeval.SimpleEval()
+        self.simple_eval.operators[ast.In] = operator.contains
             
     def parseItems( self, menuType, level, items, profile, profileVisibility, visibilityCondition, menuName, mainmenuID = None, buildOthers = False ):
         # This will build an item in our includes for a menu
@@ -715,29 +720,29 @@ class Template():
                         newValue = properties[ value[ 15:-1 ] ]
                     elem.set( attrib, newValue )
 
-            # <tag>$MATHS[var]</tag> -> <tag>[result]</tag>
+            # <tag>$PYTHON[var]</tag> -> <tag>[result]</tag>
             if elem.text is not None:
-                while "$MATHS[" in elem.text:
+                while "$PYTHON[" in elem.text:
                     # Split the string into its composite parts
-                    stringStart = elem.text.split( "$MATHS[", 1 )
+                    stringStart = elem.text.split( "$PYTHON[", 1 )
                     stringEnd = stringStart[ 1 ].split( "]", 1 )
                     # stringStart[ 0 ] = Any code before the $MATHS property
                     # StringEnd[ 0 ] = The maths to be performed
                     # stringEnd[ 1 ] = Any code after the $MATHS property
 
-                    stringEnd[ 0 ] = simple_eval( stringEnd[ 0 ] )
+                    stringEnd[ 0 ] = simple_eval( "%s" %( stringEnd[ 0 ] ), names=properties )
                     
                     elem.text = stringStart[ 0 ] + str( stringEnd[ 0 ] ) + stringEnd[ 1 ]
             
-            # <tag attrib="$MATHS[var]" /> -> <tag attrib="[value]" />
+            # <tag attrib="$PYTHON[var]" /> -> <tag attrib="[value]" />
             for attrib in elem.attrib:
                 value = elem.attrib.get( attrib )
-                while "$MATHS[" in elem.attrib.get( attrib ):
+                while "$PYTHON[" in elem.attrib.get( attrib ):
                     # Split the string into its composite parts
-                    stringStart = elem.attrib.get( attrib ).split( "$MATHS[", 1 )
+                    stringStart = elem.attrib.get( attrib ).split( "$PYTHON[", 1 )
                     stringEnd = stringStart[ 1 ].split( "]", 1 )
 
-                    stringEnd[ 0 ] = simple_eval( stringEnd[ 0 ] )
+                    stringEnd[ 0 ] = simple_eval( "%s" %( stringEnd[ 0 ] ), names=properties )
 
                     elem.set( attrib, stringStart[ 0 ] + str( stringEnd[ 0 ] ) + stringEnd[ 1 ] )
             

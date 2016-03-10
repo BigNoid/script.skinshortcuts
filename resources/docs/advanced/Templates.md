@@ -246,17 +246,26 @@ The property group can then be included in a template with:
 
 Note that property groups are processed after any properties defined in the template directly.
 
-## Performing maths
+## Get value from Python
 
-It is possible to perform basic mathematical operations on the parameters you are using in your template. To do so, put any expression you want to evaluate in a `$MATHS[]` tag. For example, if the id of the menu item was pulled out:
+It is possible to run very simple Python scripts within the template to evaluate conditions and have the returned value used in your template. All properties that you have pulled out from a menu item are available via their name. For example, if you have pulled out the mainmenuid into a property named 'id':
 
 `<property name="id" tag="mainmenuid" />`
 
 You could adjust the position of an item as follows:
 
-`<top>$MATHS[100 + (50 * $SKINSHORTCUTS[id])]</top>`
+`<top>$PYTHON[100 + (50 * int(id))]</top>`
 
-All expressions must be valid Python.
+Another example, it can be useful to know if a widgetPath has a '?' character in it, as appending anything extra to the path would then need prepending with an '&'. A simple Python script - with reference to the note below on the 'in' operator - can return the correct value for you:
+
+`$PYTHON['&amp;' if widgetPath in '?' else '?']`
+
+#### Notes
+
+* All expressions must be valid Python
+* Only basic operators are available. Whilst consideration will be given to requests to enable additional operators, this limitation is for security reasons.
+* Whilst 'in' is available, for technical reasons its operation is reversed, so if you want to know if `x` is in `y`, you'd use `if y in x`.
+* All properties are passed into your Python script as strings. To use them in mathematical expressions, they must be converted to integers.
 
 ## Moving properties to an include using `$PARAM` (KODI 15+)
 
