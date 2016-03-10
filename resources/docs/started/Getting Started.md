@@ -72,4 +72,12 @@ One side-effect of using Skin Shortcuts to manage the whole menu is that the use
 
 There are a few methods you can use to prevent (or at least warn) the user deleted settings (see [Advanced Usage](../advanced/Advanced Usage.md)) but it's also worth considering adding alternative access to settings - such as on the shutdown menu - and be prepared to offer support to users who have deleted the link.
 
+#### Don't build individual groups
+
+By default, along with the main and submenu's, skin shortcuts will build `skinshortcuts-group-[groupname]`and `skinshortcuts-group-alt-[groupname]` (to be used depending on whether you want visibility conditions.
+
+If you don't want these groups, you can tell Skin Shortcuts not to build them by including `&amp;options=noGroups` in your build command.
+
+Multiple options can be separated with a pipe - | - symbol.
+
 ***Quick links*** - [Readme](../../../README.md) - [Getting Started](./Getting Started.md) - [Advanced Usage](../advanced/Advanced Usage.md)
