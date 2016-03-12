@@ -477,9 +477,14 @@ class XMLFunctions():
                             # Create these nodes
                             justmenuTreeA = xmltree.SubElement( root, "include" )
                             justmenuTreeB = xmltree.SubElement( root, "include" )
+
+                            if count != 0:
+                                groupInclude = DATA.slugify( submenu[:-2], convertInteger = True ) + "-" + submenu[-1:]
+                            else:
+                                groupInclude = DATA.slugify( submenu, convertInteger = True )
                             
-                            justmenuTreeA.set( "name", "skinshortcuts-group-" + DATA.slugify( submenu ) )
-                            justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + DATA.slugify( submenu ) )
+                            justmenuTreeA.set( "name", "skinshortcuts-group-" + groupInclude )
+                            justmenuTreeB.set( "name", "skinshortcuts-group-alt-" + groupInclude )
                             
                             submenuNodes[ submenu ] = [ justmenuTreeA, justmenuTreeB ]
                         
@@ -580,6 +585,13 @@ class XMLFunctions():
                         visibilityElement = menuitemCopy.find( "visible" )
                         visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
                         submenuTree.append( menuitemCopy )
+                    if len( submenuitems ) == 0 and "noGroups" not in options:
+                        # There aren't any submenu items, so add a 'description' element to the group includes
+                        # so that Kodi doesn't think they're invalid
+                        newelement = xmltree.Element( "description" )
+                        newelement.text = "No items"
+                        justmenuTreeA.append( newelement )
+                        justmenuTreeB.append( newelement )
                             
                     # Build the template for the submenu
                     buildOthers = False
