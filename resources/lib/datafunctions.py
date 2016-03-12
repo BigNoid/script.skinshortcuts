@@ -414,6 +414,8 @@ class DataFunctions():
         # This function will get any icon overrides based on labelID or group
         if icon is None:
             return
+
+        icon = try_decode( icon )
             
         # If the icon is a VAR or an INFO, we aren't going to override
         if icon.startswith( "$" ):
@@ -439,8 +441,9 @@ class DataFunctions():
                             oldicon = icon
                             newicon = elem.text
         
-        if not xbmc.skinHasImage( newicon ) and setToDefault == True:
+        if not xbmc.skinHasImage( newicon.encode( "utf-8" ) ) and setToDefault == True:
             newicon = self._get_icon_overrides( tree, "DefaultShortcut.png", group, labelID, False )
+
         return newicon
 
         
