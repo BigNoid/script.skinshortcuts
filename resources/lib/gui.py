@@ -1454,13 +1454,21 @@ class GUI( xbmcgui.WindowXMLDialog ):
             LIBRARY.loadLibrary( "widgets" )
 
             # Let user choose widget
-            selectedShortcut = LIBRARY.selectShortcut( grouping = "widget", showNone = True )
+            if listitem.getProperty( "widgetPath" ) == "":
+                selectedShortcut = LIBRARY.selectShortcut( grouping = "widget", showNone = True )
+            else:
+                selectedShortcut = LIBRARY.selectShortcut( grouping = "widget", showNone = True, custom = True, currentAction = listitem.getProperty( "widgetPath" ) )
 
             if selectedShortcut is None:
                 # User cancelled
                 return
 
-            if selectedShortcut.getProperty( "Path" ):
+            if selectedShortcut.getProperty( "Path" ) and selectedShortcut.getProperty( "custom" ) == "true":
+                # User has manually edited the widget path, so we'll update that property only
+                self._add_additionalproperty( listitem, "widgetPath" + widgetID, selectedShortcut.getProperty( "Path" ) )
+                self.changeMade = True
+
+            elif selectedShortcut.getProperty( "Path" ):
                 # User has chosen a widget
 
                 # Let user edit widget title, if they want & skin hasn't disabled it
@@ -1477,12 +1485,15 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if ( keyboard.isConfirmed() ) and keyboard.getText() != "":
                         if widgetTempName != try_decode( keyboard.getText() ):
                             widgetName = try_decode( keyboard.getText() )
+
+                # Add any necessary reload parameter
+                widgetPath = LIBRARY.addWidgetReload( selectedShortcut.getProperty( "widgetPath" ) )
                 
                 self._add_additionalproperty( listitem, "widget" + widgetID, selectedShortcut.getProperty( "widget" ) )
                 self._add_additionalproperty( listitem, "widgetName" + widgetID, widgetName )
                 self._add_additionalproperty( listitem, "widgetType" + widgetID, selectedShortcut.getProperty( "widgetType" ) )
                 self._add_additionalproperty( listitem, "widgetTarget" + widgetID, selectedShortcut.getProperty( "widgetTarget" ) )
-                self._add_additionalproperty( listitem, "widgetPath" + widgetID, selectedShortcut.getProperty( "widgetPath" ) )
+                self._add_additionalproperty( listitem, "widgetPath" + widgetID, widgetPath )
                 if self.currentWindow.getProperty( "useWidgetNameAsLabel" ) == "true" and widgetID == "":
                     self._set_label( listitem, selectedShortcut.getProperty( ( "widgetName" ) ) )
                     self.currentWindow.clearProperty( "useWidgetNameAsLabel" )

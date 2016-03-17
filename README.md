@@ -19,6 +19,7 @@ script.skinshortcuts was written with the intention of making user customizable 
  - Property groups shared between templates - [Read More](./resources/docs/advanced/Templates.md#property-groups)
  - New submenuOther templates - [Read More](./resources/docs/advanced/Templates.md#types-of-templates)
  - Get value from Python - [Read More](./resources/docs/advanced/Templates.md#get-value-from-python)
+- Plugin-based widgets selected via the GUI 312 method will now have a reload parameter added to them automatically. This means that they will update after media has been played. (Requires Skin Helper Service)
 
 #### Version 1.0.7 - repo version
 
