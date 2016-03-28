@@ -202,6 +202,10 @@ You can set a property to a single value based on different matching elements wi
 
 Would set the property `$SKINSHORTCUTS[leftartwork]`to the value of `5` if any of the three rules match.
 
+By default, this property will match if any of the rules match. To only match the property if all of the rules match, include `<match>all</match>` as a sub element.
+
+Note, when setting a property based on multiple elements, you /must/ specify the propertyValue you want assigned - you cannot assign the property to the value of the menu items element that you are checking against.
+
 #### Fallback value
 
 If none of the `<property />` elements match, the property will be an empty string. You can set an alternative fallback value by including the following as the final element in a list of `<property />`'s
