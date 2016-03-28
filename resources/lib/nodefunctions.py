@@ -116,11 +116,11 @@ class NodeFunctions():
                 mediaType = contentNode.text
 
             # Get label and icon
-            label = root.find( "label" ).text
+            label = root.find( "label" ).text.encode( "utf-8" )
             
             icon = root.find( "icon" )
             if icon is not None:
-                icon = icon.text
+                icon = icon.text.encode( "utf-8" )
             else:
                 icon = ""
 
@@ -132,7 +132,7 @@ class NodeFunctions():
                 path = root.find( "path" )
                 if path is not None:
                     # Change the origPath (the url used as the shortcut address) to it
-                    origPath = path.text
+                    origPath = path.text.encode( "utf-8" )
                     
                 # Check for a grouping
                 group = root.find( "group" )
