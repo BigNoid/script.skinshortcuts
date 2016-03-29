@@ -537,14 +537,17 @@ class Template():
     def getProperties( self, elem, items ):
         # Get any properties specified in an 'other' template
         properties = {}
+
+        # Start by finding all properties defined directly in the template
         searchProperties = elem.findall( "property" )
 
-        # Start by finding any global property groups
+        # Add any properties defined in a property group
         for propertyGroup in elem.findall( "propertyGroup" ):
             for searchGroup in self.tree.findall( "propertyGroup" ):
                 if propertyGroup.text.lower() == searchGroup.attrib.get( "name" ).lower():
                     searchProperties += searchGroup.findall( "property" )
 
+        # Loop through all the properties
         for property in searchProperties:
             if "name" not in property.attrib or property.attrib.get( "name" ) in properties:
                 # Name attrib required, or we've already got a property with this name
@@ -553,7 +556,8 @@ class Template():
 
             # Pull out the tag, attribute and value attribs into an array of tuples
             rules = []
-            propertyValue = ""
+            matchAny = True
+            propertyValue = None
             if "propertyValue" in property.attrib:
                 propertyValue = property.attrib.get( "propertyValue" )
             
@@ -573,6 +577,10 @@ class Template():
                 if "value" in singleMatch.attrib:
                     value = singleMatch.attrib.get( "value" ).split( "|" )
                 rules.append( ( tag, attribute, value, propertyValue ) )
+
+            matchAll = property.find( "match" )
+            if matchAll is not None and matchAll.text.lower() == "all":
+                matchAny = False
 
             # If we haven't grabbed anything to match against yet
             if len( rules ) == 0:
@@ -603,39 +611,83 @@ class Template():
                         properties[ name ] = ""
                     continue
 
-            matchedRule = False
-            for rule in rules:
-                if matchedRule:
-                    break
+            if matchAny:
+                # Match the property if any of the rules match
+                matchedRule = False
+                for rule in rules:
+                    if matchedRule:
+                        break
 
-                # Let's get looking for any items that match
-                tag = rule[ 0 ]
-                attrib = rule[ 1 ]
-                value = rule[ 2 ]
-                
-                for item in items.findall( tag ):
-                    if attrib is not None:
-                        if attrib[ 0 ] not in item.attrib:
-                            # Doesn't have the attribute we're looking for
-                            continue
-                        if attrib[ 1 ] != item.attrib.get( attrib[ 0 ] ):
-                            # The attributes value doesn't match
-                            continue
+                    # Let's get looking for any items that match
+                    tag = rule[ 0 ]
+                    attrib = rule[ 1 ]
+                    value = rule[ 2 ]
+                    
+                    for item in items.findall( tag ):
+                        if attrib is not None:
+                            if attrib[ 0 ] not in item.attrib:
+                                # Doesn't have the attribute we're looking for
+                                continue
+                            if attrib[ 1 ] != item.attrib.get( attrib[ 0 ] ):
+                                # The attributes value doesn't match
+                                continue
 
-                    if not item.text:
-                        # The item doesn't have a value to match
-                        continue
+                        if not item.text:
+                            # The item doesn't have a value to match
+                            continue
+                                
+                        if value is not None and item.text not in value:
+                            # The value doesn't match
+                            continue
                             
-                    if value is not None and item.text not in value:
-                        # The value doesn't match
-                        continue
-                        
+                        # We've matched a property :)
+                        if rule[ 3 ] is not None:
+                            properties[ name ] = rule[ 3 ]
+                        else:
+                            properties[ name ] = item.text
+                        break
+
+            else:
+                # Match the property only if all the rules match
+                matchedRule = True
+                for rule in rules:
+                    if not matchedRule:
+                        break
+
+                    # Let's get looking for any items that match
+                    tag = rule[ 0 ]
+                    attrib = rule[ 1 ]
+                    value = rule[ 2 ]
+                    
+                    for item in items.findall( tag ):
+                        log( repr( attrib ) )
+                        if attrib is not None:
+                            if attrib[ 0 ] not in item.attrib:
+                                # Doesn't have the attribute we're looking for
+                                matchedRule = False
+                                continue
+                            if attrib[ 1 ] != item.attrib.get( attrib[ 0 ] ):
+                                # The attributes value doesn't match, so we don't want to check the rule against it
+                                continue
+
+                        if not item.text:
+                            # The item doesn't have a value to match
+                            matchedRule = False
+                            continue
+                                
+                        if value is not None and item.text not in value:
+                            # The value doesn't match
+                            matchedRule = False
+                            continue
+                            
+                if matchedRule:
                     # We've matched a property :)
                     if rule[ 3 ] is not None:
                         properties[ name ] = rule[ 3 ]
                     else:
-                        properties[ name ] = item.text
-                    break
+                        # This method only supports setting the property value directly, so if it wasn't specified,
+                        # include a log error
+                        log( "Invalid template - cannot set property directly to menu item elements value when using multiple rules for single property")
         
         return properties
     
