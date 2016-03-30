@@ -768,7 +768,7 @@ class LibraryFunctions():
         listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {} ]) )
         listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "10001", "32034", {"icon": "DefaultProgram.png"} ] ) )
 
-        listitems.append( self._create(["XBMC.PlayDVD()", "32032", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
+        listitems.append( self._create(["PlayDVD", "32032", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
         listitems.append( self._create(["EjectTray()", "32033", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
                 
         listitems.append( self._create(["ActivateWindow(Settings)", "10004", "32034", {} ]) )
