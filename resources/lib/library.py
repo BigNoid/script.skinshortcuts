@@ -2077,6 +2077,7 @@ class LibraryFunctions():
                         # Create a really simple listitem to return
                         selectedShortcut = xbmcgui.ListItem( None, __language__(32024) )
                         selectedShortcut.setProperty( "Path", action )
+                        selectedShortcut.setProperty( "custom", "true" )
                     else:
                         selectedShortcut = None
                             
@@ -2094,6 +2095,28 @@ class LibraryFunctions():
             return selectedShortcut
         else:
             return None
+
+# ==============================
+# === WIDGET RELOAD FUNCTION ===
+# ==============================
+
+    # With gui 312, we're finding a number of plugins aren't returning updated content after media is played. This function adds
+    # a widgetReload property - managed by Skin Helper Service - to plugins to help display updated content
+
+    def addWidgetReload( self, widgetPath ):
+        if "plugin://" not in widgetPath or "reload=" in widgetPath.lower() or "script.extendedinfo" in widgetPath.lower():
+            # Not a plugin, or already has a reload parameter
+            # Also return on Extended Info, as it doesn't like its parameters to be altered
+            return widgetPath
+
+        # Depending whether it already has additional components or not, we may need to use a ? or a & to extend the path
+        # with the new reload parameter
+        reloadParameter = "?"
+        if "?" in widgetPath:
+            reloadParameter = "&"
+
+        # And return it all
+        return "%s%sreload=$INFO[Window(Home).Property(widgetreload)]" %( widgetPath, reloadParameter )
 
 # ============================
 # === PRETTY SELECT DIALOG ===
