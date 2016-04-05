@@ -1572,10 +1572,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         virtualImage = key[0].replace("$INFO[","").replace("$VAR[","").replace("]","")
                         virtualImage = xbmc.getInfoLabel(virtualImage)
 
+                    label = key[ 1 ]
+                    if label.startswith( "$INFO" ) or label.startswith( "$VAR" ):
+                        label = xbmc.getInfoLabel( label )
+
                     if defaultBackground == key[ 0 ]:
-                        label = "%s (%s)" %( key[ 1 ], __language__( 32050 ) )
-                    else:
-                        label = key[ 1 ]
+                        label = "%s (%s)" %( label, __language__( 32050 ) )
+
                     backgroundLabel.append( label )
                     if xbmc.skinHasImage( key[ 0 ] ) or virtualImage:
                         usePrettyDialog = True
