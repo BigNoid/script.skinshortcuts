@@ -860,7 +860,7 @@ class DataFunctions():
             return "Library.HasContent(MusicVideos)"
         elif action.startswith( "activatewindow(videos,recentlyaddedmusicvideos" ):
             return "Library.HasContent(MusicVideos)"
-        elif action == "xbmc.playdvd()":
+        elif action == "xbmc.playdvd()" or action == "playdvd":
             return "System.HasMediaDVD"
         elif action.startswith( "activatewindow(eventlog" ):
             return "system.getbool(eventlog.enabled)"
