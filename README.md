@@ -35,7 +35,19 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Everyone who has contributed even one idea or line of code
 - And the biggest thanks of all to Annie and my family, for feature suggestions, testing and shouting at me when I broke things
 
-## Where To Get Help
+## Where To Get Help - Users
+
+[End User FAQ](./resources/docs/FAQ.md)
+
+If you have issues with using the script, your first port of call should be the End User FAQ. If your query isn't listed there, then the next place to ask for help is the [Kodi forum for the skin that you are using](http://forum.kodi.tv/forumdisplay.php?fid=67). There are a lot of very knowledgeable skinners and users who will be able to answer most questions.
+
+When a question comes up that no-one in the thread can answer, the skinner may direct you to the [Skin Shortcuts thread](http://forum.kodi.tv/showthread.php?tid=178294) in the skin development for further help.
+
+If you experience an error with the script, you are welcome to ask for help directly in the Skin Shortcuts thread in the skin development forum. However, we _require_ a [debug log](http://kodi.wiki/view/Debug_log).
+
+Please note that this thread is primarily aimed at skin developers - if you haven't already asked in the revelant skins forum, included a debug log or are asking a question related to [banned add-ons](http://kodi.wiki/view/Official:Forum_rules/Banned_add-ons), you are not likely to recieve a warm welcome.
+
+## Where To Get Help - Skinners
 
 Though hopefully Skin Shortcuts will save you a lot of code in the long-run, it is a relatively complex script and so may take some time to get your head around.
 
