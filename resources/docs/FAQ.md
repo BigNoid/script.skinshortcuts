@@ -10,6 +10,8 @@ There are a number of questions that come up repeatedly with Skin Shortcuts use.
 * [Cannot access settings](#cannot-access-settings)
 * [Cannot set backgrounds](#cannot-set-backgrounds)
 * [Changes to script-skinshortcuts-includes.xml are overwritten](#changes-to-script-skinshortcuts-includesxml-are-overwritten)
+* [Cannot Build or Save Menu error](#cannot-build-or-save-menu-error)
+* [Cannot hide a menu entry](#cannot-hide-a-menu-entry)
 
 ## Banned add-on policy
 
@@ -68,3 +70,13 @@ This occurs when any sources have been added to Kodi's [File Manager](http://kod
 ## Changes to script-skinshortcuts-includes.xml are overwritten
 
 This file is not able to be directly edited - if it is, Skin Shortcuts will detect that the menu has been changed and re-write the menu. Make any changes you want through the menu editor. If you do need to manually edit part of the menu, see the developer documentation for help.
+
+## Cannot Build or Save Menu error
+
+If you get this error you will need to provide a debug log in order to recieve assistance. If you have the Debug Log Uploaded add-on installed, the script will prompt you to upload a log after the error occurs. Otherwise, see here for details on providing a debug log.
+
+Most common causes for this is either the skin has been installed to a read-only location (such at Kodi's system-Addons folder, rather than the profiles Addons folder), or you have found a bug in the script.
+
+## Cannot hide a menu entry
+
+Whilst the behaviour may change in the future, if a good way of implementing it is found, at present it is not possible to hide a menu entry - only to delete it. Note that in most skins, it is possible to re-add any original menu entry via the 'Restore menu items' button.
