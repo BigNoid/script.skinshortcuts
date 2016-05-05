@@ -35,6 +35,16 @@
 	</versionEquivalency>
 
 
+	<contextmenu>
+		<!-- Enable context menu on control 211 -->
+		<enableon>211</enableon>
+
+		<!-- Add enable/disable controls -->
+		<item control="313" condition="String.IsEqual(Container(211).ListItem.Property(skinshortcuts-disabled),False)">Disable</item>
+		<item control="313" condition="String.IsEqual(Container(211).ListItem.Property(skinshortcuts-disabled),True)">Enable</item>
+	</contextmenu>
+
+
 	<flatgroupings>
 		<node label="32029">
 			<content>common</content>

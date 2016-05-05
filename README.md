@@ -7,7 +7,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 #### Version 1.0.9 - git version
 
-No changes for skinners at this time
+- Ability to move controls from management dialog to context menu (Krypton only) - [Read More](./resources/docs/advanced/Context menu.md)
 
 #### Version 1.0.8 - repo version
 

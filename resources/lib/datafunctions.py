@@ -194,7 +194,7 @@ class DataFunctions():
         
         # Iterate through all <shortcut/> nodes
         for node in tree.getroot().findall( "shortcut" ):
-            # If not user shortcuts, remove locked and defaultid nodes (in case of naughty skinners!)
+            # If not user shortcuts, remove locked nodes (in case of naughty skinners!)
             if isUserShortcuts == False:
                 searchNode = node.find( "locked" )
                 if searchNode is not None:
@@ -237,6 +237,10 @@ class DataFunctions():
                     tree.getroot().remove( node )
                     self._pop_labelID()
                     continue
+
+            # Get any disabled element
+            if node.find( "disabled" ) is not None:
+                xmltree.SubElement( node, "disabled" ).text = "True"
                     
             # Load additional properties
             additionalProperties = self.checkAdditionalProperties( group, labelID, defaultID, isUserShortcuts, profileDir )

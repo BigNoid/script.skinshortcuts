@@ -34,6 +34,7 @@ __cwd__          = sys.modules[ "__main__" ].__cwd__
 __xbmcversion__  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
 ACTION_CANCEL_DIALOG = ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
+ACTION_CONTEXT_MENU = ( 101, 117, )
 
 if not xbmcvfs.exists(__datapath__):
     xbmcvfs.mkdir(__datapath__)
@@ -89,6 +90,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.customPropertyButtons = {}
         self.customToggleButtons = {}
 
+        # Context menu
+        self.contextControls = []
+        self.contextItems = []
+
         self.windowProperties = {}
         
         self.changeMade = False
@@ -107,6 +112,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Load widget and background names
             self._load_overrides()
+
+            # Load context menu options
+            self._load_overrides_context()
 
             # Load additional button ID's we'll handle for custom properties
             self._load_customPropertyButtons()
@@ -853,6 +861,45 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Are there any controls we don't close the window on 'back' for?
         for elem in tree.findall( "onback" ):
             self.onBack[ int( elem.text ) ] = int( elem.attrib.get( "to" ) )
+
+    def _load_overrides_context( self ):
+        # Load context menu settings from overrides
+
+        # Check we're running Krypton or later - we don't support the context menu on earlier versions
+        if __xbmcversion__ <= 16:
+            return
+        
+        for overrideType in [ "skin", "script" ]:
+            # Load overrides
+            if overrideType == "skin":
+                tree = DATA._get_overrides_skin()
+            else:
+                tree = DATA._get_overrides_script()
+
+            # Check if context menu overrides in tree
+            elem = tree.find( "contextmenu" )
+            if elem is None:
+                # It isn't
+                continue
+
+            # Get which controls the context menu is enabled on
+            for control in elem.findall( "enableon" ):
+                self.contextControls.append( int( control.text ) )
+
+            # Get the context menu items
+            for item in elem.findall( "item" ):
+                if "control" not in item.attrib:
+                    # There's no control specified, so it's no use to us
+                    continue
+
+                condition = None
+                if "condition" in item.attrib:
+                    condition = item.attrib.get( "condition" )
+
+                self.contextItems.append( ( int( item.attrib.get( "control" ) ), condition, item.text ) )
+
+            # If we get here, we've loaded context options, so we're done
+            return
 
     def _load_backgrounds_thumbnails( self ):
         # Load backgrounds (done in background thread)
@@ -2222,22 +2269,58 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if not listitem.getLabel2():
             listitem.setLabel2( __language__(32024) )
             listitem.setProperty( "shortcutType", "32024" )
-            
-    # ====================
-    # === CLOSE WINDOW ===
-    # ====================
     
     def onAction( self, action ):
         currentFocus = self.getFocusId()
         if action.getId() in ACTION_CANCEL_DIALOG:
+            # Close action
+
             if currentFocus and currentFocus in self.onBack:
+                # Action overriden to return to a control
                 self.setFocusId( self.onBack[ currentFocus ] )
                 return
+
+            # Close window
             self._save_shortcuts()
             xbmcgui.Window(self.window_id).clearProperty('groupname')
             self._close()
-        elif currentFocus == 211:
+
+        elif currentFocus in self.contextControls and action.getId() in ACTION_CONTEXT_MENU:
+            # Context menu action
+            self._display_Context_Menu()
+
+        if currentFocus == 211:
+            # Changed highlighted item, update window properties
             self._add_additional_properties()
+
+    def _display_Context_Menu( self ):
+        # Displays a context menu
+
+        contextActions = []
+        contextItems = []
+
+        # Find active context menu items
+        for item in self.contextItems:
+            # Check any condition
+            if item[ 1 ] is None or xbmc.getCondVisibility( item[ 1 ] ):
+                # Add the items
+                contextActions.append( item[ 0 ] )
+                contextItems.append( item[ 2 ] )
+
+        # Check that there are some items to display
+        if len( contextItems ) == 0:
+            log( "Context menu called, but no items to display" )
+            return
+
+        # Display the context menu
+        selectedItem = xbmcgui.Dialog().contextmenu( list=contextItems )
+
+        if selectedItem == -1:
+            # Nothing selected
+            return
+
+        # Call the control associated with the selected item
+        self.onClick( contextActions[ selectedItem ] )
 
     def _close( self ):
         self.close()
