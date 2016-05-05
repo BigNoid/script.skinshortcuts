@@ -1,5 +1,6 @@
 v1.0.9
 - Support context menu in management dialog (Krypton only)
+- Support disabling menu items
 
 v1.0.8
 - Ability to set item properties from outside management dialog

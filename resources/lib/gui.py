@@ -343,6 +343,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         listitem.setProperty( "path", action )
         listitem.setProperty( "displayPath", action )
+
+        # Set the disabled property
+        if item.find( "disabled" ) is not None:
+            listitem.setProperty( "skinshortcuts-disabled", "True" )
+        else:
+            listitem.setProperty( "skinshortcuts-disabled", "False" )
         
         # If there's an overriden icon, use it
         overridenIcon = item.find( "override-icon" )
@@ -667,6 +673,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     # Visible
                     if listitem.getProperty( "visible-condition" ):
                         xmltree.SubElement( shortcut, "visible" ).text = listitem.getProperty( "visible-condition" )
+
+                    # Disabled
+                    if listitem.getProperty( "skinshortcuts-disabled" ) == "True":
+                        xmltree.SubElement( shortcut, "disabled" ).text = "True"
                     
                     # Locked
                     if listitem.getProperty( "LOCKED" ):
@@ -866,7 +876,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load context menu settings from overrides
 
         # Check we're running Krypton or later - we don't support the context menu on earlier versions
-        if __xbmcversion__ <= 16:
+        if int( __xbmcversion__ ) <= 16:
             return
         
         for overrideType in [ "skin", "script" ]:
@@ -1754,6 +1764,22 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 listitem.setThumbnailImage( thumbnail[ selectedThumbnail ] )
                 listitem.setProperty( "thumbnail", thumbnail[ selectedThumbnail ] )
             self.changeMade = True
+
+        elif controlID == 313:
+            # Toggle disabled
+            log( "Toggle disabled (313)" )
+            listControl = self.getControl( 211 )
+            listitem = listControl.getSelectedItem()
+
+            # Retrieve and toggle current disabled state
+            disabled = listitem.getProperty( "skinshortcuts-disabled" )
+            if disabled == "True":
+                listitem.setProperty( "skinshortcuts-disabled", "False" )
+            else:
+                # Toggle to true, add highlighting to label
+                listitem.setProperty( "skinshortcuts-disabled", "True" )
+                
+            self.changeMade = True
         
         elif controlID == 401:
             # Select shortcut
@@ -2071,6 +2097,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         listitemCopy.setProperty( "thumbnail", listitem.getProperty("thumbnail") )
         listitemCopy.setProperty( "localizedString", listitem.getProperty("localizedString") )
         listitemCopy.setProperty( "shortcutType", listitem.getProperty("shortcutType") )
+        listitemCopy.setProperty( "skinshortcuts-disabled", listitem.getProperty( "skinshortcuts-disabled" ) )
                 
         if listitem.getProperty( "LOCKED" ):
             listitemCopy.setProperty( "LOCKED", listitem.getProperty( "LOCKED" ) )

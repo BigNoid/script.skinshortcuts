@@ -687,6 +687,8 @@ class XMLFunctions():
         
     def buildElement( self, item, groupName, visibilityCondition, profileVisibility, submenuVisibility = None, itemid=-1, options=[] ):
         # This function will build an element for the passed Item in
+
+        # Create the element
         newelement = xmltree.Element( "item" )
         allProps = {}
 
@@ -723,6 +725,13 @@ class XMLFunctions():
         defaultID.text = item.find( "defaultID" ).text
         defaultID.set( "name", "defaultID" )
         allProps[ "defaultID" ] = defaultID
+
+        # Check if the item is disabled
+        if item.find( "disabled" ) is not None:
+            # It is, so we set it to be invisible, add an empty onclick and return
+            xmltree.SubElement( newelement, "visible" ).text = "False"
+            xmltree.SubElement( newelement, "onclick" ).text = "noop"
+            return( newelement, allProps )
 
         # Clear cloned options if main menu
         if groupName == "mainmenu":
