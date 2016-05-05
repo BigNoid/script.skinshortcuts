@@ -23,11 +23,11 @@ For details of the labelID system that Skin Shortcut employs, and the likely val
 
 To override all instances of a particular image, use the following in your overrides.xml:-
 
-<icon image="[Original image]" group="[GroupName]" grouping="[Grouping]">[New image]</icon>
+`<icon image="[Original image]" group="[GroupName]" grouping="[Grouping]">[New image]</icon>`
 
 | Property | Optional | Description |
 | :------: | :------: | ----------- |
-| `[Oiriginal image]` |  | The image you are overriding |
+| `[Original image]` |  | The image you are overriding |
 | `[GroupName]` | Yes | The group that must be being editing for the override to apply. If ommitted, will apply to groups |
 | `[content]` | Yes | The `<content />` grouping that the icon must be in to be overrided. If ommitted, will be applied to all groupings. See [Custom groupings](./Custom groupings.md) for details. |
 | `[New image]` |  | The replacement image |
