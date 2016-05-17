@@ -817,17 +817,22 @@ class LibraryFunctions():
         listitems = []
         
         listitems.append( self._create(["ActivateWindow(Settings)", "10004", "10004", {"icon": "Settings.png"} ]) )
-        
-        listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "480", "10004", {"icon": "AppearanceSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(VideosSettings)", "3", "10004", {"icon": "VideoSettings.png"} ]) )
         listitems.append( self._create(["ActivateWindow(PVRSettings)", "19020", "10004", {"icon": "PVRSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(MusicSettings)", "2", "10004", {"icon": "MusicSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(PicturesSettings)", "1", "10004", {"icon": "PictureSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(WeatherSettings)", "8", "10004", {"icon": "WeatherSettings.png"} ]) )
         listitems.append( self._create(["ActivateWindow(AddonBrowser)", "24001", "10004", {"icon": "DefaultAddon.png"} ]) )
         listitems.append( self._create(["ActivateWindow(ServiceSettings)", "14036", "10004", {"icon": "ServiceSettings.png"} ]) )
         listitems.append( self._create(["ActivateWindow(SystemSettings)", "13000", "10004", {"icon": "SystemSettings.png"} ]) )
         listitems.append( self._create(["ActivateWindow(SkinSettings)", "20077", "10004", {"icon": "SkinSettings.png"} ]) )
+
+        if int( KODIVERSION ) <= 16:
+            listitems.append( self._create(["ActivateWindow(VideosSettings)", "3", "10004", {"icon": "VideoSettings.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(MusicSettings)", "2", "10004", {"icon": "MusicSettings.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(PicturesSettings)", "1", "10004", {"icon": "PictureSettings.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "480", "10004", {"icon": "AppearanceSettings.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(WeatherSettings)", "8", "10004", {"icon": "WeatherSettings.png"} ]) )
+        else:
+            listitems.append( self._create(["ActivateWindow(PlayerSettings)", "14200", "10004", {"icon": "PlayerSettings.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(LibrarySettings)", "14202", "10004", {"icon": "LibrarySettings.png"} ]) )
+            listitems.append( self._create(["ActivateWindow(InterfaceSettings)", "14206", "10004", {"icon": "InterfaceSettings.png"} ]) )
         
         self.addToDictionary( "settings", listitems )
     
