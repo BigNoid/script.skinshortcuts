@@ -765,69 +765,69 @@ class LibraryFunctions():
 
         listitems.append( self._create(["ActivateWindow(Videos,videodb://musicvideos/titles/,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {} ]) )
+        listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {"icon": "Weather.png"} ]) )
         listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "10001", "32034", {"icon": "DefaultProgram.png"} ] ) )
 
         listitems.append( self._create(["PlayDVD", "32032", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
         listitems.append( self._create(["EjectTray()", "32033", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
                 
-        listitems.append( self._create(["ActivateWindow(Settings)", "10004", "32034", {} ]) )
+        listitems.append( self._create(["ActivateWindow(Settings)", "10004", "32034", {"icon": "Settings.png"} ]) )
         listitems.append( self._create(["ActivateWindow(FileManager)", "7", "32034", {"icon": "DefaultFolder.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(Profiles)", "13200", "32034", {"icon": "UnknownUser.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(SystemInfo)", "10007", "32034", {} ]) )
+        listitems.append( self._create(["ActivateWindow(SystemInfo)", "10007", "32034", {"icon": "SystemInfo.png"} ]) )
 
         if int( KODIVERSION ) >= 16:
-            listitems.append( self._create(["ActivateWindow(EventLog,events://,return)", "14111", "32034", {} ]) )            
+            listitems.append( self._create(["ActivateWindow(EventLog,events://,return)", "14111", "32034", {"icon": "Events.png"} ]) )
         
-        listitems.append( self._create(["ActivateWindow(Favourites)", "1036", "32034", {} ]) )
+        listitems.append( self._create(["ActivateWindow(Favourites)", "1036", "32034", {"icon": "Favourites.png"} ]) )
             
         self.addToDictionary( "common", listitems )
         
     def more( self ):
         listitems = []
         
-        listitems.append( self._create(["Reboot", "13013", "32054", {} ]) )
-        listitems.append( self._create(["ShutDown", "13005", "32054", {} ]) )
-        listitems.append( self._create(["PowerDown", "13016", "32054", {} ]) )
-        listitems.append( self._create(["Quit", "13009", "32054", {} ]) )
+        listitems.append( self._create(["Reboot", "13013", "32054", {"icon": "Reboot.png"} ]) )
+        listitems.append( self._create(["ShutDown", "13005", "32054", {"icon": "Shutdown.png"} ]) )
+        listitems.append( self._create(["PowerDown", "13016", "32054", {"icon": "PowerDown.png"} ]) )
+        listitems.append( self._create(["Quit", "13009", "32054", {"icon": "Quit.png"} ]) )
         if (xbmc.getCondVisibility( "System.Platform.Windows" ) or xbmc.getCondVisibility( "System.Platform.Linux" )) and not xbmc.getCondVisibility( "System.Platform.Linux.RaspberryPi" ):
-            listitems.append( self._create(["RestartApp", "13313", "32054", {} ]) )
-        listitems.append( self._create(["Hibernate", "13010", "32054", {} ]) )
-        listitems.append( self._create(["Suspend", "13011", "32054", {} ]) )
-        listitems.append( self._create(["AlarmClock(shutdowntimer,XBMC.Shutdown())", "19026", "32054", {} ]) )
-        listitems.append( self._create(["CancelAlarm(shutdowntimer)", "20151", "32054", {} ]) )
+            listitems.append( self._create(["RestartApp", "13313", "32054", {"icon": "RestartApp.png"} ]) )
+        listitems.append( self._create(["Hibernate", "13010", "32054", {"icon": "Hibernate.png"} ]) )
+        listitems.append( self._create(["Suspend", "13011", "32054", {"icon": "Suspend.png"} ]) )
+        listitems.append( self._create(["AlarmClock(shutdowntimer,XBMC.Shutdown())", "19026", "32054", {"icon": "ShutdownTimer.png"} ]) )
+        listitems.append( self._create(["CancelAlarm(shutdowntimer)", "20151", "32054", {"icon": "CancelShutdownTimer.png"} ]) )
         if xbmc.getCondVisibility( "System.HasLoginScreen" ):
-            listitems.append( self._create(["System.LogOff", "20126", "32054", {} ]) )
-        listitems.append( self._create(["ActivateScreensaver", "360", "32054", {} ]) )
-        listitems.append( self._create(["Minimize", "13014", "32054", {} ]) )
+            listitems.append( self._create(["System.LogOff", "20126", "32054", {"icon": "LogOff.png"} ]) )
+        listitems.append( self._create(["ActivateScreensaver", "360", "32054", {"icon": "ActivateScreensaver.png"} ]) )
+        listitems.append( self._create(["Minimize", "13014", "32054", {"icon": "Minimize.png"} ]) )
 
-        listitems.append( self._create(["Mastermode", "20045", "32054", {} ]) )
+        listitems.append( self._create(["Mastermode", "20045", "32054", {"icon": "Mastermode.png"} ]) )
         
-        listitems.append( self._create(["RipCD", "600", "32054", {} ]) )
+        listitems.append( self._create(["RipCD", "600", "32054", {"icon": "RipCD.png"} ]) )
 
-        listitems.append( self._create(["UpdateLibrary(video,,true)", "32046", "32054", {} ]) )
-        listitems.append( self._create(["UpdateLibrary(music,,true)", "32047", "32054", {} ]) )
+        listitems.append( self._create(["UpdateLibrary(video,,true)", "32046", "32054", {"icon": "UpdateVideoLibrary.png"} ]) )
+        listitems.append( self._create(["UpdateLibrary(music,,true)", "32047", "32054", {"icon": "UpdateMusicLibrary.png"} ]) )
 
-        listitems.append( self._create(["CleanLibrary(video,true)", "32055", "32054", {} ]) )
-        listitems.append( self._create(["CleanLibrary(music,true)", "32056", "32054", {} ]) )
+        listitems.append( self._create(["CleanLibrary(video,true)", "32055", "32054", {"icon": "CleanVideoLibrary.png"} ]) )
+        listitems.append( self._create(["CleanLibrary(music,true)", "32056", "32054", {"icon": "CleanMusicLibrary.png"} ]) )
         
         self.addToDictionary( "commands", listitems )
         
     def settings( self ):
         listitems = []
         
-        listitems.append( self._create(["ActivateWindow(Settings)", "10004", "10004", {} ]) )
+        listitems.append( self._create(["ActivateWindow(Settings)", "10004", "10004", {"icon": "Settings.png"} ]) )
         
-        listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "480", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(VideosSettings)", "3", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(PVRSettings)", "19020", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(MusicSettings)", "2", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(PicturesSettings)", "1", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(WeatherSettings)", "8", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(AddonBrowser)", "24001", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(ServiceSettings)", "14036", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(SystemSettings)", "13000", "10004", {} ]) )
-        listitems.append( self._create(["ActivateWindow(SkinSettings)", "20077", "10004", {} ]) )
+        listitems.append( self._create(["ActivateWindow(AppearanceSettings)", "480", "10004", {"icon": "AppearanceSettings.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(VideosSettings)", "3", "10004", {"icon": "VideoSettings.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(PVRSettings)", "19020", "10004", {"icon": "PVRSettings.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(MusicSettings)", "2", "10004", {"icon": "MusicSettings.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(PicturesSettings)", "1", "10004", {"icon": "PictureSettings.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(WeatherSettings)", "8", "10004", {"icon": "WeatherSettings.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(AddonBrowser)", "24001", "10004", {"icon": "DefaultAddon.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(ServiceSettings)", "14036", "10004", {"icon": "ServiceSettings.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(SystemSettings)", "13000", "10004", {"icon": "SystemSettings.png"} ]) )
+        listitems.append( self._create(["ActivateWindow(SkinSettings)", "20077", "10004", {"icon": "SkinSettings.png"} ]) )
         
         self.addToDictionary( "settings", listitems )
     
