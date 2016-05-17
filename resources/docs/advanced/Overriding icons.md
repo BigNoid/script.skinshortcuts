@@ -44,4 +44,10 @@ One area where this becomes more complicated is with certain add-ons and favouri
 
 They can then be overriden as normal.
 
+## Default icons
+
+Where possible, Skin Shortcuts sets the icon of available shortcuts to an appropriate [Default Icon]() - [Read More]().
+
+Where there is no default icon, Skin Shortcuts sets it to a generic value so that the skinner can override the icon and provide a specific one for their skin. Please see the code for details - gui.py, the functions 'common', 'more' and 'settings'
+
 ***Quick links*** - [Readme](../../../README.md) - [Getting Started](../started/Getting Started.md) - [Advanced Usage](./Advanced Usage.md)

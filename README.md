@@ -9,6 +9,7 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 - Ability to move controls from management dialog to context menu (Krypton only) - [Read More](./resources/docs/advanced/Context menu.md)
 - Ability to disable menu items via GUI 313 - Please note this control is made available by default on the context menu - [Read More](./resources/docs/started/Management Dialog.md)
+- Default icons for all available shortcuts in the Common, Commands and Settings available shortcut groupings - [Read More](./resources/docs/advanced/Overriding icons.md)
 
 #### Version 1.0.8 - repo version
 
