@@ -315,6 +315,11 @@ class LibraryFunctions():
             if node.tag == "node" and flat == False:
                 returnList.append( self._create( ["||NODE||" + str( count ), node.attrib.get( "label" ), "", {"icon": "DefaultFolder.png"}] ) )
                 
+        # Override icons
+        tree = DATA._get_overrides_skin()
+        for item in returnList:
+            item = self._get_icon_overrides( tree, item, None )
+
         return returnList
                 
     def retrieveContent( self, content ):
@@ -541,10 +546,8 @@ class LibraryFunctions():
                     displayLabel2 = DATA.local( replacementLabel[1] )[2]
                     shortcutType = DATA.local( replacementLabel[1] )[0]
                     
-        
         # Try localising it
         displayLabel = DATA.local( localLabel )[2]
-        labelID = DATA.createNiceName( DATA.local( localLabel )[0] )
         
         if displayLabel.startswith( "$NUMBER[" ):
             displayLabel = displayLabel[8:-1]
@@ -560,8 +563,16 @@ class LibraryFunctions():
             displayLabel2 = xbmc.getInfoLabel( displayLabel2 )
             
         # If this launches our explorer, append a notation to the displayLabel
+        noNonLocalized = False
         if item[0].startswith( "||" ):
             displayLabel = displayLabel + "  >"
+            # We'll also mark that we don't want to use a non-localised labelID, as this
+            # causes issues with some folders picking up overriden icons incorrectly
+            noNonLocalized = True
+
+        # Get the items labelID
+        DATA._clear_labelID()
+        labelID = DATA._get_labelID( DATA.createNiceName( DATA.local( localLabel )[0], noNonLocalized = noNonLocalized ), item[0], noNonLocalized = noNonLocalized )
             
         # Retrieve icon and thumbnail
         if item[3]:
@@ -604,10 +615,6 @@ class LibraryFunctions():
         if icon.startswith( "$" ):
             displayIcon = xbmc.getInfoLabel( icon )
             iconIsVar = True
-        
-        # Get a temporary labelID
-        DATA._clear_labelID()
-        labelID = DATA._get_labelID( labelID, item[0] )
                         
         # If the skin doesn't have the icon, replace it with DefaultShortcut.png
         if ( not displayIcon or not xbmc.skinHasImage( displayIcon ) ) and not iconIsVar:
