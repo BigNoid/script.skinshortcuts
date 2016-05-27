@@ -436,7 +436,7 @@ msgstr "Restaurer ou réinitialiser ?"
 
 msgctxt "#32103"
 msgid "Restore an original menu item"
-msgstr "Restaurer un élément de menu original"
+msgstr "Restaurer un élément du menu par défaut"
 
 msgctxt "#32104"
 msgid "Reset to skin defaults"
