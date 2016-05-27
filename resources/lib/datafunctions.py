@@ -63,11 +63,11 @@ class DataFunctions():
                 "otherProperties": [], "requires": None, "templateOnly": None }
         
     
-    def _get_labelID( self, labelID, action, getDefaultID = False, includeAddOnID = True ):
+    def _get_labelID( self, labelID, action, getDefaultID = False, includeAddOnID = True, noNonLocalized = False ):
         # This gets the unique labelID for the item we've been passed. We'll also store it, to make sure
         # we don't give it to any other item.
         
-        labelID = self.createNiceName( self.slugify( labelID.replace( " ", "" ).lower() ) )
+        labelID = self.createNiceName( self.slugify( labelID.replace( " ", "" ).lower() ), noNonLocalized )
         
         if includeAddOnID:
             addon_labelID = self._get_addon_labelID( action )
@@ -752,34 +752,35 @@ class DataFunctions():
             xbmc.executebuiltin( "Skin.Reset(skinshortcuts-background-" + elem.text + ")" )
                 
     
-    def createNiceName ( self, item ):
+    def createNiceName ( self, item, noNonLocalized = False ):
         # Translate certain localized strings into non-localized form for labelID
-        if item == "10006":
-            return "videos"
-        if item == "342":
-            return "movies"
-        if item == "20343":
-            return "tvshows"
-        if item == "32022":
-            return "livetv"
-        if item == "10005":
-            return "music"
-        if item == "20389":
-            return "musicvideos"
-        if item == "10002":
-            return "pictures"
-        if item == "12600":
-            return "weather"
-        if item == "10001":
-            return "programs"
-        if item == "32032":
-            return "dvd"
-        if item == "10004":
-            return "settings"
-        if item == "32087":
-            return "radio"
-        else:
-            return item.lower( ).replace( " ", "" )
+        if noNonLocalized == False:
+            if item == "10006":
+                return "videos"
+            if item == "342":
+                return "movies"
+            if item == "20343":
+                return "tvshows"
+            if item == "32022":
+                return "livetv"
+            if item == "10005":
+                return "music"
+            if item == "20389":
+                return "musicvideos"
+            if item == "10002":
+                return "pictures"
+            if item == "12600":
+                return "weather"
+            if item == "10001":
+                return "programs"
+            if item == "32032":
+                return "dvd"
+            if item == "10004":
+                return "settings"
+            if item == "32087":
+                return "radio"
+        
+        return item.lower( ).replace( " ", "" )
             
     def checkVisibility ( self, action ):
         # Return whether mainmenu items should be displayed

@@ -455,6 +455,11 @@ class XMLFunctions():
                 else:
                     # It's an additional menu, so get its labelID
                     submenu = DATA._get_labelID( item, None )
+
+                    # And clear mainmenuItemA and mainmenuItemB, so we don't
+                    # incorrectly add properties to an actual main menu item
+                    mainmenuItemA = None
+                    mainmenuItemB = None
                     
                 # Build the submenu
                 count = 0 # Used to keep track of additional submenu
@@ -527,7 +532,7 @@ class XMLFunctions():
                                 pass
                 
                     # If we're building a single menu, update the onclicks of the main menu
-                    if buildMode == "single" and not len( submenuitems ) == 0:
+                    if buildMode == "single" and not len( submenuitems ) == 0 and not isinstance( item, basestring ):
                         for onclickelement in mainmenuItemB.findall( "onclick" ):
                             if "condition" in onclickelement.attrib:
                                 onclickelement.set( "condition", "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ") + [" + onclickelement.attrib.get( "condition" ) + "]" )
@@ -571,7 +576,7 @@ class XMLFunctions():
                             visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "StringCompare(Window(10000).Property(submenuVisibility)," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ")" )
                             justmenuTreeB.append( menuitemCopy )
 
-                        if buildMode == "single":
+                        if buildMode == "single" and not isinstance( item, basestring ):
                             # Add the property 'submenuVisibility'
                             allmenuTreeCopy = Template.copy_tree( menuitemCopy )
                             submenuVisibility = xmltree.SubElement( allmenuTreeCopy, "property" )
