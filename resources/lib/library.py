@@ -1691,18 +1691,23 @@ class LibraryFunctions():
         return False
 
     def _install_widget_provider( self, provider ):
-        xbmc.executebuiltin( "RunPlugin(plugin://%s)" %( provider ) )
+        if int( KODIVERSION ) >= 17:
+            executeAndObserve = ("InstallAddon(%s)", "DialogConfirm.xml", "DialogConfirm.xml" )
+        else:
+            executeAndObserve = ("RunPlugin(plugin://%s)", "DialogYesNo.xml", "DialogProgress.xml" )
+
+        xbmc.executebuiltin( executeAndObserve[ 0 ] %( provider ) )
 
         if xbmc.Monitor().waitForAbort(0.5):
             return
-        while xbmc.getCondVisibility( "Window.IsActive(DialogYesNo.xml)" ):
+        while xbmc.getCondVisibility( "Window.IsActive(%s)" %( executeAndObserve[ 1 ] ) ):
             if xbmc.Monitor().waitForAbort(0.5):
                 return
 
         # Stage 2 - progress dialog
         if xbmc.Monitor().waitForAbort(0.5):
             return
-        while xbmc.getCondVisibility( "Window.IsActive(DialogProgress.xml)" ):
+        while xbmc.getCondVisibility( "Window.IsActive(%s)" %( executeAndObserve[ 2 ] ) ):
             if xbmc.Monitor().waitForAbort(0.5):
                 return
 
