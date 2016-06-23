@@ -673,8 +673,12 @@ class DataFunctions():
                     # This particular property is a matched property
                     attribName = elem.attrib.get( "attribute" )
                     attribValue = elem.attrib.get( "value" )
+                # Upgrade widgetTarget where value is video to videos
+                value = elem.text
+                if propertyName.startswith( "widgetTarget" ) and value == "video":
+                    value = "videos"
                 # Save details
-                fallbacks[ propertyName ].append( ( elem.text, attribName, attribValue ) )
+                fallbacks[ propertyName ].append( ( value, attribName, attribValue ) )
         # Save all the results for this group
         self.propertyInformation[ "fallbackProperties" ][ group ] = fallbackProperties
         self.propertyInformation[ "fallbacks" ][ group ] = fallbacks
@@ -934,13 +938,12 @@ class DataFunctions():
             # currentProperty[3] = Property value
             # currentProperty[4] = defaultID
             if labelID is not None and currentProperty[0] == group and currentProperty[1] == labelID:
-                returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
+                returnProperties.append( self.upgradeAdditionalProperties( currentProperty[2], currentProperty[3] ) )
             elif len( currentProperty ) is not 4:
                 if defaultID is not None and currentProperty[0] == group and currentProperty[4] == defaultID:
-                    returnProperties.append( [ currentProperty[2], currentProperty[3] ] )
+                    returnProperties.append( self.upgradeAdditionalProperties( currentProperty[2], currentProperty[3] ) )
                 
         return returnProperties
-            
         
     def checkShortcutLabelOverride( self, action ):
         tree = self._get_overrides_skin()
@@ -1274,6 +1277,8 @@ class DataFunctions():
     def upgradeAction( self, action ):
         # This function looks for actions used in a previous version of Kodi, and upgrades them to the current action
 
+        if not action.lower().startswith( "activatewindow(" ): return action
+
         # Isengard + earlier music addons
         if int( KODIVERSION ) <= 15:
             # Shortcut to addon section
@@ -1302,13 +1307,28 @@ class DataFunctions():
         if action.lower() == "activatewindow(musicfiles)" and int( KODIVERSION ) >= 16:
             return "ActivateWindow(Music,Files,Return)"
 
-        if "," not in action: return action
-
         if action.lower().startswith("activatewindow(musiclibrary") and int( KODIVERSION ) >= 16:
-            return "ActivateWindow(Music," + action.split( ",", 1 )[ 1 ]
+            if "," in action:
+                return "ActivateWindow(Music," + action.split( ",", 1 )[ 1 ]
+            else:
+                return "ActivateWindow(Music)"
+
+        # Isengard + later (all supported versions) video windows
+        if action.lower().startswith( "activatewindow(videolibrary"):
+            if "," in action:
+                return "ActivateWindow(Videos," + action.split( ",", 1 )[ 1 ]
+            else:
+                return "ActivateWindow(Videos)"
 
         # No matching upgrade
         return action
+
+    def upgradeAdditionalProperties( self, propertyName, propertyValue ):
+        # This function fixes any changes to additional properties between Kodi versions
+        if propertyName.startswith( "widgetTarget" ) and propertyValue == "video":
+            propertyValue = "videos"
+        
+        return [ propertyName, propertyValue ]
 
     def buildReplacementMusicAddonAction( self, action, window ):
         # Builds a replacement action for an Isengard or earlier shortcut to a specific music addon

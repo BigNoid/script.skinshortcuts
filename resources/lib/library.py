@@ -349,7 +349,7 @@ class LibraryFunctions():
                     listitem.setProperty( "widget", "Library" )
                     if content == "video":
                         listitem.setProperty( "widgetType", "video" )
-                        listitem.setProperty( "widgetTarget", "video" )
+                        listitem.setProperty( "widgetTarget", "videos" )
                     else:
                         listitem.setProperty( "widgetType", "audio" )
                         listitem.setProperty( "widgetTarget", "music" )
@@ -706,7 +706,7 @@ class LibraryFunctions():
             prefix = "library://video"
             action = "||VIDEO||"
         elif library == "music":
-            windowID = "MusicLibrary"
+            windowID = "music"
             prefix = "library://music"
             action = "||AUDIO||"
 
@@ -906,49 +906,28 @@ class LibraryFunctions():
 
         
     def musiclibrary( self ):
-        if int( KODIVERSION ) >= 15:
-            # Isengard or later - load audio nodes
-            # Try loading custom nodes first
-            try:
-                if self._parse_libraryNodes( "music", "custom" ) == False:
-                    log( "Failed to load custom music nodes" )
-                    self._parse_libraryNodes( "music", "default" )
-            except:
+        # Try loading custom nodes first
+        try:
+            if self._parse_libraryNodes( "music", "custom" ) == False:
                 log( "Failed to load custom music nodes" )
+                self._parse_libraryNodes( "music", "default" )
+        except:
+            log( "Failed to load custom music nodes" )
+            print_exc()
+            try:
+                # Try loading default nodes
+                self._parse_libraryNodes( "music", "default" )
+            except:
+                # Empty library
+                log( "Failed to load default music nodes" )
                 print_exc()
-                try:
-                    # Try loading default nodes
-                    self._parse_libraryNodes( "music", "default" )
-                except:
-                    # Empty library
-                    log( "Failed to load default music nodes" )
-                    print_exc()
-
-        else:
-            # Gotham or earlier - load static entries
-            listitems = []
-                        
-            # Music
-            listitems.append( self._create(["ActivateWindow(MusicFiles)", "744", "32019", {"icon": "DefaultFolder.png"} ]) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,MusicLibrary,return)", "15100", "32019", {"icon": "DefaultFolder.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Genres,return)", "135", "32019", {"icon": "DefaultMusicGenres.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Artists,return)", "133", "32019", {"icon": "DefaultMusicArtists.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Albums,return)", "132", "32019", {"icon": "DefaultMusicAlbums.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Songs,return)", "134", "32019", {"icon": "DefaultMusicSongs.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Years,return)", "652", "32019", {"icon": "DefaultMusicYears.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100,return)", "271", "32019", {"icon": "DefaultMusicTop100.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Songs,return)", "10504", "32019", {"icon": "DefaultMusicTop100Songs.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Top100Albums,return)", "10505", "32019", {"icon": "DefaultMusicTop100Albums.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyAddedAlbums,return)", "359", "32019", {"icon": "DefaultMusicRecentlyAdded.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,RecentlyPlayedAlbums,return)", "517", "32019", {"icon": "DefaultMusicRecentlyPlayed.png"} ] ) )
-            listitems.append( self._create(["ActivateWindow(MusicLibrary,Playlists,return)", "136", "32019", {"icon": "DefaultMusicPlaylists.png"} ] ) )
+        
+        # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
+        if self.loaded[ "upnp" ][ 0 ] == False:
+            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
+            self.loaded[ "upnp" ][ 0 ] = True
             
-            # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
-            if self.loaded[ "upnp" ][ 0 ] == False:
-                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
-                self.loaded[ "upnp" ][ 0 ] = True
-                
-            self.addToDictionary( "music", listitems )
+        self.addToDictionary( "music", listitems )
     
     def librarysources( self ):
         # Add video sources
@@ -996,7 +975,7 @@ class LibraryFunctions():
     def playlists( self ):
         audiolist = []
         videolist = []
-        paths = [['special://videoplaylists/','32004','VideoLibrary'], ['special://musicplaylists/','32005','MusicLibrary'], ["special://skin/playlists/",'32059',None], ["special://skin/extras/",'32059',None]]
+        paths = [['special://videoplaylists/','32004','Videos'], ['special://musicplaylists/','32005','Music'], ["special://skin/playlists/",'32059',None], ["special://skin/extras/",'32059',None]]
         for path in paths:
             count = 0
             if not xbmcvfs.exists(path[0]): continue
@@ -1016,10 +995,10 @@ class LibraryFunctions():
                             if line.tag == "smartplaylist":
                                 mediaType = line.attrib['type']
                                 if mediaType == "movies" or mediaType == "tvshows" or mediaType == "seasons" or mediaType == "episodes" or mediaType == "musicvideos" or mediaType == "sets":
-                                    mediaLibrary = "VideoLibrary"
+                                    mediaLibrary = "Videos"
                                     mediaContent = "video"
                                 elif mediaType == "albums" or mediaType == "artists" or mediaType == "songs":
-                                    mediaLibrary = "MusicLibrary"
+                                    mediaLibrary = "Music"
                                     mediaContent = "music"
                                 
                             if line.tag == "name" and mediaLibrary is not None:
@@ -1039,7 +1018,7 @@ class LibraryFunctions():
                                 listitem.setProperty( "widgetName", name )
                                 listitem.setProperty( "widgetPath", playlist )
                                 
-                                if mediaLibrary == "VideoLibrary":
+                                if mediaLibrary == "Videos":
                                     videolist.append( listitem )
                                 else:
                                     audiolist.append( listitem )
@@ -1060,9 +1039,9 @@ class LibraryFunctions():
                         listitem.setProperty( "widget", "Playlist" )
                         listitem.setProperty( "widgetName", name )
                         listitem.setProperty( "widgetPath", playlist )
-                        if path[2] == "VideoLibrary":
+                        if path[2] == "Videos":
                             listitem.setProperty( "widgetType", "videos" )
-                            listitem.setProperty( "widgetTarget", "video" )
+                            listitem.setProperty( "widgetTarget", "videos" )
                             videolist.append( listitem )
                         else:
                             listitem.setProperty( "widgetType", "songs" )
@@ -1408,10 +1387,10 @@ class LibraryFunctions():
                         windowID = "Videos"
                         if widgetType == "unknown":
                             widgetType = "video"
-                        widgetTarget = "video"
+                        widgetTarget = "videos"
                     else:
                         # Audio node
-                        windowID = "MusicLibrary"
+                        windowID = "Music"
                         if widgetType == "unknown":
                             widgetType = "audio"
                         widgetTarget = "music"
@@ -1455,7 +1434,7 @@ class LibraryFunctions():
                     if smartShortCutsData["type"] == "music" or smartShortCutsData["type"] == "artists" or smartShortCutsData["type"] == "albums" or smartShortCutsData["type"] == "songs":
                         listitem.setProperty( "widgetTarget", "music" )
                     else:
-                        listitem.setProperty( "widgetTarget", "video" )
+                        listitem.setProperty( "widgetTarget", "videos" )
                     listitem.setProperty( "widgetPath", smartShortCutsData["list"] )
                     listings.append( self._get_icon_overrides( tree, listitem, "" ) )
                     
@@ -1510,9 +1489,9 @@ class LibraryFunctions():
                 
                 # Build the action
                 if itemType in [ "32010", "32014", "32069" ]:
-                    action = 'ActivateWindow(VideoLibrary,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "VideoLibrary" )
-                    listitem.setProperty( "widgetType", "video" )
+                    action = 'ActivateWindow(Videos,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "Videos" )
+                    listitem.setProperty( "widgetType", "videos" )
 
                     # Add widget details
                     if isLibrary:
@@ -1526,13 +1505,13 @@ class LibraryFunctions():
                     if addonType is not None:
                         listitem.setProperty( "widgetType", addonType)
 
-                    listitem.setProperty( "widgetTarget", "video" )
+                    listitem.setProperty( "widgetTarget", "videos" )
                     listitem.setProperty( "widgetName", dialogLabel )
                     listitem.setProperty( "widgetPath", location )
 
                 elif itemType in [ "32011", "32019", "32073" ]:
-                    action = 'ActivateWindow(MusicLibrary,"' + location + '",return)'
-                    listitem.setProperty( "windowID", "MusicLibrary" )
+                    action = 'ActivateWindow(Music,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "Music" )
 
                     # Add widget details
                     listitem.setProperty( "widgetType", "audio" )
@@ -1724,8 +1703,8 @@ class LibraryFunctions():
         mediaType = None
         windowID = selectedShortcut.getProperty( "windowID" )
         # Check if we're going to display this in the files view, or the library view
-        if windowID == "VideoLibrary":
-            # Video library                                    Files view           Movies                TV Shows             Music videos         !Movies               !TV Shows            !Music Videos
+        if windowID == "Videos":
+            # Video library                               Files view       Movies           TV Shows         Music videos     Movies           TV Shows         Music Videos
             userChoice = dialog.select( LANGUAGE(32078), [LANGUAGE(32079), LANGUAGE(32015), LANGUAGE(32016), LANGUAGE(32018), LANGUAGE(32081), LANGUAGE(32082), LANGUAGE(32083) ] )            
             if userChoice == -1:
                 return None
@@ -1754,8 +1733,8 @@ class LibraryFunctions():
             elif userChoice == 6:
                 mediaType = "musicvideo"
                 negative = True
-        elif windowID == "MusicLibrary":
-            # Music library                                    Files view           Songs                          Albums                         Mixed                           !Songs               !Albums               !Mixed
+        elif windowID == "Music":
+            # Music library                               Files view       Songs                         Albums                        Mixed                           Songs            Albums           Mixed
             userChoice = dialog.select( LANGUAGE(32078), [LANGUAGE(32079), xbmc.getLocalizedString(134), xbmc.getLocalizedString(132), xbmc.getLocalizedString(20395), LANGUAGE(32084), LANGUAGE(32085), LANGUAGE(32086) ] )            
             if userChoice == -1:
                 return None
@@ -2051,7 +2030,7 @@ class LibraryFunctions():
                 if isWidget:
                     # Return actionShow as chosenPath
                     selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
-                elif not ">" in path or "VideoLibrary" in path:
+                elif not ">" in path or "Videos" in path:
                     # Give the user the choice of playing or displaying the playlist
                     dialog = xbmcgui.Dialog()
                     userchoice = dialog.yesno( LANGUAGE( 32040 ), LANGUAGE( 32060 ), "", "", LANGUAGE( 32061 ), LANGUAGE( 32062 ) )
