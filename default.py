@@ -199,9 +199,9 @@ class Main:
         if self.TYPE=="context":
             # Context menu addon asking us to add a folder to the menu
             if not xbmc.getCondVisibility( "Skin.HasSetting(SkinShortcuts-FullMenu)" ):
-                line1 = "The skin you are using does not support adding items directly to the main menu"
-                xbmcgui.Dialog().ok(ADDONNAME, line1)
-            NODE.addToMenu( self.CONTEXTFILENAME, self.CONTEXTLABEL, self.CONTEXTICON, self.CONTEXTCONTENT, self.CONTEXTWINDOW, DATA )
+                xbmcgui.Dialog().ok(ADDONNAME, ADDON.getLocalizedString(32116))
+            else:
+                NODE.addToMenu( self.CONTEXTFILENAME, self.CONTEXTLABEL, self.CONTEXTICON, self.CONTEXTCONTENT, self.CONTEXTWINDOW, DATA )
 
         if self.TYPE=="setProperty":
             # External request to set properties of a menu item
