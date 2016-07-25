@@ -310,7 +310,9 @@ class NodeFunctions():
 
         # Work out if it's a single item, or a node
         isNode = False
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + path + '", "media": "files" } }')
+        jsonPath = path.replace( "\\", "\\\\" )
+
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + jsonPath + '", "media": "files" } }')
         json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = simplejson.loads(json_query)
 
@@ -333,7 +335,12 @@ class NodeFunctions():
                     labels.append( item[ "label" ] )
                     nodePaths.append( "ActivateWindow(%s,%s,return)" %( window, item[ "file" ] ) )
         else:
+            # Unable to add to get directory listings
             log( "Invalid JSON response returned" )
+            log( repr( simplejson ) )
+            # And tell the user it failed
+            xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), ADDON.getLocalizedString(32115) )
+            return
 
         # Add actions based on content
         if content == "albums":
