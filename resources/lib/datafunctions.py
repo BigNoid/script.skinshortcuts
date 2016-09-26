@@ -850,9 +850,15 @@ class DataFunctions():
         elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ) and ADDON.getSetting( "donthidepvr" ) == "false":
             return "system.getbool(pvrmanager.enabled)"
         elif action.startswith( "activatewindow(tv" ) and ADDON.getSetting( "donthidepvr" ) == "false":
-            return "PVR.HasTVChannels"
+            if int( KODIVERSION ) >= 17:
+                return "System.HasPVRAddon"
+            else:
+                return "PVR.HasTVChannels"
         elif action.startswith( "activatewindow(radio" ) and ADDON.getSetting( "donthidepvr" ) == "false":
-            return "PVR.HasRadioChannels"
+            if int( KODIVERSION ) >= 17:
+                return "System.HasPVRAddon"
+            else:
+                return "PVR.HasRadioChannels"
         elif action.startswith( "activatewindow(videos,movie" ):
             return "Library.HasContent(Movies)"
         elif action.startswith( "activatewindow(videos,recentlyaddedmovies" ):
