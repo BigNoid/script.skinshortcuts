@@ -1107,7 +1107,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         elif controlID == 302:
             # Delete an item
             log( "Delete item (302)" )
-            self.changeMade = True
             
             listControl = self.getControl( 211 )
             num = listControl.getSelectedPosition()
@@ -1774,6 +1773,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if disabled == "True":
                 listitem.setProperty( "skinshortcuts-disabled", "False" )
             else:
+                # Display any warning  
+                if self.warnonremoval( listitem ) == False:
+                    return
+                
                 # Toggle to true, add highlighting to label
                 listitem.setProperty( "skinshortcuts-disabled", "True" )
                 
