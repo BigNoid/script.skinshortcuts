@@ -153,6 +153,8 @@ class DataFunctions():
                 file = xbmcvfs.File( path ).read()
                 self._save_hash( path, file )
                 tree = xmltree.parse( path )
+
+                log( " - Attempting to load file %s" %( path ) )
             
             if tree is not None and processShortcuts:
                 # If this is a user-selected list of shortcuts...
@@ -167,7 +169,7 @@ class DataFunctions():
                         self._get_skin_required( tree, group, profileDir )
                     self._process_shortcuts( tree, group, profileDir )
 
-                log( " - Loaded file " + path )
+                log( " - Loaded file" )
                 return tree
             elif tree is not None:
                 log( " - Loaded file " + path )
