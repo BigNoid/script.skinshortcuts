@@ -850,7 +850,7 @@ class DataFunctions():
         elif action == "activatewindow(weather)":
             return "!IsEmpty(Weather.Plugin)"
         elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ) and ADDON.getSetting( "donthidepvr" ) == "false":
-            return "system.getbool(pvrmanager.enabled)"
+            return "PVR.HasTVChannels"
         elif action.startswith( "activatewindow(tv" ) and ADDON.getSetting( "donthidepvr" ) == "false":
             if int( KODIVERSION ) >= 17:
                 return "System.HasPVRAddon"
