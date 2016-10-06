@@ -116,10 +116,10 @@ class XMLFunctions():
                     ADDON.setSetting( "enable_logging", "false" )
                     
                 # Offer to upload a debug log
-                if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
+                if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
                     ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32093 ) )
                     if ret:
-                        xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+                        xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
                 else:
                     xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32094 ) )
                     
@@ -148,10 +148,10 @@ class XMLFunctions():
                     self.buildMenu( mainmenuID, groups, numLevels, buildMode, options, minitems, enabledSystemDebug, enabledScriptDebug )
                 else:
                     # Offer to upload a debug log
-                    if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
+                    if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
                         ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32093 ) )
                         if ret:
-                            xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+                            xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
                     else:
                         xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32094 ) )
         

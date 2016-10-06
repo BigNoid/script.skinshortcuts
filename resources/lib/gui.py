@@ -563,11 +563,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if weEnabledScriptDebug:
                 ADDON.setSetting( "enable_logging", "false" )
 
-            if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
+            if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader)" ):
                 # Offer to upload a debug log
                 ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32097 ), LANGUAGE( 32093 ) )
                 if ret:
-                    xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+                    xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
             else:
                 # Inform user menu couldn't be saved
                 xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32097 ), LANGUAGE( 32094 ) )
@@ -597,11 +597,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # We enabled one or more of the debug options, re-run this function
             self._save_shortcuts( enabledSystemDebug, enabledScriptDebug )
         else:
-            if xbmc.getCondVisibility( "System.HasAddon( script.xbmc.debug.log )" ):
+            if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
                 # Offer to upload a debug log
                 ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32097 ), LANGUAGE( 32093 ) )
                 if ret:
-                    xbmc.executebuiltin( "RunScript(script.xbmc.debug.log)" )
+                    xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
             else:
                 # Inform user menu couldn't be saved
                 xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32097 ), LANGUAGE( 32094 ) )                 
@@ -1107,7 +1107,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         elif controlID == 302:
             # Delete an item
             log( "Delete item (302)" )
-            self.changeMade = True
             
             listControl = self.getControl( 211 )
             num = listControl.getSelectedPosition()
@@ -1774,6 +1773,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if disabled == "True":
                 listitem.setProperty( "skinshortcuts-disabled", "False" )
             else:
+                # Display any warning  
+                if self.warnonremoval( listitem ) == False:
+                    return
+                
                 # Toggle to true, add highlighting to label
                 listitem.setProperty( "skinshortcuts-disabled", "True" )
                 
