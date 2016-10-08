@@ -294,12 +294,12 @@ class DataFunctions():
                     overriddenVisibility = True
 
                     # It's overriden - add the original action with the visibility condition
-                    originalAction = xmltree.SubElement( node, "override-action" )
+                    originalAction = xmltree.SubElement( node, "override-visibility" )
                     originalAction.text = action.text
                     originalAction.set( "condition", visibilityCondition )
 
                     # And add the new action with the inverse visibility condition
-                    newaction = xmltree.SubElement( node, "override-action" )
+                    newaction = xmltree.SubElement( node, "override-visibility" )
                     newaction.text = override.text
                     newaction.set( "condition", "![%s]" %( visibilityCondition ) )
 
@@ -318,42 +318,69 @@ class DataFunctions():
                     continue
                 if overrideTree is not None:
                     for elem in overrideTree.findall( "override" ):
+                        # Pull out the current action, and any already-overriden actions
+                        itemsToOverride = []
+                        for itemToOverride in node.findall( "override-visibility" ):
+                            itemsToOverride.append( itemToOverride )
+
+                        if len( itemsToOverride ) == 0:
+                            itemsToOverride = [ action ]
+
                         # Retrieve group property
                         checkGroup = None
                         if "group" in elem.attrib:
                             checkGroup = elem.attrib.get( "group" )
 
-                        # If the action and (if provided) the group match...
-                        # OR if we have a global override specified
-                        if ( elem.attrib.get( "action" ) == action.text and ( checkGroup is None or checkGroup == group ) ) or ( elem.attrib.get( "action" ) == "globaloverride" and ( checkGroup is None or checkGroup == group ) ):
-                            # Check the XBMC version matches
-                            if "version" in elem.attrib:
-                                if elem.attrib.get( "version" ) != KODIVERSION:
-                                    continue
-                                
-                            hasOverriden = True
-                            # Get the visibility condition
-                            condition = elem.find( "condition" )
-                            overrideVisibility = None
-                            if condition is not None:
-                                overrideVisibility = condition.text
-                            
-                            # Get the new action
-                            for actions in elem.findall( "action" ):
-                                newaction = xmltree.SubElement( node, "override-action" )
-                                if "::ACTION::" in actions.text:
-                                    newaction.text = actions.text.replace("::ACTION::",action.text)
-                                else:
-                                    newaction.text = actions.text
-                                if overrideVisibility is not None:
-                                    newaction.set( "condition", overrideVisibility )
+                        # Iterate through items
+                        for itemToOverride in itemsToOverride:
+                            # If the action and (if provided) the group match...
+                            # OR if we have a global override specified
+                            if ( elem.attrib.get( "action" ) == itemToOverride.text and ( checkGroup is None or checkGroup == group ) ) or ( elem.attrib.get( "action" ) == "globaloverride" and ( checkGroup is None or checkGroup == group ) ):
+                                # Check the XBMC version matches
+                                if "version" in elem.attrib:
+                                    if elem.attrib.get( "version" ) != KODIVERSION:
+                                        continue
+                                    
+                                hasOverriden = True
+                                itemToOverride.set( "overriden", "True" )
 
-                            # Add visibility if no action specified
-                            if len( elem.findall( "action" ) ) == 0:
-                                newaction = xmltree.SubElement( node, "override-action" )
-                                newaction.text = action.text
-                                if overrideVisibility is not None:
-                                    newaction.set( "condition", overrideVisibility )
+                                # Get the visibility condition
+                                condition = elem.find( "condition" )
+                                overrideVisibility = None
+                                if condition is not None:
+                                    overrideVisibility = condition.text
+                                
+                                # Get the new action
+                                for actions in elem.findall( "action" ):
+                                    newaction = xmltree.SubElement( node, "override-action" )
+                                    if "::ACTION::" in actions.text:
+                                        newaction.text = actions.text.replace("::ACTION::",itemToOverride.text)
+                                    else:
+                                        newaction.text = actions.text
+                                    if overrideVisibility is not None:
+                                        newaction.set( "condition", overrideVisibility )
+
+                                # Add visibility if no action specified
+                                if len( elem.findall( "action" ) ) == 0:
+                                    newaction = xmltree.SubElement( node, "override-action" )
+                                    newaction.text = itemToOverride.text
+                                    if overrideVisibility is not None:
+                                        newaction.set( "condition", overrideVisibility )
+
+                                # If there's already a condition, add it
+                                if newaction is not None and itemToOverride.get( "condition" ):
+                                    newaction.set( "condition", "[%s] + [%s]" %( itemToOverride.get( "condition" ), newaction.get( "condition" ) ) )
+
+                                newaction = None
+
+            # Sort any visibility overrides
+            for elem in node.findall( "override-visibility" ):
+                if elem.get( "overriden" ) == "True":
+                    # The item has been overriden, delete it
+                    node.remove( elem )
+                else:
+                    # The item hasn't been overriden, so change it to an override-action element
+                    elem.tag = "override-action"
                        
             # Get visibility condition of any skin-provided shortcuts
             for elem in skinoverrides.findall( "shortcut" ):
