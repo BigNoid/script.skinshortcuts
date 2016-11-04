@@ -1,15 +1,17 @@
-#Skin Shortcuts - 1.0.11
+#Skin Shortcuts - 1.0.12
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
-#### Version 1.0.11 - git version
+#### Version 1.0.12 - git version
 
-- No new features for skinners, but be aware that:-
--- Warnings on deleting a shortcut are now shown when disabling a shortcut
--- The processing of overrides has been adjusted so that visibilityoverrides will themselves be overriden by any additional overrides which match
+- Skinners can now set that their skin should not use the users shared additional submenus - [Read More](./resources/docs/started/Getting Started.md#shared-additioanl-submenu)
+- Submenu template improvements - [Read More](./resources/docs/advanced/Templates.md#sub-menu-template)
+- Please be aware that:-
+  - Warnings on deleting a shortcut are now shown when disabling a shortcut
+  - The processing of overrides has been adjusted so that visibilityoverrides will themselves be overriden by any additional overrides which match
 
 #### Version 1.0.10 - repo version
 
