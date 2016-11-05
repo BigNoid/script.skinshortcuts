@@ -336,7 +336,6 @@ class Main:
         
         if shouldRun:
             isShared = DATA.checkIfMenusShared()
-            log( repr( isShared ) )
             for files in xbmcvfs.listdir( DATAPATH ):
                 # Try deleting all shortcuts
                 if files:

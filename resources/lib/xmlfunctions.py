@@ -499,7 +499,7 @@ class XMLFunctions():
                     if count == 0:
                         submenudata = DATA._get_shortcuts( submenu, submenuDefaultID, True, profile[0] )
                     else:
-                        submenudata = DATA._get_shortcuts( submenu, None, True, profile[0] )
+                        submenudata = DATA._get_shortcuts( submenu, None, True, profile[0], isSubLevel = True )
                         
                     if type( submenudata ) == list:
                         submenuitems = submenudata
