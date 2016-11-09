@@ -32,7 +32,7 @@ LANGUAGE     = ADDON.getLocalizedString
 KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
 ACTION_CANCEL_DIALOG = ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
-ACTION_CONTEXT_MENU = ( 101, 117, )
+ACTION_CONTEXT_MENU = ( 117, )
 
 if not xbmcvfs.exists(DATAPATH):
     xbmcvfs.mkdir(DATAPATH)
