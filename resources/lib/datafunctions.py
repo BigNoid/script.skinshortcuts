@@ -126,7 +126,7 @@ class DataFunctions():
         self.labelIDList.pop()
     
                 
-    def _get_shortcuts( self, group, defaultGroup = None, isXML = False, profileDir = None, defaultsOnly = False, processShortcuts = True ):
+    def _get_shortcuts( self, group, defaultGroup = None, isXML = False, profileDir = None, defaultsOnly = False, processShortcuts = True, isSubLevel = False ):
         # This will load the shortcut file
         # Additionally, if the override files haven't been loaded, we'll load them too
         log( "Loading shortcuts for group " + group )
@@ -134,7 +134,7 @@ class DataFunctions():
         if profileDir is None:
             profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
         
-        userShortcuts = os.path.join( profileDir, "addon_data", ADDONID, self.slugify( group, True ) + ".DATA.xml" )
+        userShortcuts = os.path.join( profileDir, "addon_data", ADDONID, self.slugify( group, True, isSubLevel = isSubLevel ) + ".DATA.xml" )
         skinShortcuts = os.path.join( SKINPATH , self.slugify( group ) + ".DATA.xml")
         defaultShortcuts = os.path.join( DEFAULTPATH , self.slugify( group ) + ".DATA.xml" )
         if defaultGroup is not None:
@@ -147,14 +147,13 @@ class DataFunctions():
             paths = [userShortcuts, skinShortcuts, defaultShortcuts ]
         
         for path in paths:
+            log( " - Attempting to load file %s" %( path ) )
             path = try_decode( path )
             tree = None
             if xbmcvfs.exists( path ):
                 file = xbmcvfs.File( path ).read()
                 self._save_hash( path, file )
                 tree = xmltree.parse( path )
-
-                log( " - Attempting to load file %s" %( path ) )
             
             if tree is not None and processShortcuts:
                 # If this is a user-selected list of shortcuts...
@@ -995,10 +994,14 @@ class DataFunctions():
         return None
 
 
-    def checkIfMenusShared( self ):
+    def checkIfMenusShared( self, isSubLevel = False ):
         # Check if the skin required the menu not to be shared
         tree = self._get_overrides_skin()
         if tree is not None:
+            # If this is a sublevel, and the skin has asked for sub levels to not be shared...
+            if isSubLevel and tree.find( "doNotShareLevels" ) is not None:
+                return False
+            # If the skin has asked for all menu's not to be shared...
             if tree.find( "doNotShareMenu" ) is not None:
                 return False
 
@@ -1211,7 +1214,7 @@ class DataFunctions():
             truncated = string[:max_length]
         return truncated.strip(separator)
 
-    def slugify(self, text, userShortcuts=False, entities=True, decimal=True, hexadecimal=True, max_length=0, word_boundary=False, separator='-', convertInteger=False):
+    def slugify(self, text, userShortcuts=False, entities=True, decimal=True, hexadecimal=True, max_length=0, word_boundary=False, separator='-', convertInteger=False, isSubLevel=False):
         # Handle integers
         if convertInteger and text.isdigit():
             text = "NUM-" + text
@@ -1265,7 +1268,7 @@ class DataFunctions():
             text = text.replace('-', separator)
 
         # If this is a shortcut file (.DATA.xml) and user shortcuts aren't shared, add the skin dir
-        if userShortcuts == True and self.checkIfMenusShared() == False:
+        if userShortcuts == True and self.checkIfMenusShared( isSubLevel ) == False:
             text = "%s-%s" %( xbmc.getSkinDir(), text )
 
         return text
