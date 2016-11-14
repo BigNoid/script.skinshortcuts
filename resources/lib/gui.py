@@ -316,13 +316,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Get icon and thumb (and set to None if there isn't any)
         icon = item.find( "icon" )
         
-        if icon is not None:
+        if icon is not None and icon.text:
             icon = icon.text
         else:
             icon = "DefaultShortcut.png"
             
         thumb = item.find( "thumb" )
-        if thumb is not None:
+        if thumb is not None and thumb.text:
             thumb = thumb.text
         else:
             thumb = ""
@@ -334,7 +334,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             localLabel2[ 2 ] = xbmc.getInfoLabel( localLabel2[ 2 ] )
         
         # Create the list item
-        listitem = xbmcgui.ListItem( label=localLabel[2], label2 = localLabel2[2], iconImage = icon, thumbnailImage = thumb )
+        listitem = xbmcgui.ListItem( label=localLabel[2], label2 = localLabel2[2], iconImage = xbmc.getInfoLabel(icon), thumbnailImage = xbmc.getInfoLabel(thumb) )
         listitem.setProperty( "localizedString", localLabel[0] )
         listitem.setProperty( "icon", icon )
         listitem.setProperty( "thumbnail", thumb )
@@ -511,6 +511,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
             icon = xbmc.getInfoLabel( icon )
             listitem.setProperty( "icon", icon )
             listitem.setIconImage( icon )
+            iconIsVar = True
+        if icon.startswith("resource://"):
             iconIsVar = True
         
         # Check for overrides
@@ -969,13 +971,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if not xbmc.getCondVisibility( elem.attrib.get( "condition" ) ):
                     continue
             
-            if "icon" in elem.attrib:
-                backgrounds.append( [elem.attrib.get( "icon" ), DATA.local( elem.attrib.get( 'label' ) )[2] ] )
-            elif elem.text.startswith("||BROWSE||"):
+            if elem.text.startswith("||BROWSE||"):
                 #we want to include images from a VFS path...
                 images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
                 for image in images:
                     backgrounds.append( [image[0], image[1] ] )
+            elif "icon" in elem.attrib:
+                backgrounds.append( [elem.attrib.get( "icon" ), DATA.local( elem.attrib.get( 'label' ) )[2] ] )
             else:
                 backgrounds.append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2] ] )
 
@@ -993,7 +995,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 images = LIBRARY.getImagesFromVfsPath(elem.text.replace("||BROWSE||",""))
                 for image in images:
                     thumbnails.append( [image[0], image[1] ] )
-            if elem.text == "::NONE::":
+            elif elem.text == "::NONE::":
                 if "label" in elem.attrib:
                     self.thumbnailNone = elem.attrib.get( "label" )
                 else:
@@ -1670,6 +1672,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if key[0].startswith("$INFO") or key[0].startswith("$VAR"):
                         virtualImage = key[0].replace("$INFO[","").replace("$VAR[","").replace("]","")
                         virtualImage = xbmc.getInfoLabel(virtualImage)
+                    
+                    #fix for resource addon images
+                    if key[0].startswith("resource://"):
+                        virtualImage = key[0]
 
                     label = key[ 1 ]
                     if label.startswith( "$INFO" ) or label.startswith( "$VAR" ):
@@ -1991,7 +1997,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     self.changeMade = True
                 else:
                     # Set the property
-                    self._add_additionalproperty( listitem, propertyName, propertyValue )
+                    if propertyName == "thumb":
+                        listitem.setThumbnailImage( xbmc.getInfoLabel(propertyValue) )
+                        listitem.setProperty( "thumbnail", propertyValue )
+                    else:
+                        self._add_additionalproperty( listitem, propertyName, propertyValue )
                     self.changeMade = True
 
             elif controlID != 404 or self.currentWindow.getProperty( "chooseProperty" ):
