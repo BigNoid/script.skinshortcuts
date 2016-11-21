@@ -1131,7 +1131,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Display list items
             self._display_listitems( focus = itemIndex )
         
-        elif controlID == 301:
+        elif controlID in [301, 1301]:
             # Add a new item
             log( "Add item (301)" )
             self.changeMade = True
@@ -1150,6 +1150,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Add new item to both displayed list and list kept in memory
             self.allListItems.insert( orderIndex, listitem )
             self._display_listitems( num + 1 )
+            
+            # If Control 1301 is used we want to add a new item and immediately select a shortcut
+            if controlID == 1301:
+                xbmc.executebuiltin('SendClick(401)')
             
         elif controlID == 302:
             # Delete an item
@@ -1448,8 +1452,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 
                 # Call the load shortcuts function
                 self.load_shortcuts( True )
-
-                
+     
         elif controlID == 309:
             # Choose widget
             log( "Warning: Deprecated control 309 (Choose widget) selected")
