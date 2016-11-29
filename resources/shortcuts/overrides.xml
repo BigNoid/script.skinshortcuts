@@ -96,7 +96,7 @@
 	<groupings>
         
         <!-- script.skin.helper.service smart shortcuts -->
-        <shortcut label="$ADDON[script.skin.helper.service 32062]" type="32010" condition="System.HasAddon(script.skin.helper.service)">||BROWSE||script.skin.helper.service/?action=smartshortcuts</shortcut>
+        <shortcut label="32118" type="32010" condition="System.HasAddon(script.skin.helper.service)">||BROWSE||script.skin.helper.service/?action=smartshortcuts</shortcut>
         
 		<node label="32029">
 			<content>common</content>
@@ -185,7 +185,7 @@
 
 	<widget-groupings>
         <!-- script.skin.helper.service default widgets -->
-        <shortcut label="$ADDON[script.skin.helper.service 32063]" type="32010" condition="System.HasAddon(script.skin.helper.service)">||BROWSE||script.skin.helper.service/?action=widgets&amp;path=skinplaylists,librarydataprovider,scriptwidgets,extendedinfo,smartshortcuts,pvr,smartishwidgets</shortcut>
+        <shortcut label="32119" type="32010" condition="System.HasAddon(script.skin.helper.service)">||BROWSE||script.skin.helper.service/?action=widgets&amp;path=skinplaylists,librarydataprovider,scriptwidgets,extendedinfo,smartshortcuts,pvr</shortcut>
 
         <shortcut label="32107" type="32010" condition="!System.HasAddon(script.skin.helper.service)">::INSTALL::script.skin.helper.service</shortcut>
 	

@@ -492,3 +492,11 @@ msgstr ""
 msgctxt "#32117"
 msgid "Disable shortcut"
 msgstr ""
+
+msgctxt "#32118"
+msgid "Smart shortcuts"
+msgstr ""
+
+msgctxt "#32119"
+msgid "Default widgets"
+msgstr ""
