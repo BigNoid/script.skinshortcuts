@@ -12,6 +12,10 @@ ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
 SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
 
+STRINGCOMPARE = "StringCompare"
+if int( xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0] ) >= 17:
+    STRINGCOMPARE = "String.IsEqual"
+
 def log(txt):
     if ADDON.getSetting( "enable_logging" ) == "true":
         try:
@@ -139,7 +143,7 @@ class Template():
                         visibilityName = element.text
                         break
                 
-                finalVisibility = "StringCompare(Container(" + mainmenuID + ").ListItem.Property(submenuVisibility)," + visibilityName + ")"
+                finalVisibility = "%s(Container(%s).ListItem.Property(submenuVisibility),%s)" %( STRINGCOMPARE, mainmenuID, visibilityName )
             else:
                 # First we need to build the visibilityCondition, based on the visibility condition
                 # passed in, and the submenuVisibility element
@@ -149,7 +153,7 @@ class Template():
                         visibilityName = element.text
                         break
                 
-                finalVisibility = "[%s + StringCompare(Container(::SUBMENUCONTAINER::).ListItem.Property(labelID),%s)]" %( visibilityCondition, visibilityName )
+                finalVisibility = "[%s + %s(Container(::SUBMENUCONTAINER::).ListItem.Property(labelID),%s)]" %( visibilityCondition, STRINGCOMPARE, visibilityName )
 
             # Now find a matching template - if one matches, it will be saved to be processed
             # at the end (when we have all visibility conditions)
