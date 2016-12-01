@@ -493,3 +493,11 @@ msgstr "Le thème que vous utilisez ne prend pas en charge l'ajout d'éléments 
 msgctxt "#32117"
 msgid "Disable shortcut"
 msgstr "Désactiver le raccourci"
+
+msgctxt "#32118"
+msgid "Smart shortcuts"
+msgstr "Raccourcis intelligents"
+
+msgctxt "#32119"
+msgid "Default widgets"
+msgstr "Widgets par défaut"
