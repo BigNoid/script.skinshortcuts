@@ -59,7 +59,7 @@ It's highly recommended to take time to read through these documents before you 
 
 If you require any assistance post on the Kodi forum and I'll do my best to assist:
 
-[http://forum.kodi.org/showthread.php?tid=178294](http://forum.kodi.org/showthread.php?tid=178294)
+[http://forum.kodi.tv/showthread.php?tid=178294](http://forum.kodi.tv/showthread.php?tid=178294)
 
 ## Documentation for different versions
 
