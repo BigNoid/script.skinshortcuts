@@ -30,7 +30,7 @@ msgstr "Sposta su"
 
 msgctxt "#32003"
 msgid "Move Down"
-msgstr "Sposta giu"
+msgstr "Sposta giù"
 
 msgctxt "#32004"
 msgid "Video Playlist"
@@ -146,7 +146,7 @@ msgstr "Libreria Musicale"
 
 msgctxt "#32032"
 msgid "Play DVD"
-msgstr "Lancia DVD"
+msgstr "Play DVD"
 
 msgctxt "#32033"
 msgid "Eject tray"
@@ -158,7 +158,7 @@ msgstr "Scorciatoia comune"
 
 msgctxt "#32035"
 msgid "Choose which items to display on the Main Menu"
-msgstr "Scegli quali voci mostrare nel menu principale"
+msgstr "Scegli quali voci mostrare nel menù principale"
 
 msgctxt "#32036"
 msgid "Choose shortcuts for ::MENUNAME::"
@@ -170,11 +170,11 @@ msgstr "Resetta tutte le scorciatoie"
 
 msgctxt "#32038"
 msgid "Are you sure you want to reset all shortcuts back to default?"
-msgstr "Sei certo di volere resettare tutte le scorciatoie alla loro impostazione predefinita?"
+msgstr "Sei sicuro di volere resettare tutte le scorciatoie alla loro impostazione predefinita?"
 
 msgctxt "#32039"
 msgid "Pick widget for ::MENUNAME::"
-msgstr "Scegli un widget per il menu  ::MENUNAME::"
+msgstr "Scegli un widget per il menù  ::MENUNAME::"
 
 msgctxt "#32040"
 msgid "Playlist"
@@ -202,11 +202,11 @@ msgstr "Seleziona sfondo"
 
 msgctxt "#32046"
 msgid "Update video library"
-msgstr "Aggiorna Libreria Video"
+msgstr "Aggiorna libreria Video"
 
 msgctxt "#32047"
 msgid "Update audio library"
-msgstr "Aggiorna libreria audio"
+msgstr "Aggiorna libreria Audio"
 
 msgctxt "#32048"
 msgid "Choose shortcut"
@@ -214,7 +214,7 @@ msgstr "Scegli la scorciatoia"
 
 msgctxt "#32049"
 msgid "Building menu..."
-msgstr "Creazione menu..."
+msgstr "Creazione menù..."
 
 msgctxt "#32050"
 msgid "Default"
@@ -238,11 +238,11 @@ msgstr "Comando Kodi"
 
 msgctxt "#32055"
 msgid "Clean video library"
-msgstr "Pulisci Libreria Video"
+msgstr "Pulisci libreria Video"
 
 msgctxt "#32056"
 msgid "Clean audio library"
-msgstr "Pulisci libreria audio"
+msgstr "Pulisci libreria Audio"
 
 msgctxt "#32057"
 msgid "Kodi Commands"
@@ -254,7 +254,7 @@ msgstr "Crea collegamento a qui"
 
 msgctxt "#32059"
 msgid "Skin Playlist"
-msgstr "Skin della playlist"
+msgstr "Skin della Playlist"
 
 msgctxt "#32060"
 msgid "Do you want to play this playlist, or display it?"
@@ -282,11 +282,11 @@ msgstr "Non ci sono scorciatoie disponibili per la categoria che hai scelto."
 
 msgctxt "#32066"
 msgid "Last TV channel"
-msgstr "Ultimo Canale TV"
+msgstr "Ultimo canale TV"
 
 msgctxt "#32067"
 msgid "Last radio channel"
-msgstr "Ultimo canale radio"
+msgstr "Ultimo canale Radio"
 
 msgctxt "#32068"
 msgid "Last channel"
@@ -328,6 +328,43 @@ msgctxt "#32077"
 msgid "Radio Channel"
 msgstr "Canale Radio"
 
+msgctxt "#32078"
+msgid "Display..."
+msgstr "Visualizza..."
+
+msgctxt "#32079"
+msgid "Files view"
+msgstr "Vista file"
+
+#. ::MENUNAME:: is used internally and should NOT be translated :)
+msgctxt "#32080"
+msgid "Edit ::MENUNAME:: Submenu"
+msgstr "Configura il sottomenù ::MENUNAME::"
+
+msgctxt "#32081"
+msgid "Movies not in this source"
+msgstr "Film non in questa sorgente"
+
+msgctxt "#32082"
+msgid "TV Shows not in this source"
+msgstr "Serie TV non in questa sorgente"
+
+msgctxt "#32083"
+msgid "Music Videos not in this source"
+msgstr "Video Musicali non in questa sorgente"
+
+msgctxt "#32084"
+msgid "Songs not in this source"
+msgstr "Brani non in questa sorgente"
+
+msgctxt "#32085"
+msgid "Albums not in this source"
+msgstr "Album non in questa sorgente"
+
+msgctxt "#32086"
+msgid "Mixed content not in this source"
+msgstr "Contenuto misto non in questa sorgente"
+
 msgctxt "#32087"
 msgid "Radio"
 msgstr "Radio"
@@ -336,6 +373,128 @@ msgctxt "#32088"
 msgid "Channels"
 msgstr "Canali"
 
+msgctxt "#32089"
+msgid "Picture Source"
+msgstr "Sorgente immagine"
+
+msgctxt "#32090"
+msgid "The item has been added to the menu"
+msgstr "L'elemento è stato aggiunto al menù"
+
+msgctxt "#32091"
+msgid "Unable to add item to the menu. Please check log for errors."
+msgstr "Impossibile aggiungere l'elemento al menù. Per favore controlla il log per errori"
+
+msgctxt "#32092"
+msgid "Unable to build menu."
+msgstr "Impossibile construire il menù"
+
+msgctxt "#32093"
+msgid "Upload debug log?"
+msgstr "Carica il log di debug?"
+
+msgctxt "#32094"
+msgid "Install Kodi Log Uploader add-on to easily provide a debug log."
+msgstr "Installa l'add-on 'Kodi Log Uploader' per fornire con semplicità log di Debug"
+
+msgctxt "#32095"
+msgid "Choose default action for menu item"
+msgstr "Scegli l'azione predefinita per l'elemento di menù"
+
 msgctxt "#32096"
 msgid "Browse..."
-msgstr "Esplora..."
+msgstr "Sfoglia..."
+
+msgctxt "#32097"
+msgid "Unable to save menu"
+msgstr "Impossibile salvare il menù"
+
+msgctxt "#32098"
+msgid "Writing menu..."
+msgstr "Menù in scrittura..."
+
+msgctxt "#32099"
+msgid "Widget"
+msgstr "Widget"
+
+msgctxt "#32100"
+msgid "Use as widget"
+msgstr "Usa come Widget"
+
+msgctxt "#32101"
+msgid "Choose property"
+msgstr "Scegli proprietà"
+
+msgctxt "#32102"
+msgid "Restore or reset?"
+msgstr "Ripristinare o resettare?"
+
+msgctxt "#32103"
+msgid "Restore an original menu item"
+msgstr "Ripristina un elemento originale del menù"
+
+msgctxt "#32104"
+msgid "Reset to skin defaults"
+msgstr "Ripristina al valore predefinito della skin"
+
+msgctxt "#32105"
+msgid "There are no menu items to restore for this menu"
+msgstr "Non ci sono elementi di menù da ripristinare per questo menù"
+
+msgctxt "#32106"
+msgid "Install widget provider"
+msgstr "Installa provider widget"
+
+msgctxt "#32107"
+msgid "Enable default widgets"
+msgstr "Abilita i widget predefiniti"
+
+msgctxt "#32108"
+msgid "Party mode (music videos)"
+msgstr "Modo Party (video musicali)"
+
+msgctxt "#32109"
+msgid "No menus from compatible skins found to import"
+msgstr "Nessun menù da importare trovato da skin compatibili"
+
+msgctxt "#32110"
+msgid "Import menu from skin"
+msgstr "Importa menù da skin"
+
+msgctxt "#32111"
+msgid "Shared menu"
+msgstr "Menù condiviso"
+
+msgctxt "#32112"
+msgid "New item on the main menu"
+msgstr "Nuovo elemento sul menù principale"
+
+msgctxt "#32113"
+msgid "New item on the main menu (autofill submenu items)"
+msgstr "Nuovo elemento sul menù principale (autocompleta gli elementi del sottomenù)"
+
+msgctxt "#32114"
+msgid "Where should menu item be created"
+msgstr "Dove dovrebbe essere creata la voce di menù"
+
+#: /resources/lib/nodefunctions.py
+msgctxt "#32115"
+msgid "Unable to get directory listings[CR][CR]See log for details"
+msgstr "Impossibile listare la directory[CR][CR]Vedi il log per dettagli"
+
+#: /default.py
+msgctxt "#32116"
+msgid "The skin you are using does not support adding items directly to the main menu"
+msgstr "La skin che stai usando non supporta l'aggiunta di elementi direttamente dal menù principale"
+
+msgctxt "#32117"
+msgid "Disable shortcut"
+msgstr "Disabilita scorciatoia"
+
+msgctxt "#32118"
+msgid "Smart shortcuts"
+msgstr "Scorciatoia intelligente"
+
+msgctxt "#32119"
+msgid "Default widgets"
+msgstr "Widget predefiniti"
