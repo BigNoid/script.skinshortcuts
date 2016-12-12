@@ -402,7 +402,8 @@ msgid "Choose default action for menu item"
 msgstr "Scegli l'azione predefinita per l'elemento di menù"
 
 msgctxt "#32096"
-msgid "Browse
+msgid "Browse..."
+msgstr "Sfoglia..."
 
 msgctxt "#32097"
 msgid "Unable to save menu"
