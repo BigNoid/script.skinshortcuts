@@ -93,6 +93,7 @@ class LibraryFunctions():
                 "music":None,
                 "musicsources":None,
                 "picturesources":None,
+                "gamesources":None,
                 "playlist-video":None,
                 "playlist-audio":None,
                 "addon-program":None,
@@ -100,6 +101,8 @@ class LibraryFunctions():
                 "addon-video":None,
                 "addon-audio":None,
                 "addon-image":None,
+                "addon-game":None,
+                "addon-game-plugin":None,
                 "favourite":None,
                 "settings":None,
                 "widgets":None,
@@ -118,6 +121,14 @@ class LibraryFunctions():
 
     def loadLibrary( self, library ):
         # Common entry point for loading available shortcuts
+
+        # INTROSPECT
+        #json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "JSONRPC.Introspect" }')
+        #json_query = unicode(json_query, 'utf-8', errors='ignore')
+        #json_response = simplejson.loads(json_query)
+
+        #with open( os.path.join( os.path.expanduser('~'), "kodi.txt" ), 'w') as outfile:
+        #    simplejson.dump(json_response, outfile, indent=4, sort_keys=True)
 
         # Handle whether the shortcuts are already loaded/loading
         if self.loaded[ library ][ 0 ] is True:
@@ -399,7 +410,7 @@ class LibraryFunctions():
             return []
         if content == "video":
             self.loadLibrary( "videolibrary" )
-        if content == "videosources" or content == "musicsources" or content == "picturesources":
+        if content == "videosources" or content == "musicsources" or content == "picturesources" or content == "gamesources":
             self.loadLibrary( "librarysources" )
         if content == "music":
             self.loadLibrary( "musiclibrary" )
@@ -409,7 +420,7 @@ class LibraryFunctions():
             self.loadLibrary( "radiolibrary" )
         if content == "playlist-video" or content == "playlist-audio":
             self.loadLibrary( "playlists" )
-        if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image":
+        if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image" or content == "addon-game":
             self.loadLibrary( "addons" )
         if content == "favourite":
             self.loadLibrary( "favourites" )
@@ -771,6 +782,7 @@ class LibraryFunctions():
         listitems.append( self._create(["PlayerControl(PartyMode(Video))", "32108", "32034", {"icon": "DefaultMusicVideos.png"} ]) )
 
         listitems.append( self._create(["ActivateWindow(Videos,videodb://musicvideos/titles/,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
+        listitems.append( self._create(["ActivateWindow(Games)", "15016", "32034", {"icon": "DefaultGames.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
         listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {"icon": "Weather.png"} ]) )
         listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "10001", "32034", {"icon": "DefaultProgram.png"} ] ) )
@@ -969,6 +981,20 @@ class LibraryFunctions():
         self.addToDictionary( "picturesources", listitems )
         
         log( " - " + str( len( listitems ) ) + " picture sources" )
+
+        # Add game sources
+        listitems = []
+        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "games" } }')
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = simplejson.loads(json_query)
+            
+        # Add all directories returned by the json query
+        if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
+            for item in json_response['result']['sources']:
+                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32089", {"icon": "DefaultFolder.png"} ]) )
+        self.addToDictionary( "gamesources", listitems )
+        
+        log( " - " + str( len( listitems ) ) + " game sources" )
             
     def playlists( self ):
         audiolist = []
@@ -1126,14 +1152,14 @@ class LibraryFunctions():
         
     def addons( self ):
         executableItems = {}
-        executablePluginItems = {}
         videoItems = {}
         audioItems = {}
         imageItems = {}
-                    
-        contenttypes = [ ( "executable", executableItems ),  ( "video", videoItems ), ( "audio", audioItems ), ( "image", imageItems ) ]
-        for contenttype, listitems in contenttypes:
-            #listitems = {}
+        gameItems = {}
+        gameEngineItems = {}
+        contenttypes = [ ( "executable", executableItems, "xbmc.addon.executable" ),  ( "video", videoItems, "xbmc.addon.video" ), ( "audio", audioItems, "xbmc.addon.audio" ), ( "image", imageItems, "xbmc.addon.image" ), ( "gameEngine", gameItems, "kodi.gameclient" ), ( "game", gameItems, "kodi.addon.game" ) ]
+        for contenttype, listitems, addonType in contenttypes:
+            plugins = {}
             if contenttype == "executable":
                 contentlabel = LANGUAGE(32009)
                 shortcutType = "::SCRIPT::32009"
@@ -1146,10 +1172,15 @@ class LibraryFunctions():
             elif contenttype == "image":
                 contentlabel = LANGUAGE(32012)
                 shortcutType = "::SCRIPT::32012"
+            elif contenttype == "game":
+                contentlabel = LANGUAGE(35049)
+                shortcutType = "::SCRIPT::35049"
                 
-            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "content": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % contenttype)
+            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "type": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % addonType)
             json_query = unicode(json_query, 'utf-8', errors='ignore')
             json_response = simplejson.loads(json_query)
+
+            #log( repr( json_response ) )
             
             if json_response.has_key('result') and json_response['result'].has_key('addons') and json_response['result']['addons'] is not None:
                 for item in json_response['result']['addons']:
@@ -1172,9 +1203,9 @@ class LibraryFunctions():
                             listitem.setProperty( "action", action )
                             listitem.setLabel( listitem.getLabel() + "  >" )
 
-                            # If its executable, save it to our program plugin widget list
-                            if contenttype == "executable":
-                                executablePluginItems[ item[ "name" ] ] = listitem
+                            # If its executable or a game, save it to our program plugin widget list
+                            if contenttype in ("executable", "game"):
+                                plugins[ item[ "name" ] ] = listitem
 
                         elif contenttype == "executable":
                             # Check if it's a program that can be run as an exectuble
@@ -1192,13 +1223,18 @@ class LibraryFunctions():
                                     if content == "executable":
                                         executablePluginItems[ item[ "name" ] ] = otherItem
 
+                        elif contenttype == "gameEngine":
+                            if not self.isGameEngineStandalone( item[ "path" ] ):
+                                # Not standalone, so we're not interested
+                                continue
+
                         # Save the listitem
                         listitems[ item[ "name" ] ] = listitem
                         
             if contenttype == "executable":
                 self.addToDictionary( "addon-program", self.sortDictionary( listitems ) )
-                self.addToDictionary( "addon-program-plugin", self.sortDictionary( executablePluginItems ) )
-                log( " - %s programs found (of which %s are plugins)" %( str( len( listitems ) ), str( len( executablePluginItems ) ) ) )
+                self.addToDictionary( "addon-program-plugin", self.sortDictionary( plugins ) )
+                log( " - %i programs found (of which %i are plugins)" %( len( listitems ), len( plugins ) ) )
             elif contenttype == "video":
                 self.addToDictionary( "addon-video", self.sortDictionary( listitems ) )
                 log( " - " + str( len( listitems ) ) + " video add-ons found" )
@@ -1208,6 +1244,12 @@ class LibraryFunctions():
             elif contenttype == "image":
                 self.addToDictionary( "addon-image", self.sortDictionary( listitems ) )
                 log( " - " + str( len( listitems ) ) + " image add-ons found" )
+            elif contenttype == "game":
+                self.addToDictionary( "addon-game", self.sortDictionary( listitems ) )
+                self.addToDictionary( "addon-game-plugin", self.sortDictionary( plugins ) )
+                log( " - %i game add-ons found (of which %i are plugins)" %( len( listitems ), len( plugins ) ) )
+
+
 
     def hasPluginEntryPoint( self, path ):
         # Check if an addon has a plugin entry point by parsing its addon.xml file
@@ -1220,6 +1262,22 @@ class LibraryFunctions():
                     if provides is None:
                         return []
                     return provides.text.split( " " )
+
+        except:
+            print_exc()
+        return []
+
+    def isGameEngineStandalone( self, path ):
+        # Check if a game client is standalone by parsing its addon.xml file
+        try:
+            tree = xmltree.parse( os.path.join( path, "addon.xml" ) ).getroot()
+            for extension in tree.findall( "extension" ):
+                if "point" in extension.attrib and extension.attrib.get( "point" ) == "kodi.gameclient":
+                    # Find out if it's standalone
+                    standalone = extension.find( "supports_standalone" )
+                    if standalone is None or standalone.text == "false":
+                        return False
+                    return True
 
         except:
             print_exc()
@@ -1546,6 +1604,17 @@ class LibraryFunctions():
                     listitem.setProperty( "widget", "Addon" )
                     listitem.setProperty( "widgetType", "program" )
                     listitem.setProperty( "widgetTarget", "programs" )
+                    listitem.setProperty( "widgetName", dialogLabel )
+                    listitem.setProperty( "widgetPath", location )
+
+                elif itemType == "15016":
+                    action = 'ActivateWindow(Games,"' + location + '",return)'
+                    listitem.setProperty( "windowID", "Games" )
+
+                    # Add widget details
+                    listitem.setProperty( "widget", "Addon" )
+                    listitem.setProperty( "widgetType", "games" )
+                    listitem.setProperty( "widgetTarget", "games" )
                     listitem.setProperty( "widgetName", dialogLabel )
                     listitem.setProperty( "widgetPath", location )
 

@@ -1184,9 +1184,13 @@ class DataFunctions():
                 # A number from the script
                 return [ data, "$ADDON[script.skinshortcuts " + data + "]", LANGUAGE( int( data ) ), data ]
                 
-            else:
-                # A number from XBMC itself (probably)
+            elif xbmc.getLocalizedString( int( data ) ) != "":
+                # A number from Kodi itself
                 return [ data, "$LOCALIZE[" + data + "]", xbmc.getLocalizedString( int( data ) ), data ]
+
+            else:
+                # No localisation found - probably an actual number
+                return [ data, "$NUMBER[%s]" %( data ), "$NUMBER[%s]" %( data ), data ]
                 
         # This isn't anything we can localize, just return it (in triplicate ;))
         return[ data, data, data, data ]
