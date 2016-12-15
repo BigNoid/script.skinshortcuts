@@ -70,6 +70,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
             self.defaultGroup = None
         self.nolabels = kwargs[ "nolabels" ]
         self.groupname = kwargs[ "groupname" ]
+        self.groupLevel = None
+        if "groupLevel" in kwargs and kwargs[ "groupLevel" ] != "0":
+            self.groupLevel = kwargs[ "groupLevel" ]
+        log( repr( self.groupLevel ) )
         self.shortcutgroup = 1
         
         # Empty arrays for different shortcut types
@@ -258,7 +262,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
         DATA._clear_labelID()
 
         isSubLevel = False
-        if "." in self.group and self.group.rsplit( ".", 1)[ 1 ].isdigit() and int( self.group.rsplit( ".", 1 )[ 1 ] ) in range( 1, 6 ):
+        if self.groupLevel:
+            log( "Is sub level" )
             isSubLevel = True
         
         if includeUserShortcuts:
@@ -708,7 +713,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         
             # Check whether this is an additional level
             isSubLevel = False
-            if "." in self.group and self.group.rsplit( ".", 1 )[ 1 ].isdigit() and int( self.group.rsplit( ".", 1 )[ 1 ] ) in range( 1, 6 ):
+            if self.groupLevel:
+                log( "Is sub level" )
                 isSubLevel = True
 
             # Save the shortcuts
@@ -1934,24 +1940,31 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 self.getControl( 211 ).getListItem( num ).setProperty( "labelID", launchGroup )                                        
             
             # Check if we're launching a specific additional menu
+            launchLevel = "0"
             if controlID == 406:
                 launchGroup = launchGroup + ".1"
                 launchDefaultGroup = launchDefaultGroup + ".1"
+                launchLevel = "1"
             elif controlID == 407:
                 launchGroup = launchGroup + ".2"
                 launchDefaultGroup = launchDefaultGroup + ".2"
+                launchLevel = "2"
             elif controlID == 408:
                 launchGroup = launchGroup + ".3"
                 launchDefaultGroup = launchDefaultGroup + ".3"
+                launchLevel = "3"
             elif controlID == 409:
                 launchGroup = launchGroup + ".4"
                 launchDefaultGroup = launchDefaultGroup + ".4"
+                launchLevel = "4"
             elif controlID == 410:
                 launchGroup = launchGroup + ".5"
                 launchDefaultGroup = launchDefaultGroup + ".5"
+                launchLevel = "5"
             # Check if 'level' property has been set
             elif self.currentWindow.getProperty("level"):
                 launchGroup = launchGroup + "." + self.currentWindow.getProperty("level")
+                launchLevel = self.currentWindow.getProperty( "level" )
                 self.currentWindow.clearProperty("level")
                 
             # Check if 'groupname' property has been set
@@ -1962,7 +1975,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Execute the script
             self.currentWindow.setProperty( "additionalDialog", "True" )
             import gui
-            ui= gui.GUI( "script-skinshortcuts.xml", CWD, "default", group=launchGroup, defaultGroup=launchDefaultGroup, nolabels=self.nolabels, groupname=groupName )
+            ui= gui.GUI( "script-skinshortcuts.xml", CWD, "default", group=launchGroup, defaultGroup=launchDefaultGroup, groupLevel=launchLevel, nolabels=self.nolabels, groupname=groupName )
             ui.doModal()
             del ui
             self.currentWindow.clearProperty( "additionalDialog" )
