@@ -212,12 +212,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     log( "No reset shortcuts button on GUI (id 308)" )
                     
                 try:
-                    if self.getControl( 309 ).getLabel() == "":
-                        self.getControl( 309 ).setLabel( LANGUAGE(32044) )
-                    log( "Warning: Deprecated widget button (id 309)" )
-                except:
-                    pass
-                try:
                     if self.getControl( 310 ).getLabel() == "":
                         self.getControl( 310 ).setLabel( LANGUAGE(32045) )
                 except:
@@ -226,7 +220,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if self.getControl( 312 ).getLabel() == "":
                         self.getControl( 312 ).setLabel( LANGUAGE(32044) )
                 except:
-                    log( "No widget button on GUI (id 309)" )
+                    log( "No widget button on GUI (id 312)" )
                     
                 try:
                     if self.getControl( 401 ).getLabel() == "":
@@ -1450,95 +1444,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # Call the load shortcuts function
                 self.load_shortcuts( True )
 
-                
-        elif controlID == 309:
-            # Choose widget
-            log( "Warning: Deprecated control 309 (Choose widget) selected")
-            listControl = self.getControl( 211 )
-            listitem = listControl.getSelectedItem()
-
-            # Check that widgets have been loaded
-            LIBRARY.loadLibrary( "widgets" )
-            
-            # If we're setting for an additional widget, get it's number
-            widgetID = ""
-            if self.currentWindow.getProperty( "widgetID" ):
-                widgetID += "." + self.currentWindow.getProperty( "widgetID" )
-                self.currentWindow.clearProperty( "widgetID" )
-            
-            # Get the default widget for this item
-            defaultWidget = self.find_default( "widget", listitem.getProperty( "labelID" ), listitem.getProperty( "defaultID" ) )
-            
-            # Generate list of widgets for select dialog
-            widget = [""]
-            widgetLabel = [LANGUAGE(32053)]
-            widgetName = [""]
-            widgetType = [ None ]
-            for key in LIBRARY.dictionaryGroupings[ "widgets-classic" ]:
-                widget.append( key[0] )
-                widgetName.append( "" )
-                widgetType.append( key[2] )
-                
-                if key[0] == defaultWidget:
-                    widgetLabel.append( key[1] + " (%s)" %( LANGUAGE(32050) ) )
-                else:
-                    widgetLabel.append( key[1] )
-                
-            # If playlists have been enabled for widgets, add them too
-            if self.widgetPlaylists:
-                # Ensure playlists are loaded
-                LIBRARY.loadLibrary( "playlists" )
-
-                # Add them
-                for playlist in LIBRARY.widgetPlaylistsList:
-                    widget.append( "::PLAYLIST::" + playlist[0] )
-                    widgetLabel.append( playlist[1] )
-                    widgetName.append( playlist[2] )
-                    widgetType.append( self.widgetPlaylistsType )
-                for playlist in LIBRARY.scriptPlaylists():
-                    widget.append( "::PLAYLIST::" + playlist[0] )
-                    widgetLabel.append( playlist[1] )
-                    widgetName.append( playlist[2] )
-                    widgetType.append( self.widgetPlaylistsType )
-                    
-            # Show the dialog
-            selectedWidget = xbmcgui.Dialog().select( LANGUAGE(32044), widgetLabel )
-            
-            if selectedWidget == -1:
-                # User cancelled
-                return
-            elif selectedWidget == 0:
-                # User selected no widget
-                self._remove_additionalproperty( listitem, "widget" + widgetID )
-                self._remove_additionalproperty( listitem, "widgetName" + widgetID )
-                self._remove_additionalproperty( listitem, "widgetType" + widgetID )
-                self._remove_additionalproperty( listitem, "widgetPlaylist" + widgetID )
-                
-            else:
-                if widget[selectedWidget].startswith( "::PLAYLIST::" ):
-                    self._add_additionalproperty( listitem, "widget" + widgetID, "Playlist" )
-                    self._add_additionalproperty( listitem, "widgetName" + widgetID, widgetName[selectedWidget] )
-                    self._add_additionalproperty( listitem, "widgetPlaylist" + widgetID, widget[selectedWidget].strip( "::PLAYLIST::" ) )
-                    if self.currentWindow.getProperty( "useWidgetNameAsLabel" ) == "true" and widgetID == "":
-                        self._set_label( listitem, widgetName[selectedWidget] )
-                        self.currentWindow.clearProperty( "useWidgetNameAsLabel" )
-                else:
-                    self._add_additionalproperty( listitem, "widgetName" + widgetID, widgetLabel[selectedWidget].replace( " (%s)" %( LANGUAGE(32050) ), "" ) )
-                    self._add_additionalproperty( listitem, "widget" + widgetID, widget[selectedWidget] )
-                    self._remove_additionalproperty( listitem, "widgetPlaylist" + widgetID )
-                    if self.currentWindow.getProperty( "useWidgetNameAsLabel" ) == "true" and widgetID == "":
-                        self._set_label( listitem, widgetLabel[selectedWidget].replace( " (%s)" %( LANGUAGE(32050) ), "" ) )
-                        self.currentWindow.clearProperty( "useWidgetNameAsLabel" )
-                
-                if widgetType[ selectedWidget ] is not None:
-                    self._add_additionalproperty( listitem, "widgetType" + widgetID, widgetType[ selectedWidget] )
-                else:
-                    self._remove_additionalproperty( listitem, "widgetType" + widgetID )
-                
-            self.changeMade = True
 
         elif controlID == 312:
-            # Alternative widget select
+            # Widget select
             log( "Choose widget (312)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()

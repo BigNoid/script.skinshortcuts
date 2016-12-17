@@ -105,8 +105,7 @@ class LibraryFunctions():
                 "addon-game-plugin":None,
                 "favourite":None,
                 "settings":None,
-                "widgets":None,
-                "widgets-classic":[] }
+                "widgets":None }
         self.folders = {}
         self.foldersCount = 0
 
@@ -1265,9 +1264,6 @@ class LibraryFunctions():
                 widgetIcon = elem.attrib.get( "icon" )
             if "name" in elem.attrib:
                 widgetName = DATA.local( elem.attrib.get( 'name' ) )[2]
-
-            # Save widget for button 309
-            self.dictionaryGroupings[ "widgets-classic" ].append( [elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], widgetType, widgetPath, widgetIcon, widgetTarget ] )
 
             # Save widgets for button 312
             listitem = self._create( [ elem.text, DATA.local( elem.attrib.get( 'label' ) )[2], "::SCRIPT::32099", {"icon": widgetIcon } ] )
