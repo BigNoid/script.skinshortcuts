@@ -38,10 +38,6 @@ DATA = datafunctions.DataFunctions()
 LIBRARY = library.LibraryFunctions()
 NODE = nodefunctions.NodeFunctions()
 
-ISEMPTY = "IsEmpty"
-if int( xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0] ) >= 17:
-    ISEMPTY = "String.IsEmpty"
-
 hashlist = []
 
 def log(txt):
@@ -141,7 +137,7 @@ class Main:
 
             # Check if we should show the custom option (if the relevant widgetPath skin string is provided and isn't empty)
             showCustom = False
-            if self.WIDGETPATH and xbmc.getCondVisibility( "!%s(Skin.String(%s))" %( ISEMPTY, self.WIDGETPATH ) ):
+            if self.WIDGETPATH and xbmc.getCondVisibility( "!String.IsEmpty(Skin.String(%s))" %( self.WIDGETPATH ) ):
                 showCustom = True
             
             if self.GROUPING:
@@ -370,7 +366,7 @@ class Main:
     # Functions for providing whoe menu in single list
     def _hidesubmenu( self, menuid ):
         count = 0
-        while xbmc.getCondVisibility( "!%s(Container(%s).ListItem(%i).Property(isSubmenu))" %( ISEMPTY, menuid, count ) ):
+        while xbmc.getCondVisibility( "!String.IsEmpty(Container(%s).ListItem(%i).Property(isSubmenu))" %( menuid, count ) ):
             count -= 1
             
         if count != 0:
@@ -380,7 +376,7 @@ class Main:
         
     def _resetlist( self, menuid, action ):
         count = 0
-        while xbmc.getCondVisibility( "!%s(Container(%s).ListItemNoWrap(%i).Label)" %( ISEMPTY, menuid, count ) ):
+        while xbmc.getCondVisibility( "!String.IsEmpty(Container(%s).ListItemNoWrap(%i).Label)" %( menuid, count ) ):
             count -= 1
             
         count += 1

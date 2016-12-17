@@ -873,22 +873,14 @@ class DataFunctions():
             return "[System.Platform.Windows | System.Platform.Linux] +! System.Platform.Linux.RaspberryPi"
 
         # General visibilities
-        elif action == "activatewindow(weather)" and int( KODIVERSION ) >= 17:
-            return "!String.IsEmpty(Weather.Plugin)"
         elif action == "activatewindow(weather)":
-            return "!IsEmpty(Weather.Plugin)"
+            return "!String.IsEmpty(Weather.Plugin)"
         elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ) and ADDON.getSetting( "donthidepvr" ) == "false":
             return "PVR.HasTVChannels"
         elif action.startswith( "activatewindow(tv" ) and ADDON.getSetting( "donthidepvr" ) == "false":
-            if int( KODIVERSION ) >= 17:
-                return "System.HasPVRAddon"
-            else:
-                return "PVR.HasTVChannels"
+            return "System.HasPVRAddon"
         elif action.startswith( "activatewindow(radio" ) and ADDON.getSetting( "donthidepvr" ) == "false":
-            if int( KODIVERSION ) >= 17:
-                return "System.HasPVRAddon"
-            else:
-                return "PVR.HasRadioChannels"
+            return "System.HasPVRAddon"
         elif action.startswith( "activatewindow(videos,movie" ):
             return "Library.HasContent(Movies)"
         elif action.startswith( "activatewindow(videos,recentlyaddedmovies" ):
@@ -1322,30 +1314,6 @@ class DataFunctions():
         # This function looks for actions used in a previous version of Kodi, and upgrades them to the current action
 
         if not action.lower().startswith( "activatewindow(" ): return action
-
-        # Isengard + earlier music addons
-        if int( KODIVERSION ) <= 15:
-            # Shortcut to addon section
-            if action.lower().startswith( "activatewindow(musiclibrary,addons" ) and xbmc.getCondVisibility( "!Library.HasContent(Music)" ):
-                return( "ActivateWindow(MusicFiles,Addons,return)" )
-            elif action.lower().startswith( "activatewindow(10502,addons" ) and xbmc.getCondVisibility( "!Library.HasContent(Music)" ):
-                return( "ActivateWindow(10501,Addons,return)" )
-            elif action.lower().startswith( "activatewindow(musicfiles,addons" ) and xbmc.getCondVisibility( "Library.HasContent(Music)" ):
-                return( "ActivateWindow(MusicLibrary,Addons,return)" )
-            elif action.lower().startswith( "activatewindow(10501,addons" ) and xbmc.getCondVisibility( "Library.HasContent(Music)" ):
-                return( "ActivateWindow(10502,Addons,return)" )
-
-            # Shortcut to a specific addon
-            if "plugin://" in action.lower():
-                if action.lower().startswith( "activatewindow(musiclibrary" ) and xbmc.getCondVisibility( "!Library.HasContent(Music)" ):
-                    return self.buildReplacementMusicAddonAction( action, "MusicFiles" )
-                elif action.lower().startswith( "activatewindow(10502" ) and xbmc.getCondVisibility( "!Library.HasContent(Music)" ):
-                    return self.buildReplacementMusicAddonAction( action, "10501" )
-                elif action.lower().startswith( "activatewindow(musicfiles" ) and xbmc.getCondVisibility( "Library.HasContent(Music)" ):
-                    return self.buildReplacementMusicAddonAction( action, "MusicLibrary" )
-                elif action.lower().startswith( "activatewindow(10501" ) and xbmc.getCondVisibility( "Library.HasContent(Music)" ):
-                    return self.buildReplacementMusicAddonAction( action, "10502" )
-
 
         # Jarvis + later music windows
         if action.lower() == "activatewindow(musicfiles)" and int( KODIVERSION ) >= 16:

@@ -34,10 +34,6 @@ KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 ACTION_CANCEL_DIALOG = ( 9, 10, 92, 216, 247, 257, 275, 61467, 61448, )
 ACTION_CONTEXT_MENU = ( 117, )
 
-ISEMPTY = "IsEmpty"
-if int( KODIVERSION ) >= 17:
-    ISEMPTY = "String.IsEmpty"
-
 if not xbmcvfs.exists(DATAPATH):
     xbmcvfs.mkdir(DATAPATH)
 
@@ -152,19 +148,19 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set enabled condition for various controls
             has111 = True
             try:
-                self.getControl( 111 ).setEnableCondition( "%s(Container(211).ListItem.Property(LOCKED))" %( ISEMPTY ) )
+                self.getControl( 111 ).setEnableCondition( "String.IsEmpty(Container(211).ListItem.Property(LOCKED))" )
             except:
                 has111 = False
             try:
-                self.getControl( 302 ).setEnableCondition( "%s(Container(211).ListItem.Property(LOCKED))" %( ISEMPTY ) )
+                self.getControl( 302 ).setEnableCondition( "String.IsEmpty(Container(211).ListItem.Property(LOCKED))" )
             except:
                 pass
             try:
-                self.getControl( 307 ).setEnableCondition( "%s(Container(211).ListItem.Property(LOCKED))" %( ISEMPTY ) )
+                self.getControl( 307 ).setEnableCondition( "String.IsEmpty(Container(211).ListItem.Property(LOCKED))" )
             except:
                 pass
             try:
-                self.getControl( 401 ).setEnableCondition( "%s(Container(211).ListItem.Property(LOCKED))" %( ISEMPTY ) )
+                self.getControl( 401 ).setEnableCondition( "String.IsEmpty(Container(211).ListItem.Property(LOCKED))" )
             except:
                 pass
             
@@ -932,10 +928,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
     def _load_overrides_context( self ):
         # Load context menu settings from overrides
-
-        # Check we're running Krypton or later - we don't support the context menu on earlier versions
-        if int( KODIVERSION ) <= 16:
-            return
         
         for overrideType in [ "skin", "script" ]:
             # Load overrides

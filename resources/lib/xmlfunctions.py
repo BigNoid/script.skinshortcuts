@@ -19,10 +19,6 @@ KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/addon_data/" ).decode('utf-8'), ADDONID ).encode('utf-8')
 LANGUAGE     = ADDON.getLocalizedString
 
-STRINGCOMPARE = "StringCompare"
-if int( KODIVERSION ) >= 17:
-    STRINGCOMPARE = "String.IsEqual"
-
 import datafunctions, template
 DATA = datafunctions.DataFunctions()
 import hashlib, hashlist
@@ -76,7 +72,7 @@ class XMLFunctions():
                 else:
                     # Base if off of the master profile
                     dir = xbmc.translatePath( os.path.join( "special://masterprofile", dir ) ).decode( "utf-8" )
-                profilelist.append( [ dir, "%s(System.ProfileName,%s)" %( STRINGCOMPARE, name.decode( "utf-8" ) ), name.decode( "utf-8" ) ] )
+                profilelist.append( [ dir, "String.IsEqual(System.ProfileName,%s)" %( name.decode( "utf-8" ) ), name.decode( "utf-8" ) ] )
                 
         else:
             profilelist = [["special://masterprofile", None]]
@@ -541,12 +537,12 @@ class XMLFunctions():
                     if buildMode == "single" and not len( submenuitems ) == 0 and not isinstance( item, basestring ):
                         for onclickelement in mainmenuItemB.findall( "onclick" ):
                             if "condition" in onclickelement.attrib:
-                                onclickelement.set( "condition", "%s(Window(10000).Property(submenuVisibility),%s) + [%s]" %( STRINGCOMPARE, DATA.slugify( submenuVisibilityName, convertInteger=True ), onclickelement.attrib.get( "condition" ) ) )
+                                onclickelement.set( "condition", "String.IsEqual(Window(10000).Property(submenuVisibility),%s) + [%s]" %( DATA.slugify( submenuVisibilityName, convertInteger=True ), onclickelement.attrib.get( "condition" ) ) )
                                 newonclick = xmltree.SubElement( mainmenuItemB, "onclick" )
                                 newonclick.text = "SetProperty(submenuVisibility," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ",10000)"
                                 newonclick.set( "condition", onclickelement.attrib.get( "condition" ) )
                             else:
-                                onclickelement.set( "condition", "%s(Window(10000).Property(submenuVisibility),%s)" %( STRINGCOMPARE, DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
+                                onclickelement.set( "condition", "String.IsEqual(Window(10000).Property(submenuVisibility),%s)" %( DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
                                 newonclick = xmltree.SubElement( mainmenuItemB, "onclick" )
                                 newonclick.text = "SetProperty(submenuVisibility," + DATA.slugify( submenuVisibilityName, convertInteger=True ) + ",10000)"
                     
@@ -579,7 +575,7 @@ class XMLFunctions():
                             justmenuTreeA.append( menuitem )
 
                             visibilityElement = menuitemCopy.find( "visible" )
-                            visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "%s(Window(10000).Property(submenuVisibility),%s)" %( STRINGCOMPARE, DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
+                            visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "String.IsEqual(Window(10000).Property(submenuVisibility),%s)" %( DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
                             justmenuTreeB.append( menuitemCopy )
 
                         if buildMode == "single" and not isinstance( item, basestring ):
@@ -592,7 +588,7 @@ class XMLFunctions():
 
                         menuitemCopy = Template.copy_tree( menuitem )
                         visibilityElement = menuitemCopy.find( "visible" )
-                        visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "%s(Container(%s).ListItem.Property(submenuVisibility),%s)" %( STRINGCOMPARE, mainmenuID, DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
+                        visibilityElement.text = "[%s] + %s" %( visibilityElement.text, "String.IsEqual(Container(%s).ListItem.Property(submenuVisibility),%s)" %( mainmenuID, DATA.slugify( submenuVisibilityName, convertInteger=True ) ) )
                         submenuTree.append( menuitemCopy )
                     if len( submenuitems ) == 0 and "noGroups" not in options:
                         # There aren't any submenu items, so add a 'description' element to the group includes
@@ -606,7 +602,7 @@ class XMLFunctions():
                     buildOthers = False
                     if item in submenuItems:
                         buildOthers = True
-                    Template.parseItems( "submenu", count, templateSubMenuItems, profile[ 2 ], profile[ 1 ], "%s(Container(%s).ListItem.Property(submenuVisibility),%s)" %( STRINGCOMPARE, mainmenuID, DATA.slugify( submenuVisibilityName, convertInteger=True )  ), item, None, buildOthers, mainmenuitems = templateCurrentMainMenuItem )
+                    Template.parseItems( "submenu", count, templateSubMenuItems, profile[ 2 ], profile[ 1 ], "String.IsEqual(Container(%s).ListItem.Property(submenuVisibility),%s)" %( mainmenuID, DATA.slugify( submenuVisibilityName, convertInteger=True )  ), item, None, buildOthers, mainmenuitems = templateCurrentMainMenuItem )
                         
                     count += 1
 
