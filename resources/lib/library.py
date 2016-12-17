@@ -58,18 +58,14 @@ class LibraryFunctions():
     def __init__( self, *args, **kwargs ):
         
         # Dictionary to make checking whether things are loaded easier
-        self.loaded = { "common": [False, "common shortcuts"],
-                "more": [False, "more commands"],
+        self.loaded = { "static": [False, "static shortcuts"],
                 "videolibrary": [False, "video library"],
                 "musiclibrary": [False, "music library"],
                 "librarysources": [False, "library sources"],
-                "pvrlibrary": [False, "live tv"],
-                "radiolibrary": [False, "live radio"],
                 "playlists": [False, "playlists"],
                 "addons": [False, "add-ons"],
                 "favourites": [False, "favourites"],
                 "upnp": [False, "upnp sources"],
-                "settings": [False, "settings"],
                 "widgets": [False, "widgets"] }
         
         self.widgetPlaylistsList = []
@@ -144,28 +140,20 @@ class LibraryFunctions():
         # Call the function responsible for loading the library type we've been passed
         log( "Listing %s..." %( self.loaded[ library ][ 1 ] ) )
         try:
-            if library == "common":
-                self.common()
-            elif library == "more":
-                self.more()
+            if library == "static":
+                self.staticShortcuts()
             elif library == "videolibrary":
                 self.videolibrary()
             elif library == "musiclibrary":
                 self.musiclibrary()
             elif library == "librarysources":
                 self.librarysources()
-            elif library == "pvrlibrary":
-                self.pvrlibrary()
-            elif library == "radiolibrary":
-                self.radiolibrary()
             elif library == "playlists":
                 self.playlists()
             elif library == "addons":
                 self.addons()
             elif library == "favourites":
                 self.favourites()
-            elif library == "settings":
-                self.settings()
             elif library == "widgets":
                 self.widgets()
 
@@ -179,17 +167,13 @@ class LibraryFunctions():
         
     def loadAllLibrary( self ):
         # Load all library data, for use with threading
-        self.loadLibrary( "common" )
-        self.loadLibrary( "more" )
+        self.loadLibrary( "static" )
         self.loadLibrary( "videolibrary" )
         self.loadLibrary( "musiclibrary" )
-        self.loadLibrary( "pvrlibrary" )
-        self.loadLibrary( "radiolibrary" )
         self.loadLibrary( "librarysources" )
         self.loadLibrary( "playlists" )
         self.loadLibrary( "addons" )
         self.loadLibrary( "favourites" )
-        self.loadLibrary( "settings" )
         self.loadLibrary( "widgets" )
         
         # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
@@ -400,31 +384,20 @@ class LibraryFunctions():
         dialog.create( "Skin Shortcuts", LANGUAGE( 32063 ) )
 
         # We'll be called if the data for a wanted group hasn't been loaded yet
-        if content == "common":
-            self.loadLibrary( "common" )
-        if content  == "commands":
-            self.loadLibrary( "more" )
-        if content == "movie" or content == "tvshow" or content == "musicvideo" or content == "customvideonode" or content == "movie-flat" or content == "tvshow-flat" or content == "musicvideo-flat" or content == "customvideonode-flat":
-            # These have been deprecated
-            return []
+        if content in [ "common", "commands", "settings", "pvr", "pvr-tv", "pvr-radio", "radio" ]:
+            self.loadLibrary( "static" )
         if content == "video":
             self.loadLibrary( "videolibrary" )
         if content == "videosources" or content == "musicsources" or content == "picturesources" or content == "gamesources":
             self.loadLibrary( "librarysources" )
         if content == "music":
             self.loadLibrary( "musiclibrary" )
-        if content == "pvr" or content == "pvr-tv" or content == "pvr-radio":
-            self.loadLibrary( "pvrlibrary" )
-        if content == "radio":
-            self.loadLibrary( "radiolibrary" )
         if content == "playlist-video" or content == "playlist-audio":
             self.loadLibrary( "playlists" )
         if content == "addon-program" or content == "addon-video" or content == "addon-audio" or content == "addon-image" or content == "addon-game":
             self.loadLibrary( "addons" )
         if content == "favourite":
             self.loadLibrary( "favourites" )
-        if content == "settings":
-            self.loadLibrary( "settings" )
         if content == "widgets":
             self.loadLibrary( "widgets" )
             
@@ -762,148 +735,45 @@ class LibraryFunctions():
     # ============================
     # === LOAD OTHER LIBRARIES ===
     # ============================
-                
-    def common( self ):        
-        listitems = []
-        
-        # Videos, Movies, TV Shows, Live TV, Music, Music Videos, Pictures, Weather, Programs,
-        # Play dvd, eject tray
-        # Settings, File Manager, Profiles, System Info
-        listitems.append( self._create(["ActivateWindow(Videos)", "10006", "32034", {"icon": "DefaultVideo.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(Videos,videodb://movies/titles/,return)", "342", "32034", {"icon": "DefaultMovies.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(Videos,videodb://tvshows/titles/,return)", "20343", "32034", {"icon": "DefaultTVShows.png"} ]) )
 
-        listitems.append( self._create(["ActivateWindow(TVGuide)", "32022", "32034", {"icon": "DefaultTVShows.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(RadioGuide)", "32087", "32034", {"icon": "DefaultTVShows.png"} ]) )
-        
-        listitems.append( self._create(["ActivateWindow(Music)", "10005", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
-        listitems.append( self._create(["PlayerControl(PartyMode)", "589", "32034", {"icon": "DefaultMusicAlbums.png"} ]) )
-        listitems.append( self._create(["PlayerControl(PartyMode(Video))", "32108", "32034", {"icon": "DefaultMusicVideos.png"} ]) )
+    def staticShortcuts( self ):
+        # List all static shortcuts from overrides
 
-        listitems.append( self._create(["ActivateWindow(Videos,videodb://musicvideos/titles/,return)", "20389", "32034", {"icon": "DefaultMusicVideos.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(Games)", "15016", "32034", {"icon": "DefaultGames.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(Pictures)", "10002", "32034", {"icon": "DefaultPicture.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(Weather)", "12600", "32034", {"icon": "Weather.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(Programs,Addons,return)", "10001", "32034", {"icon": "DefaultProgram.png"} ] ) )
+        # Define static groups
+        staticGroups = [ ( "common", "32034" ), ( "commands", "32054" ), ( "settings", "10004" ), ( "pvr-tv", "32017" ), ( "pvr-radio", "32087" ) ]
 
-        listitems.append( self._create(["PlayDVD", "32032", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
-        listitems.append( self._create(["EjectTray()", "32033", "32034", {"icon": "DefaultDVDFull.png"} ] ) )
-                
-        listitems.append( self._create(["ActivateWindow(Settings)", "10004", "32034", {"icon": "Settings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(FileManager)", "7", "32034", {"icon": "DefaultFolder.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(Profiles)", "13200", "32034", {"icon": "UnknownUser.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(SystemInfo)", "10007", "32034", {"icon": "SystemInfo.png"} ]) )
+        # Load overrides
+        trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
+        # Pull out static shortcuts
+        trees = [ DATA._get_overrides_skin().find( "static" ), DATA._get_overrides_script().find( "static" ) ]
 
-        listitems.append( self._create(["ActivateWindow(EventLog,events://,return)", "14111", "32034", {"icon": "Events.png"} ]) )
-        
-        listitems.append( self._create(["ActivateWindow(Favourites)", "1036", "32034", {"icon": "Favourites.png"} ]) )
-            
-        self.addToDictionary( "common", listitems )
-        
-    def more( self ):
-        listitems = []
-        
-        listitems.append( self._create(["Reboot", "13013", "32054", {"icon": "Reboot.png"} ]) )
-        listitems.append( self._create(["ShutDown", "13005", "32054", {"icon": "Shutdown.png"} ]) )
-        listitems.append( self._create(["PowerDown", "13016", "32054", {"icon": "PowerDown.png"} ]) )
-        listitems.append( self._create(["Quit", "13009", "32054", {"icon": "Quit.png"} ]) )
-        if (xbmc.getCondVisibility( "System.Platform.Windows" ) or xbmc.getCondVisibility( "System.Platform.Linux" )) and not xbmc.getCondVisibility( "System.Platform.Linux.RaspberryPi" ):
-            listitems.append( self._create(["RestartApp", "13313", "32054", {"icon": "RestartApp.png"} ]) )
-        listitems.append( self._create(["Hibernate", "13010", "32054", {"icon": "Hibernate.png"} ]) )
-        listitems.append( self._create(["Suspend", "13011", "32054", {"icon": "Suspend.png"} ]) )
-        listitems.append( self._create(["AlarmClock(shutdowntimer,XBMC.Shutdown())", "19026", "32054", {"icon": "ShutdownTimer.png"} ]) )
-        listitems.append( self._create(["CancelAlarm(shutdowntimer)", "20151", "32054", {"icon": "CancelShutdownTimer.png"} ]) )
-        if xbmc.getCondVisibility( "System.HasLoginScreen" ):
-            listitems.append( self._create(["System.LogOff", "20126", "32054", {"icon": "LogOff.png"} ]) )
-        listitems.append( self._create(["ActivateScreensaver", "360", "32054", {"icon": "ActivateScreensaver.png"} ]) )
-        listitems.append( self._create(["Minimize", "13014", "32054", {"icon": "Minimize.png"} ]) )
+        for staticGroup in staticGroups:
+            log( repr( staticGroup ) )
+            listitems = []
+            for tree in trees:
+                if tree is None:
+                    continue
 
-        listitems.append( self._create(["Mastermode", "20045", "32054", {"icon": "Mastermode.png"} ]) )
-        
-        listitems.append( self._create(["RipCD", "600", "32054", {"icon": "RipCD.png"} ]) )
+                staticItems = tree.find( staticGroup[ 0 ] )
+                if staticItems is None:
+                    continue
 
-        listitems.append( self._create(["UpdateLibrary(video,,true)", "32046", "32054", {"icon": "UpdateVideoLibrary.png"} ]) )
-        listitems.append( self._create(["UpdateLibrary(music,,true)", "32047", "32054", {"icon": "UpdateMusicLibrary.png"} ]) )
+                for staticItem in staticItems.findall( "item" ):
+                    if "condition" in staticItem.attrib and not xbmc.getCondVisibility( staticItem.attrib.get( "condition" ) ):
+                        # Condition specified doesn't match
+                        continue
 
-        listitems.append( self._create(["CleanLibrary(video,true)", "32055", "32054", {"icon": "CleanVideoLibrary.png"} ]) )
-        listitems.append( self._create(["CleanLibrary(music,true)", "32056", "32054", {"icon": "CleanMusicLibrary.png"} ]) )
-        
-        self.addToDictionary( "commands", listitems )
-        
-    def settings( self ):
-        listitems = []
-        
-        listitems.append( self._create(["ActivateWindow(Settings)", "10004", "10004", {"icon": "Settings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(PVRSettings)", "19020", "10004", {"icon": "PVRSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(AddonBrowser)", "24001", "10004", {"icon": "DefaultAddon.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(ServiceSettings)", "14036", "10004", {"icon": "ServiceSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(SystemSettings)", "13000", "10004", {"icon": "SystemSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(SkinSettings)", "20077", "10004", {"icon": "SkinSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(PlayerSettings)", "14200", "10004", {"icon": "PlayerSettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(LibrarySettings)", "14202", "10004", {"icon": "LibrarySettings.png"} ]) )
-        listitems.append( self._create(["ActivateWindow(InterfaceSettings)", "14206", "10004", {"icon": "InterfaceSettings.png"} ]) )
-        
-        self.addToDictionary( "settings", listitems )
-    
-    def pvrlibrary( self ):
-        # PVR
-        listitems = []
+                    # Pull out properties of static item
+                    path = staticItem.text
+                    label = staticItem.attrib.get( "label" )
+                    icon = staticItem.attrib.get( "icon" )
 
-        listitems.append( self._create(["ActivateWindow(TVChannels)", "19019", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(TVGuide)", "22020", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(TVRecordings)", "19163", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(TVTimers)", "19040", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(TVTimerRules)", "19138", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(TVSearch)", "137", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-        
-        listitems.append( self._create(["PlayPvrTV", "32066", "32017", {"icon": "DefaultTVShows.png"} ] ) )
-        listitems.append( self._create(["PlayPvr", "32068", "32017", {"icon": "DefaultTVShows.png"} ] ) )
+                    # Build static item
+                    listitems.append( self._create( [ staticItem.text, staticItem.attrib.get( "label" ), staticGroup[ 1 ], { "icon": staticItem.attrib.get( "icon" ) } ] ) )
 
-        self.addToDictionary( "pvr", listitems )            
-        
-        # Add tv channels
-        listitems = []
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "PVR.GetChannels", "params": { "channelgroupid": "alltv", "properties": ["thumbnail", "channeltype", "hidden", "locked", "channel", "lastplayed"] } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-        
-        # Add all directories returned by the json query
-        if json_response.has_key('result') and json_response['result'].has_key('channels') and json_response['result']['channels'] is not None:
-            for item in json_response['result']['channels']:
-                listitems.append( self._create(["pvr-channel://" + str( item['channelid'] ), item['label'], "::SCRIPT::32076", {"icon": "DefaultTVShows.png", "thumb": item[ "thumbnail"]}]) )
-        
-        self.addToDictionary( "pvr-tv", listitems )
-        
-        # Add radio channels
-        listitems = []
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "PVR.GetChannels", "params": { "channelgroupid": "allradio", "properties": ["thumbnail", "channeltype", "hidden", "locked", "channel", "lastplayed"] } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-        
-        # Add all directories returned by the json query
-        if json_response.has_key('result') and json_response['result'].has_key('channels') and json_response['result']['channels'] is not None:
-            for item in json_response['result']['channels']:
-                listitems.append( self._create(["pvr-channel://" + str( item['channelid'] ), item['label'], "::SCRIPT::32077", {"icon": "DefaultTVShows.png", "thumb": item[ "thumbnail"]}]) )
-        
-        log( "Found " + str( len( listitems ) ) + " radio channels" )
-        self.addToDictionary( "pvr-radio", listitems )
-        
-    def radiolibrary( self ):
-        listitems = []
-        
-        # PVR
-        listitems.append( self._create(["ActivateWindow(RadioChannels)", "19019", "32087", {"icon": "DefaultAudio.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(RadioGuide)", "22020", "32087", {"icon": "DefaultAudio.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(RadioRecordings)", "19163", "32087", {"icon": "DefaultAudio.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(RadioTimers)", "19040", "32087", {"icon": "DefaultAudio.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(RadioTimerRules)", "19138", "32087", {"icon": "DefaultAudio.png"} ] ) )
-        listitems.append( self._create(["ActivateWindow(RadioSearch)", "137", "32087", {"icon": "DefaultAudio.png"} ] ) )
-        
-        listitems.append( self._create(["PlayPvrRadio", "32067", "32087", {"icon": "DefaultAudio.png"} ] ) )
-        listitems.append( self._create(["PlayPvr", "32068", "32087", {"icon": "DefaultAudio.png"} ] ) )
+                break
 
-        self.addToDictionary( "radio", listitems )
-
+            self.addToDictionary( staticGroup[ 0 ], listitems )
         
     def musiclibrary( self ):
         # Try loading custom nodes first

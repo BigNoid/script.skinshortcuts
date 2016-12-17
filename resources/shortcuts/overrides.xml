@@ -44,6 +44,85 @@
 		<item control="313" condition="String.IsEqual(Container(211).ListItem.Property(skinshortcuts-disabled),True)">$LOCALIZE[24022]</item>
 	</contextmenu>
 
+	<!-- Static groups of available shortcuts -->
+	<static>
+		<common>
+			<item label="10006" icon="DefaultVideo.png">ActivateWindow(Videos)</item>
+			<item label="342" icon="DefaultMovies.png">ActivateWindow(Videos,videodb://movies/titles/,return)</item>
+			<item label="20343" icon="DefaultTVShows.png">ActivateWindow(Videos,videodb://tvshows/titles/,return)</item>
+			<item label="32022" icon="DefaultTVShows.png">ActivateWindow(TVGuide)</item>
+			<item label="32087" icon="DefaultTVShows.png">ActivateWindow(RadioGuide)</item>
+			<item label="10005" icon="DefaultMusicAlbums.png">ActivateWindow(Music)</item>
+			<item label="589" icon="DefaultMusicAlbums.png">PlayerControl(PartyMode)</item>
+			<item label="32108" icon="DefaultMusicVideos.png">PlayerControl(PartyMode(Video))</item>
+			<item label="20389" icon="DefaultMusicVideos.png">ActivateWindow(Videos,videodb://musicvideos/titles/,return)</item>
+			<item label="15016" icon="DefaultGames.png">ActivateWindow(Games)</item>
+			<item label="10002" icon="DefaultPicture.png">ActivateWindow(Pictures)</item>
+			<item label="12600" icon="Weather.png">ActivateWindow(Weather)</item>
+			<item label="10001" icon="DefaultProgram.png">ActivateWindow(Programs,Addons,return)</item>
+			<item label="32032" icon="DefaultDVDFull.png">PlayDVD</item>
+			<item label="32033" icon="DefaultDVDFull.png">EjectTray()</item>
+			<item label="10004" icon="Settings.png">ActivateWindow(Settings)</item>
+			<item label="7" icon="DefaultFolder.png">ActivateWindow(FileManager)</item>
+			<item label="13200" icon="UnknownUser.png">ActivateWindow(Profiles)</item>
+			<item label="10007" icon="SystemInfo.png">ActivateWindow(SystemInfo)</item>
+			<item label="14111" icon="Events.png">ActivateWindow(EventLog,events://,return)</item>
+			<item label="1036" icon="Favourites.png">ActivateWindow(Favourites)</item>
+		</common>
+		<commands>
+			<item label="13013" icon="Reboot.png">Reboot</item>
+			<item label="13005" icon="Shutdown.png">ShutDown</item>
+			<item label="13016" icon="PowerDown.png">PowerDown</item>
+			<item label="13009" icon="Quit.png">Quit</item>
+			<item label="13313" icon="RestartApp.png" condition="System.Platform.Windows | [System.Platform.Linux + !System.Platform.Linux.RaspberryPi]">RestartApp</item>
+			<item label="13010" icon="Hibernate.png">Hibernate</item>
+			<item label="13011" icon="Suspend.png">Suspend</item>
+			<item label="19026" icon="ShutdownTimer.png">AlarmClock(shutdowntimer,XBMC.Shutdown())</item>
+			<item label="20151" icon="CancelShutdownTimer.png">CancelAlarm(shutdowntimer)</item>
+			<item label="20126" icon="LogOff.png" condition="System.HasLoginScreen">System.LogOff</item>
+			<item label="360" icon="ActivateScreensaver.png">ActivateScreensaver</item>
+			<item label="13014" icon="Minimize.png">Minimize</item>
+			<item label="20045" icon="Mastermode.png">Mastermode</item>
+			<item label="600" icon="RipCD.png">RipCD</item>
+			<item label="32046" icon="UpdateVideoLibrary.png">UpdateLibrary(video,,true)</item>
+			<item label="32047" icon="UpdateMusicLibrary.png">UpdateLibrary(music,,true)</item>
+			<item label="32055" icon="CleanVideoLibrary.png">CleanLibrary(video,true)</item>
+			<item label="32056" icon="CleanMusicLibrary.png">CleanLibrary(music,true)</item>
+		</commands>
+		<settings>
+			<item label="10004" icon="Settings.png">ActivateWindow(Settings)</item>
+			<item label="19020" icon="PVRSettings.png">ActivateWindow(PVRSettings)</item>
+			<item label="24001" icon="DefaultAddon.png">ActivateWindow(AddonBrowser)</item>
+			<item label="14036" icon="ServiceSettings.png">ActivateWindow(ServiceSettings)</item>
+			<item label="13000" icon="SystemSettings.png">ActivateWindow(SystemSettings)</item>
+			<item label="20077" icon="SkinSettings.png">ActivateWindow(SkinSettings)</item>
+			<item label="14200" icon="PlayerSettings.png">ActivateWindow(PlayerSettings)</item>
+			<item label="14202" icon="LibrarySettings.png">ActivateWindow(LibrarySettings)</item>
+			<item label="14206" icon="InterfaceSettings.png">ActivateWindow(InterfaceSettings)</item>
+			<item label="15016" icon="">ActivateWindow(GameSettings)</item>
+		</settings>
+		<pvr-tv>
+			<item label="19019" icon="DefaultTVShows.png">ActivateWindow(TVChannels)</item>
+			<item label="22020" icon="DefaultTVShows.png">ActivateWindow(TVGuide)</item>
+			<item label="19163" icon="DefaultTVShows.png">ActivateWindow(TVRecordings)</item>
+			<item label="19040" icon="DefaultTVShows.png">ActivateWindow(TVTimers)</item>
+			<item label="19138" icon="DefaultTVShows.png">ActivateWindow(TVTimerRules)</item>
+			<item label="137" icon="DefaultTVShows.png">ActivateWindow(TVSearch)</item>
+			<item label="32066" icon="DefaultTVShows.png">PlayPvrTV</item>
+			<item label="32068" icon="DefaultTVShows.png">PlayPvr</item>
+		</pvr-tv>
+		<pvr-radio>
+			<item label="19019" icon="DefaultAudio.png">ActivateWindow(RadioChannels)</item>
+			<item label="22020" icon="DefaultAudio.png">ActivateWindow(RadioGuide)</item>
+			<item label="19163" icon="DefaultAudio.png">ActivateWindow(RadioRecordings)</item>
+			<item label="19040" icon="DefaultAudio.png">ActivateWindow(RadioTimers)</item>
+			<item label="19138" icon="DefaultAudio.png">ActivateWindow(RadioTimerRules)</item>
+			<item label="137" icon="DefaultAudio.png">ActivateWindow(RadioSearch)</item>
+			<item label="32067" icon="DefaultAudio.png">PlayPvrRadio</item>
+			<item label="32068" icon="DefaultAudio.png">PlayPvr</item>
+		</pvr-radio>
+	</static>
+
 
 	<flatgroupings>
 		<node label="32029">
