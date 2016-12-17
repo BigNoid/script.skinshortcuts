@@ -940,61 +940,21 @@ class LibraryFunctions():
             self.loaded[ "upnp" ][ 0 ] = True
     
     def librarysources( self ):
-        # Add video sources
-        listitems = []
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "video" } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-            
-        # Add all directories returned by the json query
-        if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
-            for item in json_response['result']['sources']:
-                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32069", {"icon": "DefaultFolder.png"} ]) )
-        self.addToDictionary( "videosources", listitems )
-        
-        log( " - " + str( len( listitems ) ) + " video sources" )
-                
-        # Add audio sources
-        listitems = []
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "music" } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-            
-        # Add all directories returned by the json query
-        if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
-            for item in json_response['result']['sources']:
-                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32073", {"icon": "DefaultFolder.png"} ]) )
-        self.addToDictionary( "musicsources", listitems )
-        
-        log( " - " + str( len( listitems ) ) + " audio sources" )
-        
-        # Add picture sources
-        listitems = []
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "pictures" } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-            
-        # Add all directories returned by the json query
-        if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
-            for item in json_response['result']['sources']:
-                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32089", {"icon": "DefaultFolder.png"} ]) )
-        self.addToDictionary( "picturesources", listitems )
-        
-        log( " - " + str( len( listitems ) ) + " picture sources" )
+        for mediaType in [ ( "video", "videosources" ), ( "music", "musicsources" ), ( "pictures", "picturesources" ), ( "games", "gamesources" ) ]:
+            listitems = []
+            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "%s" } }' %( mediaType[ 0 ] ) )
+            json_query = unicode(json_query, 'utf-8', errors='ignore')
+            json_response = simplejson.loads(json_query)
 
-        # Add game sources
-        listitems = []
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "games" } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
-            
-        # Add all directories returned by the json query
-        if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
-            for item in json_response['result']['sources']:
-                listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32089", {"icon": "DefaultFolder.png"} ]) )
-        self.addToDictionary( "gamesources", listitems )
-        
-        log( " - " + str( len( listitems ) ) + " game sources" )
+            # Add all directories returned by the json query
+            if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
+                for item in json_response['result']['sources']:
+                    listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32069", {"icon": "DefaultFolder.png"} ]) )
+                self.addToDictionary( mediaType[ 1 ], listitems )
+
+                log( " - %i %s sources" %( len( listitems), mediaType[ 0 ] ) )
+            else:
+                log( " - Unable to load %s sources" %( mediaType[ 0 ] ) )
             
     def playlists( self ):
         audiolist = []
