@@ -1140,9 +1140,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Replace the allListItems listitem with our new list item
             self.allListItems[ orderIndex ] = listitemCopy
             
-            # Delete playlist (TO BE REMOVED!)
-            LIBRARY._delete_playlist( listControl.getListItem( itemIndex ).getProperty( "path" ) )
-            
             # Display list items
             self._display_listitems( focus = itemIndex )
         
@@ -1176,8 +1173,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             if self.warnonremoval( listControl.getListItem( num ) ) == False:
                 return
-            
-            LIBRARY._delete_playlist( listControl.getListItem( num ).getProperty( "path" ) )
             
             self.changeMade = True
             
@@ -1338,7 +1333,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return
                 
             self.changeMade = True
-            LIBRARY._delete_playlist( listitem.getProperty( "path" ) )
             
             # Update the action
             listitem.setProperty( "path", action )
@@ -1418,10 +1412,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             elif response == 1:
                 # We're going to reset all the shortcuts
                 self.changeMade = True
-                
-                # Delete any auto-generated source playlists
-                for x in range(0, self.getControl( 211 ).size()):
-                    LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
 
                 self.getControl( 211 ).reset()
                 
@@ -1445,10 +1435,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if importMenu == -1:
                     # User cancelled
                     return
-
-                # Delete any auto-generated source playlists
-                for x in range(0, self.getControl( 211 ).size()):
-                    LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( x ).getProperty( "path" ) )
 
                 if importMenu == 0 and not len( sharedFiles ) == 0:
                     # User has chosen to import the shared menu
@@ -1887,7 +1873,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 if selectedShortcut.getProperty( "chosenPath" ):
                     listitemCopy.setProperty( "path", selectedShortcut.getProperty( "chosenPath" ) )
                     listitemCopy.setProperty( "displayPath", selectedShortcut.getProperty( "chosenPath" ) )
-                LIBRARY._delete_playlist( self.getControl( 211 ).getListItem( num ).getProperty( "path" ) )
             
                 self.changeMade = True
                 
@@ -2363,8 +2348,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Update the label, local string and labelID
         listitem.setLabel( label )
         listitem.setProperty( "localizedString", None )
-            
-        LIBRARY._rename_playlist( listitem.getProperty( "path" ), label )
             
         # If there's no label2, set it to custom shortcut
         if not listitem.getLabel2():
