@@ -8,7 +8,7 @@ from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
 from unidecode import unidecode
 from unicodeutils import try_decode
-import datafunctions, nodefunctions
+import datafunctions, nodefunctions, common
 DATA = datafunctions.DataFunctions()
 NODE = nodefunctions.NodeFunctions()
 
@@ -20,16 +20,6 @@ CWD          = sys.modules[ "__main__" ].CWD
 DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), ADDONID )
 LANGUAGE     = sys.modules[ "__main__" ].LANGUAGE
 KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
-
-def log(txt):
-    if ADDON.getSetting( "enable_logging" ) == "true":
-        try:
-            if isinstance (txt,str):
-                txt = txt.decode('utf-8')
-            message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
-        except:
-            pass
 
 def kodiwalk(path, stringForce = False):
     json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Files.GetDirectory","params":{"directory":"%s","media":"files"},"id":1}' % str(path))
@@ -131,7 +121,7 @@ class LibraryFunctions():
             self.loaded[ library ][ 0 ] = "Loading"
 
         # Call the function responsible for loading the library type we've been passed
-        log( "Listing %s..." %( self.loaded[ library ][ 1 ] ) )
+        common.log( "Listing %s..." %( self.loaded[ library ][ 1 ] ) )
         try:
             if library == "static":
                 self.staticShortcuts()
@@ -151,7 +141,7 @@ class LibraryFunctions():
                 self.widgets()
 
         except:
-            log( "Failed to load %s" %( self.loaded[ library ][ 1 ] ) )
+            common.log( "Failed to load %s" %( self.loaded[ library ][ 1 ] ) )
             print_exc()
 
         # Mark library type as loaded
@@ -606,17 +596,17 @@ class LibraryFunctions():
         # Try loading custom nodes first
         try:
             if self._parse_libraryNodes( "video", "custom" ) == False:
-                log( "Failed to load custom video nodes" )
+                common.log( "Failed to load custom video nodes" )
                 self._parse_libraryNodes( "video", "default" )
         except:
-            log( "Failed to load custom video nodes" )
+            common.log( "Failed to load custom video nodes" )
             print_exc()
             try:
                 # Try loading default nodes
                 self._parse_libraryNodes( "video", "default" )
             except:
                 # Empty library
-                log( "Failed to load default video nodes" )
+                common.log( "Failed to load default video nodes" )
                 print_exc()
 
     def _parse_libraryNodes( self, library, type ):
@@ -634,10 +624,10 @@ class LibraryFunctions():
 
         rootdir = os.path.join( xbmc.translatePath( "special://profile".decode('utf-8') ), "library", library )
         if type == "custom":
-            log( "Listing custom %s nodes..." %( library ) )
+            common.log( "Listing custom %s nodes..." %( library ) )
         else:
             rootdir = os.path.join( xbmc.translatePath( "special://xbmc".decode('utf-8') ), "system", "library", library )
-            log( "Listing default %s nodes..." %( library ) )
+            common.log( "Listing default %s nodes..." %( library ) )
             
         nodes = NODE.get_nodes( rootdir, prefix )
         if nodes == False or len( nodes ) == 0:
@@ -687,7 +677,7 @@ class LibraryFunctions():
         trees = [ DATA._get_overrides_skin().find( "static" ), DATA._get_overrides_script().find( "static" ) ]
 
         for staticGroup in staticGroups:
-            log( repr( staticGroup ) )
+            common.log( repr( staticGroup ) )
             listitems = []
             for tree in trees:
                 if tree is None:
@@ -718,17 +708,17 @@ class LibraryFunctions():
         # Try loading custom nodes first
         try:
             if self._parse_libraryNodes( "music", "custom" ) == False:
-                log( "Failed to load custom music nodes" )
+                common.log( "Failed to load custom music nodes" )
                 self._parse_libraryNodes( "music", "default" )
         except:
-            log( "Failed to load custom music nodes" )
+            common.log( "Failed to load custom music nodes" )
             print_exc()
             try:
                 # Try loading default nodes
                 self._parse_libraryNodes( "music", "default" )
             except:
                 # Empty library
-                log( "Failed to load default music nodes" )
+                common.log( "Failed to load default music nodes" )
                 print_exc()
         
         # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
@@ -749,9 +739,9 @@ class LibraryFunctions():
                     listitems.append( self._create(["||SOURCE||" + item['file'], item['label'], "32069", {"icon": "DefaultFolder.png"} ]) )
                 self.addToDictionary( mediaType[ 1 ], listitems )
 
-                log( " - %i %s sources" %( len( listitems), mediaType[ 0 ] ) )
+                common.log( " - %i %s sources" %( len( listitems), mediaType[ 0 ] ) )
             else:
-                log( " - Unable to load %s sources" %( mediaType[ 0 ] ) )
+                common.log( " - Unable to load %s sources" %( mediaType[ 0 ] ) )
             
     def playlists( self ):
         audiolist = []
@@ -831,10 +821,10 @@ class LibraryFunctions():
                         
                         count += 1
                 except:
-                    log( "Failed to load playlist: %s" %( file ) )
+                    common.log( "Failed to load playlist: %s" %( file ) )
                     print_exc()
                         
-            log( " - [" + path[0] + "] " + str( count ) + " playlists found" )
+            common.log( " - [" + path[0] + "] " + str( count ) + " playlists found" )
         
         self.addToDictionary( "playlist-video", videolist )
         self.addToDictionary( "playlist-audio", audiolist )
@@ -868,7 +858,7 @@ class LibraryFunctions():
             
             listitems.append( self._create( [ path, name, "32006", { "icon": "DefaultFolder.png", "thumb": thumb} ] ) )
         
-        log( " - " + str( len( listitems ) ) + " favourites found" )
+        common.log( " - " + str( len( listitems ) ) + " favourites found" )
         
         self.addToDictionary( "favourite", listitems )
         
@@ -956,20 +946,20 @@ class LibraryFunctions():
             if contenttype == "executable":
                 self.addToDictionary( "addon-program", self.sortDictionary( listitems ) )
                 self.addToDictionary( "addon-program-plugin", self.sortDictionary( plugins ) )
-                log( " - %i programs found (of which %i are plugins)" %( len( listitems ), len( plugins ) ) )
+                common.log( " - %i programs found (of which %i are plugins)" %( len( listitems ), len( plugins ) ) )
             elif contenttype == "video":
                 self.addToDictionary( "addon-video", self.sortDictionary( listitems ) )
-                log( " - " + str( len( listitems ) ) + " video add-ons found" )
+                common.log( " - " + str( len( listitems ) ) + " video add-ons found" )
             elif contenttype == "audio":
                 self.addToDictionary( "addon-audio", self.sortDictionary( listitems ) )
-                log( " - " + str( len( listitems ) ) + " audio add-ons found" )
+                common.log( " - " + str( len( listitems ) ) + " audio add-ons found" )
             elif contenttype == "image":
                 self.addToDictionary( "addon-image", self.sortDictionary( listitems ) )
-                log( " - " + str( len( listitems ) ) + " image add-ons found" )
+                common.log( " - " + str( len( listitems ) ) + " image add-ons found" )
             elif contenttype == "game":
                 self.addToDictionary( "addon-game", self.sortDictionary( listitems ) )
                 self.addToDictionary( "addon-game-plugin", self.sortDictionary( plugins ) )
-                log( " - %i game add-ons found (of which %i are plugins)" %( len( listitems ), len( plugins ) ) )
+                common.log( " - %i game add-ons found (of which %i are plugins)" %( len( listitems ), len( plugins ) ) )
 
 
 
@@ -1131,7 +1121,7 @@ class LibraryFunctions():
                 createLabel = "32100"
             listings.append( self._get_icon_overrides( tree, self._create( ["::CREATE::", createLabel, "", {}] ), "" ) )
                 
-        log( "Getting %s - %s" %( dialogLabel, try_decode( location ) ) )
+        common.log( "Getting %s - %s" %( dialogLabel, try_decode( location ) ) )
             
         # Show a waiting dialog, then get the listings for the directory
         dialog = xbmcgui.DialogProgress()
@@ -1242,7 +1232,7 @@ class LibraryFunctions():
 
         if selectedItem == -2:
             # Get more button
-            log( "Selected get more button" )
+            common.log( "Selected get more button" )
             return self._explorer_install_widget_provider( history, history[ len( history ) -1 ], label, thumbnail, itemType, isWidget )
         
         elif selectedItem != -1:
@@ -1539,7 +1529,7 @@ class LibraryFunctions():
         
         if number == -2:
             # Get more button
-            log( "Selected get more button" )
+            common.log( "Selected get more button" )
             return self._select_install_widget_provider( group, grouping, custom, showNone, currentAction )
 
         if number != -1:
@@ -1602,7 +1592,7 @@ class LibraryFunctions():
                     selectedShortcut.setProperty( "Path", selectedShortcut.getProperty( "Path" ).replace( "\\", "\\\\" ) )
                     selectedShortcut.setProperty( "displayPath", selectedShortcut.getProperty( "Path" ).replace( "\\", "\\\\" ) )
             elif path.startswith( "::PLAYLIST" ):
-                log( "Selected playlist" )
+                common.log( "Selected playlist" )
                 if isWidget:
                     # Return actionShow as chosenPath
                     selectedShortcut.setProperty( "chosenPath", selectedShortcut.getProperty( "action-show" ) )
@@ -1719,7 +1709,7 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
         try:
             self.getControl(7).setLabel(xbmc.getLocalizedString(222))
         except:
-            log( "Unable to set label for control 7" )
+            common.log( "Unable to set label for control 7" )
 
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2(), iconImage=item.getProperty( "icon" ), thumbnailImage=item.getProperty( "thumbnail" ))

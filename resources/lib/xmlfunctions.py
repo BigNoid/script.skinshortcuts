@@ -16,16 +16,9 @@ KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/addon_data/" ).decode('utf-8'), ADDONID ).encode('utf-8')
 LANGUAGE     = ADDON.getLocalizedString
 
-import datafunctions, template, debug
+import datafunctions, template, debug, common
 DATA = datafunctions.DataFunctions()
 import hashlib, hashlist
-
-def log(txt):
-    if ADDON.getSetting( "enable_logging" ) == "true":
-        if isinstance (txt,str):
-            txt = txt.decode('utf-8')
-        message = u'%s: %s' % (ADDONID, txt)
-        xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
     
 class XMLFunctions():
     def __init__(self):
@@ -62,7 +55,7 @@ class XMLFunctions():
             for profile in profiles:
                 name = profile.find( "name" ).text.encode( "utf-8" )
                 dir = profile.find( "directory" ).text.encode( "utf-8" )
-                log( "Profile found: " + name + " (" + dir + ")" )
+                common.log( "Profile found: " + name + " (" + dir + ")" )
                 # Localise the directory
                 if "://" in dir:
                     dir = xbmc.translatePath( dir ).decode( "utf-8" )
@@ -75,7 +68,7 @@ class XMLFunctions():
             profilelist = [["special://masterprofile", None]]
  
         if self.shouldwerun( profilelist ) == False:
-            log( "Menu is up to date" )
+            common.log( "Menu is up to date" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-isrunning" )
             return
 
@@ -85,7 +78,7 @@ class XMLFunctions():
         progress.create(ADDON.getAddonInfo( "name" ), LANGUAGE( 32049 ) )
         progress.update( 0 )
 
-        log( "Call attempt" )
+        common.log( "Call attempt" )
         if debug.attempt( self.writexml, [profilelist, mainmenuID, groups, numLevels, buildMode, progress, options, minitems ], LANGUAGE( 32092 ) ):
             # Menu build successfully - reload the skin
             xbmc.executebuiltin( "XBMC.ReloadSkin()")
@@ -99,7 +92,7 @@ class XMLFunctions():
             property = xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-reloadmainmenu" )
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-reloadmainmenu" )
             if property == "True":
-                log( "Menu has been edited")
+                common.log( "Menu has been edited")
                 return True
         except:
             pass
@@ -129,7 +122,7 @@ class XMLFunctions():
         # Check for the includes file
         for path in paths:
             if not xbmcvfs.exists( path ):
-                log( "Includes file does not exist" )
+                common.log( "Includes file does not exist" )
                 return True
             else:
                 pass
@@ -137,12 +130,12 @@ class XMLFunctions():
         # Check for the hashes file
         hashesPath = os.path.join( MASTERPATH , xbmc.getSkinDir() + ".hash" )
         if not xbmcvfs.exists( hashesPath ):
-            log( "Hash list does not exist" )
+            common.log( "Hash list does not exist" )
             return True
         try:
             hashes = ast.literal_eval( xbmcvfs.File( hashesPath ).read() )
         except:
-            log( "Unable to parse hash list" )
+            common.log( "Unable to parse hash list" )
             print_exc()
             return True
         
@@ -160,35 +153,35 @@ class XMLFunctions():
                     # Check the skin version is still the same as hash[1]
                     checkedXBMCVer = True
                     if KODIVERSION != hash[1]:
-                        log( "Now running a different version of Kodi" )
+                        common.log( "Now running a different version of Kodi" )
                         return True
                 elif hash[0] == "::SKINVER::":
                     # Check the skin version is still the same as hash[1]
                     checkedSkinVer = True
                     if skinVersion != hash[1]:
-                        log( "Now running a different skin version" )
+                        common.log( "Now running a different skin version" )
                         return True
                 elif hash[0] == "::SCRIPTVER::":
                     # Check the script version is still the same as hash[1]
                     checkedScriptVer = True
                     if ADDONVERSION != hash[1]:
-                        log( "Now running a different script version" )
+                        common.log( "Now running a different script version" )
                         return True
                 elif hash[0] == "::PROFILELIST::":
                     # Check the profilelist is still the same as hash[1]
                     checkedProfileList = True
                     if profilelist != hash[1]:
-                        log( "Profiles have changes" )
+                        common.log( "Profiles have changes" )
                         return True
                 elif hash[0] == "::HIDEPVR::":
                     checkedPVRVis = True
                     if ADDON.getSetting( "donthidepvr" ) != hash[1]:
-                        log( "PVR visibility setting has changed" )
+                        common.log( "PVR visibility setting has changed" )
                 elif hash[0] == "::SHARED::":
                     # Check whether shared-menu setting has changed
                     checkedSharedMenu = True
                     if ADDON.getSetting( "shared_menu" ) != hash[1]:
-                        log( "Shared menu setting has changed" )
+                        common.log( "Shared menu setting has changed" )
                         return True
                 elif hash[0] == "::LANGUAGE::":
                     # We no longer need to rebuild on a system language change
@@ -211,15 +204,15 @@ class XMLFunctions():
                         hasher = hashlib.md5()
                         hasher.update( xbmcvfs.File( hash[0] ).read() )
                         if hasher.hexdigest() != hash[1]:
-                            log( "Hash does not match on file " + hash[0] )
-                            log( "(" + hash[1] + " > " + hasher.hexdigest() + ")" )
+                            common.log( "Hash does not match on file " + hash[0] )
+                            common.log( "(" + hash[1] + " > " + hasher.hexdigest() + ")" )
                             return True
                     except:
-                        log( "Unable to generate hash for %s" %( hash[ 0 ] ) )
-                        log( "(%s > ?)" %( hash[ 1 ] ) )
+                        common.log( "Unable to generate hash for %s" %( hash[ 0 ] ) )
+                        common.log( "(%s > ?)" %( hash[ 1 ] ) )
             else:
                 if xbmcvfs.exists( hash[0] ):
-                    log( "File now exists " + hash[0] )
+                    common.log( "File now exists " + hash[0] )
                     return True
 
         # Set or clear the FullMenu skin bool
@@ -294,7 +287,7 @@ class XMLFunctions():
         submenuNodes = {}
         
         for profile in profilelist:
-            log( "Building menu for profile %s" %( profile[ 2 ] ) )
+            common.log( "Building menu for profile %s" %( profile[ 2 ] ) )
             # Load profile details
             profileDir = profile[0]
             profileVis = profile[1]

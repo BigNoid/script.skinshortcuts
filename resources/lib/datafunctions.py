@@ -10,7 +10,7 @@ from htmlentitydefs import name2codepoint
 from unidecode import unidecode
 from unicodeutils import try_decode
 
-import nodefunctions
+import nodefunctions, common
 NODE = nodefunctions.NodeFunctions()
 
 ADDON        = xbmcaddon.Addon()
@@ -34,16 +34,6 @@ HEX_REXP = re.compile('&#x([\da-fA-F]+);')
 REPLACE1_REXP = re.compile(r'[\']+')
 REPLACE2_REXP = re.compile(r'[^-a-z0-9]+')
 REMOVE_REXP = re.compile('-{2,}')
-
-def log(txt):
-    if ADDON.getSetting( "enable_logging" ) == "true":
-        try:
-            if isinstance (txt,str):
-                txt = txt.decode('utf-8')
-            message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
-        except:
-            pass
     
 class DataFunctions():
     def __init__(self):
@@ -129,7 +119,7 @@ class DataFunctions():
     def _get_shortcuts( self, group, defaultGroup = None, isXML = False, profileDir = None, defaultsOnly = False, processShortcuts = True, isSubLevel = False ):
         # This will load the shortcut file
         # Additionally, if the override files haven't been loaded, we'll load them too
-        log( "Loading shortcuts for group " + group )
+        common.log( "Loading shortcuts for group " + group )
                 
         if profileDir is None:
             profileDir = xbmc.translatePath( "special://profile/" ).decode( "utf-8" )
@@ -147,7 +137,7 @@ class DataFunctions():
             paths = [userShortcuts, skinShortcuts, defaultShortcuts ]
         
         for path in paths:
-            log( " - Attempting to load file %s" %( path ) )
+            common.log( " - Attempting to load file %s" %( path ) )
             path = try_decode( path )
             tree = None
             if xbmcvfs.exists( path ):
@@ -168,17 +158,17 @@ class DataFunctions():
                         self._get_skin_required( tree, group, profileDir )
                     self._process_shortcuts( tree, group, profileDir )
 
-                log( " - Loaded file" )
+                common.log( " - Loaded file" )
                 return tree
             elif tree is not None:
-                log( " - Loaded file " + path )
-                log( " - Returning unprocessed shortcuts" )
+                common.log( " - Loaded file " + path )
+                common.log( " - Returning unprocessed shortcuts" )
                 return tree
             else:
                 self._save_hash( path, None )
                 
         # No file loaded
-        log( " - No shortcuts" )
+        common.log( " - No shortcuts" )
         return xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
                             
     def _process_shortcuts( self, tree, group, profileDir = "special:\\profile", isUserShortcuts = False, allowAdditionalRequired = True ):
@@ -488,7 +478,7 @@ class DataFunctions():
             return tree
         except:
             if xbmcvfs.exists( overridePath ):
-                log( "Unable to parse script overrides.xml. Invalid xml?" )
+                common.log( "Unable to parse script overrides.xml. Invalid xml?" )
                 self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             else:
                 self._save_hash( overridePath, None )
@@ -509,7 +499,7 @@ class DataFunctions():
             return tree
         except:
             if xbmcvfs.exists( overridePath ):
-                log( "Unable to parse skin overrides.xml. Invalid xml?" )
+                common.log( "Unable to parse skin overrides.xml. Invalid xml?" )
                 self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             else:
                 self._save_hash( overridePath, None )
@@ -530,7 +520,7 @@ class DataFunctions():
             return tree
         except:
             if xbmcvfs.exists( overridePath ):
-                log( "Unable to parse user overrides.xml. Invalid xml?" )
+                common.log( "Unable to parse user overrides.xml. Invalid xml?" )
                 self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             else:
                 self._save_hash( overridePath, None )
@@ -569,7 +559,7 @@ class DataFunctions():
                         listProperty[3] = self.local( listProperty[3] )[3]
                     self.currentProperties.append( [listProperty[0], listProperty[1], listProperty[2], listProperty[3]] )
             except:
-                log( "Failed to load current properties" )
+                common.log( "Failed to load current properties" )
                 print_exc()
                 self.currentProperties = [ None ]
         else:
@@ -1304,7 +1294,7 @@ class DataFunctions():
                 return listProperty[ 1 ]
             else:
                 # Situation we haven't anticipated - log the issue and return original onclick
-                log( "Unable to get 'list' property for shortcut %s" %( onclick ) )
+                common.log( "Unable to get 'list' property for shortcut %s" %( onclick ) )
                 return onclick
         else:
             # Not an 'ActivateWindow' - return the onclick

@@ -5,19 +5,19 @@ import json
 ADDON        = xbmcaddon.Addon()
 LANGUAGE     = ADDON.getLocalizedString
 
-# Common function for trying something that may possibly fail and, if it does, enabling all
-# necessary debug options, capturing the error, and offering to upload debug log
-
-def log(txt):
-    if ADDON.getSetting( "enable_logging" ) == "true":
+# Common function for writing to the Kodi log
+def log(txt, level=xbmc.LOGDEBUG):
+    if ADDON.getSetting( "enable_logging" ) == "true" or not level == xbmc.LOGDEBUG:
         try:
             if isinstance (txt,str):
                 txt = txt.decode('utf-8')
             message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
+            xbmc.log(msg=message.encode('utf-8'), level=level)
         except:
             pass
 
+# Common function for trying something that may possibly fail and, if it does, enabling all
+# necessary debug options, capturing the error, and offering to upload debug log
 def attempt( functionName, arguments, errorTitle, weEnabledSystemDebug = False, weEnabledScriptDebug = False ):
     # Attempt to run the function we've been passed
     try:

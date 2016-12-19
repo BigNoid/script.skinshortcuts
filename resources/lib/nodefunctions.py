@@ -9,7 +9,7 @@ from traceback import print_exc
 from htmlentitydefs import name2codepoint
 from unidecode import unidecode
 from unicodeutils import try_decode
-
+import common
 import json
 
 ADDON        = xbmcaddon.Addon()
@@ -31,16 +31,6 @@ HEX_REXP = re.compile('&#x([\da-fA-F]+);')
 REPLACE1_REXP = re.compile(r'[\']+')
 REPLACE2_REXP = re.compile(r'[^-a-z0-9]+')
 REMOVE_REXP = re.compile('-{2,}')
-
-def log(txt):
-    if ADDON.getSetting( "enable_logging" ) == "true":
-        try:
-            if isinstance (txt,str):
-                txt = txt.decode('utf-8')
-            message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
-        except:
-            pass
     
 class NodeFunctions():
     def __init__(self):
@@ -297,10 +287,10 @@ class NodeFunctions():
     ##################################################
 
     def addToMenu( self, path, label, icon, content, window, DATA ):
-        log( repr( window ) )
-        log( repr( label ) )
-        log( repr( path ) )
-        log( repr( content ) )
+        common.log( repr( window ) )
+        common.log( repr( label ) )
+        common.log( repr( path ) )
+        common.log( repr( content ) )
         # Show a waiting dialog
         dialog = xbmcgui.DialogProgress()
         dialog.create( path, LANGUAGE( 32063 ) )
@@ -333,8 +323,8 @@ class NodeFunctions():
                     nodePaths.append( "ActivateWindow(%s,%s,return)" %( window, item[ "file" ] ) )
         else:
             # Unable to add to get directory listings
-            log( "Invalid JSON response returned" )
-            log( repr( json ) )
+            common.log( "Invalid JSON response returned" )
+            common.log( repr( json ) )
             # And tell the user it failed
             xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), ADDON.getLocalizedString(32115) )
             return
@@ -512,7 +502,7 @@ class NodeFunctions():
         # Loop through the properties we've been asked to set
         for count, propertyName in enumerate(propertyNames):
             # Set the new value
-            log( "Setting %s to %s" %( propertyName, propertyValues[ count ] ) )
+            common.log( "Setting %s to %s" %( propertyName, propertyValues[ count ] ) )
             if len( labelIDValues ) != 1:
                 labelID = labelIDValues[ count ]
             if labelID not in allProps[ group ].keys():
@@ -523,7 +513,7 @@ class NodeFunctions():
             for key in otherProperties:
                 if key in allProps[ group ][ labelID ].keys() and key in requires.keys() and requires[ key ] not in allProps[ group ][ labelID ].keys():
                     # This properties requirements aren't met
-                    log( "Removing value %s" %( key ) )
+                    common.log( "Removing value %s" %( key ) )
                     allProps[ group ][ labelID ].pop( key )
 
         # Build the list of all properties to save
@@ -538,10 +528,10 @@ class NodeFunctions():
             f = xbmcvfs.File( os.path.join( DATAPATH , xbmc.getSkinDir().decode('utf-8') + ".properties" ), 'w' )
             f.write( repr( saveData ).replace( "],", "],\n" ) )
             f.close()
-            log( "Properties file saved succesfully" )
+            common.log( "Properties file saved succesfully" )
         except:
             print_exc()
-            log( "### ERROR could not save file %s" % DATAPATH )
+            common.log( "### ERROR could not save file %s" % DATAPATH )
 
         # The properties will only be used if the .DATA.xml file exists in the addon_data folder( otherwise
         # the script will use the default values), so we're going to open and write the 'group' that has been
@@ -551,7 +541,7 @@ class NodeFunctions():
         path = xbmc.translatePath( os.path.join( "special://profile", "addon_data", ADDONID, "%s.DATA.xml" %( DATA.slugify( group, True ) ) ).encode('utf-8') )
         menuitems.write( path, encoding="UTF-8" )
 
-        log( "Properties updated" )
+        common.log( "Properties updated" )
 
         # Mark that the menu needs to be rebuilt
         xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-reloadmainmenu", "True" )
@@ -588,7 +578,7 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
             try:
                 self.getControl(7).setLabel(xbmc.getLocalizedString(222))
             except:
-                log( "Unable to set label for control 7" )
+                common.log( "Unable to set label for control 7" )
 
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2(), iconImage=item.getProperty( "icon" ), thumbnailImage=item.getProperty( "thumbnail" ))

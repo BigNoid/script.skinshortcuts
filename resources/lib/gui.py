@@ -10,12 +10,9 @@ from unicodeutils import try_decode
 import calendar
 from time import gmtime, strftime
 import random
-import debug
 
-import datafunctions
+import datafunctions, library, common
 DATA = datafunctions.DataFunctions()
-
-import library
 LIBRARY = library.LibraryFunctions()
 
 import json
@@ -34,16 +31,6 @@ ACTION_CONTEXT_MENU = ( 117, )
 
 if not xbmcvfs.exists(DATAPATH):
     xbmcvfs.mkdir(DATAPATH)
-
-def log(txt):
-    if ADDON.getSetting( "enable_logging" ) == "true":
-        try:
-            if isinstance (txt,str):
-                txt = txt.decode('utf-8')
-            message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
-        except:
-            pass
 
 def is_hebrew(text):
     if type(text) != unicode:
@@ -67,7 +54,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.groupLevel = None
         if "groupLevel" in kwargs and kwargs[ "groupLevel" ] != "0":
             self.groupLevel = kwargs[ "groupLevel" ]
-        log( repr( self.groupLevel ) )
+        common.log( repr( self.groupLevel ) )
         self.shortcutgroup = 1
         
         # Empty arrays for different shortcut types
@@ -104,7 +91,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         self.changeMade = False
         
-        log( 'Management module loaded' )
+        common.log( 'Management module loaded' )
         
     def onInit( self ):
         if self.group == '':
@@ -163,63 +150,63 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     if self.getControl( 301 ).getLabel() == "":
                         self.getControl( 301 ).setLabel( LANGUAGE(32000) )
                 except:
-                    log( "No add shortcut button on GUI (id 301)" )
+                    common.log( "No add shortcut button on GUI (id 301)" )
                 try:
                     if self.getControl( 302 ).getLabel() == "":
                         self.getControl( 302 ).setLabel( LANGUAGE(32001) )
                 except:
-                    log( "No delete shortcut button on GUI (id 302)" )
+                    common.log( "No delete shortcut button on GUI (id 302)" )
                 try:
                     if self.getControl( 303 ).getLabel() == "":
                         self.getControl( 303 ).setLabel( LANGUAGE(32002) )
                 except:
-                    log( "No move shortcut up button on GUI (id 303)" )
+                    common.log( "No move shortcut up button on GUI (id 303)" )
                 try:
                     if self.getControl( 304 ).getLabel() == "":
                         self.getControl( 304 ).setLabel( LANGUAGE(32003) )
                 except:
-                    log( "No move shortcut down button on GUI (id 304)" )
+                    common.log( "No move shortcut down button on GUI (id 304)" )
                 
                 try:
                     if self.getControl( 305 ).getLabel() == "":
                         self.getControl( 305 ).setLabel( LANGUAGE(32025) )
                 except:
-                    log( "Not set label button on GUI (id 305)" )
+                    common.log( "Not set label button on GUI (id 305)" )
                     
                 try:
                     if self.getControl( 306 ).getLabel() == "":
                         self.getControl( 306 ).setLabel( LANGUAGE(32026) )
                 except:
-                    log( "No edit thumbnail button on GUI (id 306)" )
+                    common.log( "No edit thumbnail button on GUI (id 306)" )
                     
                 try:
                     if self.getControl( 307 ).getLabel() == "":
                         self.getControl( 307 ).setLabel( LANGUAGE(32027) )
                 except:
-                    log( "Not edit action button on GUI (id 307)" )
+                    common.log( "Not edit action button on GUI (id 307)" )
                     
                 try:
                     if self.getControl( 308 ).getLabel() == "":
                         self.getControl( 308 ).setLabel( LANGUAGE(32028) )
                 except:
-                    log( "No reset shortcuts button on GUI (id 308)" )
+                    common.log( "No reset shortcuts button on GUI (id 308)" )
                     
                 try:
                     if self.getControl( 310 ).getLabel() == "":
                         self.getControl( 310 ).setLabel( LANGUAGE(32045) )
                 except:
-                    log( "No background button on GUI (id 310)" )
+                    common.log( "No background button on GUI (id 310)" )
                 try:
                     if self.getControl( 312 ).getLabel() == "":
                         self.getControl( 312 ).setLabel( LANGUAGE(32044) )
                 except:
-                    log( "No widget button on GUI (id 312)" )
+                    common.log( "No widget button on GUI (id 312)" )
                     
                 try:
                     if self.getControl( 401 ).getLabel() == "":
                         self.getControl( 401 ).setLabel( LANGUAGE(32048) )
                 except:
-                    log( "No widget button on GUI (id 401)" )
+                    common.log( "No widget button on GUI (id 401)" )
                     
             # Load library shortcuts in thread
             thread.start_new_thread( LIBRARY.loadAllLibrary, () )
@@ -235,12 +222,12 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
     
     def load_shortcuts( self, includeUserShortcuts = True, addShortcutsToWindow = True ):
-        log( "Loading shortcuts" )
+        common.log( "Loading shortcuts" )
         DATA._clear_labelID()
 
         isSubLevel = False
         if self.groupLevel:
-            log( "Is sub level" )
+            common.log( "Is sub level" )
             isSubLevel = True
         
         if includeUserShortcuts:
@@ -543,7 +530,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def _save_shortcuts( self ):
         # Save shortcuts
         if self.changeMade == True:
-            log( "Saving changes" )
+            common.log( "Saving changes" )
             
             # Create a new tree
             tree = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
@@ -626,7 +613,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Check whether this is an additional level
             isSubLevel = False
             if self.groupLevel:
-                log( "Is sub level" )
+                common.log( "Is sub level" )
                 isSubLevel = True
 
             # Save the shortcuts
@@ -681,7 +668,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         if path[1] == "New":
                             tree = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
                             tree.write( target, encoding="UTF-8"  )
-                            log( "Creating empty file - %s" %( target ) )
+                            common.log( "Creating empty file - %s" %( target ) )
                             break
                             
                         elif xbmcvfs.exists( path[0] ):
@@ -689,7 +676,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                             if path[1] == "Move":
                                 if path[0] != target:
                                     # Move the original to the target path
-                                    log( "Moving " + path[0] + " > " + target )
+                                    common.log( "Moving " + path[0] + " > " + target )
                                     xbmcvfs.rename( path[0], target )
                             else:
                                 # We're copying the file (actually, we'll re-write the file without
@@ -703,7 +690,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                                 # Write it to the target
                                 DATA.indent( newtree.getroot() )
                                 newtree.write( target, encoding="utf-8" )
-                                log( "Copying " + path[0] + " > " + target )
+                                common.log( "Copying " + path[0] + " > " + target )
 
                                 # We'll need to import it's default properties, so save the groupName
                                 copyDefaultProperties.append( groupName )
@@ -725,7 +712,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
     def _save_properties( self, properties, labelIDChanges, copyDefaults ):
         # Save all additional properties (widgets, backgrounds, custom)
-        log( "Saving properties" )
+        common.log( "Saving properties" )
         
         currentProperties = []
         
@@ -779,7 +766,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             f.close()
         except:
             print_exc()
-            log( "### ERROR could not save file %s" % DATAPATH )
+            common.log( "### ERROR could not save file %s" % DATAPATH )
 
         # Clear saved properties in DATA, so it will pick up any new ones next time we load a file
         DATA.currentProperties = None
@@ -956,7 +943,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         if controlID == 301:
             # Add a new item
-            log( "Add item (301)" )
+            common.log( "Add item (301)" )
             self.changeMade = True
             listControl = self.getControl( 211 )
             num = listControl.getSelectedPosition()
@@ -976,7 +963,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         elif controlID == 302:
             # Delete an item
-            log( "Delete item (302)" )
+            common.log( "Delete item (302)" )
             
             listControl = self.getControl( 211 )
             num = listControl.getSelectedPosition()
@@ -993,7 +980,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         elif controlID == 303:
             # Move item up in list
-            log( "Move up (303)" )
+            common.log( "Move up (303)" )
             listControl = self.getControl( 211 )
             
             itemIndex = listControl.getSelectedPosition()
@@ -1027,13 +1014,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         elif controlID == 304:
             # Move item down in list
-            log( "Move down (304)" )
+            common.log( "Move down (304)" )
             listControl = self.getControl( 211 )
             
             itemIndex = listControl.getSelectedPosition()
             orderIndex = int( listControl.getListItem( itemIndex ).getProperty( "skinshortcuts-orderindex" ) )
             
-            log( str( itemIndex ) + " : " + str( listControl.size() ) )
+            common.log( str( itemIndex ) + " : " + str( listControl.size() ) )
             
             if itemIndex == listControl.size() - 1:
                 return
@@ -1063,7 +1050,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         elif controlID == 305:
             # Change label
-            log( "Change label (305)" )
+            common.log( "Change label (305)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
@@ -1092,7 +1079,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         elif controlID == 306:
             # Change thumbnail
-            log( "Change thumbnail (306)" )
+            common.log( "Change thumbnail (306)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
@@ -1110,7 +1097,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         elif controlID == 307:
             # Change Action
-            log( "Change action (307)" )
+            common.log( "Change action (307)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
@@ -1153,7 +1140,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         elif controlID == 308:
             # Reset shortcuts
-            log( "Reset shortcuts (308)" )
+            common.log( "Reset shortcuts (308)" )
 
             # Ask the user if they want to restore a shortcut, or reset to skin defaults
             if self.alwaysReset:
@@ -1264,7 +1251,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         elif controlID == 312:
             # Widget select
-            log( "Choose widget (312)" )
+            common.log( "Choose widget (312)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
 
@@ -1342,7 +1329,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
        
         elif controlID == 310:
             # Choose background
-            log( "Choose background (310)" )
+            common.log( "Choose background (310)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
@@ -1350,17 +1337,17 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Create lists for the select dialog, with image browse buttons if enabled
             if self.backgroundBrowse == "true":
-                log( "Adding both browse options" )
+                common.log( "Adding both browse options" )
                 background = ["", "", ""]         
                 backgroundLabel = [LANGUAGE(32053), LANGUAGE(32051), LANGUAGE(32052)]
                 backgroundPretty = [ LIBRARY._create(["", LANGUAGE(32053), "", { "icon": "DefaultAddonNone.png" }] ), LIBRARY._create(["", LANGUAGE(32051), "", { "icon": "DefaultFile.png" }] ), LIBRARY._create(["", LANGUAGE(32052), "", { "icon": "DefaultFolder.png" }] ) ]
             elif self.backgroundBrowse == "single":
-                log( "Adding single browse option" )
+                common.log( "Adding single browse option" )
                 background = ["", ""]         
                 backgroundLabel = [LANGUAGE(32053), LANGUAGE(32051)]
                 backgroundPretty = [ LIBRARY._create(["", LANGUAGE(32053), "", { "icon": "DefaultAddonNone.png" }] ), LIBRARY._create(["", LANGUAGE(32051), "", { "icon": "DefaultFile.png" }] ) ]
             elif self.backgroundBrowse == "multi":
-                log( "Adding multi browse option" )
+                common.log( "Adding multi browse option" )
                 background = ["", ""]         
                 backgroundLabel = [LANGUAGE(32053), LANGUAGE(32052)]
                 backgroundPretty = [ LIBRARY._create(["", LANGUAGE(32053), "", { "icon": "DefaultAddonNone.png" }] ), LIBRARY._create(["", LANGUAGE(32052), "", { "icon": "DefaultFolder.png" }] ) ]
@@ -1470,7 +1457,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         elif controlID == 311:
             # Choose thumbnail
-            log( "Choose thumbnail (311)" )
+            common.log( "Choose thumbnail (311)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
@@ -1494,7 +1481,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
             # Generate list of thumbnails for the dialog
             for key in self.thumbnails:
-                log( repr( key[ 0 ] ) + " " + repr( key[ 1 ] ) )
+                common.log( repr( key[ 0 ] ) + " " + repr( key[ 1 ] ) )
                 thumbnail.append( key[0] )
                 thumbnailLabel.append( LIBRARY._create(["", key[ 1 ], "", {"icon": key[ 0 ] }] ) )
             
@@ -1537,7 +1524,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         elif controlID == 313:
             # Toggle disabled
-            log( "Toggle disabled (313)" )
+            common.log( "Toggle disabled (313)" )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
 
@@ -1557,7 +1544,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         elif controlID == 401:
             # Select shortcut
-            log( "Select shortcut (401)" )
+            common.log( "Select shortcut (401)" )
             num = self.getControl( 211 ).getSelectedPosition()
             orderIndex = int( self.getControl( 211 ).getListItem( num ).getProperty( "skinshortcuts-orderindex" ) )
             
@@ -1611,7 +1598,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-loading" ) and int( calendar.timegm( gmtime() ) ) - int( xbmcgui.Window( 10000 ).getProperty( "skinshortcuts-loading" ) ) <= 5:
                 return
 
-            log( "Launching management dialog for submenu/additional menu (" + str( controlID ) + ")" )
+            common.log( "Launching management dialog for submenu/additional menu (" + str( controlID ) + ")" )
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts-loading", str( calendar.timegm( gmtime() ) ) )
             
             # Get the group we're about to edit
@@ -1684,7 +1671,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         if controlID in self.customToggleButtons:
             # Toggle a custom property
-            log( "Toggling custom property (%s)" %( str( controlID ) ) )
+            common.log( "Toggling custom property (%s)" %( str( controlID ) ) )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
 
@@ -1700,7 +1687,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Set custom property
             # We do this last so that, if the skinner has specified a default Skin Shortcuts control is used to set the
             # property, that is completed before we get here.
-            log( "Setting custom property (%s)" %( str( controlID ) ) )
+            common.log( "Setting custom property (%s)" %( str( controlID ) ) )
             listControl = self.getControl( 211 )
             listitem = listControl.getSelectedItem()
             
@@ -2073,7 +2060,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return
 
             # Close window
-            log( "Call attempt" )
+            common.log( "Call attempt" )
             debug.attempt( self._save_shortcuts, [], LANGUAGE( 32097 ) ) 
             xbmcgui.Window(self.window_id).clearProperty('groupname')
             self._close()
@@ -2102,7 +2089,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
         # Check that there are some items to display
         if len( contextItems ) == 0:
-            log( "Context menu called, but no items to display" )
+            common.log( "Context menu called, but no items to display" )
             return
 
         # Display the context menu

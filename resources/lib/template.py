@@ -7,20 +7,11 @@ import copy
 from traceback import print_exc
 import simpleeval, operator, ast
 from simpleeval import simple_eval
+import common
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
 SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
-
-def log(txt):
-    if ADDON.getSetting( "enable_logging" ) == "true":
-        try:
-            if isinstance (txt,str):
-                txt = txt.decode('utf-8')
-            message = u'%s: %s' % (ADDONID, txt)
-            xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
-        except:
-            pass
 
 class Template():
     def __init__( self ):
@@ -30,7 +21,7 @@ class Template():
         try:
             self.tree = xmltree.parse( templatepath )
 
-            log( "Loaded template.xml file")
+            common.log( "Loaded template.xml file")
 
             # Pull out the names and includes of the 'other' templates - used to generate accurate progress
             # and to build empty 'other' templates if necessary
@@ -47,7 +38,7 @@ class Template():
             # We couldn't load the template.xml file
             if xbmcvfs.exists( templatepath ):
                 # Unable to parse template.xml
-                log( "Unable to parse template.xml. Invalid xml?" )
+                common.log( "Unable to parse template.xml. Invalid xml?" )
                 self._save_hash( templatepath, xbmcvfs.File( templatepath ).read() )
             else:
                 # No template.xml            
@@ -87,9 +78,9 @@ class Template():
         if template is not None:
             # Found a template - let's build it
             if menuType == "mainmenu":
-                log( "Main menu template found" )
+                common.log( "Main menu template found" )
             else:
-                log( " - Submenu template found" )
+                common.log( " - Submenu template found" )
         
             # We need to check that the relevant includes existing
             # First, the overarching include
@@ -124,7 +115,7 @@ class Template():
         progressCount = 0
         numTemplates = 0
         if menuType == "mainmenu":
-            log( "Building templates")
+            common.log( "Building templates")
         else:
             # Switch menutype for level for submenu templates, to make it easier to pass in
             menuType = level
@@ -157,7 +148,7 @@ class Template():
             if menuType == "mainmenu":
                 self.progress.update( int( self.current + ( ( float( self.percent ) / float( len( items ) ) ) * progressCount ) ) )
         if numTemplates != 0:
-            log( " - %d templates" %( numTemplates ) )
+            common.log( " - %d templates" %( numTemplates ) )
                     
     def writeOthers( self ):
         # This will write any 'other' elements we have into the includes file
@@ -409,7 +400,7 @@ class Template():
             if matchElem is not None:
                 matchType = matchElem.text.lower()
                 if matchType not in [ "any", "all" ]:
-                    log( "Invalid <match /> element in template" )
+                    common.log( "Invalid <match /> element in template" )
                     matchType = "all"
                 elif matchType == "any":
                     matched = False
@@ -582,7 +573,7 @@ class Template():
                     tag = singleMatch.attrib.get( "tag" )
                 else:
                     # Tag is required, so we'll pass on this
-                    log( "Trying to match a property without using a tag element" )
+                    common.log( "Trying to match a property without using a tag element" )
                     continue
                 if "attribute" in singleMatch.attrib:
                     attribute = singleMatch.attrib.get( "attribute" ).split( "|" )
@@ -672,7 +663,7 @@ class Template():
                     value = rule[ 2 ]
                     
                     for item in items.findall( tag ):
-                        log( repr( attrib ) )
+                        common.log( repr( attrib ) )
                         if attrib is not None:
                             if attrib[ 0 ] not in item.attrib:
                                 # Doesn't have the attribute we're looking for
@@ -699,7 +690,7 @@ class Template():
                     else:
                         # This method only supports setting the property value directly, so if it wasn't specified,
                         # include a log error
-                        log( "Invalid template - cannot set property directly to menu item elements value when using multiple rules for single property")
+                        common.log( "Invalid template - cannot set property directly to menu item elements value when using multiple rules for single property")
         
         return properties
 

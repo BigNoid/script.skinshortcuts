@@ -27,20 +27,13 @@ MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/" ).de
 
 sys.path.append(RESOURCE)
 
-import xmlfunctions, datafunctions, library, nodefunctions
+import xmlfunctions, datafunctions, library, nodefunctions, common
 XML = xmlfunctions.XMLFunctions()
 DATA = datafunctions.DataFunctions()
 LIBRARY = library.LibraryFunctions()
 NODE = nodefunctions.NodeFunctions()
 
 hashlist = []
-
-def log(txt):
-    if ADDON.getSetting( "enable_logging" ) == "true":
-        if isinstance (txt,str):
-            txt = txt.decode('utf-8')
-        message = u'%s: %s' % (ADDONID, txt)
-        xbmc.log(msg=message.encode('utf-8'), level=xbmc.LOGDEBUG)
         
 class Main:
     # MAIN ENTRY POINT
@@ -209,7 +202,7 @@ class Main:
             try:
                 xbmcplugin.setResolvedUrl( handle=int( sys.argv[1]), succeeded=False, listitem=xbmcgui.ListItem() )
             except:
-                log( "Not launched from a list item" )
+                common.log( "Not launched from a list item" )
             self._reset_all_shortcuts()
 
     def _parse_argv( self ):
@@ -318,7 +311,7 @@ class Main:
         
         
     def _reset_all_shortcuts( self ):
-        log( "### Resetting all shortcuts" )
+        common.log( "### Resetting all shortcuts" )
         dialog = xbmcgui.Dialog()
         
         shouldRun = None
@@ -351,9 +344,9 @@ class Main:
                                     xbmcvfs.delete( file_path )
                                 except:
                                     print_exc()
-                                    log( "### ERROR could not delete file %s" % file )
+                                    common.log( "### ERROR could not delete file %s" % file )
                         else:
-                            log( "Not deleting file %s" %[ file ] )
+                            common.log( "Not deleting file %s" %[ file ] )
         
             # Update home window property (used to automatically refresh type=settings)
             xbmcgui.Window( 10000 ).setProperty( "skinshortcuts",strftime( "%Y%m%d%H%M%S",gmtime() ) )   
@@ -382,7 +375,7 @@ class Main:
         xbmc.executebuiltin( urllib.unquote( action ) )
         
 if ( __name__ == "__main__" ):
-    xbmc.log(msg="Script version %s started" %( ADDONVERSION ), level=xbmc.LOGINFO)
+    common.log( "Script version %s started" %( ADDONVERSION), xbmc.LOGINFO )
     
     # Uncomment when profiling performance
     #filename = os.path.join( DATAPATH, strftime( "%Y%m%d%H%M%S",gmtime() ) + "-" + str( random.randrange(0,100000) ) + ".log" )
@@ -396,4 +389,4 @@ if ( __name__ == "__main__" ):
     # Comment out the following line when profiling performance
     Main()
     
-    log('script stopped')
+    common.log( 'Script stopped' )
