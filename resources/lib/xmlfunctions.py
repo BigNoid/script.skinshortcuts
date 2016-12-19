@@ -16,7 +16,7 @@ KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/addon_data/" ).decode('utf-8'), ADDONID ).encode('utf-8')
 LANGUAGE     = ADDON.getLocalizedString
 
-import datafunctions, template
+import datafunctions, template, debug
 DATA = datafunctions.DataFunctions()
 import hashlib, hashlist
 
@@ -84,73 +84,15 @@ class XMLFunctions():
         progress = xbmcgui.DialogProgressBG()
         progress.create(ADDON.getAddonInfo( "name" ), LANGUAGE( 32049 ) )
         progress.update( 0 )
-        
-        # Write the menus
-        try:
-            self.writexml( profilelist, mainmenuID, groups, numLevels, buildMode, progress, options, minitems )
-            complete = True
-        except:
-            log( "Failed to write menu" )
-            print_exc()
-            complete = False
+
+        log( "Call attempt" )
+        if debug.attempt( self.writexml, [profilelist, mainmenuID, groups, numLevels, buildMode, progress, options, minitems ], LANGUAGE( 32092 ) ):
+            # Menu build successfully - reload the skin
+            xbmc.executebuiltin( "XBMC.ReloadSkin()")
         
         # Mark that we're no longer running, clear the progress dialog
         xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-isrunning" )
         progress.close()
-        
-        if complete == True:
-            # Menu is built, reload the skin
-            xbmc.executebuiltin( "XBMC.ReloadSkin()" )
-        else:
-            # Menu couldn't be built - generate a debug log
-        
-            # If we enabled debug logging
-            if weEnabledSystemDebug or weEnabledScriptDebug:
-                # Disable any logging we enabled
-                if weEnabledSystemDebug:
-                    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":false} } ' )
-                if weEnabledScriptDebug:
-                    ADDON.setSetting( "enable_logging", "false" )
-                    
-                # Offer to upload a debug log
-                if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
-                    ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32093 ) )
-                    if ret:
-                        xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
-                else:
-                    xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32094 ) )
-                    
-            else:
-                # Enable any debug logging needed                        
-                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Settings.getSettings" }')
-                json_query = unicode(json_query, 'utf-8', errors='ignore')
-                json_response = json.loads(json_query)
-                
-                enabledSystemDebug = False
-                enabledScriptDebug = False
-
-                if json_response.has_key('result') and json_response['result'].has_key('settings') and json_response['result']['settings'] is not None:
-                    for item in json_response['result']['settings']:
-                        if item["id"] == "debug.showloginfo":
-                            if item["value"] == False:
-                                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":true} } ' )
-                                enabledSystemDebug = True
-
-                if ADDON.getSetting( "enable_logging" ) != "true":
-                    ADDON.setSetting( "enable_logging", "true" )
-                    enabledScriptDebug = True
-                    
-                if enabledSystemDebug or enabledScriptDebug:
-                    # We enabled one or more of the debug options, re-run this function
-                    self.buildMenu( mainmenuID, groups, numLevels, buildMode, options, minitems, enabledSystemDebug, enabledScriptDebug )
-                else:
-                    # Offer to upload a debug log
-                    if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
-                        ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32093 ) )
-                        if ret:
-                            xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
-                    else:
-                        xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32092 ), LANGUAGE( 32094 ) )
         
     def shouldwerun( self, profilelist ):
         try:

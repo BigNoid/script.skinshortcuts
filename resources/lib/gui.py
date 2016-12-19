@@ -10,6 +10,7 @@ from unicodeutils import try_decode
 import calendar
 from time import gmtime, strftime
 import random
+import debug
 
 import datafunctions
 DATA = datafunctions.DataFunctions()
@@ -537,74 +538,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
             
         if setDefault == True and setToDefault == True:
             # We set this to the default icon, so we need to check if /that/ icon is overriden
-            self._get_icon_overrides( listitem, False, labelID )
-        
-    def _save_shortcuts( self, weEnabledSystemDebug = False, weEnabledScriptDebug = False ):
-        # Entry point to save shortcuts - we will call the _save_shortcuts_function and, if it
-        # fails, enable debug options (if not enabled) + recreate the error, then offer to upload
-        # debug log (if relevant add-on is installed)
-
-        # Save the shortcuts
-        try:
-            self._save_shortcuts_function()
-            return
-        except:
-            print_exc()
-            log( "Failed to save shortcuts" )
-
-        # We failed to save the shortcuts
-        
-        if weEnabledSystemDebug or weEnabledScriptDebug:
-            # Disable any logging we enabled
-            if weEnabledSystemDebug:
-                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":false} } ' )
-            if weEnabledScriptDebug:
-                ADDON.setSetting( "enable_logging", "false" )
-
-            if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader)" ):
-                # Offer to upload a debug log
-                ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32097 ), LANGUAGE( 32093 ) )
-                if ret:
-                    xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
-            else:
-                # Inform user menu couldn't be saved
-                xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32097 ), LANGUAGE( 32094 ) )
-
-            # We're done
-            return
-
-        # Enable any debug logging needed                        
-        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Settings.getSettings" }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = json.loads(json_query)
-        
-        enabledSystemDebug = False
-        enabledScriptDebug = False
-        if json_response.has_key('result') and json_response['result'].has_key('settings') and json_response['result']['settings'] is not None:
-            for item in json_response['result']['settings']:
-                if item["id"] == "debug.showloginfo":
-                    if item["value"] == False:
-                        json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method":"Settings.setSettingValue", "params": {"setting":"debug.showloginfo", "value":true} } ' )
-                        enabledSystemDebug = True
-        
-        if ADDON.getSetting( "enable_logging" ) != "true":
-            ADDON.setSetting( "enable_logging", "true" )
-            enabledScriptDebug = True
+            self._get_icon_overrides( listitem, False, labelID )                    
             
-        if enabledSystemDebug or enabledScriptDebug:
-            # We enabled one or more of the debug options, re-run this function
-            self._save_shortcuts( enabledSystemDebug, enabledScriptDebug )
-        else:
-            if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
-                # Offer to upload a debug log
-                ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), LANGUAGE( 32097 ), LANGUAGE( 32093 ) )
-                if ret:
-                    xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
-            else:
-                # Inform user menu couldn't be saved
-                xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), LANGUAGE( 32097 ), LANGUAGE( 32094 ) )                 
-            
-    def _save_shortcuts_function( self ):
+    def _save_shortcuts( self ):
         # Save shortcuts
         if self.changeMade == True:
             log( "Saving changes" )
@@ -2137,7 +2073,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return
 
             # Close window
-            self._save_shortcuts()
+            log( "Call attempt" )
+            debug.attempt( self._save_shortcuts, [], LANGUAGE( 32097 ) ) 
             xbmcgui.Window(self.window_id).clearProperty('groupname')
             self._close()
 
