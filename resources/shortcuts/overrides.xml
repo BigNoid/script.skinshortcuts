@@ -122,58 +122,6 @@
 			<item label="32068" icon="DefaultAudio.png">PlayPvr</item>
 		</pvr-radio>
 	</static>
-
-
-	<flatgroupings>
-		<node label="32029">
-			<content>common</content>
-		</node>
-		<node label="32030">
-			<content>video</content>
-		</node>
-		<node label="32031">
-			<content>music</content>
-		</node>
-		<node label="32017" condition="PVR.HasTVChannels">
-			<content>pvr</content>
-			<content>pvr-tv</content>
-		</node>
-		<node label="32087" condition="PVR.HasRadioChannels">
-			<content>radio</content>
-			<content>pvr-radio</content>
-		</node>
-		<node label="32074">
-			<content>videosources</content>
-			<content>upnp-video</content>
-			<content>musicsources</content>
-			<content>upnp-music</content>
-			<content>picturesources</content>
-			<content>gamesources</content>
-		</node>
-		<node label="32040">
-			<content>playlist-video</content>
-			<content>playlist-audio</content>
-		</node>
-		<node label="32007">
-			<shortcut label="1037" type="32014" thumb="DefaultAddonVideo.png">ActivateWindow(Videos,Addons,return)</shortcut>
-			<shortcut label="1038" type="32019" thumb="DefaultAddonMusic.png">ActivateWindow(MusicLibrary,Addons,return)</shortcut>
-			<shortcut label="1039" type="32020" thumb="DefaultAddonPicture.png">ActivateWindow(Pictures,Addons,return)</shortcut>
-			<shortcut label="10001" type="32021" thumb="DefaultAddonProgram.png">ActivateWindow(Programs,Addons,return)</shortcut>
-			<shortcut label="35049" type="Games" icon="DefaultAddonGame.png" version="18">ActivateWindow(Games,Addons,return)</shortcut>
-			<shortcut label="20244" type="32021" thumb="DefaultAddonProgram.png" condition="System.Platform.Android">ActivateWindow(Programs,androidapp://sources/apps,return)</shortcut>
-			<content>addon-program</content>
-			<content>addon-video</content>
-			<content>addon-audio</content>
-			<content>addon-image</content>
-			<content>addon-game</content>
-		</node>
-		<node label="32006">
-			<content>favourite</content>
-		</node>
-		<node label="32054">
-			<content>commands</content>
-		</node>
-	</flatgroupings>
 	
 	<groupings>
         

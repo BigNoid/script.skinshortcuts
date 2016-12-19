@@ -146,11 +146,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 pass
                 
             # Set enabled condition for various controls
-            has111 = True
-            try:
-                self.getControl( 111 ).setEnableCondition( "String.IsEmpty(Container(211).ListItem.Property(LOCKED))" )
-            except:
-                has111 = False
             try:
                 self.getControl( 302 ).setEnableCondition( "String.IsEmpty(Container(211).ListItem.Property(LOCKED))" )
             except:
@@ -230,12 +225,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     
             # Load library shortcuts in thread
             thread.start_new_thread( LIBRARY.loadAllLibrary, () )
-            
-            if has111:
-                try:
-                    self._display_shortcuts()
-                except:
-                    pass
 
             # Clear window property indicating we're loading
             xbmcgui.Window( 10000 ).clearProperty( "skinshortcuts-loading" )
@@ -1031,113 +1020,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
     # ========================
 
     def onClick(self, controlID):
-        if controlID == 102:
-            # Move to previous type of shortcuts
-            self.shortcutgroup = self.shortcutgroup - 1
-            if self.shortcutgroup == 0:
-                self.shortcutgroup = LIBRARY.flatGroupingsCount()
-            
-            self._display_shortcuts()
 
-        elif controlID == 103:
-            # Move to next type of shortcuts
-            self.shortcutgroup = self.shortcutgroup + 1
-            if self.shortcutgroup > LIBRARY.flatGroupingsCount():
-                self.shortcutgroup = 1
-            
-            self._display_shortcuts()
-            
-        elif controlID == 111:
-            # User has selected an available shortcut they want in their menu
-            log( "Select shortcut (111)" )
-            listControl = self.getControl( 211 )
-            itemIndex = listControl.getSelectedPosition()
-            orderIndex = int( listControl.getListItem( itemIndex ).getProperty( "skinshortcuts-orderindex" ) )
-            altAction = None
-            
-            if self.warnonremoval( listControl.getListItem( itemIndex ) ) == False:
-                return
-            
-            # Copy the new shortcut
-            selectedItem = self.getControl( 111 ).getSelectedItem()
-            listitemCopy = self._duplicate_listitem( selectedItem, listControl.getListItem( itemIndex ) )
-            
-            path = listitemCopy.getProperty( "path" )
-            if path.startswith( "||BROWSE||" ):
-                # If this is a plugin, call our plugin browser
-                returnVal = LIBRARY.explorer( ["plugin://" + path.replace( "||BROWSE||", "" )], "plugin://" + path.replace( "||BROWSE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
-                if returnVal is not None:
-                    # Convert backslashes to double-backslashes (windows fix)
-                    newAction = returnVal.getProperty( "Path" )
-                    newAction = newAction.replace( "\\", "\\\\" )
-                    returnVal.setProperty( "path", newAction )
-                    returnVal.setProperty( "displayPath", newAction )
-                    listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
-                else:
-                    listitemCopy = None
-            elif path == "||UPNP||":
-                returnVal = LIBRARY.explorer( ["upnp://"], "upnp://", [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
-                if returnVal is not None:
-                    listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
-                else:
-                    listitemCopy = None
-            elif path.startswith( "||SOURCE||" ):
-                returnVal = LIBRARY.explorer( [path.replace( "||SOURCE||", "" )], path.replace( "||SOURCE||", "" ), [self.getControl( 111 ).getSelectedItem().getLabel()], [self.getControl( 111 ).getSelectedItem().getProperty("thumbnail")], self.getControl( 111 ).getSelectedItem().getProperty("shortcutType")  )
-                if returnVal is not None:
-                    if "upnp://" in returnVal.getProperty( "Path" ):
-                        listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
-                    else:
-                        returnVal = LIBRARY._sourcelink_choice( returnVal )
-                        if returnVal is not None:
-                            listitemCopy = self._duplicate_listitem( returnVal, listControl.getListItem( itemIndex ) )
-                        else:
-                            listitemCopy = None
-                else:
-                    listitemCopy = None
-            elif path.startswith( "::PLAYLIST" ):
-                log( "Selected playlist" )
-                if not ">" in path or "VideoLibrary" in path:
-                    # Give the user the choice of playing or displaying the playlist
-                    dialog = xbmcgui.Dialog()
-                    userchoice = dialog.yesno( LANGUAGE( 32040 ), LANGUAGE( 32060 ), "", "", LANGUAGE( 32061 ), LANGUAGE( 32062 ) )
-                    # False: Display
-                    # True: Play
-                    if not userchoice:
-                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-show" ) )
-                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-show" ) )
-                    else:
-                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-play" ) )
-                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-play" ) )
-                elif ">" in path:
-                    # Give the user the choice of playing, displaying or party more for the playlist
-                    dialog = xbmcgui.Dialog()
-                    userchoice = dialog.select( LANGUAGE( 32060 ), [ LANGUAGE( 32061 ), LANGUAGE( 32062 ), xbmc.getLocalizedString( 589 ) ] )
-                    # 0 - Display
-                    # 1 - Play
-                    # 2 - Party mode
-                    if not userchoice or userchoice == 0:
-                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-show" ) )
-                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-show" ) )
-                    elif userchoice == 1:
-                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-play" ) )
-                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-play" ) )
-                    else:
-                        listitemCopy.setProperty( "path", selectedItem.getProperty( "action-party" ) )
-                        listitemCopy.setProperty( "displayPath", selectedItem.getProperty( "action-party" ) )
-             
-            if listitemCopy is None:
-                # Nothing was selected in the explorer
-                return
-                
-            self.changeMade = True
-            
-            # Replace the allListItems listitem with our new list item
-            self.allListItems[ orderIndex ] = listitemCopy
-            
-            # Display list items
-            self._display_listitems( focus = itemIndex )
-        
-        elif controlID == 301:
+        if controlID == 301:
             # Add a new item
             log( "Add item (301)" )
             self.changeMade = True
@@ -2037,23 +1921,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
     # ========================
     # === HELPER FUNCTIONS ===
     # ========================
-    
-            
-    def _display_shortcuts( self ):
-        # Load the currently selected shortcut group
-        newGroup = LIBRARY.retrieveGroup( self.shortcutgroup )
-        
-        label = DATA.local( newGroup[0] )[2]
-        
-        self.getControl( 111 ).reset()
-        for item in newGroup[1]:
-            newItem = self._duplicate_listitem( item )
-            if item.getProperty( "action-show" ):
-                newItem.setProperty( "action-show", item.getProperty( "action-show" ) )
-                newItem.setProperty( "action-play", item.getProperty( "action-play" ) )
-                newItem.setProperty( "action-party", item.getProperty( "action-party" ) )
-            self.getControl( 111 ).addItem( newItem )
-        self.getControl( 101 ).setLabel( label + " (%s)" %self.getControl( 111 ).size() )
         
     def _duplicate_listitem( self, listitem, originallistitem = None ):
         # Create a copy of an existing listitem

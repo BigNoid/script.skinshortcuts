@@ -387,7 +387,7 @@ class Main:
         xbmc.executebuiltin( urllib.unquote( action ) )
         
 if ( __name__ == "__main__" ):
-    log('script version %s started' % ADDONVERSION)
+    xbmc.log(msg="Script version %s started" %( ADDONVERSION ), level=xbmc.LOGINFO)
     
     # Uncomment when profiling performance
     #filename = os.path.join( DATAPATH, strftime( "%Y%m%d%H%M%S",gmtime() ) + "-" + str( random.randrange(0,100000) ) + ".log" )

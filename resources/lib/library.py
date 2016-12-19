@@ -74,13 +74,9 @@ class LibraryFunctions():
         self.dictionaryGroupings = {"common":None,
                 "commands":None,
                 "video":None, "movie":None,
-                "movie-flat":None,
                 "tvshow":None,
-                "tvshow-flat":None,
                 "musicvideo":None,
-                "musicvideo-flat":None,
                 "customvideonode":None,
-                "customvideonode-flat":None,
                 "videosources":None,
                 "pvr":None,
                 "radio":None,
@@ -185,15 +181,11 @@ class LibraryFunctions():
     # === BUILD/DISPLAY AVAILABLE SHORTCUT NODES ===
     # ==============================================
     
-    def retrieveGroup( self, group, flat = True, grouping = None ):
+    def retrieveGroup( self, group, grouping = None ):
         trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
         nodes = None
         for tree in trees:
-            if flat:
-                nodes = tree.find( "flatgroupings" )
-                if nodes is not None:
-                    nodes = nodes.findall( "node" )
-            elif grouping is None:
+            if grouping is None:
                 nodes = tree.find( "groupings" )
             else:
                 nodes = tree.find( "%s-groupings" %( grouping ) )
@@ -206,48 +198,21 @@ class LibraryFunctions():
             
         returnList = []
         
-        if flat:
-            # Flat groupings
-            count = 0
-            # Cycle through nodes till we find the one specified
-            for node in nodes:
-                count += 1
-                if "condition" in node.attrib:
-                    if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
-                        group += 1
-                        continue
-                if "version" in node.attrib:
-                    version = node.attrib.get( "version" )
-                    if KODIVERSION != version and DATA.checkVersionEquivalency( version, node.attrib.get( "condition" ), "groupings" ) == False:
-                        group += 1
-                        continue
-                if "installWidget" in node.attrib and node.attrib.get( "installWidget" ).lower() == "true":
-                    self.installWidget = True
-                else:
-                    self.installWidget = False
-                if count == group:
-                    # We found it :)
-                    return( node.attrib.get( "label" ), self.buildNodeListing( node, True ) )
-                    
-            return ["Error", []]
-            
+        if group == "":
+            # We're going to get the root nodes
+            self.installWidget = False
+            windowTitle = LANGUAGE(32048)
+            if grouping == "widget":
+                windowTitle = LANGUAGE(32044)
+            return [ windowTitle, self.buildNodeListing( nodes ) ]
         else:
-            # Heirachical groupings
-            if group == "":
-                # We're going to get the root nodes
-                self.installWidget = False
-                windowTitle = LANGUAGE(32048)
-                if grouping == "widget":
-                    windowTitle = LANGUAGE(32044)
-                return [ windowTitle, self.buildNodeListing( nodes, False ) ]
-            else:
-                groups = group.split( "," )
+            groups = group.split( "," )
+            
+            nodes = [ "", nodes ]
+            for groupNum in groups:
+                nodes = self.getNode( nodes[1], int( groupNum ) )
                 
-                nodes = [ "", nodes ]
-                for groupNum in groups:
-                    nodes = self.getNode( nodes[1], int( groupNum ) )
-                    
-                return [ nodes[0], self.buildNodeListing( nodes[1], False ) ]
+            return [ nodes[0], self.buildNodeListing( nodes[1] ) ]
                         
     def getNode( self, tree, number ):
         count = 0
@@ -272,7 +237,7 @@ class LibraryFunctions():
                 label = DATA.local( subnode.attrib.get( "label" ) )[2]
                 return [ label, subnode ]
                 
-    def buildNodeListing( self, nodes, flat ):
+    def buildNodeListing( self, nodes ):
         returnList = []
         count = 0
         for node in nodes:
@@ -305,8 +270,7 @@ class LibraryFunctions():
                     else:
                         shortcutItem.setProperty( "widgetTarget", "" )
                 returnList.append( shortcutItem )
-                #returnList.append( self._create( [node.text, node.attrib.get( "label" ), node.attrib.get( "type" ), {"icon": node.attrib.get( "icon" )}] ) )
-            if node.tag == "node" and flat == False:
+            if node.tag == "node":
                 returnList.append( self._create( ["||NODE||" + str( count ), node.attrib.get( "label" ), "", {"icon": "DefaultFolder.png"}] ) )
                 
         # Override icons
@@ -405,26 +369,6 @@ class LibraryFunctions():
         dialog.close()
         return self.dictionaryGroupings[ content ]
         
-    def flatGroupingsCount( self ):
-        # Return how many nodes there are in the the flat grouping
-        tree = DATA._get_overrides_script()
-        if tree is None:
-            return 1
-        groupings = tree.find( "flatgroupings" )
-        nodes = groupings.findall( "node" )
-        count = 0
-        for node in nodes:
-            if "condition" in node.attrib:
-                if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
-                    continue
-            if "version" in node.attrib:
-                if KODIVERSION != node.attrib.get( "version" ):
-                    continue
-                    
-            count += 1
-                
-        return count
-        
     
     def addToDictionary( self, group, content ):
         # This function adds content to the dictionaryGroupings - including
@@ -433,8 +377,6 @@ class LibraryFunctions():
             
         # Search for skin-provided shortcuts for this group
         originalGroup = group
-        if group.endswith( "-flat" ):
-            group = group.replace( "-flat", "" )
             
         if group not in [ "movie", "tvshow", "musicvideo" ]:
             for elem in tree.findall( "shortcut" ):
@@ -1575,7 +1517,7 @@ class LibraryFunctions():
             isWidget = True
         
         if availableShortcuts is None:
-            nodes = self.retrieveGroup( group, flat = False, grouping = grouping )
+            nodes = self.retrieveGroup( group, grouping = grouping )
             availableShortcuts = nodes[1]
             windowTitle = nodes[0]
         else:
