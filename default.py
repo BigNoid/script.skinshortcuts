@@ -15,11 +15,6 @@ from traceback import print_exc
 # Uncomment when profiling performance
 # import cProfile
 
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
-
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
 ADDONVERSION = ADDON.getAddonInfo('version')

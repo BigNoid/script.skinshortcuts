@@ -10,10 +10,7 @@ from htmlentitydefs import name2codepoint
 from unidecode import unidecode
 from unicodeutils import try_decode
 
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
+import json
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
@@ -314,7 +311,7 @@ class NodeFunctions():
 
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + jsonPath + '", "media": "files" } }')
         json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
+        json_response = json.loads(json_query)
 
         labels = []
         paths = []
@@ -337,7 +334,7 @@ class NodeFunctions():
         else:
             # Unable to add to get directory listings
             log( "Invalid JSON response returned" )
-            log( repr( simplejson ) )
+            log( repr( json ) )
             # And tell the user it failed
             xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), ADDON.getLocalizedString(32115) )
             return

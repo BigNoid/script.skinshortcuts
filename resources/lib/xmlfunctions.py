@@ -7,10 +7,7 @@ import ast
 from traceback import print_exc
 from unicodeutils import try_decode
 
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
+import json
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = sys.modules[ "__main__" ].ADDONID
@@ -127,7 +124,7 @@ class XMLFunctions():
                 # Enable any debug logging needed                        
                 json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Settings.getSettings" }')
                 json_query = unicode(json_query, 'utf-8', errors='ignore')
-                json_response = simplejson.loads(json_query)
+                json_response = json.loads(json_query)
                 
                 enabledSystemDebug = False
                 enabledScriptDebug = False

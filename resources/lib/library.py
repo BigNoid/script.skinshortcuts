@@ -12,10 +12,7 @@ import datafunctions, nodefunctions
 DATA = datafunctions.DataFunctions()
 NODE = nodefunctions.NodeFunctions()
 
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
+import json
 
 ADDON        = sys.modules[ "__main__" ].ADDON
 ADDONID      = sys.modules[ "__main__" ].ADDONID
@@ -37,7 +34,7 @@ def log(txt):
 def kodiwalk(path, stringForce = False):
     json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Files.GetDirectory","params":{"directory":"%s","media":"files"},"id":1}' % str(path))
     json_query = unicode(json_query, 'utf-8', errors='ignore')
-    json_response = simplejson.loads(json_query)
+    json_response = json.loads(json_query)
     files = []
     if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
         for item in json_response['result']['files']:
@@ -116,10 +113,10 @@ class LibraryFunctions():
         # INTROSPECT
         #json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "JSONRPC.Introspect" }')
         #json_query = unicode(json_query, 'utf-8', errors='ignore')
-        #json_response = simplejson.loads(json_query)
+        #json_response = json.loads(json_query)
 
         #with open( os.path.join( os.path.expanduser('~'), "kodi.txt" ), 'w') as outfile:
-        #    simplejson.dump(json_response, outfile, indent=4, sort_keys=True)
+        #    json.dump(json_response, outfile, indent=4, sort_keys=True)
 
         # Handle whether the shortcuts are already loaded/loading
         if self.loaded[ library ][ 0 ] is True:
@@ -744,7 +741,7 @@ class LibraryFunctions():
             listitems = []
             json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetSources", "params": { "media": "%s" } }' %( mediaType[ 0 ] ) )
             json_query = unicode(json_query, 'utf-8', errors='ignore')
-            json_response = simplejson.loads(json_query)
+            json_response = json.loads(json_query)
 
             # Add all directories returned by the json query
             if json_response.has_key('result') and json_response['result'].has_key('sources') and json_response['result']['sources'] is not None:
@@ -903,7 +900,7 @@ class LibraryFunctions():
                 
             json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Addons.Getaddons", "params": { "type": "%s", "properties": ["name", "path", "thumbnail", "enabled"] } }' % addonType)
             json_query = unicode(json_query, 'utf-8', errors='ignore')
-            json_response = simplejson.loads(json_query)
+            json_response = json.loads(json_query)
 
             #log( repr( json_response ) )
             
@@ -1143,7 +1140,7 @@ class LibraryFunctions():
         #we retrieve a whole bunch of properties, needed to guess the content type properly
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail", "episode", "showtitle", "season", "album", "artist", "imdbnumber", "firstaired", "mpaa", "trailer", "studio", "art"], "directory": "' + location + '", "media": "files" } }')
         json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
+        json_response = json.loads(json_query)
             
         # Add all directories returned by the json query
         if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files']:
@@ -1484,7 +1481,7 @@ class LibraryFunctions():
         images = []
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "art", "file", "fanart"], "directory": "' + path + '", "media": "files" } }')
         json_query = unicode(json_query, 'utf-8', errors='ignore')
-        json_response = simplejson.loads(json_query)
+        json_response = json.loads(json_query)
         if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files']:
             json_result = json_response['result']['files']
             for item in json_result:
