@@ -16,9 +16,9 @@ KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 MASTERPATH   = os.path.join( xbmc.translatePath( "special://masterprofile/addon_data/" ).decode('utf-8'), ADDONID ).encode('utf-8')
 LANGUAGE     = ADDON.getLocalizedString
 
-import datafunctions, template, debug, common
+import hashlist, hashlib
+import datafunctions, template, common
 DATA = datafunctions.DataFunctions()
-import hashlib, hashlist
     
 class XMLFunctions():
     def __init__(self):
@@ -79,7 +79,7 @@ class XMLFunctions():
         progress.update( 0 )
 
         common.log( "Call attempt" )
-        if debug.attempt( self.writexml, [profilelist, mainmenuID, groups, numLevels, buildMode, progress, options, minitems ], LANGUAGE( 32092 ) ):
+        if common.attempt( self.writexml, [profilelist, mainmenuID, groups, numLevels, buildMode, progress, options, minitems ], LANGUAGE( 32092 ) ):
             # Menu build successfully - reload the skin
             xbmc.executebuiltin( "XBMC.ReloadSkin()")
         
@@ -609,7 +609,7 @@ class XMLFunctions():
             
             # Save the hash of the file we've just written
             with open(path, "r+") as f:
-                DATA._save_hash( path, f.read() )
+                common._save_hash( path, f.read() )
                 f.close()
             
         # Save the hashes

@@ -1,13 +1,15 @@
 import xbmc, xbmcaddon, xbmcgui
+import hashlib, hashlist
 from traceback import print_exc
 import json
 
 ADDON        = xbmcaddon.Addon()
+ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
 LANGUAGE     = ADDON.getLocalizedString
 
 # Common function for writing to the Kodi log
 def log(txt, level=xbmc.LOGDEBUG):
-    if ADDON.getSetting( "enable_logging" ) == "true" or not level == xbmc.LOGDEBUG:
+    if ADDON.getSetting( "enable_logging" ) == "true" or level != xbmc.LOGDEBUG:
         try:
             if isinstance (txt,str):
                 txt = txt.decode('utf-8')
@@ -38,12 +40,7 @@ def attempt( functionName, arguments, errorTitle, weEnabledSystemDebug = False, 
             ADDON.setSetting( "enable_logging", "false" )
             
         # Offer to upload a debug log
-        if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
-            ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), errorTitle, LANGUAGE( 32093 ) )
-            if ret:
-                xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
-        else:
-            xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), errorTitle, LANGUAGE( 32094 ) )
+        offerToUploadLog( errorTitle )
             
     else:
         # Enable any debug logging needed                        
@@ -69,12 +66,24 @@ def attempt( functionName, arguments, errorTitle, weEnabledSystemDebug = False, 
             # We enabled one or more of the debug options, re-run this function
             attempt( functionName, arguments, errorTitle, enabledSystemDebug, enabledScriptDebug )
         else:
-            # Offer to upload a debug log
-            if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
-                ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), errorTitle, LANGUAGE( 32093 ) )
-                if ret:
-                    xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
-            else:
-                xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), errorTitle, LANGUAGE( 32094 ) )
+            offerToUploadLog( errorTitle )
 
     return False
+
+def offerToUploadLog( errorTitle ):
+    # Offer to upload a debug log
+    if xbmc.getCondVisibility( "System.HasAddon( script.kodi.loguploader )" ):
+        ret = xbmcgui.Dialog().yesno( ADDON.getAddonInfo( "name" ), errorTitle, LANGUAGE( 32093 ) )
+        if ret:
+            xbmc.executebuiltin( "RunScript(script.kodi.loguploader)" )
+    else:
+        xbmcgui.Dialog().ok( ADDON.getAddonInfo( "name" ), errorTitle, LANGUAGE( 32094 ) )
+
+# Common function to generate the hash of a file
+def _save_hash( filename, file ):
+    if file is not None:
+        hasher = hashlib.md5()
+        hasher.update( file )
+        hashlist.list.append( [filename, hasher.hexdigest()] )
+    else:
+        hashlist.list.append( [filename, None] )

@@ -2,7 +2,6 @@
 import os
 import xbmc, xbmcaddon, xbmcvfs
 import xml.etree.ElementTree as xmltree
-import hashlib, hashlist
 import copy
 from traceback import print_exc
 import simpleeval, operator, ast
@@ -33,17 +32,17 @@ class Template():
                     self.otherTemplates.append( includeName )
             
             # Add the template.xml to the hash file
-            self._save_hash( templatepath, xbmcvfs.File( templatepath ).read() )
+            common._save_hash( templatepath, xbmcvfs.File( templatepath ).read() )
         except:
             # We couldn't load the template.xml file
             if xbmcvfs.exists( templatepath ):
                 # Unable to parse template.xml
                 common.log( "Unable to parse template.xml. Invalid xml?" )
-                self._save_hash( templatepath, xbmcvfs.File( templatepath ).read() )
+                common._save_hash( templatepath, xbmcvfs.File( templatepath ).read() )
             else:
                 # No template.xml            
                 self.tree = None
-                self._save_hash( templatepath, None )
+                common._save_hash( templatepath, None )
             
         # Empty variable which will contain our base elementree (passed from buildxml)
         self.includes = None
@@ -883,15 +882,7 @@ class Template():
             newElement = self.copy_tree( itemTemplate.find( "controls" ) )
             self.replaceElements( newElement, None, None, [], self.combineProperties( itemTemplate, item, currentProperties.copy() ) )
             newelements.insert( 0, newElement )
-        return newelements
-            
-    def _save_hash( self, filename, file ):
-        if file is not None:
-            hasher = hashlib.md5()
-            hasher.update( file )
-            hashlist.list.append( [filename, hasher.hexdigest()] )
-        else:
-            hashlist.list.append( [filename, None] )            
+        return newelements        
 
     def copy_tree( self, elem ):
         if elem is None: return None

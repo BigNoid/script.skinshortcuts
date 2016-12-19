@@ -139,6 +139,8 @@ class LibraryFunctions():
                 self.favourites()
             elif library == "widgets":
                 self.widgets()
+            elif library == "upnp":
+                json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "directory": "upnp://", "media": "files" } }')
 
         except:
             common.log( "Failed to load %s" %( self.loaded[ library ][ 1 ] ) )
@@ -158,11 +160,7 @@ class LibraryFunctions():
         self.loadLibrary( "addons" )
         self.loadLibrary( "favourites" )
         self.loadLibrary( "widgets" )
-        
-        # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
-        if self.loaded[ "upnp" ][ 0 ] == False:
-            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
-            self.loaded[ "upnp" ][ 0 ] = True
+        self.loadLibrary( "upnp" )
 
     # ==============================================
     # === BUILD/DISPLAY AVAILABLE SHORTCUT NODES ===
@@ -609,6 +607,8 @@ class LibraryFunctions():
                 common.log( "Failed to load default video nodes" )
                 print_exc()
 
+        self.loadLibrary( "upnp" )
+
     def _parse_libraryNodes( self, library, type ):
         #items = {"video":[], "movies":[], "tvshows":[], "musicvideos":[], "custom":{}}
         items = {}
@@ -721,10 +721,8 @@ class LibraryFunctions():
                 common.log( "Failed to load default music nodes" )
                 print_exc()
         
-        # Do a JSON query for upnp sources (so that they'll show first time the user asks to see them)
-        if self.loaded[ "upnp" ][ 0 ] == False:
-            json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "upnp://", "media": "files" } }')
-            self.loaded[ "upnp" ][ 0 ] = True
+        # Ensure upnp has been listed, so it will show first time
+        self.loadLibrary( "upnp" )
     
     def librarysources( self ):
         for mediaType in [ ( "video", "videosources" ), ( "music", "musicsources" ), ( "pictures", "picturesources" ), ( "games", "gamesources" ) ]:
@@ -921,7 +919,7 @@ class LibraryFunctions():
 
                         elif contenttype == "executable":
                             # Check if it's a program that can be run as an exectuble
-                            provides = self.hasPluginEntryPoint( item[ "path" ] )
+                            provides = self.parseAddonXML( item[ "path" ], "plugin" )
                             for content in provides:
                                 # For each content that it provides, add it to the add-ons for that type
                                 contentData = { "video": [ "::SCRIPT::32010", videoItems ], "audio": [ "::SCRIPT::32011", audioItems ], "image": [ "::SCRIPT::32012", imageItems ], "executable": [ "::SCRIPT::32009", executableItems ] }
@@ -936,7 +934,7 @@ class LibraryFunctions():
                                         executablePluginItems[ item[ "name" ] ] = otherItem
 
                         elif contenttype == "gameEngine":
-                            if not self.isGameEngineStandalone( item[ "path" ] ):
+                            if not self.parseAddonXML( item[ "path" ], "game" ):
                                 # Not standalone, so we're not interested
                                 continue
 
@@ -962,38 +960,27 @@ class LibraryFunctions():
                 common.log( " - %i game add-ons found (of which %i are plugins)" %( len( listitems ), len( plugins ) ) )
 
 
-
-    def hasPluginEntryPoint( self, path ):
-        # Check if an addon has a plugin entry point by parsing its addon.xml file
+    def parseAddonXML( self, path, type ):
+        # Get information about an addon by parsing its addon.xml file
+        info = { "plugin": ( "xbmc.python.pluginsource", "provides", [] ), "game": ( "kodi.gameclient", "supports_standalone", False ) }
         try:
             tree = xmltree.parse( os.path.join( path, "addon.xml" ) ).getroot()
             for extension in tree.findall( "extension" ):
-                if "point" in extension.attrib and extension.attrib.get( "point" ) == "xbmc.python.pluginsource":
+                if "point" in extension.attrib and extension.attrib.get( "point" ) == info[ type ][ 0 ]:
                     # Find out what content type it provides
-                    provides = extension.find( "provides" )
-                    if provides is None:
+                    details = extension.find( info[ type ][ 1 ] )
+                    if details is None:
                         return []
-                    return provides.text.split( " " )
+                    if type == "plugin":
+                        return details.text.split( " " )
+                    elif type == "game":
+                        if details.text == "false":
+                            return False
+                        return True
 
         except:
             print_exc()
-        return []
-
-    def isGameEngineStandalone( self, path ):
-        # Check if a game client is standalone by parsing its addon.xml file
-        try:
-            tree = xmltree.parse( os.path.join( path, "addon.xml" ) ).getroot()
-            for extension in tree.findall( "extension" ):
-                if "point" in extension.attrib and extension.attrib.get( "point" ) == "kodi.gameclient":
-                    # Find out if it's standalone
-                    standalone = extension.find( "supports_standalone" )
-                    if standalone is None or standalone.text == "false":
-                        return False
-                    return True
-
-        except:
-            print_exc()
-        return []
+        return info[ type ][ 2 ]    
     
     def detectPluginContent(self, item):
         #based on the properties in the listitem we try to detect the content

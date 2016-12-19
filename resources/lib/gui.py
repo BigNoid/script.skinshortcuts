@@ -2061,7 +2061,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             # Close window
             common.log( "Call attempt" )
-            debug.attempt( self._save_shortcuts, [], LANGUAGE( 32097 ) ) 
+            common.attempt( self._save_shortcuts, [], LANGUAGE( 32097 ) ) 
             xbmcgui.Window(self.window_id).clearProperty('groupname')
             self._close()
 

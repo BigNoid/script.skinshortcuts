@@ -2,7 +2,6 @@
 import os, sys, datetime, unicodedata, re, types
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs, urllib
 import xml.etree.ElementTree as xmltree
-import hashlib, hashlist
 import ast
 from xml.dom.minidom import parse
 from traceback import print_exc
@@ -142,7 +141,7 @@ class DataFunctions():
             tree = None
             if xbmcvfs.exists( path ):
                 file = xbmcvfs.File( path ).read()
-                self._save_hash( path, file )
+                common._save_hash( path, file )
                 tree = xmltree.parse( path )
             
             if tree is not None and processShortcuts:
@@ -165,7 +164,7 @@ class DataFunctions():
                 common.log( " - Returning unprocessed shortcuts" )
                 return tree
             else:
-                self._save_hash( path, None )
+                common._save_hash( path, None )
                 
         # No file loaded
         common.log( " - No shortcuts" )
@@ -473,15 +472,15 @@ class DataFunctions():
         overridePath = os.path.join( DEFAULTPATH, "overrides.xml" )
         try:
             tree = xmltree.parse( overridePath )
-            self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             self.overrides[ "script" ] = tree
             return tree
         except:
             if xbmcvfs.exists( overridePath ):
                 common.log( "Unable to parse script overrides.xml. Invalid xml?" )
-                self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+                common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             else:
-                self._save_hash( overridePath, None )
+                common._save_hash( overridePath, None )
             tree = xmltree.ElementTree( xmltree.Element( "overrides" ) )
             self.overrides[ "script" ] = tree
             return tree
@@ -494,15 +493,15 @@ class DataFunctions():
         overridePath = os.path.join( SKINPATH, "overrides.xml" )
         try:
             tree = xmltree.parse( overridePath )
-            self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             self.overrides[ "skin" ] = tree
             return tree
         except:
             if xbmcvfs.exists( overridePath ):
                 common.log( "Unable to parse skin overrides.xml. Invalid xml?" )
-                self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+                common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             else:
-                self._save_hash( overridePath, None )
+                common._save_hash( overridePath, None )
             tree = xmltree.ElementTree( xmltree.Element( "overrides" ) )
             self.overrides[ "skin" ] = tree
             return tree
@@ -515,15 +514,15 @@ class DataFunctions():
         overridePath = os.path.join( profileDir, "overrides.xml" )
         try:
             tree = xmltree.parse( xbmc.translatePath( overridePath ) )
-            self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+            common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             self.overrides[ "user" ] = tree
             return tree
         except:
             if xbmcvfs.exists( overridePath ):
                 common.log( "Unable to parse user overrides.xml. Invalid xml?" )
-                self._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+                common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
             else:
-                self._save_hash( overridePath, None )
+                common._save_hash( overridePath, None )
             tree = xmltree.ElementTree( xmltree.Element( "overrides" ) )
             self.overrides[ "user" ] = tree
             return tree
@@ -545,7 +544,7 @@ class DataFunctions():
             try:
                 file = xbmcvfs.File( path ).read()
                 listProperties = ast.literal_eval( file )
-                self._save_hash( path, file )
+                common._save_hash( path, file )
                 
                 for listProperty in listProperties:
                     # listProperty[0] = groupname
@@ -652,7 +651,7 @@ class DataFunctions():
         path = os.path.join( SKINPATH , "mainmenu.DATA.xml")
         if xbmcvfs.exists( path ):
             file = xbmcvfs.File( path ).read()
-            self._save_hash( path, file )
+            common._save_hash( path, file )
             tree = xmltree.parse( path )
             for node in tree.getroot().findall( "shortcut" ):
                 label = self.local( node.find( "label" ).text )[3].replace( " ", "" ).lower()
@@ -1083,15 +1082,6 @@ class DataFunctions():
         propFile = os.path.join( DATAPATH, "%s.properties" %( xbmc.getSkinDir() ) ).encode( 'utf-8' )
         if xbmcvfs.exists( propFile ):
             xbmcvfs.delete( propFile )
-
-
-    def _save_hash( self, filename, file ):
-        if file is not None:
-            hasher = hashlib.md5()
-            hasher.update( file )
-            hashlist.list.append( [filename, hasher.hexdigest()] )
-        else:
-            hashlist.list.append( [filename, None] )
             
             
     # in-place prettyprint formatter
