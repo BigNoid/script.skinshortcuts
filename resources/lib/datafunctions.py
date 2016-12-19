@@ -215,14 +215,6 @@ class DataFunctions():
             if node.find( "defaultID" ) is not None:
                 defaultID = node.find( "defaultID" ).text
             xmltree.SubElement( node, "defaultID" ).text = defaultID
-            
-            # Check that any version node matches current XBMC version
-            version = node.find( "version" )
-            if version is not None:
-                if KODIVERSION != version.text and self.checkVersionEquivalency( version.text, node.find( "action" ) ) == False:
-                    tree.getroot().remove( node )
-                    self._pop_labelID()
-                    continue
 
             # Get any disabled element
             if node.find( "disabled" ) is not None:
@@ -888,50 +880,6 @@ class DataFunctions():
             return "system.getbool(eventlog.enabled)"
             
         return ""
-
-
-    def checkVersionEquivalency( self, version, action, type = "shortcuts" ):
-        # Check whether the version specified for a shortcut has an equivalency
-        # to the version of Kodi we're running
-        trees = [ self._get_overrides_skin(), self._get_overrides_script() ]
-
-        # Set up so we can handle both groupings and shortcuts in one
-        if type == "shortcuts":
-            if action is None:
-                action = ""
-            else:
-                action = action.text
-            findElem = "shortcutEquivalent"
-            findAttrib = "action"
-        if type == "groupings":
-            if action is None:
-                action = ""
-            findElem = "groupEquivalent"
-            findAttrib = "condition"
-
-        for tree in trees:
-            if tree.find( "versionEquivalency" ) is None:
-                continue
-            for elem in tree.find( "versionEquivalency" ).findall( findElem ):
-                if elem.attrib.get( findAttrib ) is not None and elem.attrib.get( findAttrib ).lower() != action.lower():
-                    # Action's don't match
-                    continue
-                if int( elem.attrib.get( "version" ) ) > int( KODIVERSION ):
-                    # This version of Kodi is older than the shortcut is intended for
-                    continue
-
-                # The actions match, and the version isn't too old, so
-                # now check it's not too new
-                if elem.text == "All":
-                    # This shortcut matches all newer versions
-                    return True
-                elif int( elem.text ) >= int( KODIVERSION ):
-                    return True
-
-                # The version didn't match
-                break
-
-        return False
         
     def checkAdditionalProperties( self, group, labelID, defaultID, isUserShortcuts, profileDir ):
         # Return any additional properties, including widgets, backgrounds, icons and thumbnails
@@ -1296,10 +1244,10 @@ class DataFunctions():
         if not action.lower().startswith( "activatewindow(" ): return action
 
         # Jarvis + later music windows
-        if action.lower() == "activatewindow(musicfiles)" and int( KODIVERSION ) >= 16:
+        if action.lower() == "activatewindow(musicfiles)":
             return "ActivateWindow(Music,Files,Return)"
 
-        if action.lower().startswith("activatewindow(musiclibrary") and int( KODIVERSION ) >= 16:
+        if action.lower().startswith("activatewindow(musiclibrary"):
             if "," in action:
                 return "ActivateWindow(Music," + action.split( ",", 1 )[ 1 ]
             else:

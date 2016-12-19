@@ -14,7 +14,6 @@ import json
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
-KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 LANGUAGE     = ADDON.getLocalizedString
 CWD          = ADDON.getAddonInfo('path').decode("utf-8")
 DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), ADDONID )
@@ -573,12 +572,11 @@ class ShowDialog( xbmcgui.WindowXMLDialog ):
             self.getControl(5).setVisible(False)
         self.getControl(1).setLabel(self.windowtitle)
 
-        # Set Cancel label (Kodi 17+)
-        if int( KODIVERSION ) >= 17:
-            try:
-                self.getControl(7).setLabel(xbmc.getLocalizedString(222))
-            except:
-                common.log( "Unable to set label for control 7" )
+        # Set Cancel label
+        try:
+            self.getControl(7).setLabel(xbmc.getLocalizedString(222))
+        except:
+            common.log( "Unable to set label for control 7" )
 
         for item in self.listing :
             listitem = xbmcgui.ListItem(label=item.getLabel(), label2=item.getLabel2(), iconImage=item.getProperty( "icon" ), thumbnailImage=item.getProperty( "thumbnail" ))

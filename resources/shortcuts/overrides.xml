@@ -1,40 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <overrides>
-	<versionEquivalency>
-		<!-- Handle groupings/shortcuts with version information, by specifying which other versions of
-		Kodi they are compatible with
-		
-		<equivalent version="14">All</equivalent>
-			- Valid on all versions of Kodi 14+
-
-		<equivalent version="14">16</equivalent>
-			- Valid on Kodi versions between 14 and 16 inclusive
-
-		-->
-		
-		<!-- PVR groupings -->
-		<groupEquivalent version="14" condition="PVR.HasTVChannels">All</groupEquivalent>
-		<groupEquivalent version="14" condition="PVR.HasRadioChannels">All</groupEquivalent>
-
-		<!-- PVR shortcuts -->
-		<shortcutEquivalent version="14" action="ActivateWindow(TVChannels)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(TVGuide)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(TVRecordings)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(TVTimers)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(TVSearch)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(RadioChannels)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(RadioGuide)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(RadioRecordings)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(RadioTimers)">All</shortcutEquivalent>
-		<shortcutEquivalent version="14" action="ActivateWindow(RadioSearch)">All</shortcutEquivalent>
-
-		<!-- Music Files -->
-		<shortcutEquivalent version="13" action="ActivateWindow(MusicFiles)">15</shortcutEquivalent>
-		<shortcutEquivalent version="16" action="ActivateWindow(Music,Files,Return)">All</shortcutEquivalent>
-
-	</versionEquivalency>
-
-
 	<contextmenu>
 		<!-- Enable context menu on control 211 -->
 		<enableon>211</enableon>

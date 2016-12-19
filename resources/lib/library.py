@@ -19,7 +19,6 @@ ADDONID      = sys.modules[ "__main__" ].ADDONID
 CWD          = sys.modules[ "__main__" ].CWD
 DATAPATH     = os.path.join( xbmc.translatePath( "special://profile/addon_data/" ).decode('utf-8'), ADDONID )
 LANGUAGE     = sys.modules[ "__main__" ].LANGUAGE
-KODIVERSION  = xbmc.getInfoLabel( "System.BuildVersion" ).split(".")[0]
 
 def kodiwalk(path, stringForce = False):
     json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Files.GetDirectory","params":{"directory":"%s","media":"files"},"id":1}' % str(path))
@@ -208,11 +207,6 @@ class LibraryFunctions():
                 if not xbmc.getCondVisibility( subnode.attrib.get( "condition" ) ):
                     number += 1
                     continue
-            if "version" in subnode.attrib:
-                version = subnode.attrib.get( "version" )
-                if KODIVERSION != version and DATA.checkVersionEquivalency( version, subnode.attrib.get( "condition" ), "groupings" ) == False:
-                    number += 1
-                    continue
             if "installWidget" in subnode.attrib and subnode.attrib.get( "installWidget" ).lower() == "true":
                 self.installWidget = True
             else:
@@ -228,10 +222,6 @@ class LibraryFunctions():
         for node in nodes:
             if "condition" in node.attrib:
                 if not xbmc.getCondVisibility( node.attrib.get( "condition" ) ):
-                    continue
-            if "version" in node.attrib:
-                version = node.attrib.get( "version" )
-                if KODIVERSION != version and DATA.checkVersionEquivalency( version, node.attrib.get( "condition" ), "groupings" ) == False:
                     continue
             count += 1
             if node.tag == "content":
