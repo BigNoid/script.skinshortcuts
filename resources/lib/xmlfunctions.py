@@ -256,7 +256,7 @@ class XMLFunctions():
         
         # Get any shortcuts we're checking for
         self.checkForShortcuts = []
-        overridestree = DATA._get_overrides_skin()
+        overridestree = DATA._get_overrides( "skin" )
         checkForShorctcutsOverrides = overridestree.getroot().findall( "checkforshortcut" )
         for checkForShortcutOverride in checkForShorctcutsOverrides:
             if "property" in checkForShortcutOverride.attrib:
@@ -540,7 +540,7 @@ class XMLFunctions():
 
             if self.hasSettings == False:
                 # Check if the overrides asks for a forced settings...
-                overridestree = DATA._get_overrides_skin()
+                overridestree = DATA._get_overrides( "skin" )
                 forceSettings = overridestree.getroot().find( "forcesettings" )
                 if forceSettings is not None:
                     # We want a settings option to be added
@@ -918,7 +918,7 @@ class XMLFunctions():
     def getPropertyPatterns(self, labelID, group):
         propertyPatterns = {}
         if not self.loadedPropertyPatterns:
-            overrides = DATA._get_overrides_skin()
+            overrides = DATA._get_overrides( "skin" )
             self.propertyPatterns = overrides.getroot().findall("propertypattern")
             self.loadedPropertyPatterns = True
 

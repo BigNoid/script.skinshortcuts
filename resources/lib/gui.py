@@ -492,7 +492,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             iconIsVar = True
         
         # Check for overrides
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
         for elem in tree.findall( "icon" ):
             if oldicon is None:
                 if ("labelID" in elem.attrib and elem.attrib.get( "labelID" ) == labelID) or ("image" in elem.attrib and elem.attrib.get( "image" ) == icon):
@@ -776,7 +776,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.thumbnails = "LOADING"
         
         # Load skin overrides
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
                 
         # Should we allow the user to select a playlist as a widget...
         elem = tree.find('widgetPlaylists')
@@ -833,10 +833,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         
         for overrideType in [ "skin", "script" ]:
             # Load overrides
-            if overrideType == "skin":
-                tree = DATA._get_overrides_skin()
-            else:
-                tree = DATA._get_overrides_script()
+            tree = DATA._get_overrides( overrideType )
 
             # Check if context menu overrides in tree
             elem = tree.find( "contextmenu" )
@@ -879,7 +876,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         thumbnails = []
 
         # Load skin overrides
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
         
         # Get backgrounds
         elems = tree.findall('background')
@@ -926,7 +923,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load a list of addition button IDs we'll handle for setting additional properties
 
         # Load skin overrides
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
 
         for elem in tree.findall( "propertySettings" ):
             if "buttonID" in elem.attrib and "property" in elem.attrib:
@@ -1724,7 +1721,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     propertyName = self.customPropertyButtons[ controlID ]
 
                 # Get the overrides
-                tree = DATA._get_overrides_skin()
+                tree = DATA._get_overrides( "skin" )
 
                 # Set options
                 dialogTitle = LANGUAGE(32101)
@@ -1946,7 +1943,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
     def warnonremoval( self, item ):
         # This function will warn the user before they modify a settings link
         # (if the skin has enabled this function)
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
             
         for elem in tree.findall( "warn" ):
             if elem.text.lower() == item.getProperty( "displaypath" ).lower():
@@ -2013,7 +2010,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         if labelID == None:
             labelID = defaultID
         
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
         if backgroundorwidget == "background":
             elems = tree.getroot().findall( "backgrounddefault" )
         elif backgroundorwidget == "widgetdefaultnode":

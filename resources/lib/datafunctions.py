@@ -173,8 +173,8 @@ class DataFunctions():
     def _process_shortcuts( self, tree, group, profileDir = "special:\\profile", isUserShortcuts = False, allowAdditionalRequired = True ):
         # This function will process any overrides and add them to the tree ready to be displayed
         #  - We will process graphics overrides, action overrides, visibility conditions
-        skinoverrides = self._get_overrides_skin()
-        useroverrides = self._get_overrides_user( profileDir )
+        skinoverrides = self._get_overrides( "skin" )
+        useroverrides = self._get_overrides( "user", profileDir )
         
         self._clear_labelID()
         
@@ -384,7 +384,7 @@ class DataFunctions():
         # This function builds a tree of any skin-required shortcuts not currently in the menu
         # Once the tree is built, it sends them to _process_shortcuts for any overrides, etc, then adds them to the menu tree
         
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
             
         # Get an array of all actions currently in the menu
         actions = []
@@ -456,67 +456,26 @@ class DataFunctions():
         return newicon
 
         
-    def _get_overrides_script( self ):
-        # Get overrides.xml provided by script
-        if "script" in self.overrides:
-            return self.overrides[ "script" ]
+    def _get_overrides( self, overrideType="script", profileDir = "special://profile" ):
+        # Get overrides.xml
+        types = {"script": os.path.join( DEFAULTPATH, "overrides.xml" ), "skin": os.path.join( SKINPATH, "overrides.xml" ), "user": os.path.join( profileDir, "overrides.xml" )}
+        if overrideType in self.overrides:
+            return self.overrides[ overrideType ]
 
         overridePath = os.path.join( DEFAULTPATH, "overrides.xml" )
         try:
-            tree = xmltree.parse( overridePath )
-            common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
-            self.overrides[ "script" ] = tree
+            tree = xmltree.parse( types[ overrideType ] )
+            common._save_hash( types[ overrideType ], xbmcvfs.File( types[ overrideType ] ).read() )
+            self.overrides[ overrideType ] = tree
             return tree
         except:
             if xbmcvfs.exists( overridePath ):
-                common.log( "Unable to parse script overrides.xml. Invalid xml?" )
-                common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
+                common.log( "Unable to parse %s overrides.xml. Invalid xml?" %( overrideType ) )
+                common._save_hash( types[ overrideType ], xbmcvfs.File( types[ overrideType ] ).read() )
             else:
-                common._save_hash( overridePath, None )
+                common._save_hash( types[ overrideType ], None )
             tree = xmltree.ElementTree( xmltree.Element( "overrides" ) )
-            self.overrides[ "script" ] = tree
-            return tree
-
-    def _get_overrides_skin( self ):
-        # Get overrides.xml provided by skin 
-        if "skin" in self.overrides:
-            return self.overrides[ "skin" ]
-
-        overridePath = os.path.join( SKINPATH, "overrides.xml" )
-        try:
-            tree = xmltree.parse( overridePath )
-            common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
-            self.overrides[ "skin" ] = tree
-            return tree
-        except:
-            if xbmcvfs.exists( overridePath ):
-                common.log( "Unable to parse skin overrides.xml. Invalid xml?" )
-                common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
-            else:
-                common._save_hash( overridePath, None )
-            tree = xmltree.ElementTree( xmltree.Element( "overrides" ) )
-            self.overrides[ "skin" ] = tree
-            return tree
-
-    def _get_overrides_user( self, profileDir = "special://profile" ):
-        # Get overrides.xml provided by user
-        if "user" in self.overrides:
-            return self.overrides[ "user" ]
-
-        overridePath = os.path.join( profileDir, "overrides.xml" )
-        try:
-            tree = xmltree.parse( xbmc.translatePath( overridePath ) )
-            common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
-            self.overrides[ "user" ] = tree
-            return tree
-        except:
-            if xbmcvfs.exists( overridePath ):
-                common.log( "Unable to parse user overrides.xml. Invalid xml?" )
-                common._save_hash( overridePath, xbmcvfs.File( overridePath ).read() )
-            else:
-                common._save_hash( overridePath, None )
-            tree = xmltree.ElementTree( xmltree.Element( "overrides" ) )
-            self.overrides[ "user" ] = tree
+            self.overrides[ overrideType ] = tree
             return tree
 
 
@@ -557,7 +516,7 @@ class DataFunctions():
             self.currentProperties = [ None ]
             
         # Load skin defaults (in case we need them...)
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
         for elemSearch in [["widget", tree.findall( "widgetdefault" )], ["widget:node", tree.findall( "widgetdefaultnode" )], ["background", tree.findall( "backgrounddefault" )], ["custom", tree.findall( "propertydefault" )] ]:
             for elem in elemSearch[1]:
                 # Get labelID and defaultID
@@ -660,7 +619,7 @@ class DataFunctions():
             return( self.propertyInformation[ "fallbackProperties" ][ group ], self.propertyInformation[ "fallbacks" ][ group ] )
 
         # Get skin overrides
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
 
         # Find all fallbacks
         fallbackProperties = []
@@ -700,7 +659,7 @@ class DataFunctions():
             return( self.propertyInformation[ "otherProperties" ], self.propertyInformation[ "requires" ], self.propertyInformation[ "templateOnly" ] )
 
         # Get skin overrides
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
 
         # Find all property requirements
         requires = {}
@@ -726,7 +685,7 @@ class DataFunctions():
         if widgetID in self.widgetNameAndType:
             return self.widgetNameAndType[ widgetID ]
 
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
         for elem in tree.findall( "widget" ):
             if elem.text == widgetID:
                 widgetInfo = { "name": elem.attrib.get( "label" ) }
@@ -746,7 +705,7 @@ class DataFunctions():
         if backgroundID in self.backgroundName:
             return self.backgroundName[ backgroundID ]
 
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
         for elem in tree.findall( "background" ):
             if elem.text == backgroundID:
                 returnString = elem.attrib.get( "label" )
@@ -758,7 +717,7 @@ class DataFunctions():
                 
     def _reset_backgroundandwidgets( self ):
         # This function resets all skin properties used to identify if specific backgrounds or widgets are active
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
         for elem in tree.findall( "widget" ):
             xbmc.executebuiltin( "Skin.Reset(skinshortcuts-widget-" + elem.text + ")" )
         for elem in tree.findall( "background" ):
@@ -911,7 +870,7 @@ class DataFunctions():
         return returnProperties
         
     def checkShortcutLabelOverride( self, action ):
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
         if tree is not None:
             elemSearch = tree.findall( "availableshortcutlabel" )
             for elem in elemSearch:
@@ -927,7 +886,7 @@ class DataFunctions():
 
     def checkIfMenusShared( self, isSubLevel = False ):
         # Check if the skin required the menu not to be shared
-        tree = self._get_overrides_skin()
+        tree = self._get_overrides( "skin" )
         if tree is not None:
             # If this is a sublevel, and the skin has asked for sub levels to not be shared...
             if isSubLevel and tree.find( "doNotShareLevels" ) is not None:

@@ -166,7 +166,7 @@ class LibraryFunctions():
     # ==============================================
     
     def retrieveGroup( self, group, grouping = None ):
-        trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
+        trees = [ DATA._get_overrides( "skin" ), DATA._get_overrides( "script" ) ]
         nodes = None
         for tree in trees:
             if grouping is None:
@@ -249,7 +249,7 @@ class LibraryFunctions():
                 returnList.append( self._create( ["||NODE||" + str( count ), node.attrib.get( "label" ), "", {"icon": "DefaultFolder.png"}] ) )
                 
         # Override icons
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
         for item in returnList:
             item = self._get_icon_overrides( tree, item, None )
 
@@ -294,7 +294,7 @@ class LibraryFunctions():
                         listitem.setProperty( "widgetType", widgetType )
             
         # Check for any icon overrides for these items
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
             
         for item in items:
             item = self._get_icon_overrides( tree, item, content )
@@ -348,7 +348,7 @@ class LibraryFunctions():
     def addToDictionary( self, group, content ):
         # This function adds content to the dictionaryGroupings - including
         # adding any skin-provided shortcuts to the group
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
             
         # Search for skin-provided shortcuts for this group
         originalGroup = group
@@ -491,7 +491,7 @@ class LibraryFunctions():
         # Check if the option to use the thumb as the icon is enabled
         if self.useDefaultThumbAsIcon is None:
             # Retrieve the choice from the overrides.xml
-            tree = DATA._get_overrides_skin()
+            tree = DATA._get_overrides( "skin" )
             node = tree.getroot().find( "useDefaultThumbAsIcon" )
             if node is None:
                 self.useDefaultThumbAsIcon = False
@@ -661,10 +661,8 @@ class LibraryFunctions():
         # Define static groups
         staticGroups = [ ( "common", "32034" ), ( "commands", "32054" ), ( "settings", "10004" ), ( "pvr-tv", "32017" ), ( "pvr-radio", "32087" ) ]
 
-        # Load overrides
-        trees = [DATA._get_overrides_skin(), DATA._get_overrides_script()]
         # Pull out static shortcuts
-        trees = [ DATA._get_overrides_skin().find( "static" ), DATA._get_overrides_script().find( "static" ) ]
+        trees = [ DATA._get_overrides( "skin" ).find( "static" ), DATA._get_overrides( "script" ).find( "static" ) ]
 
         for staticGroup in staticGroups:
             common.log( repr( staticGroup ) )
@@ -1019,7 +1017,7 @@ class LibraryFunctions():
         listitems = []
         
         # Load skin overrides
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
         elems = tree.getroot().findall( "widget" )
         for elem in elems:
             widgetType = None
@@ -1079,7 +1077,7 @@ class LibraryFunctions():
 
         listings = []
         
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides( "skin" )
 
         # Shortcut to go 'up'
         if len( label ) == 1:
