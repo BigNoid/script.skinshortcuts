@@ -730,26 +730,26 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Copy any items not in the current group to the array we'll save, and
         # make any labelID changes whilst we're at it
         saveData = []
-        for property in currentProperties:
+        for currentProperty in currentProperties:
             #[ groupname, itemLabelID, property, value ]
-            if not property[0] == self.group:
-                if property[0] in labelIDChanges.keys():
-                    property[0] = labelIDChanges[property[0]]
-                elif "." in property[0] and property[ 0 ].rsplit( ".", 1 )[ 1 ].isdigit():
+            if not currentProperty[0] == self.group:
+                if currentProperty[0] in labelIDChanges.keys():
+                    currentProperty[0] = labelIDChanges[property[0]]
+                elif "." in currentProperty[0] and currentProperty[ 0 ].rsplit( ".", 1 )[ 1 ].isdigit():
                     # Additional menu
-                    groupName, groupValue = property[ 0 ].rsplit( ".", 1 )
+                    groupName, groupValue = currentProperty[ 0 ].rsplit( ".", 1 )
                     if groupName in labelIDChanges.keys() and int( groupValue ) in range( 1, 6 ):
-                        property[0] = "%s.%s" %( labelIDChanges[ groupName ], groupValue )
-                saveData.append( property )
+                        currentProperty[0] = "%s.%s" %( labelIDChanges[ groupName ], groupValue )
+                saveData.append( currentProperty )
         
         # Add all the properties we've been passed
-        for property in properties:
-            # property[0] = labelID
-            for toSave in property[1]:
+        for singleProperty in properties:
+            # singleProperty[0] = labelID
+            for toSave in singleProperty[1]:
                 # toSave[0] = property name
                 # toSave[1] = property value
                 
-                saveData.append( [ self.group, property[0], toSave[0], toSave[1] ] )
+                saveData.append( [ self.group, singleProperty[0], toSave[0], toSave[1] ] )
 
         # Add any default properties
         for group in copyDefaults:
