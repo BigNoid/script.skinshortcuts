@@ -7,7 +7,6 @@ from xml.dom.minidom import parse
 from traceback import print_exc
 from htmlentitydefs import name2codepoint
 from unidecode import unidecode
-from unicodeutils import try_decode
 
 import nodefunctions, common
 NODE = nodefunctions.NodeFunctions()
@@ -137,7 +136,7 @@ class DataFunctions():
         
         for path in paths:
             common.log( " - Attempting to load file %s" %( path ) )
-            path = try_decode( path )
+            path = common.try_decode( path )
             tree = None
             if xbmcvfs.exists( path ):
                 file = xbmcvfs.File( path ).read()
@@ -424,7 +423,7 @@ class DataFunctions():
         if icon is None:
             return
 
-        icon = try_decode( icon )
+        icon = common.try_decode( icon )
             
         # If the icon is a VAR or an INFO, we aren't going to override
         if icon.startswith( "$" ):
@@ -1021,7 +1020,7 @@ class DataFunctions():
         if data is None:
             return ["","","",""]
         
-        data = try_decode( data )
+        data = common.try_decode( data )
 
         skinid = None
         lasttranslation = None

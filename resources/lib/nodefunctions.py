@@ -8,7 +8,6 @@ from xml.dom.minidom import parse
 from traceback import print_exc
 from htmlentitydefs import name2codepoint
 from unidecode import unidecode
-from unicodeutils import try_decode
 import common
 import json
 
@@ -307,9 +306,9 @@ class NodeFunctions():
         nodePaths = []
 
         # Now we've retrieved the path, decode everything for writing
-        path = try_decode( path )
-        label = try_decode( label )
-        icon = try_decode( icon )
+        path = common.try_decode( path )
+        label = common.try_decode( label )
+        icon = common.try_decode( icon )
         
         # Add all directories returned by the json query
         if json_response.has_key('result') and json_response['result'].has_key('files') and json_response['result']['files'] is not None:
@@ -450,10 +449,10 @@ class NodeFunctions():
             group = "mainmenu"
 
         # Decode values
-        properties = try_decode( properties )
-        values = try_decode( values )
-        labelID = try_decode( labelID )
-        group = try_decode( group )
+        properties = common.try_decode( properties )
+        values = common.try_decode( values )
+        labelID = common.try_decode( labelID )
+        group = common.try_decode( group )
 
         # Split up property names and values
         propertyNames = properties.split( "|" )

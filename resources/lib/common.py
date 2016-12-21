@@ -1,3 +1,4 @@
+# coding=utf-8
 import xbmc, xbmcaddon, xbmcgui
 import hashlib, hashlist
 from traceback import print_exc
@@ -87,3 +88,11 @@ def _save_hash( filename, file ):
         hashlist.list.append( [filename, hasher.hexdigest()] )
     else:
         hashlist.list.append( [filename, None] )
+
+def try_decode(text, encoding="utf-8"):
+    if isinstance(text, str):
+        try:
+            return text.decode(encoding)
+        except:
+            pass
+    return text

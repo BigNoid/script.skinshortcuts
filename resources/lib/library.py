@@ -7,7 +7,6 @@ from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
 from traceback import print_exc
 from unidecode import unidecode
-from unicodeutils import try_decode
 import datafunctions, nodefunctions, common
 DATA = datafunctions.DataFunctions()
 NODE = nodefunctions.NodeFunctions()
@@ -1071,9 +1070,9 @@ class LibraryFunctions():
         widgetType = None
         addonType = None
 
-        dialogLabel = try_decode( label[0] ).replace( "  >", "" )
+        dialogLabel = common.try_decode( label[0] ).replace( "  >", "" )
         if len( label ) != 1:
-            dialogLabel = try_decode( label[0] ).replace( "  >", "" ) + " - " + try_decode( label[ -1 ] ).replace( "  >", "" )
+            dialogLabel = common.try_decode( label[0] ).replace( "  >", "" ) + " - " + common.try_decode( label[ -1 ] ).replace( "  >", "" )
 
         listings = []
         
@@ -1096,7 +1095,7 @@ class LibraryFunctions():
                 createLabel = "32100"
             listings.append( self._get_icon_overrides( tree, self._create( ["::CREATE::", createLabel, "", {}] ), "" ) )
                 
-        common.log( "Getting %s - %s" %( dialogLabel, try_decode( location ) ) )
+        common.log( "Getting %s - %s" %( dialogLabel, common.try_decode( location ) ) )
             
         # Show a waiting dialog, then get the listings for the directory
         dialog = xbmcgui.DialogProgress()
@@ -1146,7 +1145,7 @@ class LibraryFunctions():
                             listitem = self._create( [ item[ "file" ], "%s  >" %( item[ "label" ] ), "", {"icon": "DefaultFolder.png", "thumb": thumb} ] )
 
                         # Add widget properties
-                        widgetName = try_decode(label[0]).replace( "  >", "" ) + " - " + item[ "label" ]
+                        widgetName = common.try_decode(label[0]).replace( "  >", "" ) + " - " + item[ "label" ]
                         listitem.setProperty( "widget", "Library" )
                         listitem.setProperty( "widgetName", widgetName )
                         listitem.setProperty( "widgetType", widgetType )

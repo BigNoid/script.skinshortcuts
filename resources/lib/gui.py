@@ -6,7 +6,6 @@ from xml.dom.minidom import parse
 from xml.sax.saxutils import escape as escapeXML
 import thread
 from traceback import print_exc
-from unicodeutils import try_decode
 import calendar
 from time import gmtime, strftime
 import random
@@ -545,13 +544,13 @@ class GUI( xbmcgui.WindowXMLDialog ):
             for listitem in self.allListItems:
                 
                 # If the item has a label or an action, or a specified property from the override is present
-                if try_decode( listitem.getLabel() ) != LANGUAGE(32013) or listitem.getProperty( "path" ) != "noop" or self.hasSaveWithProperty( listitem ):
+                if common.try_decode( listitem.getLabel() ) != LANGUAGE(32013) or listitem.getProperty( "path" ) != "noop" or self.hasSaveWithProperty( listitem ):
                     # Generate labelID, and mark if it has changed
                     labelID = listitem.getProperty( "labelID" )
                     newlabelID = labelID
 
                     # defaultID
-                    defaultID = try_decode( listitem.getProperty( "defaultID" ) )
+                    defaultID = common.try_decode( listitem.getProperty( "defaultID" ) )
                     
                     localizedString = listitem.getProperty( "localizedString" )
                     if localizedString is None or localizedString == "":
@@ -582,11 +581,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
                     thumb = listitem.getProperty( "thumbnail" )
                     
-                    xmltree.SubElement( shortcut, "icon" ).text = try_decode( icon )
-                    xmltree.SubElement( shortcut, "thumb" ).text = try_decode( thumb )
+                    xmltree.SubElement( shortcut, "icon" ).text = common.try_decode( icon )
+                    xmltree.SubElement( shortcut, "thumb" ).text = common.try_decode( thumb )
                     
                     # Action
-                    xmltree.SubElement( shortcut, "action" ).text = try_decode( listitem.getProperty( "path" ) )
+                    xmltree.SubElement( shortcut, "action" ).text = common.try_decode( listitem.getProperty( "path" ) )
                     
                     # Visible
                     if listitem.getProperty( "visible-condition" ):
@@ -618,7 +617,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             # Save the shortcuts
             DATA.indent( root )
             path = os.path.join( DATAPATH , DATA.slugify( self.group, True, isSubLevel = isSubLevel ) + ".DATA.xml" )
-            path = try_decode( path )
+            path = common.try_decode( path )
             
             tree.write( path.replace( ".shortcuts", ".DATA.xml" ), encoding="UTF-8"  )
             
@@ -658,11 +657,11 @@ class GUI( xbmcgui.WindowXMLDialog ):
                         paths = [[os.path.join( DATAPATH, DATA.slugify( "%s.%s" %( labelIDFrom, str( i )), True, isSubLevel = True ) + ".DATA.xml" ).encode( "utf-8" ), "Move"], [os.path.join( SKINPATH, DATA.slugify( "%s.%s" %( defaultIDFrom, str( i ) ), isSubLevel = True ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"], [os.path.join( DEFAULTPATH, DATA.slugify( "%s.%s" %( defaultIDFrom, str( i ) ), isSubLevel = True ) + ".DATA.xml" ).encode( "utf-8" ), "Copy"]]
                         target = os.path.join( DATAPATH, DATA.slugify( "%s.%s" %( labelIDTo, str( i ) ), True, isSubLevel = True ) + ".DATA.xml" ).encode( "utf-8" )
                         
-                    target = try_decode( target )
+                    target = common.try_decode( target )
                     
                     for path in paths:
-                        path[0] = try_decode( path[0] )
-                        path[1] = try_decode( path[1] )
+                        path[0] = common.try_decode( path[0] )
+                        path[1] = common.try_decode( path[1] )
                             
                         if path[1] == "New":
                             tree = xmltree.ElementTree( xmltree.Element( "shortcuts" ) )
@@ -1055,7 +1054,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
             oldlabelID = listitem.getProperty( "labelID" )
             
             # If the item is blank, set the current label to empty
-            if try_decode( label ) == LANGUAGE(32013):
+            if common.try_decode( label ) == LANGUAGE(32013):
                 label = ""
                 
             # Get new label from keyboard dialog
@@ -1116,9 +1115,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 return
 
             if selectedShortcut.getProperty( "chosenPath" ):
-                action = try_decode( selectedShortcut.getProperty( "chosenPath" ) )
+                action = common.try_decode( selectedShortcut.getProperty( "chosenPath" ) )
             elif selectedShortcut.getProperty( "path" ):
-                action = try_decode(selectedShortcut.getProperty( "path" ))
+                action = common.try_decode(selectedShortcut.getProperty( "path" ))
             
             if action == "":
                 action = "noop"
@@ -1293,8 +1292,8 @@ class GUI( xbmcgui.WindowXMLDialog ):
                     keyboard = xbmc.Keyboard( widgetTempName, xbmc.getLocalizedString(16105), False )
                     keyboard.doModal()
                     if ( keyboard.isConfirmed() ) and keyboard.getText() != "":
-                        if widgetTempName != try_decode( keyboard.getText() ):
-                            widgetName = try_decode( keyboard.getText() )
+                        if widgetTempName != common.try_decode( keyboard.getText() ):
+                            widgetName = common.try_decode( keyboard.getText() )
 
                 # Add any necessary reload parameter
                 widgetPath = LIBRARY.addWidgetReload( selectedShortcut.getProperty( "widgetPath" ) )

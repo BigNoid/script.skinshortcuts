@@ -5,7 +5,6 @@ import xml.etree.ElementTree as xmltree
 from xml.sax.saxutils import escape as escapeXML
 import ast
 from traceback import print_exc
-from unicodeutils import try_decode
 
 import json
 
@@ -598,7 +597,7 @@ class XMLFunctions():
             if extensionpoint.attrib.get( "point" ) == "xbmc.gui.skin":
                 resolutions = extensionpoint.findall( "res" )
                 for resolution in resolutions:
-                    path = xbmc.translatePath( os.path.join( try_decode( self.skinDir ) , try_decode( resolution.attrib.get( "folder" ) ), "script-skinshortcuts-includes.xml").encode("utf-8") ).decode('utf-8')
+                    path = xbmc.translatePath( os.path.join( common.try_decode( self.skinDir ) , common.try_decode( resolution.attrib.get( "folder" ) ), "script-skinshortcuts-includes.xml").encode("utf-8") ).decode('utf-8')
                     paths.append( path )
         skinVersion = addon.getroot().attrib.get( "version" )
         
@@ -655,10 +654,10 @@ class XMLFunctions():
         if icon is None:
             xmltree.SubElement( newelement, "icon" ).text = "DefaultShortcut.png"
         else:
-            xmltree.SubElement( newelement, "icon" ).text = try_decode( icon.text )
+            xmltree.SubElement( newelement, "icon" ).text = common.try_decode( icon.text )
         thumb = item.find( "thumb" )
         if thumb is not None:
-            xmltree.SubElement( newelement, "thumb" ).text = try_decode( item.find( "thumb" ).text )
+            xmltree.SubElement( newelement, "thumb" ).text = common.try_decode( item.find( "thumb" ).text )
         
         # labelID and defaultID
         labelID = xmltree.SubElement( newelement, "property" )
@@ -692,7 +691,7 @@ class XMLFunctions():
             for property in properties:
                 if property[0] == "node.visible":
                     visibleProperty = xmltree.SubElement( newelement, "visible" )
-                    visibleProperty.text = try_decode( property[1] )                    
+                    visibleProperty.text = common.try_decode( property[1] )                    
                 else:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", property[0].decode( "utf-8" ) )
@@ -729,7 +728,7 @@ class XMLFunctions():
                     if property[ 0 ] == "widgetPlaylist":
                         additionalproperty = xmltree.SubElement( newelement, "property" )
                         additionalproperty.set( "name", "widgetPath" )
-                        additionalproperty.text = try_decode( property[1] )
+                        additionalproperty.text = common.try_decode( property[1] )
 
         # Get fallback properties, property requirements, templateOnly value of properties
         fallbackProperties, fallbacks = DATA._getCustomPropertyFallbacks( groupName )
@@ -874,7 +873,7 @@ class XMLFunctions():
         # Group name
         group = xmltree.SubElement( newelement, "property" )
         group.set( "name", "group" )
-        group.text = try_decode( groupName )
+        group.text = common.try_decode( groupName )
         allProps[ "group" ] = group
         
         # If this isn't the main menu, and we're cloning widgets or backgrounds...
@@ -883,7 +882,7 @@ class XMLFunctions():
                 for key in self.MAINWIDGET:
                     additionalproperty = xmltree.SubElement( newelement, "property" )
                     additionalproperty.set( "name", key )
-                    additionalproperty.text = try_decode( self.MAINWIDGET[ key ] )
+                    additionalproperty.text = common.try_decode( self.MAINWIDGET[ key ] )
                     allProps[ key ] = additionalproperty
             if "clonebackgrounds" in options and len( self.MAINBACKGROUND ) is not 0:
                 for key in self.MAINBACKGROUND:
