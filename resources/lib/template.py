@@ -10,7 +10,7 @@ import common
 
 ADDON        = xbmcaddon.Addon()
 ADDONID      = ADDON.getAddonInfo('id').decode( 'utf-8' )
-SKINPATH     = xbmc.translatePath( "special://skin/shortcuts/" ).decode('utf-8')
+SKINPATH     = xbmc.translatePath( "special://skin/extras/script.skinshortcuts/" ).decode('utf-8')
 
 class Template():
     def __init__( self ):
