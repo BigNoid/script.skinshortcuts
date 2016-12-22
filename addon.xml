@@ -3,6 +3,7 @@
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
 		<import addon="script.module.unidecode" version="0.4.14"/>
+		<import addon="script.module.simpleeval" version="0.9.1"/>
 	</requires>
 	<extension point="xbmc.python.library" library="default.py"/>
 	<extension point="xbmc.addon.metadata">
