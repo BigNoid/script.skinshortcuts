@@ -124,9 +124,9 @@ class LibraryFunctions():
             if library == "static":
                 self.staticShortcuts()
             elif library == "videolibrary":
-                self.videolibrary()
+                self.libraryNodes( "video" )
             elif library == "musiclibrary":
-                self.musiclibrary()
+                self.libraryNodes( "music" )
             elif library == "librarysources":
                 self.librarysources()
             elif library == "playlists":
@@ -575,25 +575,25 @@ class LibraryFunctions():
             
         return item
 
-    # ===================================
-    # === LOAD VIDEO LIBRARY HEIRACHY ===
-    # ===================================
-    
-    def videolibrary( self ):           
+    # ==========================
+    # === LOAD LIBRARY NODES ===
+    # ==========================
+
+    def libraryNodes( self, library ):
         # Try loading custom nodes first
         try:
-            if self._parse_libraryNodes( "video", "custom" ) == False:
-                common.log( "Failed to load custom video nodes" )
-                self._parse_libraryNodes( "video", "default" )
+            if self._parse_libraryNodes( library, "custom" ) == False:
+                common.log( "Failed to load custom %s nodes" %( library ) )
+                self._parse_libraryNodes( library, "default" )
         except:
-            common.log( "Failed to load custom video nodes" )
+            common.log( "Failed to load custom %s nodes" %( library ) )
             print_exc()
             try:
                 # Try loading default nodes
-                self._parse_libraryNodes( "video", "default" )
+                self._parse_libraryNodes( library, "default" )
             except:
                 # Empty library
-                common.log( "Failed to load default video nodes" )
+                common.log( "Failed to load default %s nodes" %( library ) )
                 print_exc()
 
         self.loadLibrary( "upnp" )
@@ -690,26 +690,6 @@ class LibraryFunctions():
                 break
 
             self.addToDictionary( staticGroup[ 0 ], listitems )
-        
-    def musiclibrary( self ):
-        # Try loading custom nodes first
-        try:
-            if self._parse_libraryNodes( "music", "custom" ) == False:
-                common.log( "Failed to load custom music nodes" )
-                self._parse_libraryNodes( "music", "default" )
-        except:
-            common.log( "Failed to load custom music nodes" )
-            print_exc()
-            try:
-                # Try loading default nodes
-                self._parse_libraryNodes( "music", "default" )
-            except:
-                # Empty library
-                common.log( "Failed to load default music nodes" )
-                print_exc()
-        
-        # Ensure upnp has been listed, so it will show first time
-        self.loadLibrary( "upnp" )
     
     def librarysources( self ):
         for mediaType in [ ( "video", "videosources" ), ( "music", "musicsources" ), ( "pictures", "picturesources" ), ( "games", "gamesources" ) ]:
