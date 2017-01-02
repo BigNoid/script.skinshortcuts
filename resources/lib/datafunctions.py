@@ -468,7 +468,8 @@ class DataFunctions():
             self.overrides[ overrideType ] = tree
             return tree
         except:
-            if xbmcvfs.exists( overridePath ):
+            print_exc()
+            if xbmcvfs.exists( types[ overrideType ] ):
                 common.log( "Unable to parse %s overrides.xml. Invalid xml?" %( overrideType ) )
                 common._save_hash( types[ overrideType ], xbmcvfs.File( types[ overrideType ] ).read() )
             else:

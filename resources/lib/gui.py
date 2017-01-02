@@ -1990,17 +1990,6 @@ class GUI( xbmcgui.WindowXMLDialog ):
             result["widget"] = defaultWidget.text
             result["type"] = defaultWidget.get( "type" )
             result["target"] = defaultWidget.get( "target" )
-        else:
-            #find any classic widgets
-            defaultWidget = self.find_default( "widget", labelID, defaultID )
-            for key in LIBRARY.dictionaryGroupings[ "widgets-classic" ]:
-                if key[0] == defaultWidget:
-                    result["widget"] = key[ 0 ]
-                    result["name"] = key[ 1 ]
-                    result["type"] = key[ 2 ]
-                    result["path"] = key[ 3 ]
-                    result["target"] = key[ 5 ]
-                    break
         return result
        
     def find_default( self, backgroundorwidget, labelID, defaultID ):
