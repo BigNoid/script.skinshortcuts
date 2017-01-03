@@ -102,6 +102,14 @@ By default, any attempt to go 'back' will close the management dialog. You may w
 
 where `[id currently focused]` is the id of control you are specifying the onback behaviour for and `[id to focus]` is the id of the control that will be focused.
 
+## Custom action on control
+
+With most controls you can add an `<action />` element as you would normally when skinning the dialog. There are some occasions where this won't work in which case you can add the following to [the skins overrides.xml file](../advanced/overrides.md):-
+
+`<onclick id="[id of control]">[Kodi function]</onclick>`
+
+where `[id of control]` is the control the onclick will be added to and `[Kodi function]` is any inbuilt Kodi function.
+
 ## Disable shortcut (gui 313)
 
 Control 313 allows the user to disable a shortcut, removing it from their menu without actually deleting it.
