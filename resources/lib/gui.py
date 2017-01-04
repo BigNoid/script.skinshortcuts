@@ -99,6 +99,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
         self.contextControls = []
         self.contextItems = []
 
+        # Onclicks
+        self.customOnClick = {}
+
         self.windowProperties = {}
         
         self.changeMade = False
@@ -120,6 +123,9 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             # Load context menu options
             self._load_overrides_context()
+
+            # Load additional onclick overrides
+            self._load_overrides_onclick()
 
             # Load additional button ID's we'll handle for custom properties
             self._load_customPropertyButtons()
@@ -956,6 +962,16 @@ class GUI( xbmcgui.WindowXMLDialog ):
 
             # If we get here, we've loaded context options, so we're done
             return
+
+    def _load_overrides_onclick( self ):
+        # Load additional onlcicks from overrides
+
+        # Get overrides
+        tree = DATA._get_overrides_skin()
+
+        # Get additional onclick handlers
+        for control in tree.findall( "onclick" ):
+            self.customOnClick[ int( control.get( "id" ) ) ] = control.text
 
     def _load_backgrounds_thumbnails( self ):
         # Load backgrounds (done in background thread)
@@ -2112,6 +2128,10 @@ class GUI( xbmcgui.WindowXMLDialog ):
                 # The customProperty or chooseProperty window properties needs to be set, so return
                 self.currentWindow.clearProperty( "customValue" )
                 return
+
+        # Custom onclick actions
+        if controlID in self.customOnClick:
+            xbmc.executebuiltin( self.customOnClick[ controlID ] )
             
 
 

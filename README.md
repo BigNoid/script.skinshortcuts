@@ -5,6 +5,11 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 ## What's New for Skinners
 
+#### Version 1.0.13 - git version
+
+- Basic Kodi v18 compatibility
+- Ability to specify action any control in management dialog from overrides - [Read More](./resources/docs/started/Management Dialog.md#custom-action-on-control)
+
 #### Version 1.0.13 - repo version
 
 - Skinners can now set that their skin should not use the users shared additional submenus - [Read More](./resources/docs/started/Getting Started.md#shared-additioanl-submenu)
@@ -12,14 +17,6 @@ script.skinshortcuts was written with the intention of making user customizable 
 - Please be aware that:-
   - Warnings on deleting a shortcut are now shown when disabling a shortcut
   - The processing of overrides has been adjusted so that visibilityoverrides will themselves be overriden by any additional overrides which match
-
-#### Version 1.0.10 - previous version
-
-- Ability to move controls from management dialog to context menu (Krypton only) - [Read More](./resources/docs/advanced/Context menu.md)
-- Ability to disable menu items via GUI 313 - Please note this control is made available by default on the context menu - [Read More](./resources/docs/started/Management Dialog.md)
-- Default icons for all available shortcuts in the Common, Commands and Settings available shortcut groupings - [Read More](./resources/docs/advanced/Overriding icons.md)
-- Behaviour change: When using mode=single, only the main menu (and corresponding submenu's) will be added to the allmenus include - additional groups that are being built will no longer be added
-- Please be aware of the removal of deprecated window names in Krypton. The script will attempt to update VideoLibrary and MusicLibrary to Videos and Music respectively, but you should ensure that any default shortcuts you provide with your skin are up to date as this behaviour may change in the future.
  
 ## With Thanks - Because their names don't deserve to be at the bottom :)
 
