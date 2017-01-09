@@ -938,23 +938,27 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Get details of the selected item
 
         # Define default controls
-        defaultControls = {301: self.onClickAdd,
-                302: self.onClickDelete,
-                303: self.onClickMoveUp,
-                304: self.onClickMoveDown,
-                305: self.onClickChangeLabel,
-                306: self.onClickChangeThumbnail,
-                307: self.onClickChangeAction,
-                308: self.onClickResetShortcuts,
-                310: self.onClickChooseBackground,
-                311: self.onClickChooseThumbnail,
-                312: self.onClickWidgetSelect,
-                313: self.onClickToggleDisabled,
-                401: self.onClickSelectShortcut}
+        defaultControls = {301: [self.onClickAdd],
+                302: [self.onClickDelete],
+                303: [self.onClickMoveUp],
+                304: [self.onClickMoveDown],
+                305: [self.onClickChangeLabel],
+                306: [self.onClickChangeThumbnail],
+                307: [self.onClickChangeAction],
+                308: [self.onClickResetShortcuts],
+                310: [self.onClickChooseBackground],
+                311: [self.onClickChooseThumbnail],
+                312: [self.onClickWidgetSelect],
+                313: [self.onClickToggleDisabled],
+                401: [self.onClickSelectShortcut],
+                3010: [self.onClickAdd, self.onClickSelectShortcut]}
 
         if controlID in defaultControls:
             # Call default control function
-            defaultControls[controlID]()
+            for functionName in defaultControls[controlID]:
+                if not functionName():
+                    # The function returned False - normally meaning the user cancelled, so return
+                    return
 
         elif controlID == 405 or controlID == 406 or controlID == 407 or controlID == 408 or controlID == 409 or controlID == 410:
             # Launch management dialog for submenu
