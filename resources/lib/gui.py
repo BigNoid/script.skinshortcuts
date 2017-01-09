@@ -863,7 +863,7 @@ class GUI( xbmcgui.WindowXMLDialog ):
         # Load additional onlcicks from overrides
 
         # Get overrides
-        tree = DATA._get_overrides_skin()
+        tree = DATA._get_overrides("skin")
 
         # Get additional onclick handlers
         for control in tree.findall( "onclick" ):
