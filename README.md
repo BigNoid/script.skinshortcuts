@@ -1,22 +1,29 @@
-#Skin Shortcuts - 1.0.13
+#Skin Shortcuts - 1.9.0
 
 script.skinshortcuts was written with the intention of making user customizable shortcuts on the home page easier for skinners.
 
 
 ## What's New for Skinners
 
-#### Version 1.0.13 - git version
+#### Version 1.9.0 - 'Leia' Test Branch
 
-- Basic Kodi v18 compatibility
-- Ability to specify action any control in management dialog from overrides - [Read More](./resources/docs/started/Management Dialog.md#custom-action-on-control)
+This version is the test branch for the version of the script for Kodi v19 - 'Leia'. THe opportunity is being taken to break backwards compatibility with Kodi versions, to remove old and little-used features and to do a large amount of code cleanup.
 
-#### Version 1.0.13 - repo version
+Therefore, it's important to note that there are breaking changes to the Skin Shortcuts implementation - and there may be more before the v19 version of the script is completed. Various elements of the script may also break whilst the code cleanup is ongoing. Please report any issues in the Skin Shortcuts thread on the Kodi forum along with a debug log with the scripts own debug logging option enabled in addition to Kodi's.
 
-- Skinners can now set that their skin should not use the users shared additional submenus - [Read More](./resources/docs/started/Getting Started.md#shared-additioanl-submenu)
-- Submenu template improvements - [Read More](./resources/docs/advanced/Templates.md#sub-menu-template)
-- Please be aware that:-
-  - Warnings on deleting a shortcut are now shown when disabling a shortcut
-  - The processing of overrides has been adjusted so that visibilityoverrides will themselves be overriden by any additional overrides which match
+Please also note that the documentation has not been updated to reflect the changes, and will not be done so until the branch is considered complete.
+
+Required skinning changes for v18:-
+- Removed GUI controls 101, 102, 103 & 111 (original shortcut selection methods): _Use GUI 401 instead_
+- Removed GUI control 309 (deprecated Choose Widget option): _Either move to GUI 312 method, or use a custom property_
+- New GUI control 3010 (add new shortcut and select)
+- Default shortcuts, overrides and templates should now be provided in _$SPECIAL://skin/extras/script.skinshortcuts_
+
+Other new, changed or removed features for v18:-
+- Changed dependencies: Removed simplejson dependancy; added [simpleeval](https://github.com/Ignoble61/script.module.simpleeval) dependancy (not currently available on any repo)
+- Backwards compatibility removed, including the option to specify 'version' elements to target specific versions of shortcuts
+- New ability to override static shortcut groups - common, commands, settings, pvr-tv, pvr-radio - from overrides.xml
+- Removed auto-playlist generation options when selecting a source as the target for a shortcut
  
 ## With Thanks - Because their names don't deserve to be at the bottom :)
 
