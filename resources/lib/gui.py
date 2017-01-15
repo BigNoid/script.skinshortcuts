@@ -306,7 +306,12 @@ class GUI(xbmcgui.WindowXMLDialog):
         self.getControl(211).reset()
         self.getControl(211).addItems(listitems)
         if focus is not None:
+            common.log( "Setting focus to %i" %( focus ) )
             self.getControl(211).selectItem(focus)
+            # Wait for focus to be applied
+            while self.getControl(211).getSelectedPosition() != focus:
+                pass
+            common.log( repr( self.getControl(211).getSelectedPosition() ) )
         self._add_additional_properties()
 
     def _parse_shortcut(self, item):
@@ -1102,9 +1107,10 @@ class GUI(xbmcgui.WindowXMLDialog):
         if controlID in defaultControls:
             # Call default control function
             for functionName in defaultControls[controlID]:
-                if not functionName():
+                if functionName() == False:
                     # The function returned False - normally meaning the user
                     # cancelled, so return
+                    common.log("Cancelled")
                     return
 
         elif controlID == 405 or controlID == 406 or controlID == 407 or controlID == 408 or controlID == 409 or controlID == 410:
@@ -1280,19 +1286,19 @@ class GUI(xbmcgui.WindowXMLDialog):
                             imageBrowse = True
 
                 # Create lists for the select dialog
-                property = []
+                properties = []
                 propertyLabel = []
                 propertyPretty = []
 
                 if showNone:
                     # Add a 'None' option to the list
-                    property.append("")
+                    properties.append("")
                     propertyLabel.append(LANGUAGE(32053))
                     propertyPretty.append(LIBRARY._create(
                         ["", LANGUAGE(32053), "", {"icon": "DefaultAddonNone.png"}]))
                 if imageBrowse:
                     # Add browse single/multi options to the list
-                    property.extend(["", ""])
+                    properties.extend(["", ""])
                     propertyLabel.extend([LANGUAGE(32051), LANGUAGE(32052)])
                     propertyPretty.extend([LIBRARY._create(["",
                                                             LANGUAGE(32051),
@@ -1311,7 +1317,7 @@ class GUI(xbmcgui.WindowXMLDialog):
                                 elem.attrib.get("condition")):
                             continue
                         foundProperty = elem.text
-                        property.append(foundProperty)
+                        properties.append(foundProperty)
                         if "icon" in elem.attrib:
                             usePrettyDialog = True
                             iconImage = {"icon": elem.attrib.get("icon")}
@@ -1364,7 +1370,7 @@ class GUI(xbmcgui.WindowXMLDialog):
                 else:
                     self.changeMade = True
                     self._add_additionalproperty(
-                        listitem, propertyName, property[selectedProperty])
+                        listitem, propertyName, properties[selectedProperty])
 
                 if browseSingle or browseMulti:
                     # User has chosen to browse for an image/folder
@@ -2206,6 +2212,8 @@ class GUI(xbmcgui.WindowXMLDialog):
         listitem = listControl.getSelectedItem()
         orderIndex = int(listControl.getListItem(
             num).getProperty("skinshortcuts-orderindex"))
+
+        common.log( repr( num ) )
 
         return (listControl, num, listitem, orderIndex)
 
