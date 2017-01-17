@@ -8,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: tomer953\n"
+"Last-Translator: Abeksis\n"
 "Language-Team: Hebrew (http://www.transifex.com/projects/p/xbmc-addons/language/he/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -112,6 +112,26 @@ msgctxt "#32023"
 msgid "Timers"
 msgstr "שעוני עצר"
 
+msgctxt "#32024"
+msgid "Custom shortcut"
+msgstr "קיצור מותאם אישית"
+
+msgctxt "#32025"
+msgid "Set label"
+msgstr "רשום כותרת"
+
+msgctxt "#32027"
+msgid "Change action"
+msgstr "שינוי פעולה"
+
+msgctxt "#32028"
+msgid "Reset shortcuts"
+msgstr "איפוס קיצור דרך"
+
+msgctxt "#32029"
+msgid "Common"
+msgstr "משותף"
+
 msgctxt "#32030"
 msgid "Video Library"
 msgstr "ספריית וידאו"
@@ -128,6 +148,30 @@ msgctxt "#32033"
 msgid "Eject tray"
 msgstr "הוצאת מגש"
 
+msgctxt "#32034"
+msgid "Common Shortcut"
+msgstr "Common Shortcut"
+
+msgctxt "#32035"
+msgid "Choose which items to display on the Main Menu"
+msgstr "בחר אילו פריטים יוצגו בתפריט הראשי"
+
+msgctxt "#32036"
+msgid "Choose shortcuts for ::MENUNAME::"
+msgstr "בחר קיצור דרך עבור ::MENUNAME::"
+
+msgctxt "#32037"
+msgid "Reset all shortcuts"
+msgstr "איפוס כל קיצור הדרך"
+
+msgctxt "#32038"
+msgid "Are you sure you want to reset all shortcuts back to default?"
+msgstr "האם אתה בטוח שברצונך לאפס את כל קיצורי הדרך חזרה לברירת המחדל?"
+
+msgctxt "#32039"
+msgid "Pick widget for ::MENUNAME::"
+msgstr "בחירת יישומון מ ::MENUNAME::"
+
 msgctxt "#32040"
 msgid "Playlist"
 msgstr "רשימת ניגון"
@@ -136,9 +180,37 @@ msgctxt "#32041"
 msgid "Action"
 msgstr "פעולה"
 
+msgctxt "#32042"
+msgid "Unknown video node"
+msgstr "Unknown video node"
+
+msgctxt "#32043"
+msgid "Choose shortcut category"
+msgstr "Choose shortcut category"
+
 msgctxt "#32044"
 msgid "Select widget"
 msgstr "בחירת יישומון"
+
+msgctxt "#32045"
+msgid "Select background"
+msgstr "תמונת רקע"
+
+msgctxt "#32046"
+msgid "Update video library"
+msgstr "Update video library"
+
+msgctxt "#32047"
+msgid "Update audio library"
+msgstr "Update audio library"
+
+msgctxt "#32048"
+msgid "Choose shortcut"
+msgstr "בחר קיצור דרך "
+
+msgctxt "#32049"
+msgid "Building menu..."
+msgstr "בונה תפריט..."
 
 msgctxt "#32050"
 msgid "Default"
@@ -432,11 +504,11 @@ msgstr "בחר אפשרות"
 
 msgctxt "#32102"
 msgid "Restore or reset?"
-msgstr "שחזור או איפוס?"
+msgstr "שיחזור או איפוס?"
 
 msgctxt "#32103"
 msgid "Restore an original menu item"
-msgstr ""
+msgstr "שחזור פריט תפריט למקור"
 
 msgctxt "#32104"
 msgid "Reset to skin defaults"
@@ -444,7 +516,7 @@ msgstr "איפוס לברירת המחדל של הסקין"
 
 msgctxt "#32105"
 msgid "There are no menu items to restore for this menu"
-msgstr ""
+msgstr "אין פריטים המתאימים לשחזור עבור תפריט זה"
 
 msgctxt "#32106"
 msgid "Install widget provider"
@@ -452,7 +524,7 @@ msgstr ""
 
 msgctxt "#32107"
 msgid "Enable default widgets"
-msgstr ""
+msgstr "אפשר ישוומון ברירת מחדל"
 
 msgctxt "#32108"
 msgid "Party mode (music videos)"
