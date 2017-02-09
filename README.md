@@ -5,10 +5,11 @@ script.skinshortcuts was written with the intention of making user customizable 
 
 ## What's New for Skinners
 
-#### Version 1.0.13 - git version
+#### Version 1.0.16 - git version
 
 - Basic Kodi v18 compatibility
 - Ability to specify action any control in management dialog from overrides - [Read More](./resources/docs/started/Management Dialog.md#custom-action-on-control)
+- Some improvements to the interactions with Skin Helper Service, including support for resource addons (see SH wiki)
 
 #### Version 1.0.13 - repo version
 
