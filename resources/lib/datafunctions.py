@@ -873,6 +873,8 @@ class DataFunctions():
             return "[System.Platform.Windows | System.Platform.Linux] +! System.Platform.Linux.RaspberryPi"
 
         # General visibilities
+        elif action == "activatewindow(weather)" and int( KODIVERSION ) >= 17:
+            return "!String.IsEmpty(Weather.Plugin)"
         elif action == "activatewindow(weather)":
             return "!IsEmpty(Weather.Plugin)"
         elif action.startswith( "activatewindowandfocus(mypvr" ) or action.startswith( "playpvr" ) and ADDON.getSetting( "donthidepvr" ) == "false":
