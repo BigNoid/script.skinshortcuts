@@ -489,3 +489,15 @@ msgstr "Impossible d'obtenir les listes des répertoires.[CR][CR]Voir le log pou
 msgctxt "#32116"
 msgid "The skin you are using does not support adding items directly to the main menu"
 msgstr "Le thème que vous utilisez ne prend pas en charge l'ajout d'éléments directement sur le menu principal."
+
+msgctxt "#32117"
+msgid "Disable shortcut"
+msgstr "Désactiver le raccourci"
+
+msgctxt "#32118"
+msgid "Smart shortcuts"
+msgstr "Raccourcis intelligents"
+
+msgctxt "#32119"
+msgid "Default widgets"
+msgstr "Widgets par défaut"

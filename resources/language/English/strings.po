@@ -488,3 +488,15 @@ msgstr ""
 msgctxt "#32116"
 msgid "The skin you are using does not support adding items directly to the main menu"
 msgstr ""
+
+msgctxt "#32117"
+msgid "Disable shortcut"
+msgstr ""
+
+msgctxt "#32118"
+msgid "Smart shortcuts"
+msgstr ""
+
+msgctxt "#32119"
+msgid "Default widgets"
+msgstr ""
