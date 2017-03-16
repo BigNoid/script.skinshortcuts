@@ -406,7 +406,7 @@ The Other template for the widgets specifies an include attribute of "widget", a
 		<property name="target" tag="property" attribute="name|widgetTarget" />
 
 		<!-- For TV Shows, we want to specify the artwork as the tv show poster, otherwise we'll use the icon -->
-		<property name="artwork" tag="property" attribute="name|widgetType" value="tvshows">$INFO[ListItem.Art(tvshow.poster)</property>
+		<property name="artwork" tag="property" attribute="name|widgetType" value="tvshows">$INFO[ListItem.Art(tvshow.poster)]</property>
 		<property name="artwork">$INFO[ListItem.Icon]</property>
 
 		<controls>

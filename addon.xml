@@ -37,9 +37,9 @@
 		<website></website>
 		<email></email>
 		<source>https://github.com/BigNoid/script.skinshortcuts</source>
-	</extension>
 	<assets>
 		<icon>icon.png</icon>
 		<fanart>fanart.jpg</fanart>
 	</assets>
+	</extension>
 </addon>
