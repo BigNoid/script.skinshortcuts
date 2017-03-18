@@ -27,4 +27,4 @@ So, to change the widgetName and widgetType of the main menu item with the label
 
 `<onclick>RunScript(script.skinshortcuts,type=setProperty&amp;property=widgetName|widgetType&amp;value=new|values&amp;labelID=movies)</onclick>`
 
-***Quick links*** - [Readme](../../../README.md) - [Getting Started](../started/Getting Started.md) - [Advanced Usage](./Advanced Usage.md)
+***Quick links*** - [Readme](../../../README.md) - [Getting Started](../started/Getting%20Started.md) - [Advanced Usage](./Advanced%20Usage.md)
