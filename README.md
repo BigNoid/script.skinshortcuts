@@ -47,7 +47,7 @@ Though hopefully Skin Shortcuts will save you a lot of code in the long-run, it 
 
 To help, it includes a lot of documentation covering the various features of the script
 
-* [What is Skin Shortcuts](./resources/docs/What%20is%20Skin Shortcuts.md)
+* [What is Skin Shortcuts](./resources/docs/What%20is%20Skin%20Shortcuts.md)
 * [Getting Started](./resources/docs/started/Getting%20Started.md)
 * [Providing default shortcuts](./resources/docs/Providing%20default%20shortcuts.md)
 * [Advanced usage topics](./resources/docs/advanced/Advanced%20Usage.md)
