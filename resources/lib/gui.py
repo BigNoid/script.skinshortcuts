@@ -2007,24 +2007,26 @@ class GUI( xbmcgui.WindowXMLDialog ):
             if self.currentWindow.getProperty( "customProperty" ):
                 propertyName = self.currentWindow.getProperty( "customProperty" )
                 self.currentWindow.clearProperty( "customProperty" )
+                propertyValue = self.currentWindow.getProperty( "customValue" )
+                self.currentWindow.clearProperty( "customValue" )
             
-                # Retrieve the custom value
-                if self.currentWindow.getProperty( "customValue" ):
-                    propertyValue = self.currentWindow.getProperty( "customValue" )
-                    self.currentWindow.clearProperty( "customValue" )
-                    
-                if propertyValue == "":
+                if propertyName == "thumb":
+                    # Special treatment if we try to set the thumb with the property method
+                    listitem.setThumbnailImage( xbmc.getInfoLabel(propertyValue) )
+                    listitem.setIconImage( xbmc.getInfoLabel(propertyValue) )
+                    listitem.setProperty( "thumbnail", propertyValue )
+                    listitem.setProperty( "icon", propertyValue )
+                    if not propertyValue:
+                        listitem.setProperty( "original-icon", None )
+                elif not propertyValue:
                     # No value set, so remove it from additionalListItemProperties
                     self._remove_additionalproperty( listitem, propertyName )
-                    self.changeMade = True
                 else:
                     # Set the property
-                    if propertyName == "thumb":
-                        listitem.setThumbnailImage( xbmc.getInfoLabel(propertyValue) )
-                        listitem.setProperty( "thumbnail", propertyValue )
-                    else:
-                        self._add_additionalproperty( listitem, propertyName, propertyValue )
-                    self.changeMade = True
+                    self._add_additionalproperty( listitem, propertyName, propertyValue )
+                
+                # notify that we have changes
+                self.changeMade = True
 
             elif controlID != 404 or self.currentWindow.getProperty( "chooseProperty" ):
                 if controlID == 404:
