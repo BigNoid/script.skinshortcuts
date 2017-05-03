@@ -52,7 +52,7 @@ You can also add individual shortcuts directly into the groupings with a `<short
 | `[widgetTarget]` | Yes | The value that will be set as the widgetTarget property |
 | `[widgetPath]` |  | The value that will be set as the widgetPath property |
 
-See [Managing widgets](./Managing widgets.md) for more details of the various widget properties.
+See [Managing widgets](./Managing%20widgets.md) for more details of the various widget properties.
 
 ## Custom Groupings
 
