@@ -1,4 +1,4 @@
-#External Editing
+## External Editing
 
 Skin Shortcuts is based around the user using the management dialog to customise their menu. However, there is limited support for aspects of the menu to be edited from outside of the management dialog.
 
