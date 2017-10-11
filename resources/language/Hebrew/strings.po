@@ -4,27 +4,26 @@
 # Addon Provider: Unfledged
 msgid ""
 msgstr ""
-"Project-Id-Version: XBMC Addons\n"
+"Project-Id-Version: script.skinshortcuts\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2017-02-19 08:52+0200\n"
-"Last-Translator: Abeksis\n"
-"Language-Team: Hebrew (http://www.transifex.com/projects/p/xbmc-addons/"
-"language/he/)\n"
+"PO-Revision-Date: 2017-10-11 10:32+0300\n"
+"Last-Translator: A. Dambledore\n"
+"Language-Team: Eng2Heb\n"
+"Language: he_IL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: he\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.12\n"
+
 
 msgctxt "#32000"
 msgid "Add"
-msgstr "הוספה"
+msgstr "הוסף"
 
 msgctxt "#32001"
 msgid "Delete"
-msgstr "מחיקה"
+msgstr "מחק"
 
 msgctxt "#32002"
 msgid "Move Up"
@@ -92,7 +91,7 @@ msgstr "טלוויזיה חיה"
 
 msgctxt "#32018"
 msgid "Music Videos"
-msgstr "קליפים"
+msgstr "סרטיני מוזיקה"
 
 msgctxt "#32019"
 msgid "Music"
@@ -124,7 +123,7 @@ msgstr "הגדר כותרת"
 
 msgctxt "#32026"
 msgid "Set thumbnail"
-msgstr "הגדר תמונת ממוזערת (thumbnail)"
+msgstr "הגדר תמונת ממוזערת"
 
 msgctxt "#32027"
 msgid "Change action"
@@ -152,7 +151,7 @@ msgstr "ניגון DVD"
 
 msgctxt "#32033"
 msgid "Eject tray"
-msgstr "הוצאת מגש"
+msgstr "הוצא מגש"
 
 msgctxt "#32034"
 msgid "Common menu item"
@@ -169,11 +168,12 @@ msgstr ""
 
 msgctxt "#32037"
 msgid "Reset all menu items"
-msgstr "אפס את תפריט הבית"
+msgstr "אפס את כל פריטי התפריט"
 
 msgctxt "#32038"
 msgid "Are you sure you want to reset all menu items back to default?"
-msgstr "האם אתה בטוח שברצונך לאפס את כל פריטי התפריט והחזרתו למצב ברירת המחדל?"
+msgstr ""
+"האם אתה בטוח שברצונך לאפס את כל פריטי התפריט ולהחזירם למצב ברירת המחדל?"
 
 #. ::MENUNAME:: is used internally and should NOT be translated :)
 msgctxt "#32039"
@@ -210,7 +210,7 @@ msgstr "עדכן ספרית הוידאו"
 
 msgctxt "#32047"
 msgid "Update audio library"
-msgstr "עדכן ספרית שירים"
+msgstr "עדכן ספריית שירים"
 
 msgctxt "#32048"
 msgid "Choose item for menu"
@@ -230,7 +230,7 @@ msgstr "תמונה בודדת"
 
 msgctxt "#32052"
 msgid "Multi-image"
-msgstr "מספר תמונות"
+msgstr "תמונות מרובות"
 
 msgctxt "#32053"
 msgid "None"
@@ -238,38 +238,23 @@ msgstr "ללא"
 
 msgctxt "#32054"
 msgid "Kodi Command"
-msgstr "פקודת Kodi"
+msgstr "פקודת קודי"
 
 msgctxt "#32057"
 msgid "Kodi Commands"
-msgstr "פקודות Kodi"
+msgstr "פקודות קודי"
 
-#, fuzzy
 msgctxt "#32061"
 msgid "Display"
-msgstr ""
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"הצגה\n"
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"להציג"
+msgstr "תצוגה"
 
-#, fuzzy
 msgctxt "#32062"
 msgid "Play"
-msgstr ""
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"ניגון\n"
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"לנגן"
+msgstr "ניגון"
 
-#, fuzzy
 msgctxt "#32066"
 msgid "Last TV channel"
-msgstr ""
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"ערוץ טלוויזיה אחרון\n"
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"ערוץ טלויזיה אחרון"
+msgstr "ערוץ טלויזיה אחרון"
 
 msgctxt "#32067"
 msgid "Last radio channel"
@@ -287,45 +272,25 @@ msgctxt "#32070"
 msgid "UPnP"
 msgstr "UPnP"
 
-#, fuzzy
 msgctxt "#32073"
 msgid "Music Source"
-msgstr ""
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"מקור מוזיקה\n"
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"מקור מוסיקה"
+msgstr "מקור מוזיקה"
 
-#, fuzzy
 msgctxt "#32074"
 msgid "Library Sources"
-msgstr ""
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"מקורות ספריה\n"
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"מקורות לספריה"
+msgstr "מקורות לספרייה"
 
 msgctxt "#32075"
 msgid "Sources"
 msgstr "מקורות"
 
-#, fuzzy
 msgctxt "#32076"
 msgid "TV Channel"
-msgstr ""
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"ערוץ טלוויזיה\n"
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"ערוצי טלויזיה"
+msgstr "ערוץ טלוויזיה"
 
-#, fuzzy
 msgctxt "#32077"
 msgid "Radio Channel"
-msgstr ""
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"ערוץ רדיו\n"
-"#-#-#-#-#  0catalog.po (XBMC Addons)  #-#-#-#-#\n"
-"ערוצי רדיו"
+msgstr "ערוץ רדיו"
 
 msgctxt "#32079"
 msgid "Files view"
@@ -353,7 +318,7 @@ msgstr "ניקוי ספרית וידאו"
 
 msgctxt "#32056"
 msgid "Clean audio library"
-msgstr "ניקוי ספרית מוסיקה"
+msgstr "ניקוי ספרית מוזיקה"
 
 msgctxt "#32058"
 msgid "Create menu item to here"
@@ -361,7 +326,7 @@ msgstr "צור תפריט המקשר לכאן"
 
 msgctxt "#32059"
 msgid "Skin Playlist"
-msgstr "רשימות ניגון של הסקין"
+msgstr "רשימות ניגון של המעטפת"
 
 msgctxt "#32060"
 msgid "What do you want to do with the playlist?"
@@ -390,7 +355,7 @@ msgstr "התאמת תת-תפריט"
 
 msgctxt "#32078"
 msgid "Display..."
-msgstr ""
+msgstr "הצגת..."
 
 #. ::MENUNAME:: is used internally and should NOT be translated :)
 msgctxt "#32080"
@@ -407,7 +372,7 @@ msgstr "לא נמצאו סדרות במקור זה"
 
 msgctxt "#32083"
 msgid "Music Videos not in this source"
-msgstr "לא נמצאו קליפי מוסיקה במקור זה"
+msgstr "לא נמצאו סרטוני מוזיקה במקור זה"
 
 msgctxt "#32084"
 msgid "Songs not in this source"
@@ -427,7 +392,7 @@ msgstr "הפריט התווסף לתפריט"
 
 msgctxt "#32091"
 msgid "Unable to add item to the menu. Please check log for errors."
-msgstr "נכשל בהוספת הפריט לתפריט - יש לבדוק בלוג השגיאות"
+msgstr "נכשל בהוספת הפריט לתפריט - אנא בדוק שגיאות ביומן הרישום."
 
 msgctxt "#32092"
 msgid "Unable to build menu."
@@ -435,11 +400,13 @@ msgstr "נכשל ביצירת תפריט."
 
 msgctxt "#32093"
 msgid "Upload debug log?"
-msgstr "שלח לוג מורחב?"
+msgstr "להעלות יומן רישום לאיתור באגים?"
 
 msgctxt "#32094"
 msgid "Install Kodi Log Uploader add-on to easily provide a debug log."
-msgstr "התקן הרחבת תוכנה מסוג העלאת לוג שגיאות לשיפור היכולת לתת מענה לבאגים "
+msgstr ""
+"התקן הרחבת קודי להעלאת יומן רישום כך שתוכל לראות בקלות יומן רישום לאיתור "
+"באגים."
 
 msgctxt "#32095"
 msgid "Choose default action for menu item"
@@ -491,15 +458,15 @@ msgstr "הפעל ישומוני ברירת מחדל"
 
 msgctxt "#32108"
 msgid "Party mode (music videos)"
-msgstr "מצב מסיבה"
+msgstr "מצב מסיבה (סרטוני מוזיקה)"
 
 msgctxt "#32109"
 msgid "No menus from compatible skins found to import"
-msgstr "לא נמצאו תפריטים תואמים מסקינים אחרים המתאימים לייבוא"
+msgstr "לא נמצאו תפריטים ממעטפות תואמות המתאימים לייבוא"
 
 msgctxt "#32110"
 msgid "Import menu from skin"
-msgstr "ייבוא תפריטים מסקין"
+msgstr "ייבוא תפריטים ממעטפת"
 
 msgctxt "#32111"
 msgid "Shared menu"
@@ -511,7 +478,7 @@ msgstr "פריט חדש בתפריט הראשי"
 
 msgctxt "#32113"
 msgid "New item on the main menu (autofill submenu items)"
-msgstr "פריט חדש בתפריט הראשי (מתמלא אוטומטית עם פריטי התת-תפריט)"
+msgstr "פריט חדש בתפריט הראשי (יתמלא אוטומטית עם פריטי התת-תפריט)"
 
 msgctxt "#32114"
 msgid "Where should menu item be created"
@@ -520,14 +487,15 @@ msgstr "היכן ליצור את התפריט"
 #: /resources/lib/nodefunctions.py
 msgctxt "#32115"
 msgid "Unable to get directory listings[CR][CR]See log for details"
-msgstr "לא ניתן לקבל את רשימת הקבצים בתיקיה הנבחרת"
+msgstr ""
+"לא ניתן לקבל את רשימת התיקיות[CR][CR]בדוק את יומן האירועים לפרטים נוספים"
 
 #: /default.py
 msgctxt "#32116"
 msgid ""
 "The skin you are using does not support adding items directly to the main "
 "menu"
-msgstr "המעטפת שנבחרה אינה מאפשרת הוספת פריטים לתפריט הראשי"
+msgstr "המעטפת שבחרת אינה מאפשרת הוספת פריטים לתפריט הראשי"
 
 msgctxt "#32117"
 msgid "Disable shortcut"
