@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: XBMC Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-05-10 11:58+0200\n"
+"PO-Revision-Date: 2018-05-10 12:22+0200\n"
 "Last-Translator: Miro Valko <mvalec@atlas.sk>\n"
 "Language-Team: Slovak (http://www.transifex.com/teamxbmc/xbmc-addons/language/sk/)\n"
 "MIME-Version: 1.0\n"
@@ -180,7 +180,7 @@ msgstr "Určite si prajete vynulovať všetky položky ponuky a nastaviť ich na
 
 msgctxt "#32039"
 msgid "Pick widget for ::MENUNAME::"
-msgstr "Zvoľte widget pre ::MENUNAME::"
+msgstr "Zvoľte miniaplikáciu pre ::MENUNAME::"
 
 msgctxt "#32040"
 msgid "Playlist"
@@ -200,7 +200,7 @@ msgstr "Vybrať kategóriu odkazov"
 
 msgctxt "#32044"
 msgid "Select widget"
-msgstr "Zvoliť widget"
+msgstr "Zvoliť miniaplikáciu"
 
 msgctxt "#32045"
 msgid "Select background"
@@ -420,11 +420,11 @@ msgstr "Ukladám ponuku..."
 
 msgctxt "#32099"
 msgid "Widget"
-msgstr "Widget"
+msgstr "Miniaplikácia"
 
 msgctxt "#32100"
 msgid "Use as widget"
-msgstr "Použiť ako widget"
+msgstr "Použiť ako miniaplikáciu"
 
 msgctxt "#32101"
 msgid "Choose property"
@@ -448,11 +448,11 @@ msgstr "Táto ponuka nemá žiadne položky na obnovenie"
 
 msgctxt "#32106"
 msgid "Install widget provider"
-msgstr "Nainštalovať poskytovateľa widgetov"
+msgstr "Nainštalovať poskytovateľa miniaplikácií"
 
 msgctxt "#32107"
 msgid "Enable default widgets"
-msgstr "Povoliť predvolené widgety"
+msgstr "Povoliť predvolené miniaplikácie"
 
 msgctxt "#32108"
 msgid "Party mode (music videos)"
@@ -500,4 +500,4 @@ msgstr "Chytré odkazy"
 
 msgctxt "#32119"
 msgid "Default widgets"
-msgstr "Predvolené widgety"
+msgstr "Predvolené miniaplikácie"
