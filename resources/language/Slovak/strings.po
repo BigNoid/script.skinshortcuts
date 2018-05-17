@@ -1,4 +1,3 @@
-# Addon Name: Skin Shortcuts
 # Addon id: script.skinshortcuts
 # Addon Provider: Unfledged
 # Translators:
@@ -8,7 +7,7 @@ msgstr ""
 "Project-Id-Version: XBMC Addons\n"
 "Report-Msgid-Bugs-To: alanwww1@xbmc.org\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2018-05-10 12:22+0200\n"
+"PO-Revision-Date: 2018-05-17 12:12+0200\n"
 "Last-Translator: Miro Valko <mvalec@atlas.sk>\n"
 "Language-Team: Slovak (http://www.transifex.com/teamxbmc/xbmc-addons/language/sk/)\n"
 "MIME-Version: 1.0\n"
@@ -484,7 +483,7 @@ msgstr "Kde by mala byť položka ponuky vytvorená"
 
 msgctxt "#32115"
 msgid "Unable to get directory listings[CR][CR]See log for details"
-msgstr "Nepodarilo sa načítať zoznam pričinkov[CR][CR]Podrobnosti nájdete v logu"
+msgstr "Nepodarilo sa načítať zoznam priečinkov[CR][CR]Podrobnosti nájdete v logu"
 
 msgctxt "#32116"
 msgid "The skin you are using does not support adding items directly to the main menu"
@@ -499,5 +498,17 @@ msgid "Smart shortcuts"
 msgstr "Chytré odkazy"
 
 msgctxt "#32119"
+msgid "Default widgets"
+msgstr "Predvolené miniaplikácie"
+
+msgctxt "#32120"
+msgid "Never hide PVR shortcuts"
+msgstr "Nikdy neskrývať PVR odkazy"
+
+msgctxt "#32121"
+msgid "Share menu between compatible skins"
+msgstr "Zdieľať ponuku medzi kompatibilným vzhľadmi"
+
+msgctxt "#32122"
 msgid "Default widgets"
 msgstr "Predvolené miniaplikácie"
