@@ -867,6 +867,8 @@ class DataFunctions():
             return "System.CanHibernate"
         elif action == "reset()" or action == "reset":
             return "System.CanReboot"
+        elif action == "system.logoff" and int( KODIVERSION ) >= 17:
+            return "[System.HasLoginScreen | Integer.IsGreater(System.ProfileCount,1)] + System.Loggedon"
         elif action == "system.logoff":
             return "[System.HasLoginScreen | IntegerGreaterThan(System.ProfileCount,1)] + System.Loggedon"
         elif action == "mastermode":
