@@ -787,16 +787,22 @@ class DataFunctions():
     def createNiceName ( self, item, noNonLocalized = False ):
         # Translate certain localized strings into non-localized form for labelID
         if noNonLocalized == False:
-            if item == "10006":
-                return "videos"
+            if int( KODIVERSION ) >= 18:
+                if item == "3":
+                    return "videos"
+                if item == "2":
+                    return "music"
+            else:
+                if item == "10006":
+                    return "videos"
+                if item == "10005":
+                    return "music"
             if item == "342":
                 return "movies"
             if item == "20343":
                 return "tvshows"
             if item == "32022":
                 return "livetv"
-            if item == "10005":
-                return "music"
             if item == "20389":
                 return "musicvideos"
             if item == "10002":
@@ -861,6 +867,8 @@ class DataFunctions():
             return "System.CanHibernate"
         elif action == "reset()" or action == "reset":
             return "System.CanReboot"
+        elif action == "system.logoff" and int( KODIVERSION ) >= 17:
+            return "[System.HasLoginScreen | Integer.IsGreater(System.ProfileCount,1)] + System.Loggedon"
         elif action == "system.logoff":
             return "[System.HasLoginScreen | IntegerGreaterThan(System.ProfileCount,1)] + System.Loggedon"
         elif action == "mastermode":
